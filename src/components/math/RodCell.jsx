@@ -8,7 +8,8 @@ export const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, intera
   if (blank) {
     return (
       <div style={{
-        width: size, minWidth: 0, flex: "1 1 auto", height: size + 10,
+        width: size, minWidth: 0, flex: "0 1 auto", height: "auto",
+        aspectRatio: `${size} / ${size + 10}`,
         background: "linear-gradient(180deg,#a8a29e 0%,#78716c 40%,#57534e 100%)",
         borderLeft: "1px solid rgba(0,0,0,.15)", borderRight: "1px solid rgba(255,255,255,.08)",
       }} />
@@ -16,7 +17,8 @@ export const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, intera
   }
   return (
     <div onClick={onClick} style={{
-      width: size, minWidth: 0, flex: "1 1 auto", height: size + 14,
+      width: size, minWidth: 0, flex: "0 1 auto", height: "auto",
+      aspectRatio: `${size} / ${size + 14}`,
       background: hidden ? "linear-gradient(180deg,#78716c 0%,#57534e 40%,#44403c 100%)" :
         `linear-gradient(180deg,${C.rodLight} 0%,${C.rodGold} 30%,${C.rodDark} 100%)`,
       display: "flex", alignItems: "center", justifyContent: "center",
@@ -29,7 +31,7 @@ export const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, intera
         <Chip color={chipColor} size={cs} countAnim={countAnim} />
       ) : (
         /* Empty slot — dark chip style, real slot feel */
-        <div style={{ width: cs, height: cs, borderRadius: "50%",
+        <div style={{ width: cs, height: cs, maxWidth: "100%", maxHeight: "100%", borderRadius: "50%",
           background: "radial-gradient(circle at 45% 40%, #1a1f2e, #0c1018 60%, #060810)",
           border: "2.5px solid rgba(30,40,60,.9)",
           boxShadow: "inset 0 3px 8px rgba(0,0,0,.7), inset 0 -1px 3px rgba(255,255,255,.03), 0 1px 2px rgba(0,0,0,.3)",

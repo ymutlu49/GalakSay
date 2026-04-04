@@ -249,6 +249,7 @@ export const EnerjiKapsulu = ({
     alignItems: 'center',
     borderRadius: 14,
     overflow: 'hidden',
+    maxWidth: '100%',
     border: `3px solid ${renk.border}`,
     boxShadow: glowing
       ? `0 0 20px 6px ${renk.glow}, 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)`
@@ -269,7 +270,7 @@ export const EnerjiKapsulu = ({
   };
 
   return (
-    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', maxWidth: 'min(100%, 90vw)', overflow: 'hidden' }}>
       <div
         {...(draggable ? bindDrag : {})}
         {...(splittable ? longPressBinds : {})}
@@ -292,6 +293,8 @@ export const EnerjiKapsulu = ({
               onPointerEnter={() => handleUnitHover(i + 1)}
               style={{
                 width: isHorizontal ? unitSize : thickness,
+                minWidth: 0,
+                flex: '0 1 auto',
                 height: isHorizontal ? thickness : unitSize,
                 background: isHighlighted
                   ? `linear-gradient(180deg, ${renk.bgLight} 0%, ${renk.bg} 40%, ${renk.border} 100%)`

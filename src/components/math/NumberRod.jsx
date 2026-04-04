@@ -16,8 +16,8 @@ export const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue
   // Üst konteynere sığma: maxWidth + otomatik küçülme
   const wrapStyle = {
     display: "inline-flex", flexDirection: "column", alignItems: "center",
-    maxWidth: "100%", // Üst konteynere sığ (eski: 90vw)
-    overflow: "visible",
+    maxWidth: "min(100%, 90vw)", // Üst konteynere ve ekrana sığ
+    overflow: "hidden",
   };
 
   // Blank = single solid block, no cell boundaries visible

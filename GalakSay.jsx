@@ -4276,7 +4276,8 @@ const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, interactive, 
   if (blank) {
     return (
       <div style={{
-        width: size, height: size + 10,
+        width: size, minWidth: 0, flex: "0 1 auto", height: "auto",
+        aspectRatio: `${size} / ${size + 10}`,
         background: "linear-gradient(180deg,#a8a29e 0%,#78716c 40%,#57534e 100%)",
         borderLeft: "1px solid rgba(0,0,0,.15)", borderRight: "1px solid rgba(255,255,255,.08)",
       }} />
@@ -4284,7 +4285,8 @@ const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, interactive, 
   }
   return (
     <div onClick={onClick} style={{
-      width: size, height: size + 14,
+      width: size, minWidth: 0, flex: "0 1 auto", height: "auto",
+      aspectRatio: `${size} / ${size + 14}`,
       background: hidden ? "linear-gradient(180deg,#78716c 0%,#57534e 40%,#44403c 100%)" :
         `linear-gradient(180deg,${C.rodLight} 0%,${C.rodGold} 30%,${C.rodDark} 100%)`,
       display: "flex", alignItems: "center", justifyContent: "center",
@@ -4325,9 +4327,9 @@ const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue", size
   if (blank) {
     const totalW = count * effectiveSize;
     return (
-      <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", maxWidth: "90vw" }}>
+      <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", maxWidth: "min(100%, 90vw)", overflow: "hidden" }}>
         <div style={{
-          width: totalW, height: effectiveSize + 10, borderRadius: 12, overflow: "hidden",
+          width: totalW, maxWidth: "100%", height: effectiveSize + 10, borderRadius: 12, overflow: "hidden",
           background: "linear-gradient(180deg,#a8a29e 0%,#78716c 40%,#57534e 100%)",
           boxShadow: "0 5px 20px rgba(0,0,0,.3)", border: "3px solid #57534e",
         }} />
@@ -4336,10 +4338,11 @@ const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue", size
   }
 
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", maxWidth: "90vw" }}>
+    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", maxWidth: "min(100%, 90vw)", overflow: "hidden" }}>
       <div style={{
         display: "flex", borderRadius: 14, overflow: "hidden",
         boxShadow: `0 6px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.15)`, border: `3.5px solid ${hidden ? "#57534e" : C.rodDark}`,
+        maxWidth: "100%",
       }}>
         {Array(count).fill(0).map((_, i) => (
           <RodCell key={i} filled={filled[i]} chipColor={colors[i]} size={effectiveSize}
