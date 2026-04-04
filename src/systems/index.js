@@ -1,0 +1,10 @@
+export { AdaptiveEngine } from './adaptiveEngine.js';
+export { FDS } from './frustrationDetection.js';
+export { ScreenTimeManager } from './screenTimeManager.js';
+export { AnxietyTracker } from './anxietyTracker.js';
+export { QuestSystem } from './questSystem.js';
+export { A11Y_DEFAULTS, CB_COLORS, CB_PATTERNS, subColor, subColorHex } from './accessibility.js';
+export { HintManager, HINT_LEVELS } from './hintManager.js';
+export { ANIM_DEFAULTS, getAnimSpeed, MODE_ANIM_MAP, CATEGORY_VISUAL_MODELS } from './animationTemplates.js';
+export { createFluencySession, recordFluencyAnswer, adjustFluencyDifficulty, getFluencySummary, getStreakReward, PersonalRecords, getTimerColor } from './fluencyEngine.js';
+export { PerformanceLogger, createQuestionLog } from './performanceLogger.js';
