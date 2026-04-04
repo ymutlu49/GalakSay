@@ -110,6 +110,19 @@ function StepWelcome({ onNext, onSkip }) {
 
 // ═══ ADIM 2 — PROFİL OLUŞTURMA ═════════════════════════════════════════════
 function StepProfile({ name, setName, avatar, setAvatar, grade, setGrade, onNext }) {
+  const [showNameWarning, setShowNameWarning] = React.useState(false);
+
+  const handleNext = () => {
+    if (!name.trim()) {
+      setShowNameWarning(true);
+      // Input'a fokusla
+      const inp = document.querySelector('input[placeholder="Adını yaz..."]');
+      if (inp) { inp.focus(); inp.style.borderColor = '#ef4444'; }
+      return;
+    }
+    onNext();
+  };
+
   return (
     <div style={{
       display: 'flex',
@@ -132,14 +145,13 @@ function StepProfile({ name, setName, avatar, setAvatar, grade, setGrade, onNext
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
           placeholder="Adını yaz..."
           maxLength={20}
           style={{
             width: '100%',
             padding: '14px 16px',
             borderRadius: 14,
-            border: `2px solid ${name ? colors.accent.primary + '40' : colors.surface.divider}`,
+            border: `2px solid ${showNameWarning ? '#ef4444' : name ? colors.accent.primary + '40' : colors.surface.divider}`,
             background: colors.surface.input,
             color: colors.text.primary,
             fontSize: 20,
@@ -151,7 +163,22 @@ function StepProfile({ name, setName, avatar, setAvatar, grade, setGrade, onNext
           }}
           onFocus={(e) => e.target.style.borderColor = colors.accent.primary}
           onBlur={(e) => e.target.style.borderColor = name ? colors.accent.primary + '40' : colors.surface.divider}
+          onChange={(e) => { setName(e.target.value); if (e.target.value.trim()) setShowNameWarning(false); }}
         />
+        {showNameWarning && (
+          <div style={{
+            marginTop: 6,
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#f87171',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            animation: 'fadeUp 300ms ease-out',
+          }}>
+            ⚠️ Lütfen adını yaz
+          </div>
+        )}
       </div>
 
       {/* Avatar seçimi */}
@@ -245,8 +272,7 @@ function StepProfile({ name, setName, avatar, setAvatar, grade, setGrade, onNext
         variant="primary"
         size="lg"
         full
-        onClick={onNext}
-        disabled={!name.trim()}
+        onClick={handleNext}
         style={{ maxWidth: 320, marginTop: 8 }}
       >
         İleri {'\u2192'}
@@ -557,7 +583,7 @@ export function Onboarding({ onComplete }) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'safe center',
           position: 'relative',
           zIndex: 1,
           animation: motionSafe,
