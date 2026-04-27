@@ -6302,6 +6302,8 @@ function GalaksayGameInner() {
   const [devTab, setDevTab] = useState(0); // gelişim sayfası tab: 0=genel, 1=detay, 2=müfredat
   const [settingsTab, setSettingsTab] = useState(0); // ayarlar tab: 0=tercihler, 1=modüller, 2=takip
   const [expandedStop, setExpandedStop] = useState(null);
+  // Galaksi haritası: Kaptan Köşesi (Günlük + Görev Arkı + Eserler) — varsayılan: katlı
+  const [kaptanOpen, setKaptanOpen] = useState(false);
   const journeyMapRef = React.useRef(null);
 
   // ═══ UZAY NAKİLİ STATE ═══
@@ -8758,8 +8760,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         addition: `${q.num1} artı ${q.num2} kaç eder?`,
         subtraction: `${q.num1} eksi ${q.num2} kaç eder?`,
         partWhole: `${q.whole} eşittir ${q.part1} artı ne?`,
-        makeFive: "5 yapmak için kaç pul lazım?",
-        makeTen: "10 yapmak için kaç pul lazım?",
+        makeFive: "5 yapmak için kaç yıldız taşı lazım?",
+        makeTen: "10 yapmak için kaç yıldız taşı lazım?",
         missingNumber: "Eksik sayıyı bul",
         trueFalse: "Bu denklem doğru mu?",
         ordering: q.descending ? "Büyükten küçüğe sırala!" : "Küçükten büyüğe sırala!",
@@ -8951,13 +8953,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       setHintData({ type: "breakdown", value: q.descending ? `Büyükten küçüğe sırala` : `Küçükten büyüğe sırala`, sub: q.sorted.join(q.descending ? " > " : " < "), icon: "📊" });
     }
     else if (q.type === "addition") {
-      setHintData({ type: "breakdown", value: `${q.num1} pul + ${q.num2} pul`, sub: `${q.num1}'den sonra ${q.num2} tane daha say`, icon: "🧮" });
+      setHintData({ type: "breakdown", value: `${q.num1} yıldız taşı + ${q.num2} yıldız taşı`, sub: `${q.num1}'den sonra ${q.num2} tane daha say`, icon: "🧮" });
     }
     else if (q.type === "subtraction") {
-      setHintData({ type: "breakdown", value: `${q.num1} puldan ${q.num2} tane çıkar`, sub: `Geriye kaç pul kalır?`, icon: "🤔" });
+      setHintData({ type: "breakdown", value: `${q.num1} yıldız taşından ${q.num2} tane çıkar`, sub: `Geriye kaç yıldız taşı kalır?`, icon: "🤔" });
     }
     else if (q.type === "partWhole") {
-      setHintData({ type: "breakdown", value: `Bütün: ${q.whole} pul, dolu: ${q.part1} pul`, sub: `Kaç boş yuva var? Boşlukları tıklayarak doldur!`, icon: "🧩" });
+      setHintData({ type: "breakdown", value: `Bütün: ${q.whole} yıldız taşı, dolu: ${q.part1} yıldız taşı`, sub: `Kaç boş yuva var? Boşlukları tıklayarak doldur!`, icon: "🧩" });
     }
     else if (q.type === "missingNumber") {
       const mp = q.missingPart;
@@ -9041,13 +9043,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       ]});
     }
     else if (q.type === "buildNumber") {
-      setHintData({ type: "showTarget", value: correctAnswer, msg: `Tam ${correctAnswer} tane pul koy — fazla veya eksik olmasın!` });
+      setHintData({ type: "showTarget", value: correctAnswer, msg: `Tam ${correctAnswer} tane yıldız taşı koy — fazla veya eksik olmasın!` });
     }
     else if (q.type === "addChips") {
-      setHintData({ type: "showTarget", value: correctAnswer, msg: `${q.start} pul var, ${q.toAdd} tane daha ekle → toplam ${correctAnswer} olmalı` });
+      setHintData({ type: "showTarget", value: correctAnswer, msg: `${q.start} yıldız taşı var, ${q.toAdd} tane daha ekle → toplam ${correctAnswer} olmalı` });
     }
     else if (q.type === "removeChips") {
-      setHintData({ type: "showTarget", value: correctAnswer, msg: `${q.start} puldan ${q.toRemove} tane çıkar → ${correctAnswer} kalmalı` });
+      setHintData({ type: "showTarget", value: correctAnswer, msg: `${q.start} yıldız taşından ${q.toRemove} tane çıkar → ${correctAnswer} kalmalı` });
     }
     else if (q.type === "matching") {
       setHintData({ type: "highlightAnswer", value: correctAnswer, msg: `Rakam ${q.number} → kapsüldeki pulları tek tek say ve ${q.number} pullu olanı bul!` });
@@ -12346,7 +12348,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
       case "makeFive":
         return (<div style={{ textAlign: "center" }}>
-          <TXT>5 yapmak için kaç pul lazım?</TXT>
+          <TXT>5 yapmak için kaç yıldız taşı lazım?</TXT>
           <SUB>5'in bağını bul!</SUB>
           <div style={{ display: "flex", justifyContent: "center", gap: 16, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 10 }}>
             <Frame total={5} filled={q.current} cols={5} chipColor="blue" size={52} />
@@ -12361,7 +12363,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         </div>);
       case "makeTen":
         return (<div style={{ textAlign: "center" }}>
-          <TXT>10 yapmak için kaç pul lazım?</TXT>
+          <TXT>10 yapmak için kaç yıldız taşı lazım?</TXT>
           <SUB>10'un arkadaşını bul!</SUB>
           <div style={{ display: "flex", justifyContent: "center", gap: 16, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 10 }}>
             <Frame total={10} filled={q.current} cols={5} chipColor="red" size={46} />
@@ -16212,29 +16214,22 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* ─── Guide Character + Question Layout ─── */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }}>
 
-              {/* Character row — guide introduces the question with narrative context */}
+              {/* Character row — guide gives contextual encouragement (TXT prompt below has the actual instruction) */}
               {!feedback && (() => { const mp = getModePlanet(gameMode); if (!mp) return null;
-                const prompts = {
-                  level1: ["Sayalım!", "Kaç tane var?", "Hadi sayalım!", "Bak ve say!", "Yıldız taşlarını say!", "Dikkatli bak!"],
-                  level2: ["Hızlı bak!", "Kaç tane gördün?", "Bir bakışta!", "Anında say!", "Gözlerini kullan!", "Süper bakış!"],
-                  level3: ["Karşılaştır!", "Hangisi büyük?", "Tartıda ne var?", "Kim kazanır?", "Teraziyi dengele!", "Kıyasla!"],
-                  level4: ["Birleştir!", "Parçala ve topla!", "Yapıyı kur!", "Hesapla!", "Sayıyı inşa et!", "Bileşimi bul!"],
-                  level5: ["İşlemi çöz!", "Hesapla!", "Sonucu bul!", "Topla-çıkar!", "Kristali yakala!", "Enerjiyi hesapla!"],
-                  level6: ["Grupla!", "Kaç grup?", "Çarp ve bul!", "Hesapla!", "Eşit böl!", "Grupları say!"],
-                  level7: ["Örüntüyü bul!", "Sıradaki ne?", "Deseni keşfet!", "Devam ettir!", "Kuralı çöz!", "Gizli kodu bul!"],
-                  level8: ["Basamağı bul!", "Değeri ne?", "Birler? Onlar?", "Yerini söyle!", "Sayıyı çöz!", "Yapısını keşfet!"],
-                };
-                const catKey = Object.entries(CATEGORIES).find(([,c]) => c.modes[gameMode])?.[0];
-                const msgs = prompts[catKey] || ["Çözelim!", "Hadi bakalım!", "Düşün!", "Hazır mısın?"];
-                // Narrative mission context per round
-                const missionContexts = [
-                  `Soru ${round + 1}/${roundsPerGame} — Görev devam ediyor!`,
-                  round === 0 ? `${mp.planet} görevine hoş geldin!` : null,
-                  round === Math.floor(roundsPerGame / 2) ? "Yarıyı geçtik, harika gidiyorsun!" : null,
-                  round === roundsPerGame - 1 ? "Son soru — görev tamamlanmak üzere!" : null,
-                  streakRef.current >= 3 ? `🔥 ${streakRef.current} seri — süper gidiyorsun!` : null,
-                ].filter(Boolean);
-                const contextMsg = missionContexts[0];
+                // Bağlamsal cesaretlendirme — talimat değil, motivasyon (TXT zaten ne yapacağını söylüyor)
+                const isFirst = round === 0;
+                const isLast = round === roundsPerGame - 1;
+                const isMid = roundsPerGame >= 5 && round === Math.floor(roundsPerGame / 2);
+                const streak = streakRef.current || 0;
+                let msg;
+                if (streak >= 5) msg = `🔥 ${streak} seri — efsanesin!`;
+                else if (streak >= 3) msg = `✨ ${streak} doğru — devam!`;
+                else if (isLast) msg = "Son soru — bitirelim!";
+                else if (isMid) msg = "Yarıyı geçtik, harikasın!";
+                else if (isFirst) msg = `${mp.planet} görevi başlıyor!`;
+                else msg = `Soru ${round + 1}/${roundsPerGame}`;
+                const msgs = [msg]; // keep msgs array shape used below
+                const contextMsg = msg;
                 return (
                   <div style={{
                     display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8,
@@ -21623,6 +21618,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             );
           })()}
 
+          {/* ═══ KAPTAN KÖŞESİ — Günlük + Görev Arkı + Eserler (katlanabilir) ═══ */}
+          <button onClick={() => setKaptanOpen(o => !o)} style={{
+            margin: "4px 10px 0", padding: "5px 12px", borderRadius: 10,
+            background: "rgba(251,191,36,.06)", border: "1px solid rgba(251,191,36,.18)",
+            display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: F,
+            color: "#fbbf24", fontSize: 11, fontWeight: 800, letterSpacing: 1,
+            width: "calc(100% - 20px)", textTransform: "uppercase",
+          }} aria-expanded={kaptanOpen}>
+            <span style={{ fontSize: 13 }}>📜</span>
+            <span style={{ flex: 1, textAlign: "left" }}>Kaptan Köşesi</span>
+            {missionArcProgress && <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(251,191,36,.7)" }}>{missionArcProgress.rescuedCrew.length}/{missionArcProgress.chapters.filter(ch => ch.crewMember).length}</span>}
+            {unlockedArtifacts.length > 0 && <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(196,181,253,.7)" }}>🏛️ {unlockedArtifacts.length}/{ALIEN_ARTIFACTS.length}</span>}
+            <span style={{ fontSize: 11, transition: "transform .25s ease", transform: kaptanOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
+          </button>
+          {kaptanOpen && <>
           {/* 📜 KAPTAN GÜNLÜĞÜ — Captain's Log narrative panel */}
           {(() => {
             const nextStop = jp.stops.find(s => !s.complete);
@@ -21784,6 +21794,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </span>
             </div>
           )}
+          </>}
 
           {/* ── HARİTA ALANI ── */}
           <div style={{ flex: 1, position: "relative", margin: "0 6px", overflow: "auto", scrollBehavior: "smooth" }}>
