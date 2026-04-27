@@ -15698,10 +15698,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <div style={{ fontSize: 22 }}>{suggested > level ? "🚀" : "🎯"}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 11, fontWeight: 800, color: suggested > level ? "#065f46" : "#9a3412" }}>
-                        {suggested > level ? "Seviye yükseltme önerisi!" : "Biraz daha pratik yapalım!"}
+                        {suggested > level ? "Bir üst seviyeyi denemeye hazırsın!" : "Biraz daha pratik yapalım!"}
                       </div>
                       <div style={{ fontSize: 11, fontWeight: 600, color: "#c0cbda", marginTop: 2 }}>
-                        Son başarı: %{adaptivePerf[gameMode].recentAcc} → Önerilen seviye: {suggested}
+                        Son başarın %{adaptivePerf[gameMode].recentAcc} — Sana önerimiz: Seviye {suggested}
                       </div>
                     </div>
                     <button onClick={() => setLevel(suggested)} style={{
@@ -15721,11 +15721,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: F,
               transition: "all .2s ease", marginBottom: 6,
             }}>
-              {fluencyMode ? "⚡ Akıcılık Modu AKTİF — Hız Odaklı" : "⚡ Akıcılık Modu"}
+              {fluencyMode ? "⚡ Akıcılık Modu açık — Hız Odaklı" : "⚡ Akıcılık Modu"}
             </button>
             {fluencyMode && (
               <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 10, margin: "-2px 0 6px", fontWeight: 600 }}>
-                Ardışık sorular, kendi rekorunu kır! Stres yok, sadece hız.
+                Üst üste sorular — kendi rekorunu kır! Acelen yok, sadece akıcılık.
               </p>
             )}
             {/* Start */}
@@ -15834,7 +15834,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ position: "absolute", top: -20, left: "50%", transform: "translateX(-50%)", width: 100, height: 100, borderRadius: "50%", border: `1px solid ${(mi?.c || "#7c3aed")}10`, animation: "energyPulseRing 3s ease-out 1s infinite", pointerEvents: "none" }} />
                   <div style={{ fontSize: 10, fontWeight: 800, color: mi?.c || "#a78bfa", letterSpacing: 4, marginBottom: 10, textTransform: "uppercase", animation: "fadeUp .3s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                     <div style={{ width: 24, height: 1, background: `linear-gradient(90deg, transparent, ${mi?.c || "#a78bfa"})` }} />
-                    <span style={{ animation: "hologramFlicker 4s ease infinite" }}>📡 GÖREV BRİFİNG</span>
+                    <span style={{ animation: "hologramFlicker 4s ease infinite" }}>📡 GÖREV TANITIMI</span>
                     <div style={{ width: 24, height: 1, background: `linear-gradient(90deg, ${mi?.c || "#a78bfa"}, transparent)` }} />
                   </div>
                   {/* Planet icon with glow, orbit ring, and arrival animation */}
