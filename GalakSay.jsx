@@ -14557,8 +14557,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     bgLight: "linear-gradient(170deg, #050a18 0%, #0a1628 30%, #0f1f3d 60%, #0a1229 100%)",
     bgLogin: "linear-gradient(170deg, #050a18 0%, #0c1a3a 40%, #0f2952 100%)",
     bgDark: "linear-gradient(160deg, #050a18 0%, #0c1a3a 60%, #0f2952 100%)",
-    card: { background: "rgba(30,27,75,.65)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: 22, border: "1px solid rgba(148,163,184,.12)", boxShadow: "0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05)" },
-    cardSoft: { background: "rgba(49,46,129,.5)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 18, border: "1px solid rgba(148,163,184,.1)", boxShadow: "0 4px 16px rgba(0,0,0,.3)" },
+    card: { background: "rgba(58,55,135,.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: 22, border: "1px solid rgba(167,139,250,.18)", boxShadow: "0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07)" },
+    cardSoft: { background: "rgba(76,72,170,.42)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 18, border: "1px solid rgba(167,139,250,.15)", boxShadow: "0 4px 16px rgba(0,0,0,.25)" },
     accent: "linear-gradient(135deg,#3b82f6,#8b5cf6)",
     textDark: "#e2e8f0",
     textBody: "#cbd5e1",
@@ -15514,11 +15514,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               return (
               <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
                 onClick={(e) => { if (e.target === e.currentTarget) setShowMissionPopup(false); }}>
-                <div style={{ position: "absolute", inset: 0, background: "rgba(15,12,50,.75)", backdropFilter: "blur(8px)" }} />
+                <div style={{ position: "absolute", inset: 0, background: "rgba(15,12,50,.55)", backdropFilter: "blur(8px)" }} />
                 <div style={{ position: "relative", width: "100%", maxWidth: 360, maxHeight: "85vh", overflow: "auto",
-                  borderRadius: 24, border: `1.5px solid ${mp.color}25`,
-                  background: `linear-gradient(160deg, rgba(15,20,45,.97), ${mp.color}08 60%, rgba(15,20,45,.97))`,
-                  boxShadow: `0 24px 64px rgba(0,0,0,.5), 0 0 40px ${mp.color}10`,
+                  borderRadius: 24, border: `1.5px solid ${mp.color}35`,
+                  background: `linear-gradient(160deg, rgba(40,38,98,.92), ${mp.color}15 60%, rgba(40,38,98,.92))`,
+                  boxShadow: `0 24px 64px rgba(0,0,0,.4), 0 0 40px ${mp.color}15`,
                   animation: "fadeUp .3s ease",
                 }}>
                   {/* Hikâye sahnesi + Gemi + Karakter */}
@@ -15550,13 +15550,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <div style={{
                       position: "absolute", top: -5, left: "50%", marginLeft: -6,
                       width: 12, height: 12, rotate: "45deg",
-                      background: "rgba(30,27,75,.8)", borderTop: `1px solid ${mp.color}20`,
-                      borderLeft: `1px solid ${mp.color}20`,
+                      background: "rgba(58,55,135,.7)", borderTop: `1px solid ${mp.color}30`,
+                      borderLeft: `1px solid ${mp.color}30`,
                     }} />
                     <div style={{
                       padding: "14px 16px", borderRadius: 16,
-                      background: "rgba(30,27,75,.8)", backdropFilter: "blur(12px)",
-                      border: `1px solid ${mp.color}20`,
+                      background: "rgba(58,55,135,.7)", backdropFilter: "blur(12px)",
+                      border: `1px solid ${mp.color}30`,
                       position: "relative",
                     }}>
                       {/* Seslendir butonu — karakter ismi pill'de zaten var, balonda tekrar etme */}
@@ -15999,9 +15999,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               background: "rgba(0,0,0,.5)", backdropFilter: "blur(4px)",
             }}>
               <div style={{
-                background: "rgba(30,27,75,.85)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "90%",
-                boxShadow: "0 12px 48px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05)", textAlign: "center",
-                border: "1px solid rgba(148,163,184,.1)", animation: "fadeUp .3s ease",
+                background: "rgba(58,55,135,.85)", backdropFilter: "blur(20px)", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "90%",
+                boxShadow: "0 12px 48px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08)", textAlign: "center",
+                border: "1px solid rgba(167,139,250,.18)", animation: "fadeUp .3s ease",
               }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>🧘</div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: "#e2e8f0", marginBottom: 8 }}>Mola Zamanı!</div>
@@ -16190,10 +16190,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* ── Question Card ── */}
           <div style={{
             flex: 1, margin: "6px 10px", borderRadius: 24, padding: "10px 14px",
-            background: "rgba(30,27,75,.5)",
+            background: "rgba(58,55,135,.45)",
             backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-            border: `1.5px solid ${modeColor}20`,
-            boxShadow: `0 4px 24px rgba(0,0,0,.3), 0 0 30px ${modeColor}08, inset 0 1px 0 rgba(255,255,255,.08)`,
+            border: `1.5px solid ${modeColor}30`,
+            boxShadow: `0 4px 24px rgba(0,0,0,.25), 0 0 30px ${modeColor}10, inset 0 1px 0 rgba(255,255,255,.1)`,
             display: "flex", flexDirection: "column",
             overflow: "auto", minHeight: 0, position: "relative",
           }}>
