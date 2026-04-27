@@ -11,6 +11,19 @@ import { DidacticAnimation } from "./src/components/math/DidacticAnimation.jsx";
 import { setAudioCallback } from "./src/core/DokunSayKit/MateryalFizik.js";
 // GalakSay Analytics — 2026-03-18 — Analitik ve raporlama sistemi entegrasyonu
 import { initAnalytics, beginGameSession, finishGameSession, onQuestionPresented, onQuestionAnswered, onHintRequested, onRepresentationSwitched, onModuleCompleted, onConcreteSupport, onFluencySessionEnd, setCurrentModule } from "./src/analytics/AnalyticsBridge.js";
+// 2026-04-27 — Statik veri ekstraktları (refactor adımı)
+import { MEB_KAZANIM } from "./src/data/mebKazanim.js";
+import { LT_TRAJECTORIES } from "./src/data/ltTrajectories.js";
+import {
+  NUM_WORDS, NUM_WORDS_KU,
+  numWord, numWordKu, numWordLang,
+  kuEzafe, kuPlural,
+  WP_NAMES, WP_NAMES_KU, WP_pick, WP_name, WP_pair, WP_nameKu, WP_pairKu,
+  trG, trD, trK, trDA, capFirst,
+  numDist,
+} from "./src/data/numWords.js";
+import { GALAXY_CORRECT_MSGS, GALAXY_WRONG_MSGS, GALAXY_STREAK_MSGS } from "./src/data/feedbackMessages.js";
+import { CATEGORIES, gmi } from "./src/data/categories.js";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GALAKSAY v5.9 — Galaksay: Sayılar Evrenin Dilidir — Galaksiyi Keşfet!
@@ -65,12 +78,26 @@ import { initAnalytics, beginGameSession, finishGameSession, onQuestionPresented
 //       Büyüme Zihniyeti Mesajları, Fiziksel Pratik Entegrasyonu
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ═══ FISHER-YATES SHUFFLE — Eşit olasılıklı karıştırma ═══════════════════════
+// sort(() => Math.random() - 0.5) yanlı dağılım üretir; bu fonksiyon doğru çalışır
+const fyShuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
 // ═══ GUVENLİ DEPOLAMA YARDIMCISI — localStorage hata yonetimi ═══════════════
 const safeStorage = {
   set: (key, value) => { try { localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value)); } catch (e) { if (e?.name === "QuotaExceededError") { console.warn("[GalakSay] Depolama dolu:", key); } } },
   get: (key, fallback = null) => { try { const v = localStorage.getItem(key); return v !== null ? v : fallback; } catch (_) { return fallback; } },
   getJSON: (key, fallback = null) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (_) { return fallback; } },
 };
+
+// ═══ window.storage KÖPRÜSÜ — Async API uyumlu localStorage sarmalayıcı ═══
+// Kod genelinde window.storage?.get/set/delete kullanılıyor, async {value} formatında
+if (!window.storage) {
+  window.storage = {
+    get: async (key) => { try { const v = localStorage.getItem(key); return v !== null ? { value: v } : null; } catch (_) { return null; } },
+    set: async (key, value, _shared) => { try { localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value)); } catch (e) { if (e?.name === "QuotaExceededError") console.warn("[GalakSay] Depolama dolu:", key); } },
+    delete: async (key) => { try { localStorage.removeItem(key); } catch (_) {} },
+  };
+}
 
 // ═══ SES EFEKTLERİ — Web Audio API ══════════════════════════════════════════
 // §Çocuk dostu: Sıcak, samimi, ksilofon/çan tınısı, yumuşak geçişler
@@ -423,7 +450,7 @@ setAudioCallback((soundId) => {
 // ═══ ARKA PLAN MÜZİĞİ (BGM) — Kategori bazlı ambient ═════════════════════
 // Rapor §4.1: Müzik atmosfer yaratır, karakter temaları bağlanma sağlar
 const BGM = (() => {
-  let ctx = null, gainNode = null, oscillators = [], playing = false, currentCat = null;
+  let ctx = null, gainNode = null, oscillators = [], playing = false, currentCat = null, loopTimer = null;
   const catThemes = {
     // ═══ GEZEGEN TEMALARİ — Her gezegenin kendine özgü kozmik melodisi ═══
     level1: { notes: [261, 392, 329, 523, 392], tempo: 2.2, type: "sine", vol: 0.025 },     // Sayalon: Sakin akan nehir melodisi (C-G-E-C5-G)
@@ -437,7 +464,8 @@ const BGM = (() => {
     menu:   { notes: [261, 392, 523, 659, 523, 392, 261], tempo: 2.8, type: "sine", vol: 0.015 }, // Galaksi haritası: Geniş, sakin, uzay ambiyansı
   };
   const stop = () => {
-    oscillators.forEach(o => { try { o.stop(); } catch {} });
+    if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
+    oscillators.forEach(o => { try { o.stop(); o.disconnect(); } catch {} });
     oscillators = []; playing = false; currentCat = null;
   };
   const play = (catKey) => {
@@ -453,6 +481,8 @@ const BGM = (() => {
       const loopDur = theme.notes.length * theme.tempo;
       const scheduleLoop = () => {
         if (!playing) return;
+        // Bitmiş oscillator'ları temizle (bellek sızıntısı önleme)
+        oscillators = oscillators.filter(o => { try { return o.playbackState !== 3; } catch { return false; } });
         theme.notes.forEach((freq, i) => {
           const o = ctx.createOscillator(), g = ctx.createGain();
           o.type = theme.type; o.frequency.value = freq;
@@ -463,8 +493,10 @@ const BGM = (() => {
           o.connect(g); g.connect(gainNode);
           o.start(startT); o.stop(startT + theme.tempo);
           oscillators.push(o);
+          // Oscillator bitince listeden kaldır
+          o.onended = () => { oscillators = oscillators.filter(x => x !== o); try { g.disconnect(); } catch {} };
         });
-        setTimeout(scheduleLoop, loopDur * 1000);
+        loopTimer = setTimeout(scheduleLoop, loopDur * 1000);
       };
       playing = true; currentCat = catKey;
       gainNode.gain.linearRampToValueAtTime(1, ctx.currentTime + 0.5);
@@ -1082,9 +1114,9 @@ const I18N = {
   },
   ku: {
     play: "BILÎZE", settings: "Mîheng", quests: "Peywirên Rojane", achievements: "Xelat û Pûan",
-    devTrack: "Pêşveçûn", progress: "Amar", aiReport: "Rapora AI",
-    correct: "Rast e!", wrong: "Şaş e", next: "Bidomîne", start: "Dest pê bike!", back: "Paş",
-    level: "Ast", score: "Pûan", game: "Lîstik", success: "Serkeftin", hint: "Alîkarî",
+    devTrack: "Şopandina Pêşveçûnê", progress: "Amar", aiReport: "Rapora Fêrbûna AI",
+    correct: "Rast e! ✓", wrong: "Şaş e ✗", next: "Bidomîne", start: "Dest pê bike!", back: "Paş",
+    level: "Ast", score: "Toza Stêrkan", game: "Lîstik", success: "Serkeftin", hint: "Alîkarî",
     hello: "Silav", logout: "Derketin", guest: "Mêvan", sound: "Deng",
     accessibility: "Gihîştin", colorBlind: "Moda Kor-Rengan", largeText: "Nivîsa Mezin",
     reducedMotion: "Tevgera Kêmkirî", highContrast: "Kontrasta Bilind",
@@ -1092,11 +1124,24 @@ const I18N = {
     screening: "Testa Dîskalkulî", collection: "Koleksiyona Min",
     questPlay3: "3 Lîstik Bilîze", questModes2: "2 Modên Cuda Biceribîne",
     questExplore: "Moda Nû Keşf Bike", questAcc80: "%80+ Serkeftin",
-    modeSelect: "Çalakiyê Hilbijêre", levelSelect: "Astê Hilbijêre",
-    questionCount: "Pirs", difficulty: "Zehmetî",
+    modeSelect: "Çalakiyê Hilbijêre", levelSelect: "Gerstêrkê Hilbijêre",
+    questionCount: "Hejmara Pirsan", difficulty: "Asta Zehmetiyê",
     totalScore: "Pûana Giştî", bestScore: "Pûana Herî Baş", gamesPlayed: "Hejmara Lîstikan",
     retry: "Dîsa Bilîze", nextLevel: "Asta Pêş",
     about: "Derbarê", language: "Ziman",
+    // Etîketên nû yên kurt — Kürtçe matematik terimleri (Ferhenga Matematikê referansı)
+    tryAgain: "Dîsa biceribîne ↻", greatJob: "Aferin! ✓", keepGoing: "Bidomîne!",
+    missionComplete: "Peywir Temam!", starDust: "Toza Stêrkan",
+    energyCrystal: "Krîstala Enerjiyê", streak: "Rêz",
+    pilotSupport: "Piştgiriya Pîlot", navigation: "Navîgasyon", soloFlight: "Firîna Solo",
+    riskLow: "Rîska Kêm", riskMedium: "Rîska Navîn", riskHigh: "Rîska Bilind",
+    numapProfile: "Profîla NuMap", importPlan: "Planê Bar Bike",
+    manualEntry: "Têketina Destî", numberSense: "Hesta Çendînî",
+    arithmetic: "Jimaryarî", workingMemory: "Bîra Xebatê",
+    progressReport: "Rapora Pêşveçûnê", childView: "Dîtina Zarokan",
+    teacherView: "Dîtina Mamoste", improved: "Çêtir bû",
+    needsWork: "Xebat Lazim", strong: "Bihêz", weak: "Qels",
+    // Dîmendera têketinê
     login: "Têketin", register: "Qeyd Bibe", rememberMe: "Min bi bîr bîne",
     emailPlaceholder: "E-name an Navê Bikarhêner", passwordPlaceholder: "Şîfre", namePlaceholder: "Nav û Paşnav",
     accountType: "Cureyê Hesabê", student: "Xwendekar", parent: "Dê/Bav", teacher: "Mamoste", admin: "Rêvebir",
@@ -1137,7 +1182,7 @@ const SCREENING = {
       generate: () => {
         const start = 1 + Math.floor(Math.random() * 5);
         const nums = [start, start + 1, start + 2];
-        const shuffled = [...nums].sort(() => Math.random() - 0.5);
+        const shuffled = fyShuffle(nums);
         return { type: "screenOrder", numbers: shuffled, correct: nums };
       }
     },
@@ -1160,7 +1205,7 @@ const SCREENING = {
       phaseScores[r.phase].times.push(r.time);
       totalTime += r.time;
     });
-    Object.values(phaseScores).forEach(p => { p.avgTime = Math.round(p.times.reduce((a, b) => a + b, 0) / p.times.length); });
+    Object.values(phaseScores).forEach(p => { p.avgTime = p.times.length > 0 ? Math.round(p.times.reduce((a, b) => a + b, 0) / p.times.length) : 0; });
     const overallAcc = totalQ > 0 ? Math.round((totalCorrect / totalQ) * 100) : 0;
     const avgTime = totalQ > 0 ? Math.round(totalTime / totalQ) : 0;
     // Risk değerlendirmesi
@@ -1217,175 +1262,9 @@ const getRandomCard = (ownedIds) => {
 // Rapor §4.2: Her mod bir "görev/macera" olarak sunulur
 // MODE_STORIES, SPACE_EVENTS, getRandomSpaceEvent → imported from ./src/data/modeStories.js
 
-// ═══ MEB KAZANIM EŞLEMESİ (§9.1) ══════════════════════════════════════════
-// Türkiye Yüzyılı Maarif Modeli — 2024 Okul Öncesi Eğitim Programı &
-// İlkokul Matematik Dersi Öğretim Programı öğrenme çıktıları ile mod eşlemesi
-const MEB_KAZANIM = {
-  // ─── Okul Öncesi (60-72 ay) — Matematik Alan Becerileri ─────────────────
-  quantityMatch:  { kod: "MAB.1.b",  kazanim: "1 ile 20 arasında nesne/varlık sayısını söyler", sinif: "Okul Öncesi (60-72 ay)", alan: "Sayma" },
-  subitizing:     { kod: "MAB.1.c",  kazanim: "1 ile 5 arasında nesnelerin/varlıkların miktarını bir bakışta söyler", sinif: "Okul Öncesi (60-72 ay)", alan: "Sayma" },
-  conservation:   { kod: "MAB.2.b",  kazanim: "Bir bütünü oluşturan parçalar arasındaki ilişki/ilişkisizlik durumlarını açıklar", sinif: "Okul Öncesi (60-72 ay)", alan: "Matematiksel Muhakeme" },
-  matching:       { kod: "MAB.9.a",  kazanim: "Matematiksel bağlama uygun temsil kullanır", sinif: "Okul Öncesi (60-72 ay)", alan: "Matematiksel Temsil" },
+// MEB_KAZANIM artık src/data/mebKazanim.js'den import ediliyor (refactor 2026-04-27)
 
-  // ─── 1. Sınıf — Sayılar ve Nicelikler ──────────────────────────────────
-  counting:       { kod: "MAT.1.1.1", kazanim: "Rakamları ve 20'ye kadar olan sayıları, niceliklerin büyüklüklerini temsil etmek için kullanabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  fivesFrame:     { kod: "MAT.1.1.2", kazanim: "Bir nesne grubunu sayarken parçalar arasındaki ilişkileri çözümleyebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  buildNumber:    { kod: "MAT.1.1.2", kazanim: "Bir nesne grubunu sayarken parçalar arasındaki ilişkileri çözümleyebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  tensFrame:      { kod: "MAT.1.1.2", kazanim: "Bir nesne grubunu sayarken parçalar arasındaki ilişkileri çözümleyebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  doubleTensFrame:{ kod: "MAT.1.1.7", kazanim: "Verilen bir çokluktaki ilişkilerden yararlanarak 20'ye kadar olan nesnelerin sayısını tahmin edebilme — 10+n stratejisi", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  beforeAfter:    { kod: "MAT.1.1.1", kazanim: "Rakamları ve 20'ye kadar olan sayıları, niceliklerin büyüklüklerini temsil etmek için kullanabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  fiveMore:       { kod: "MAT.1.1.1", kazanim: "Rakamları ve 20'ye kadar olan sayıları, niceliklerin büyüklüklerini temsil etmek için kullanabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  comparison:     { kod: "MAT.1.1.4", kazanim: "İki niceliğin büyüklüğünü 'çok', 'daha çok', 'az', 'daha az' veya 'eşit' terimleriyle karşılaştırabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  lessMoreEqual:  { kod: "MAT.1.1.4", kazanim: "İki niceliğin büyüklüğünü 'çok', 'daha çok', 'az', 'daha az' veya 'eşit' terimleriyle karşılaştırabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  backwardCount:  { kod: "MAT.1.1.5", kazanim: "100'e kadar ileriye ve 20'den geriye doğru ritmik sayabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  ordinalCount:   { kod: "MAT.1.1.3", kazanim: "Sayıların sıra belirtme özelliğini kavrayabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  decadeCount:    { kod: "MAT.1.1.5", kazanim: "100'e kadar ileriye ve 20'den geriye doğru ritmik sayabilme; onluk geçişlerini doğru yapabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  chipGuess:      { kod: "MAT.1.1.7", kazanim: "Verilen bir çokluktaki ilişkilerden yararlanarak 20'ye kadar olan nesnelerin sayısını tahmin edebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  rodBack:        { kod: "MAT.1.1.7", kazanim: "Verilen bir çokluktaki ilişkilerden yararlanarak 20'ye kadar olan nesnelerin sayısını tahmin edebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  lengthGuess:    { kod: "MAT.1.1.7", kazanim: "Verilen bir çokluktaki ilişkilerden yararlanarak 20'ye kadar olan nesnelerin sayısını tahmin edebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-  numberLine:     { kod: "MAT.1.1.6", kazanim: "Artan veya azalan sayı ve şekil örüntülerini çözümleyebilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-
-  // ─── 1. Sınıf — İşlemlerden Cebirsel Düşünmeye ─────────────────────────
-  addChips:       { kod: "MAT.1.2.1", kazanim: "Günlük yaşamın içerdiği toplama ve çıkarma işlemlerini çözümleyebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  removeChips:    { kod: "MAT.1.2.1", kazanim: "Günlük yaşamın içerdiği toplama ve çıkarma işlemlerini çözümleyebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  countOnAdd:     { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme; büyük sayıdan üzerine sayma stratejisi", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  inversePractice:{ kod: "MAT.1.2.4", kazanim: "Toplama ve çıkarma işlemlerinin ilişkisini yorumlayabilme; ters işlem ilişkisi", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  makeFive:       { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  makeTen:        { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  addition:       { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  subtraction:    { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  partWhole:      { kod: "MAT.1.2.3", kazanim: "Eşit işaretinin anlamını toplama ve çıkarma işlemi bağlamında yorumlayabilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  missingNumber:  { kod: "MAT.1.2.3", kazanim: "Eşit işaretinin anlamını toplama ve çıkarma işlemi bağlamında yorumlayabilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  trueFalse:      { kod: "MAT.1.2.3", kazanim: "Eşit işaretinin anlamını toplama ve çıkarma işlemi bağlamında yorumlayabilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  wpAdd:          { kod: "MAT.1.2.1", kazanim: "Toplama ve çıkarma işlemleri gerektiren günlük yaşam problemlerini çözebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  wpSub:          { kod: "MAT.1.2.1", kazanim: "Toplama ve çıkarma işlemleri gerektiren günlük yaşam problemlerini çözebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  wpCompare:      { kod: "MAT.1.2.4", kazanim: "Toplama ve çıkarma işlemlerinin ilişkisini yorumlayabilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  wpMul:          { kod: "MAT.2.2.4", kazanim: "Çarpma işlemini gerektiren günlük yaşam problemlerini çözebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  wpDiv:          { kod: "MAT.2.2.4", kazanim: "Bölme işlemini gerektiren günlük yaşam problemlerini çözebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  difference:     { kod: "MAT.1.2.4", kazanim: "Toplama ve çıkarma işlemlerinin ilişkisini yorumlayabilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-
-  // ─── 2. Sınıf — Sayılar ve Nicelikler ──────────────────────────────────
-  composeNumber:  { kod: "MAT.2.1.1", kazanim: "100'e kadar olan niceliklerin büyüklüklerini temsil etmede sayıların sembolik temsillerinden yararlanabilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  bundleTens:     { kod: "MAT.2.1.2", kazanim: "İki basamaklı sayıları çözümleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  placeValue:     { kod: "MAT.2.1.2", kazanim: "İki basamaklı sayıları çözümleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  expandForm:     { kod: "MAT.2.1.2", kazanim: "İki basamaklı sayıları çözümleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  ordering:       { kod: "MAT.2.1.3", kazanim: "Sayıların sırasını belirleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  numberLineEstimate: { kod: "MAT.2.1.3", kazanim: "Sayıların sırasını belirleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  nlPlacement: { kod: "MAT.2.1.3", kazanim: "Sayı doğrusunda sayıların konumlarını belirleyebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  skipCount:      { kod: "MAT.2.1.4", kazanim: "İleriye ve geriye doğru ritmik sayabilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  estimateCount:  { kod: "MAT.2.1.6", kazanim: "Bir çokluktaki ilişkilerden yararlanarak 50'ye kadar olan nesnelerin sayısını tahmin edebilme", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-
-  // ─── 2. Sınıf — İşlemlerden Cebirsel Düşünmeye ─────────────────────────
-  repeatAdd:      { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  arrayDots:      { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  multiplyVisual: { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  equalShare:     { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  groupCount:     { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  divisionBasic:  { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme (n÷1, n÷n, çarpmayı düşün)", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  mulDivInverse:  { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin ilişkisini yorumlayabilme (ters ilişki)", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  katConcept:     { kod: "MAT.3.2.3", kazanim: "Çarpma işleminin kat kavramı ile ilişkisini fark edebilme", sinif: "3. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  timesTable:     { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  halfDouble:     { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-
-  // ─── v5.2 Yeni Modlar ─────────────────────────────────────────────────
-  numbersInNumbers: { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  patternAB:     { kod: "MAT.1.1.6 / MAT.2.1.5", kazanim: "Artan veya azalan sayı ve şekil örüntülerini çözümleyebilme; tekrar eden desen, 4-elemanlı çekirdek (L5+)", sinif: "1-2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  growingPattern:{ kod: "MAT.2.1.5 / MAT.3.1.7 / MAT.4.1.5", kazanim: "Sayı ve şekil örüntülerine dayalı çıkarım yapabilme; kuralı genelleyebilme (artan/azalan, değişken adım)", sinif: "2-4. Sınıf", alan: "Sayılar ve Nicelikler" },
-  patternTranslate:{ kod: "MAT.2.1.5", kazanim: "Sayı ve sayı temsiline dönüşen şekil örüntülerine dayalı çıkarım yapabilme (çeviri/çekirdek)", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  counterFromN:  { kod: "MAT.1.1.5", kazanim: "100'e kadar ileriye ve 20'den geriye doğru ritmik sayabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
-};
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ÖĞRENME YÖRÜNGELERİ HARİTALAMASI (§10) — Clements & Sarama [LT]² Entegrasyonu
-// Kaynak: LearningTrajectories.org (Clements, D.H. & Sarama, J., 2017/2019)
-// Marsico Institute, University of Denver — IES / Gates Foundation / Heising-Simons
-//
-// Her mod → { trajectory, level, ltLevel, ageRange, description }
-// trajectory: LT yörünge adı (18 yörüngeden biri)
-// level: Gelişimsel düzey adı (Clements & Sarama terminolojisi)
-// ltLevel: Yörünge içi sıra numarası
-// ageRange: Tipik yaş aralığı (alt sınır; eğitimle aşılabilir)
-// ═══════════════════════════════════════════════════════════════════════════════
-const LT_TRAJECTORIES = {
-  // ── COUNTING (Sayma Yörüngesi — 19 düzey) ────────────────────────────────
-  counting:      { trajectory: "Counting",            level: "Counter (Small Numbers) → Counter (10)",    ltLevel: [5,6],  ageRange: "4-5", desc: "Nesneleri anlamlı şekilde sayar, kardinalite ilkesini kavrar" },
-  quantityMatch: { trajectory: "Counting",            level: "Corresponder → Counter (Small Numbers)",   ltLevel: [4,5],  ageRange: "3-4", desc: "Sayı sözcükleri ile nesneler arasında bire-bir eşleme kurar" },
-  buildNumber:   { trajectory: "Counting",            level: "Producer (Small Numbers)",                 ltLevel: 7,      ageRange: "4",   desc: "Belirli sayıda nesne oluşturur" },
-  backwardCount: { trajectory: "Counting",            level: "Counter Backward from 10",                 ltLevel: 9,      ageRange: "5-6", desc: "10'dan geriye doğru sayar" },
-  skipCount:     { trajectory: "Counting",            level: "Skip Counter by 10s → Skip Counter",       ltLevel: [11,14],ageRange: "6-7", desc: "2, 5, 10'ar ritmik sayar" },
-  counterFromN:  { trajectory: "Counting",            level: "Counter from N (N+1, N-1)",                ltLevel: 10,     ageRange: "6",   desc: "Herhangi bir sayıdan ileriye-geriye doğru sayar (1'den başlamadan)" },
-  ordinalCount:  { trajectory: "Counting",            level: "Ordinal Counter",                          ltLevel: [5,8],  ageRange: "3-5", desc: "Nesnelerin sıra pozisyonunu belirler (birinci, ikinci, üçüncü...)" },
-  decadeCount:   { trajectory: "Counting",            level: "Counter to 100",                           ltLevel: 13,     ageRange: "6",   desc: "Onluk geçişlerini (29→30, 99→100) doğru yapar" },
-
-  // ── SUBITIZING (Sanbil Yörüngesi — 12 düzey) ─────────────────────────────
-  subitizing:    { trajectory: "Subitizing",           level: "Perceptual Subitizer → Conceptual Subitizer", ltLevel: [5,8], ageRange: "4-6", desc: "Saymadan anlık miktar algılama, alt-grup birleştirme" },
-  fivesFrame:    { trajectory: "Subitizing",           level: "Perceptual Subitizer to 5",                ltLevel: 6,      ageRange: "4-5", desc: "5'lik çerçevede yapılandırılmış koleksiyon tanıma" },
-  tensFrame:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 10",               ltLevel: 8,      ageRange: "5-6", desc: "10'luk çerçevede kavramsal sanbil" },
-  doubleTensFrame:{ trajectory: "Subitizing",          level: "Conceptual Subitizer to 20",               ltLevel: 10,     ageRange: "6-7", desc: "Çift 10'luk çerçevede 10+n kavramsal sanbil" },
-  chipGuess:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 10",               ltLevel: 8,      ageRange: "5-6", desc: "Yapılandırılmış diziyi bir bakışta görüp hatırlama" },
-  rodBack:       { trajectory: "Subitizing",           level: "Conceptual Subitizer to 10",               ltLevel: 8,      ageRange: "5-6", desc: "Çeşitli yapılandırılmış temsilleri bir bakışta görüp hatırlama" },
-  estimateCount: { trajectory: "Subitizing",           level: "Conceptual Subitizer to 20",               ltLevel: 9,      ageRange: "6-7", desc: "Yapılandırılmamış koleksiyonun büyüklüğünü tahmin etme" },
-
-  // ── COMPARING AND ORDERING (Karşılaştırma ve Sıralama — 23 düzey) ────────
-  comparison:    { trajectory: "Comparing/Ordering",   level: "Counting Comparer (5) → Counting Comparer (10)", ltLevel: [10,14], ageRange: "5-6", desc: "Çeşitli temsillerle iki çokluğu karşılaştırır" },
-  lessMoreEqual: { trajectory: "Comparing/Ordering",   level: "Early Comparer → Matching Comparer",       ltLevel: [5,7],  ageRange: "4-5", desc: "Az-çok-eşit ilişkilerini belirler" },
-  ordering:      { trajectory: "Comparing/Ordering",   level: "Serial Orderer to 5 → Serial Orderer to 6+", ltLevel: [12,16], ageRange: "5-6", desc: "Sayıları küçükten büyüğe sıralar" },
-  beforeAfter:   { trajectory: "Comparing/Ordering",   level: "Counter (10) — immediately before/after",  ltLevel: 8,      ageRange: "4-5", desc: "Bir sayının hemen öncesini ve sonrasını bilir" },
-  fiveMore:      { trajectory: "Comparing/Ordering",   level: "Mental Number Line to 5 → to 10 → to 20", ltLevel: [11,15],ageRange: "5-7", desc: "5/10 referans noktasına göre büyüklük yargısı" },
-  numberLineEstimate: { trajectory: "Comparing/Ordering", level: "Mental Number Line to 10",              ltLevel: 15,     ageRange: "6-7", desc: "Sayı doğrusunda konumdan büyüklük tahmini" },
-  nlPlacement:   { trajectory: "Comparing/Ordering",   level: "Mental Number Line to 10 → to 100",       ltLevel: [15,18],ageRange: "6-7", desc: "Sayıyı zihinsel sayı doğrusunda konumlandırır" },
-  numberLine:    { trajectory: "Comparing/Ordering",   level: "Spatial Extent Estimator",                 ltLevel: 17,     ageRange: "6-7", desc: "Uzunluk/büyüklükten sayı çıkarımı" },
-  lengthGuess:   { trajectory: "Comparing/Ordering",   level: "Spatial Extent Estimator",                 ltLevel: 17,     ageRange: "6-7", desc: "Uzunluğa dayalı büyüklük tahmini" },
-
-  // ── ADDING / SUBTRACTING (Toplama-Çıkarma — 12 düzey) ────────────────────
-  addChips:      { trajectory: "Adding/Subtracting",   level: "Find Result +/-",                         ltLevel: 4,      ageRange: "4-5", desc: "Nesneleri birleştirerek sonucu bulma (concrete)" },
-  removeChips:   { trajectory: "Adding/Subtracting",   level: "Find Result +/-",                         ltLevel: 4,      ageRange: "4-5", desc: "Nesneleri ayırarak sonucu bulma (concrete)" },
-  countOnAdd:    { trajectory: "Adding/Subtracting",   level: "Counting Strategies +/-",                  ltLevel: 7,      ageRange: "5-6", desc: "Büyük sayıdan üzerine sayarak toplama (counting on)" },
-  addition:      { trajectory: "Adding/Subtracting",   level: "Counting Strategies +/- → Deriver +/-",   ltLevel: [7,10], ageRange: "5-7", desc: "Strateji tabanlı toplama: çiftler, 10'a tamamla, yakın çiftler" },
-  subtraction:   { trajectory: "Adding/Subtracting",   level: "Counting Strategies +/- → Deriver +/-",   ltLevel: [7,10], ageRange: "5-7", desc: "Strateji tabanlı çıkarma: geri say, toplamadan düşün" },
-  inversePractice:{ trajectory: "Adding/Subtracting",  level: "Part-Whole +/- → Numbers-in-Numbers +/-", ltLevel: [8,9],  ageRange: "6-7", desc: "Toplama↔çıkarma ters ilişki (inverse operations)" },
-  wpAdd:         { trajectory: "Adding/Subtracting",   level: "Find Result +/- → Problem Solver +/-",    ltLevel: [4,11], ageRange: "4-7", desc: "Sözel toplama problemlerini çözme" },
-  wpSub:         { trajectory: "Adding/Subtracting",   level: "Find Change +/- → Problem Solver +/-",    ltLevel: [6,11], ageRange: "5-7", desc: "Sözel çıkarma problemlerini çözme" },
-  wpCompare:     { trajectory: "Adding/Subtracting",   level: "Part-Whole +/- → Problem Solver +/-",     ltLevel: [8,11], ageRange: "6-7", desc: "Karşılaştırmalı sözel problemleri çözme" },
-  difference:    { trajectory: "Adding/Subtracting",   level: "Find Change +/-",                         ltLevel: 6,      ageRange: "5-6", desc: "İki çokluk arasındaki farkı bulma" },
-
-  // ── COMPOSING NUMBERS (Sayı Oluşturma — 10 düzey) ────────────────────────
-  makeFive:      { trajectory: "Composing Numbers",    level: "Composer to 4, then 5",                   ltLevel: 4,      ageRange: "4-5", desc: "5'in parça-bütün kombinasyonlarını bilir" },
-  makeTen:       { trajectory: "Composing Numbers",    level: "Composer to 10",                           ltLevel: 6,      ageRange: "5-6", desc: "10'un parça-bütün kombinasyonlarını bilir" },
-  partWhole:     { trajectory: "Composing Numbers",    level: "Composer to 7 → Composer to 10",           ltLevel: [5,6],  ageRange: "5-6", desc: "Bütünün parçalarını ve parçalardan bütünü bilir" },
-  numbersInNumbers: { trajectory: "Composing Numbers", level: "Numbers-in-Numbers +/-",                   ltLevel: 9,      ageRange: "6-7", desc: "Bir sayının tüm parça kombinasyonlarını görür (7=3+4=5+2=6+1)" },
-  composeNumber: { trajectory: "Composing Numbers",    level: "Composer with Tens and Ones",              ltLevel: 7,      ageRange: "7",   desc: "İki basamaklı sayıları onluk+birlik olarak oluşturur" },
-  expandForm:    { trajectory: "Composing Numbers",    level: "Composer with Tens and Ones",              ltLevel: 7,      ageRange: "7",   desc: "Genişletilmiş gösterimle sayı yapısını çözümler" },
-
-  // ── MULTIPLYING / DIVIDING (Çarpma-Bölme — 9 düzey) ──────────────────────
-  repeatAdd:     { trajectory: "Multiplying/Dividing", level: "Beginning Grouper → Concrete Modeler ×/÷", ltLevel: [2,4], ageRange: "5-6", desc: "Eşit grupları tekrarlı toplamayla çarpmaya geçiş" },
-  arrayDots:     { trajectory: "Multiplying/Dividing", level: "Skip Counter ×/÷ → Array Quantifier",     ltLevel: [6,8], ageRange: "6-7", desc: "Dizi modelinde satır×sütun çarpma" },
-  multiplyVisual:{ trajectory: "Multiplying/Dividing", level: "Concrete Modeler ×/÷",                    ltLevel: 4,      ageRange: "6",   desc: "Eşit grup görsel çarpması" },
-  timesTable:    { trajectory: "Multiplying/Dividing", level: "Deriver ×/÷",                             ltLevel: 7,      ageRange: "7",   desc: "Çarpma stratejileri: 0/1 etkisi, çiftler, ×5, ×9, kare" },
-  equalShare:    { trajectory: "Multiplying/Dividing", level: "Grouper and Distributive Sharer",          ltLevel: 3,      ageRange: "5-6", desc: "Eşit dağıtma (partitive bölme)" },
-  groupCount:    { trajectory: "Multiplying/Dividing", level: "Parts and Wholes ×/÷",                    ltLevel: 5,      ageRange: "6",   desc: "Eşit gruplara ayırma (quotitive bölme)" },
-  halfDouble:    { trajectory: "Multiplying/Dividing", level: "Skip Counter ×/÷",                        ltLevel: 6,      ageRange: "6-7", desc: "×2 ikileme ve ÷2 yarılama" },
-  divisionBasic: { trajectory: "Multiplying/Dividing", level: "Deriver ×/÷",                             ltLevel: 7,      ageRange: "7",   desc: "Bölme stratejileri: n÷1, n÷n, çarpmayı düşün" },
-  mulDivInverse: { trajectory: "Multiplying/Dividing", level: "Parts and Wholes ×/÷ → Deriver ×/÷",     ltLevel: [5,7],  ageRange: "6-7", desc: "Çarpma ↔ bölme ters ilişki" },
-  katConcept:    { trajectory: "Multiplying/Dividing", level: "Skip Counter ×/÷ → Deriver ×/÷",         ltLevel: [6,7],  ageRange: "7",   desc: "Kat kavramı: çarpımsal karşılaştırma" },
-  wpMul:         { trajectory: "Multiplying/Dividing", level: "Concrete Modeler ×/÷ → Array Quantifier", ltLevel: [4,8],  ageRange: "6-7", desc: "Sözel çarpma problemleri" },
-  wpDiv:         { trajectory: "Multiplying/Dividing", level: "Partitive Divisor",                       ltLevel: 9,      ageRange: "7",   desc: "Sözel bölme problemleri" },
-
-  // ── PLACE VALUE (Basamak Değeri — Counting yörüngesinin üst düzeyleri) ────
-  bundleTens:    { trajectory: "Counting",             level: "Counter of Quantitative Units/Place Value", ltLevel: 16,    ageRange: "6-7", desc: "10'lu gruplara ayırarak sayma (birimleştirme)" },
-  placeValue:    { trajectory: "Counting",             level: "Counter of Quantitative Units/Place Value", ltLevel: 16,    ageRange: "6-7", desc: "Basamak değerini anlama" },
-
-  // ── PATTERNS & ALGEBRAIC THINKING (Örüntü — 11 düzey) ────────────────────
-  patternAB:     { trajectory: "Patterning",           level: "Patterner AB → Patterner (4-unit cores L5+)",  ltLevel: [3,4],  ageRange: "3-5", desc: "Tekrar eden örüntüleri tanır, tamamlar ve genişletir; L5+ ABBC/AABB 4-elemanlı çekirdek" },
-  growingPattern:{ trajectory: "Patterning",           level: "Numeric Patterner → Beg. Arithmetic Patterner", ltLevel: [6,7], ageRange: "5-7", desc: "Artan/azalan sayı örüntülerinde kural bulma; L5+ değişken adım (MAT.4.1.5)" },
-  patternTranslate:{ trajectory: "Patterning",         level: "Pattern Translator & Unit Recognizer",     ltLevel: 5,      ageRange: "4-5", desc: "Örüntüyü farklı temsile çevirme ve çekirdek birim tanıma" },
-  trueFalse:     { trajectory: "Patterning",           level: "Beginning Arithmetic Patterner → Relational Thinker +/-", ltLevel: [7,8], ageRange: "5-7", desc: "Eşitlik ilkeleri: değişme özelliği, etkisiz eleman, denge" },
-  missingNumber: { trajectory: "Patterning",           level: "Relational Thinker +/-",                   ltLevel: 8,      ageRange: "6-7", desc: "Denklemde bilinmeyeni ilişkisel düşünerek bulur" },
-
-  // ── NUMBER CONSERVATION (Sayı Korunumu — Counting yörüngesi) ─────────────
-  conservation:  { trajectory: "Counting",             level: "Number Conserver",                          ltLevel: 18,     ageRange: "7",   desc: "Dizilim değişse de sayının korunduğunu bilir" },
-  matching:      { trajectory: "Counting",             level: "Corresponder",                              ltLevel: 4,      ageRange: "3-4", desc: "Rakam-miktar eşleme (bire-bir)" },
-};
+// LT_TRAJECTORIES artık src/data/ltTrajectories.js'den import ediliyor (refactor 2026-04-27)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SÖZEL PROBLEM SİSTEMİ — Problem Türü Sınıflandırması
@@ -1393,11 +1272,7 @@ const LT_TRAJECTORIES = {
 // MEB 2024: MAT.1.2.1, MAT.2.2.1, MAT.3.2.6, MAT.3.2.7
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Türk çocuğuna yakın bağlamlar ve isimler
-const WP_NAMES = ["Elif","Ali","Zeynep","Ege","Defne","Yusuf","Ecrin","Mert","Azra","Kerem","Nehir","Ömer","Ada","Kaan","Nisa","Berk","Çınar","Duru","Poyraz","Asya","Rojin","Baran","Dilan","Meryem","Lara"];
-const WP_pick = arr => arr[Math.floor(Math.random() * arr.length)];
-const WP_name = () => WP_pick(WP_NAMES);
-const WP_pair = () => { const a = WP_name(); let b = WP_name(); while(b===a) b=WP_name(); return [a,b]; };
+// WP_NAMES, WP_pick, WP_name, WP_pair → src/data/numWords.js'den import edildi (refactor 2026-04-27)
 
 // ─── Problem Şablonları ─────────────────────────────────────────────────
 // Her şablon: { cgiType, cgiSub, text(a,b,c,names), answer(a,b,c), operation, icon, theme }
@@ -1600,7 +1475,7 @@ function generateWordProblem(level, maxNum, allowedOps = ["+","−"]) {
   let a, b, c, answer, equation;
   if (info.op === "+" || info.op === "−") {
     if (info.find === "result" || info.find === "whole" || info.find === "bigger" || info.find === "diff") {
-      a = R(2, Math.min(maxNum, 12)); b = R(1, Math.min(a - 1, maxNum - a, 8));
+      a = R(2, Math.min(maxNum, 12)); b = R(1, Math.max(1, Math.min(a - 1, maxNum - a, 8)));
       if (info.op === "+") { c = a + b; answer = c; equation = `${a} + ${b} = ${c}`; }
       else { c = a - b; answer = c; equation = `${a} − ${b} = ${c}`; }
     } else if (info.find === "change" || info.find === "part") {
@@ -1620,15 +1495,24 @@ function generateWordProblem(level, maxNum, allowedOps = ["+","−"]) {
     else { answer = groups; equation = `${total} ÷ ${perGroup} = ${groups}`; }
   }
 
-  // 3 seçenek üret
+  // 4 seçenek üret (üst seviyeler için daha zorlu, pedagojik distraktörler)
+  const numOpts = level >= 3 ? 4 : 3;
   const opts = [answer];
-  const near = [answer+1, answer-1, answer+2, answer-2, answer+3].filter(x => x > 0 && x !== answer && x <= maxNum + 5);
-  while (opts.length < 3 && near.length > 0) {
-    const pick = near.splice(Math.floor(Math.random()*near.length), 1)[0];
+  // Pedagojik distraktörler: ±1 (en yakın), ±2 (orta), ±10 (onluk hatası), işlem karışıklığı
+  const distractors = [answer+1, answer-1, answer+2, answer-2, answer+3, answer-3];
+  // Onluk hatası distraktörü (basamak değeri yanılgısı)
+  if (answer >= 10) distractors.push(answer+10, answer-10);
+  // İşlem karışıklığı distraktörü (toplama yerine çıkarma yapma vb.)
+  if (info.op === "+" && a > b) distractors.push(a - b);
+  if (info.op === "−") distractors.push(a + b);
+  const validDistractors = distractors.filter(x => x > 0 && x !== answer && x <= maxNum + 10);
+  while (opts.length < numOpts && validDistractors.length > 0) {
+    const pick = validDistractors.splice(Math.floor(Math.random()*validDistractors.length), 1)[0];
     if (!opts.includes(pick)) opts.push(pick);
   }
-  while (opts.length < 3) opts.push(answer + opts.length + 1);
-  opts.sort(() => Math.random() - 0.5);
+  while (opts.length < numOpts) opts.push(answer + opts.length + 1);
+  // Fisher-Yates shuffle (eşit olasılıklı karıştırma)
+  for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
 
   return {
     type: "wordProblem",
@@ -1704,7 +1588,7 @@ const MULTI_REP = {
     if (typeof correctAnswer === "number" && correctAnswer >= 1 && correctAnswer <= 20) {
       const blues = Math.min(5, correctAnswer);
       const reds = correctAnswer > 5 ? correctAnswer - 5 : 0;
-      reps.push({ type: "concrete", label: "Kapsülta gösterelim", blues, reds, total: correctAnswer });
+      reps.push({ type: "concrete", label: "Kapsülde gösterelim", blues, reds, total: correctAnswer });
     }
     // Soyut: matematik ifadesi
     if (mode === "addition" && question) {
@@ -1748,47 +1632,11 @@ const MULTI_REP = {
   },
 };
 
-// ═══ ÜÇLÜ KOD MODELİ (Dehaene, 1992) ══════════════════════════════════════
-// Sayılar üç kodda temsil edilir: çokluk (analog büyüklük), rakam (Arap), sözcük (sözel)
-// Okuma yazma bilmeyen çocuklar için sözel kod = işitsel (TTS)
-const NUM_WORDS = {
-  0:"sıfır",1:"bir",2:"iki",3:"üç",4:"dört",5:"beş",6:"altı",7:"yedi",8:"sekiz",9:"dokuz",
-  10:"on",11:"on bir",12:"on iki",13:"on üç",14:"on dört",15:"on beş",16:"on altı",17:"on yedi",
-  18:"on sekiz",19:"on dokuz",20:"yirmi",21:"yirmi bir",22:"yirmi iki",23:"yirmi üç",24:"yirmi dört",
-  25:"yirmi beş",26:"yirmi altı",27:"yirmi yedi",28:"yirmi sekiz",29:"yirmi dokuz",30:"otuz",
-  31:"otuz bir",32:"otuz iki",33:"otuz üç",34:"otuz dört",35:"otuz beş",36:"otuz altı",37:"otuz yedi",
-  38:"otuz sekiz",39:"otuz dokuz",40:"kırk",41:"kırk bir",42:"kırk iki",43:"kırk üç",44:"kırk dört",
-  45:"kırk beş",46:"kırk altı",47:"kırk yedi",48:"kırk sekiz",49:"kırk dokuz",50:"elli",
-  60:"altmış",70:"yetmiş",80:"seksen",90:"doksan",100:"yüz",
-};
-const numWord = (n) => NUM_WORDS[n] || `${NUM_WORDS[Math.floor(n/10)*10]||""} ${NUM_WORDS[n%10]||""}`.trim() || String(n);
+// NUM_WORDS, numWord, Türkçe/Kürtçe morfoloji yardımcıları → src/data/numWords.js'den import edildi
+// (refactor 2026-04-27 — broken capFirst/trDA/trK kapanımları da bu sayede düzeltildi)
 // TTS.speakNumber için global erişim
 if (typeof window !== "undefined") window._numWord = numWord;
-
-// Parmak temsili: 1-10 arası (somuttan soyuta köprü — Butterworth, 1999)
-
-// ═══ TÜRKÇE MORFOLOJİ YARDIMCILARI ════════════════════════════════════════
-// Ünlü uyumu ve isim çekimleri
-const _trV = 'aeıioöuüAEIİOÖUÜ';
-const _trIsV = ch => _trV.includes(ch);
-const _trLastV = w => { for(let i=w.length-1;i>=0;i--) if(_trIsV(w[i])) return w[i].toLowerCase(); return 'a'; };
-const _trH4 = v => 'ei'.includes(v)?'i':'aı'.includes(v)?'ı':'ou'.includes(v)?'u':'ü';
-const _trH2 = v => 'eiöü'.includes(v)?'e':'a';
-
-// Tamlayan (genitif): Elif'in, Ali'nin, Yusuf'un, Ada'nın, Kaan'ın, Duru'nun
-const trG = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name); return name+"'"+ (_trIsV(l)?'n':'') + _trH4(v)+'n'; };
-// Yönelme (datif): Elif'e, Ali'ye, Yusuf'a, Ada'ya
-const trD = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name); return name+"'"+ (_trIsV(l)?'y':'') + _trH2(v); };
-// Karşılaştırma: Elif'inkinden, Ali'ninkinden, Yusuf'unkinden
-const trK = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name),h=_trH4(v);
-// de/da bağlacı uyumu: Elif'in de, Kaan'ın da, Yusuf'un da, Duru'nun da
-const trDA = name => _trH2(_trLastV(name)) === 'e' ? 'de' : 'da';
-// Cümle başı büyük harf: "üç" → "Üç"
-const capFirst = s => s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1); return name+"'"+ (_trIsV(l)?'n':'') + h+'nk'+h+'nd'+_trH2(v)+'n'; };
-
-// Üleştirme sayısı: üçer, dörder, beşer, ikişer...
-const _DIST = {'bir':'birer','iki':'ikişer','üç':'üçer','dört':'dörder','beş':'beşer','altı':'altışar','yedi':'yedişer','sekiz':'sekizer','dokuz':'dokuzar','on':'onar','yirmi':'yirmişer','otuz':'otuzar','kırk':'kırkar','elli':'ellişer','altmış':'altmışar','yetmiş':'yetmişer','seksen':'seksener','doksan':'doksanar','yüz':'yüzer'};
-const numDist = n => { const w=numWord(n); if(_DIST[w]) return _DIST[w]; const p=w.split(' '); const lw=p[p.length-1]; if(_DIST[lw]){p[p.length-1]=_DIST[lw]; return p.join(' ');} return w; };
+// FINGER görseli — parmak temsili (Butterworth, 1999)
 const FINGER = {1:"☝️",2:"✌️",5:"🖐️",10:"🙌"};
 
 // ═══ MOTOR BECERİ DESTEĞİ (§7.2) ══════════════════════════════════════════
@@ -1837,7 +1685,7 @@ const PREMIUM = {
 // ═══ QR KOD & FİZİKSEL ENTEGRASYON (§5.1) ═════════════════════════════════
 // Rapor: Fiziksel DokunSay kapsülleri ile QR kod/kamera entegrasyonu
 const QR_SYSTEM = {
-  // QR koddan gelen komutlar — fiziksel kapsüllardaki etiketler
+  // QR koddan gelen komutlar — fiziksel kapsüllerdeki etiketler
   commands: {
     "DOKUNSAY-START": { action: "startMode", desc: "Modu başlat" },
     "DOKUNSAY-COUNT": { action: "counting", desc: "Sayma modunu başlat" },
@@ -1873,7 +1721,7 @@ const AR_MODE = {
     { id: "countOverlay", name: "Sayma Yardımcısı", desc: "Gerçek nesnelerin üzerine sayı göster", emoji: "🔢" },
     { id: "rodOverlay", name: "Sanal Kapsül", desc: "Masaya sanal sayı kapsülü yerleştir", emoji: "🧮" },
     { id: "measureAR", name: "Ölçme Aracı", desc: "Gerçek nesneleri kapsül ile ölç", emoji: "📏" },
-    { id: "subtractAR", name: "Çıkarma Modu", desc: "İki kapsülla çıkarma işlemi yap", emoji: "➖" },
+    { id: "subtractAR", name: "Çıkarma Modu", desc: "İki kapsülle çıkarma işlemi yap", emoji: "➖" },
     { id: "partWholeAR", name: "Parça-Bütün", desc: "Sayıyı iki parçaya ayır, görselleştir", emoji: "🧩" },
     { id: "taskAR", name: "Görev Modu", desc: "Kamera üzerinde matematik görevleri çöz", emoji: "📝" },
   ],
@@ -2135,7 +1983,7 @@ const LEARN_CONTENT = {
       {
         title: "Büyük Sayı, Uzun Kapsül",
         text: "Bir sayı büyüdükçe kapsülü de uzar. 3 pulluk kapsül kısa, 8 pulluk kapsül uzundur. Kapsüllerin boyunu karşılaştırarak hangi sayının büyük olduğunu görebilirsin.",
-        tts: "Büyük sayının kapsülü deha uzun! Üç kısa, sekiz uzun.",
+        tts: "Büyük sayının kapsülü daha uzun! Üç kısa, sekiz uzun.",
         visual: "compare", pairs: [{ a: 3, b: 8, answer: "8 > 3" }],
         note: "Uzun kapsül = büyük sayı. Kapsül boyu sayı büyüklüğünü gözle gösterir."
       },
@@ -2258,7 +2106,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "Pul Dizmek",
-        text: "Hedef sayıyı düşün, kapsüle pulları sürükleyerek yerleştir ve say. Tıpkı fiziksel kapsüllarda pul takmak gibi! 6 pul koyacaksan → 5 mavi, 1 kırmızı.",
+        text: "Hedef sayıyı düşün, kapsüle pulları sürükleyerek yerleştir ve say. Tıpkı fiziksel kapsüllerde pul takmak gibi! 6 pul koyacaksan → 5 mavi, 1 kırmızı.",
         tts: "Hedef sayıyı düşün, pul koy ve say. Altı: beş mavi, bir kırmızı!",
         visual: "buildNumberLearn",
         examples: [{ n: 3, desc: "3 pul" }, { n: 6, desc: "6 pul" }],
@@ -2905,16 +2753,9 @@ const LEARN_CONTENT = {
 };
 
 
-const CATEGORIES = {
-  // ── KAT1: Sayı Tanıma — Sayıları tanıma, çokluk algısı, temel sayma ilkeleri ──
-  // ═══════════════════════════════════════════════════════════════════════════
-  // YENİ YAPI: 8 Kategori × Clements & Sarama Öğrenme Yörüngeleri
-  // Her kategori = 1 LT yörüngesi | Modlar ltLevel sırasında (gelişimsel ilerleme)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  // ── KAT1: SAYMA — Counting Trajectory (19 düzey) ──────────────────────────
-  // ltLevel sırası: Corresponder(4) → Counter(5-6) → Producer(7) → Backward(9) → FromN(10) → Skip(11-14) → Conserver(18)
-  level1: { name: "🌍 Sayalon", desc: "Sayma gezegenini keşfet!", learnKey: "level1", modes: {
+// CATEGORIES + gmi → src/data/categories.js'den import edildi (refactor 2026-04-27)
+const _CATEGORIES_REMOVED_PLACEHOLDER = {
+  level1: { modes: {
     matching:      { n: "Yıldız Eşle!",    i: "🎯", d: "Rakamı çoklukla eşle (bire-bir)",       c: C.green },
     quantityMatch: { n: "Göktaşı Eşle!",  i: "🎲", d: "Rakamı doğru çoklukla eşle",             c: "#0891b2" },
     counting:      { n: "Göktaşı Say!",    i: "🔢", d: "Tek tek sayarak toplamı bul",             c: C.blue },
@@ -3138,8 +2979,6 @@ const getJourneyProgress = (path, modeStats) => {
   return { stops, currentIdx: currentIdx >= 0 ? currentIdx : stops.length - 1, nextMode, allComplete: stops.every(s => s.complete) };
 };
 
-const gmi = (id) => { for (const cat of Object.values(CATEGORIES)) if (cat.modes[id]) return cat.modes[id]; return null; };
-
 // ═══════════════════════════════════════════════════════════════════════════
 // GALAKSİ TEMASI — "Sayılar Galaksisi" Narratif Katmanı
 // Her öğrenme kategorisi = bir gezegen | 8 yıldız taşı toplanarak galaksi aydınlanır
@@ -3331,28 +3170,18 @@ const getModePlanet = (modeId) => {
   return null;
 };
 
-// Galaksi narratif geri bildirim mesajları
-const GALAXY_CORRECT_MSGS = [
-  "Harika, Kaşif! 🌟", "Yıldız gibi parlıyorsun! ⭐", "Galaksi aydınlanıyor! 💫",
-  "Uzay yolcusu oluyorsun! 🚀", "Yıldız taşı parıldıyor! 💎", "Mükemmel keşif! 🔭",
-  "Yörüngede ilerliyorsun! 🌍", "Süpersin, Kaşif! ✨",
-];
-const GALAXY_WRONG_MSGS = [
-  "Yörünge biraz kaydı... Tekrar dene! 🔭", "Yaklaştın! Bir daha bak 👀",
-  "Bu sefer olmadı, ama yakınsın! 🌟", "Kaşifler pes etmez! Tekrar dene 🚀",
-];
-const GALAXY_STREAK_MSGS = [
-  "", "", "",
-  "Üçlü Yıldız Dizilimi! 🌟🌟🌟", "Dört yıldızlı yörünge! 🚀🌟",
-  "Galaktik Seri Aktif! ⚡💫", "Kozmik Güç Alanı! 🌌✨",
-  "YILDIZ PATLAMASI! 🎇🎆", "SÜPERNOVA MODUNDA! 💥🌟💥",
-];
+// GALAXY_*_MSGS artık src/data/feedbackMessages.js'den import ediliyor (refactor 2026-04-27)
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
 @font-face{font-family:'Nunito';font-display:swap;src:local('Nunito')}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;overflow:hidden;font-family:'Nunito',sans-serif}
+/* v5.9.1: Focus görünürlüğü — WCAG 2.4.7 uyumu, klavye kullanıcıları için */
+:focus-visible{outline:3px solid #a78bfa;outline-offset:2px;border-radius:6px;box-shadow:0 0 0 4px rgba(167,139,250,.3)}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:3px solid #a78bfa;outline-offset:2px;box-shadow:0 0 0 4px rgba(167,139,250,.35)}
+/* Minimum dokunma hedefi — WCAG 2.5.5 */
+button,.option-btn,[role="button"]{min-height:44px}
 .page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;position:relative;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 .space-bg{background:linear-gradient(170deg,#312e81 0%,#3b2890 15%,#4f46e5 35%,#6366f1 52%,#4f46e5 68%,#3b2890 85%,#312e81 100%);position:relative;overflow:hidden}
 *::-webkit-scrollbar{display:none}*{scrollbar-width:none;-ms-overflow-style:none}
@@ -5951,8 +5780,9 @@ const AdaptiveEngine = {
     if (!modeStats || modeStats.played < 2) return currentLevel;
     const recentAcc = modeStats.recentAcc || 0;
     const avgTime = modeStats.avgTime || 5;
-    // Çok başarılı + hızlı → seviye artır
-    if (recentAcc >= 85 && avgTime < 5 && currentLevel < 7) return currentLevel + 1;
+    // v5.9.1: Hız koşulu kaldırıldı — doğruluk temelli seviye artışı yeterli
+    // Diskalkülili çocuklar yavaş ama doğru cevaplayabilir; hız filtresi onları tavan etkisine sokar
+    if (recentAcc >= 85 && currentLevel < 7) return currentLevel + 1;
     // Zorlanıyor → seviye düşür
     if (recentAcc < 45 && currentLevel > 1) return currentLevel - 1;
     return currentLevel;
@@ -6410,7 +6240,7 @@ function GalaksayGameInner() {
     setPreviewOpt(null); // v5.5: Seçenek önizlemesini sıfırla
     if (target !== "settings") setParentGatePassed(false);
     // v5.5: Okul öncesi ekran geçiş duyurusu
-    if (isPreReader) {
+    if (isPreReaderRef.current) {
       const screenNames = { journey: "Galaksi Haritası", levelSelect: "Görev Seçimi", game: "Oyun Başlıyor!", results: "Sonuçlar", modeSelect: "Etkinlikler", ageSelect: "Dünya Seçimi", learn: "Öğrenme", settings: "Ayarlar", menu: "Ana Menü" };
       const name = screenNames[target];
       if (name) { TTS.stop(); TTS._scheduleSpeech(() => TTS.speak(name), 500); }
@@ -6443,6 +6273,7 @@ function GalaksayGameInner() {
   const [countingIndex, setCountingIndex] = useState(-1);
   const [isHidden, setIsHidden] = useState(false); // for chipGuess/rodBack
   const [wpStep, setWpStep] = useState(0); // 0=oku, 1=anla, 2=işlem, 3=çöz, 4=özet
+  const wpStepErrorsRef = useRef(0); // Adım bazlı hata sayısı (yıldız hesabı için)
   const [wpFoundNums, setWpFoundNums] = useState([]);
   const [wpModelCount, setWpModelCount] = useState(0);
   const [wpAnlaStep, setWpAnlaStep] = useState(0);
@@ -6462,6 +6293,7 @@ function GalaksayGameInner() {
   const [selColor, setSelColor] = useState("blue");
   const [streak, setStreak] = useState(0); // E1.5: consecutive correct/wrong
   const streakRef = useRef(0); // F1: ref to avoid stale closure
+  const maxStreakGameRef = useRef(0); // track max streak during game
   const [showStreakBurst, setShowStreakBurst] = useState(false);
   const [floatingPts, setFloatingPts] = useState(null);
   const [soundOn, setSoundOn] = useState(true);
@@ -6900,6 +6732,8 @@ function GalaksayGameInner() {
     try { return null; /* sıfırlandı — test için */ } catch { return null; }
   }); // okuloncesi | sinif1 | sinif2
   const isPreReader = ageGroup === "okuloncesi"; // 5-6 yaş: okuma yazma bilmiyor
+  const isPreReaderRef = useRef(isPreReader);
+  isPreReaderRef.current = isPreReader;
   const mascotTimer = useRef(null);
   const [bgmOn, setBgmOn] = useState(false); // arka plan müziği
   const [ttsOn, setTtsOn] = useState(false); // sesli yönlendirme
@@ -6914,7 +6748,9 @@ function GalaksayGameInner() {
     storyNarration: true,  // Hikâye anlatımı (onboarding)
     resultsSpeech: true,   // Sonuç ekranı konuşması
   });
-  const [lang, setLang] = useState("tr"); // dil: tr, en
+  const [lang, setLang] = useState("tr"); // dil: tr, en, ku
+  // v5.9.1: Dil değiştiğinde HTML lang attribute'u güncelle (WCAG ekran okuyucu uyumu)
+  useEffect(() => { try { document.documentElement.lang = lang === "ku" ? "ku" : lang === "en" ? "en" : "tr"; } catch {} }, [lang]);
   const [collectedCards, setCollectedCards] = useState([]); // toplanan kartlar
   const [newCard, setNewCard] = useState(null); // yeni kazanılan kart
   const [screeningMode, setScreeningMode] = useState(false); // diskalkuli tarama aktif mi
@@ -6978,7 +6814,7 @@ function GalaksayGameInner() {
       TTS._scheduleSpeech(() => narrateWith(narrationOn, mp.guide.name, [title, guideSpeechResult]), 800);
     }
     return () => clearTimeout(ttsTimerRef.current);
-  }, [screen === "results"]); // eslint-disable-line -- sadece results ekranına girişte tetiklenir
+  }, [screen]); // eslint-disable-line -- sadece results ekranına girişte tetiklenir
 
   // v5.5: Mission popup TTS — useEffect ile (render-body bug fix)
   useEffect(() => {
@@ -7021,11 +6857,15 @@ function GalaksayGameInner() {
 
   // ═══ ADAPTİF VERİ YÜKLEME ═══
   const loadAdaptiveData = useCallback((username) => {
+    const today = new Date().toISOString().split("T")[0];
+    // Adaptif performans
     try {
       const ap = JSON.parse(localStorage.getItem(`ds_adaptive_${username}`) || "{}");
       setAdaptivePerf(ap);
+    } catch {}
+    // Günlük görevler
+    try {
       const qd = JSON.parse(localStorage.getItem(`ds_quests_${username}`) || "null");
-      const today = new Date().toISOString().split("T")[0];
       if (qd && qd.date === today) { setDailyQuests(qd); }
       else {
         const stats = JSON.parse(localStorage.getItem(`ds_stats_${username}`) || "{}");
@@ -7033,12 +6873,20 @@ function GalaksayGameInner() {
         setDailyQuests(newQ);
         localStorage.setItem(`ds_quests_${username}`, JSON.stringify(newQ));
       }
+    } catch {}
+    // Bugünkü modlar
+    try {
       const tm = JSON.parse(localStorage.getItem(`ds_todaymodes_${username}_${today}`) || "[]");
       setTodayModes(new Set(tm));
+    } catch {}
+    // Erişilebilirlik
+    try {
       const a = JSON.parse(localStorage.getItem(`ds_a11y_${username}`) || "null");
       if (a) { setA11y(a); try { localStorage.setItem("ds_a11y_global", JSON.stringify(a)); } catch {} }
-      // Yeni özellik verileri
-      const savedLang = localStorage.getItem(`ds_lang_${username}`);
+    } catch {}
+    // Yeni özellik verileri
+    try {
+      const savedLang = localStorage.getItem(`ds_lang_${username}`) || localStorage.getItem("ds_lang");
       if (savedLang) setLang(savedLang);
       const savedBgm = localStorage.getItem(`ds_bgm_${username}`);
       if (savedBgm === "1") setBgmOn(true);
@@ -7047,49 +6895,50 @@ function GalaksayGameInner() {
       const savedNarration = localStorage.getItem(`ds_narration_${username}`);
       if (savedNarration === "1") setNarrationOn(true);
       else if (savedNarration === null) {
-        // İlk giriş: okul öncesi (5-6 yaş) için otomatik aç
         const ag = localStorage.getItem("ds_ageGroup");
         if (ag === "okuloncesi") { setNarrationOn(true); setTtsOn(true); }
       }
       // Granüler ses ayarlarını yükle
       const savedVoice = JSON.parse(localStorage.getItem(`ds_voiceSettings_${username}`) || "null");
       if (savedVoice) setVoiceSettings(prev => ({ ...prev, ...savedVoice }));
+    } catch {}
+    // Kartlar & koleksiyon
+    try {
       const savedCards = JSON.parse(localStorage.getItem(`ds_cards_${username}`) || "[]");
       setCollectedCards(savedCards);
-      // Kaptan Günlüğü & Eserler & Görev Arkı yükle
+    } catch {}
+    // Kaptan Günlüğü & Eserler & Görev Arkı yükle
+    try {
       const savedLog = JSON.parse(localStorage.getItem(`ds_captainslog_${username}`) || "[]");
       setCaptainsLog(savedLog);
       const savedArtifacts = JSON.parse(localStorage.getItem(`ds_artifacts_${username}`) || "[]");
       setUnlockedArtifacts(savedArtifacts);
-      // ═══ GÜNLÜK GİRİŞ SERİSİ ═══
-      try {
-        const savedStreak = JSON.parse(localStorage.getItem(`ds_streak_${username}`) || "null");
-        const today = new Date().toISOString().split("T")[0];
-        if (savedStreak) {
-          const lastDate = savedStreak.lastDate;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-          if (lastDate === today) {
-            // Bugün zaten giriş yapılmış
-            setDailyStreak(savedStreak);
-          } else if (lastDate === yesterday) {
-            // Seri devam ediyor!
-            const updated = { current: savedStreak.current + 1, best: Math.max(savedStreak.best, savedStreak.current + 1), lastDate: today, claimedToday: false };
-            setDailyStreak(updated);
-            localStorage.setItem(`ds_streak_${username}`, JSON.stringify(updated));
-          } else {
-            // Seri kırıldı
-            const updated = { current: 1, best: savedStreak.best, lastDate: today, claimedToday: false };
-            setDailyStreak(updated);
-            localStorage.setItem(`ds_streak_${username}`, JSON.stringify(updated));
-          }
+    } catch {}
+    // ═══ GÜNLÜK GİRİŞ SERİSİ ═══
+    try {
+      const savedStreak = JSON.parse(localStorage.getItem(`ds_streak_${username}`) || "null");
+      if (savedStreak) {
+        const lastDate = savedStreak.lastDate;
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+        if (lastDate === today) {
+          setDailyStreak(savedStreak);
+        } else if (lastDate === yesterday) {
+          const updated = { current: savedStreak.current + 1, best: Math.max(savedStreak.best, savedStreak.current + 1), lastDate: today, claimedToday: false };
+          setDailyStreak(updated);
+          localStorage.setItem(`ds_streak_${username}`, JSON.stringify(updated));
         } else {
-          // İlk giriş
-          const initial = { current: 1, best: 1, lastDate: today, claimedToday: false };
-          setDailyStreak(initial);
-          localStorage.setItem(`ds_streak_${username}`, JSON.stringify(initial));
+          const updated = { current: 1, best: savedStreak.best, lastDate: today, claimedToday: false };
+          setDailyStreak(updated);
+          localStorage.setItem(`ds_streak_${username}`, JSON.stringify(updated));
         }
-      } catch {}
-      // İlk kez mi giriyor?
+      } else {
+        const initial = { current: 1, best: 1, lastDate: today, claimedToday: false };
+        setDailyStreak(initial);
+        localStorage.setItem(`ds_streak_${username}`, JSON.stringify(initial));
+      }
+    } catch {}
+    // İlk kez mi giriyor?
+    try {
       if (!localStorage.getItem(`ds_onboarded_${username}`)) setShowOnboarding(true);
     } catch {}
   }, []);
@@ -7516,13 +7365,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const retryQ = retryQueue[0];
       setRetryQueue(q => q.slice(1));
       const rAns = retryQ.type === "comparison" ? (retryQ.askMin ? Math.min(retryQ.num1, retryQ.num2) : Math.max(retryQ.num1, retryQ.num2))
-        : retryQ.number || retryQ.target || retryQ.total || retryQ.answer;
+        : retryQ.result ?? retryQ.number ?? retryQ.target ?? retryQ.total ?? retryQ.answer;
       if (rAns !== undefined && rAns !== null) {
         setQuestion({ ...retryQ, isRetry: true, retryCount: (retryQ.retryCount || 0) });
         setCorrectAnswer(rAns);
         if (retryQ._savedOpts) setOptions(retryQ._savedOpts);
         else setOptions(gen3(rAns, [rAns + 1, rAns - 1, rAns + 2], 1, Math.max(rAns + 3, 10)));
-        setAnswered(false); setFeedback(null); setHintUsed(false); setHintData(null); setCountingIndex(-1); setIsHidden(false); setPreviewOpt(null);
+        setAnswered(false); setFeedback(null); setHintUsed(false); setHintData(null); setHintKademe(0); setCountingIndex(-1); setIsHidden(false); setPreviewOpt(null);
         return; // retry sorusu gösterildi, normal üretimi atla
       }
     }
@@ -7652,8 +7501,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // MEB MAT.1.2.4, MAT.2.2.3: "toplama ve çıkarmanın birbirinin tersi işlemler olduğu"
         case "inversePractice": {
           const ipMax = Math.min(mx, 12);
-          const ipN1 = R(2, Math.min(ipMax, 8));
-          const ipN2 = R(1, Math.min(ipN1, ipMax - ipN1));
+          const ipN1 = R(2, Math.min(ipMax - 1, 8));
+          const ipN2 = R(1, Math.max(1, Math.min(ipN1, ipMax - ipN1)));
           const ipSum = ipN1 + ipN2;
           // Soru tipi: toplama verilir → çıkarma sor, veya tersi
           const ipDir = Math.random() < 0.5 ? "addToSub" : "subToAdd";
@@ -7837,7 +7686,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           const ordDesc = level >= 3 && Math.random() < 0.4;
           const ordSorted = ordDesc ? [...nums].sort((a, b) => b - a) : [...nums].sort((a, b) => a - b);
           // Karıştır
-          const shuffled = [...nums].sort(() => Math.random() - 0.5);
+          const shuffled = fyShuffle(nums);
           // Gösterim çeşitliliği: rod, chips, frame
           const ordDisplayPool = level <= 1 ? ["rod"] : ["rod", "rod", "chips", "frame"];
           const ordDisplay = ordDisplayPool[Math.floor(Math.random() * ordDisplayPool.length)];
@@ -7855,8 +7704,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           // Level 4+: %40 olasılıkla onluk geçiş zorla (11→9, 21→19 gibi)
           if (level >= 4 && Math.random() < 0.4) {
             const decade = R(1, Math.min(2, Math.floor(maxStart / 10))) * 10;
-            startNum = decade + R(1, 3);
-            stepsBack = startNum - decade + R(0, 1);
+            startNum = Math.min(decade + R(1, 3), maxStart);
+            stepsBack = Math.max(1, startNum - decade + R(0, 1));
           } else {
             startNum = R(Math.max(3, level <= 2 ? 3 : 5), maxStart);
             stepsBack = R(1, Math.min(startNum - 1, level <= 2 ? 2 : level <= 4 ? 3 : 4));
@@ -7886,7 +7735,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           let rodSet = [...new Set([d1, target, d2])];
           while (rodSet.length < 3) rodSet.push(Math.min(maxVal, Math.max(...rodSet) + 1));
           // Shuffle positions
-          const rods = rodSet.sort(() => Math.random() - 0.5).slice(0, 3);
+          const rods = fyShuffle(rodSet).slice(0, 3);
           const correctPos = rods.indexOf(target);
           q = { type: "numberLine", target, maxVal, rods, correctPos };
           ans = correctPos;
@@ -8005,7 +7854,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             tfA = R(3, Math.min(mx, 10)); tfB = R(1, Math.max(1, tfA - 1));
             tfCorrectResult = tfA - tfB;
             const tfC = R(1, Math.max(1, tfCorrectResult - 1)), tfD = tfCorrectResult - tfC;
-            const tfDShown = isTrue ? tfD : tfD + (Math.random() < 0.5 ? 1 : -1);
+            const tfDShown = isTrue ? tfD : Math.max(0, tfD + (Math.random() < 0.5 ? 1 : -1));
             tfLeft = `${tfA} − ${tfB}`; tfRight = `${tfC} + ${tfDShown}`;
             tfIsCorrect = (tfA - tfB === tfC + tfDShown);
           } else if (eqType === "resultBoth") {
@@ -8127,12 +7976,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // ═══ FAZ1: Az-Çok-Eşit ═══
         case "lessMoreEqual": {
           const lmeMax = Math.min(mx, 10);
-          const g1 = R(1, lmeMax);
+          let g1 = R(1, lmeMax);
           const rnd = Math.random();
           let g2;
           if (rnd < 0.2) g2 = g1;
-          else if (rnd < 0.6) { g2 = R(Math.min(g1 + 1, lmeMax), lmeMax); if (g2 <= g1) g2 = Math.min(lmeMax, g1 + 1); }
-          else { g2 = R(1, Math.max(1, g1 - 1)); if (g2 >= g1) g2 = Math.max(1, g1 - 1); }
+          else if (rnd < 0.6) { if (g1 >= lmeMax) { g2 = lmeMax; g1 = R(1, lmeMax - 1); } else { g2 = R(g1 + 1, lmeMax); } }
+          else { if (g1 <= 1) { g2 = 1; g1 = R(2, lmeMax); } else { g2 = R(1, g1 - 1); } }
           const lmeAns = g1 < g2 ? 0 : g1 === g2 ? 1 : 2;
           // Gösterim çeşitliliği: rod, chips, frame, finger, domino (LT-5→7)
           const lmePool = ["rod", "chips", "frame", "finger"];
@@ -8165,17 +8014,22 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           let isSame, n2;
           if (varType === "addRemove") {
             // Bir nesne ekle veya çıkar — korunuyor mu?
-            const change = Math.random() < 0.5 ? 1 : -1;
-            n2 = Math.max(1, Math.min(n + change, 10));
+            let change = Math.random() < 0.5 ? 1 : -1;
+            if (n + change < 1 || n + change > 10) change = -change;
+            n2 = n + change;
             isSame = false; // ekleme/çıkarma → eşit değil
           } else {
             // %50 aynı sayı, %50 farklı — dengeli olsun
             isSame = Math.random() < 0.5;
-            const diff = Math.random() < 0.5 ? 1 : (Math.random() < 0.5 ? 2 : -1);
-            n2 = isSame ? n : Math.max(1, Math.min(n + diff, 10));
+            if (isSame) { n2 = n; }
+            else {
+              const diff = Math.random() < 0.5 ? 1 : (Math.random() < 0.5 ? 2 : -1);
+              n2 = Math.max(1, Math.min(n + diff, 10));
+              if (n2 === n) n2 = n >= 5 ? n - 1 : n + 1; // clamping sonrası eşitlik düzelt
+            }
           }
-          q = { type: "conservation", number: n, number2: n2, layoutA: lA, layoutB: lB, isSame: n === n2, varType };
-          ans = n === n2 ? 1 : 0;
+          q = { type: "conservation", number: n, number2: n2, layoutA: lA, layoutB: lB, isSame, varType };
+          ans = isSame ? 1 : 0;
           opts = [0, 1];
           break;
         }
@@ -8465,7 +8319,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           // Fallback — benzersiz yanlış çiftler üret
           if (wrongPairs.length < 2 && !wrongPairs.some(p => p[0] === ninTarget && p[1] === 1)) wrongPairs.push([ninTarget, 1]);
           if (wrongPairs.length < 2 && !wrongPairs.some(p => p[0] === 1 && p[1] === ninTarget)) wrongPairs.push([1, ninTarget]);
-          const ninOpts = [correctPair, ...wrongPairs].sort(() => Math.random() - 0.5);
+          const ninOpts = fyShuffle([correctPair, ...wrongPairs]);
           const ninCorrectIdx = ninOpts.findIndex(p => p[0] === correctPair[0] && p[1] === correctPair[1]);
           q = { type: "numbersInNumbers", target: ninTarget, correctPair, allPairs, options: ninOpts, correctIdx: ninCorrectIdx };
           ans = ninCorrectIdx;
@@ -8701,7 +8555,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             // Tam çekirdek + yanlışlar
             ptOpts = [ptCore, ...wrongCores.slice(0, 2)];
             // Karıştır
-            const ptShuffled = ptOpts.map((o, i) => ({ o, i })).sort(() => Math.random() - 0.5);
+            const ptShuffled = fyShuffle(ptOpts.map((o, i) => ({ o, i })));
             ptOpts = ptShuffled.map(s => s.o);
             ptCorrectIdx = ptShuffled.findIndex(s => s.i === 0);
           } else {
@@ -8731,7 +8585,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               if (fb !== correctNumeric && !uniqueWrong.includes(fb)) uniqueWrong.push(fb);
             }
             ptOpts = [correctNumeric, ...uniqueWrong.slice(0, 2)];
-            const ptShuffled2 = ptOpts.map((o, i) => ({ o, i })).sort(() => Math.random() - 0.5);
+            const ptShuffled2 = fyShuffle(ptOpts.map((o, i) => ({ o, i })));
             ptOpts = ptShuffled2.map(s => s.o);
             ptCorrectIdx = ptShuffled2.findIndex(s => s.i === 0);
           }
@@ -8955,7 +8809,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const wrongOpts = opts.filter(o => o !== ans);
       setEliminatedOpt(wrongOpts.length > 0 ? wrongOpts[Math.floor(Math.random() * wrongOpts.length)] : null);
     } else { setEliminatedOpt(null); }
-    setUserAnswer(null); setFeedback(null); setAnswered(false); setShowConfetti(false); setWpStep(0); setWpFoundNums([]); setWpModelCount(0); setWpAnlaStep(0); setWpBuildPhase(0); setWpBuildA(0); setWpBuildB(0); setWpReviewStep(0);
+    setUserAnswer(null); setFeedback(null); setAnswered(false); setShowConfetti(false); setWpStep(0); setWpFoundNums([]); setWpModelCount(0); setWpAnlaStep(0); setWpBuildPhase(0); setWpBuildA(0); setWpBuildB(0); setWpReviewStep(0); wpStepErrorsRef.current = 0;
     qStartRef.current = Date.now(); // speed bonus: mark question start
     // GalakSay Analytics — 2026-03-18 — Soru sunuldu kaydı
     try { onQuestionPresented(gameMode, q, level); } catch (_) {}
@@ -9173,7 +9027,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         sembolik = `${q.c} ÷ ${q.a} = ?`;
       } else if (ct === "multiplyNumGroupsUnknown") {
         somut = `${nw(q.c)} puldan ${nw(q.b)}'şerli gruplar oluştur. Kaç grup yapabildin?`;
-        gorsel = `${nw(q.c)} pulu ${nw(q.b)}'erli kapsüllara yerleştir. Kaç kapsül doldu?`;
+        gorsel = `${nw(q.c)} pulu ${nw(q.b)}'erli kapsüllere yerleştir. Kaç kapsül doldu?`;
         sembolik = `${q.c} ÷ ${q.b} = ?`;
       } else {
         somut = `Pullarla problemi masada canlandır.`;
@@ -9201,7 +9055,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     }
     else if (q.type === "lengthGuess") {
       setIsHidden(false);
-      setHintData({ type: "text", value: `Gizli kapsülde${q.unknown} pul var! Bilinen kapsülla karşılaştır.` });
+      setHintData({ type: "text", value: `Gizli kapsülde${q.unknown} pul var! Bilinen kapsülle karşılaştır.` });
       setTimeout(() => { setIsHidden(true); setHintData(null); }, 3500);
     }
     else if (q.type === "difference") {
@@ -9506,7 +9360,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const mode = gameMode, acc = Math.round((fc / roundsPerGame) * 100);
     setLastPlayed({ mode, level }); // E2.5
     sfx("gameComplete", acc);
-    const maxStreakThisGame = Math.max(0, streakRef.current);
+    const maxStreakThisGame = maxStreakGameRef.current;
 
     // ═══ ADAPTİF MOTOR: Mod performansı güncelle ═══
     const avgTime = responseTimes.length > 0
@@ -9872,6 +9726,29 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     if (handleAnswerRef.current) handleAnswerRef.current(opt);
   }, [answered, isPreReader, previewOpt, sfx]);
 
+  // v5.9.1: "Bilmiyorum" butonu — tahmin etmeyi önler, temiz diagnostik veri sağlar
+  const handleSkip = useCallback(() => {
+    if (answered) return;
+    setAnswered(true); setUserAnswer(null);
+    sfx("hint");
+    // Doğru cevabı göster ama yanlış sayma — "destekli" olarak kaydet
+    setFeedback({ ok: false, skipped: true, needNext: true });
+    streakRef.current = 0; setStreak(0);
+    // Hata takibi — skip = yanlış cevap gibi işle
+    consecutiveWrongsRef.current += 1;
+    setSessionErrors(p => p + 1);
+    // Retry kuyruğuna ekle (atlanmış soruyu tekrar sor)
+    if (question) {
+      setRetryQueue(q => [...q, { ...question, _retryReason: "skipped" }]);
+    }
+    // Hint seviyesini sıfırla (sonraki soru temiz başlasın)
+    setHintKademe(0);
+    // Diagnostik: skip olarak kaydet (tahmin değil)
+    if (question) {
+      try { onQuestionAnswered({ questionType: question.type, correct: false, skipped: true, hintLevel: hintKademe }); } catch {}
+    }
+  }, [answered, question, hintKademe, sfx]);
+
   const handleAnswer = useCallback((answer) => {
     if (answered) return;
     setAnswered(true); setUserAnswer(answer);
@@ -9899,7 +9776,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const elapsed = (Date.now() - qStartRef.current) / 1000; // seconds
       // §T2 Calcularis Transfer: Yanıt süresini kaydet (otomatikleşme ölçümü)
       setResponseTimes(rt => [...rt, { elapsed, ok: true, type: question?.type }].slice(-20));
-      const speedBonus = hintUsed ? 0 : elapsed < 3 ? 5 : elapsed < 5 ? 3 : elapsed < 8 ? 1 : 0;
+      // v5.9.1: Hız bonusu kaldırıldı — diskalkülili çocuklarda hız ödülü matematik kaygısını artırır,
+      // tahmin etmeyi teşvik eder ve yavaş işleyen hedef kitleyi cezalandırır (Pedagoji Uzmanı Raporu)
+      // Hız yalnızca isteğe bağlı Fluency Sprint modunda ödüllendirilir
+      const speedBonus = 0;
       const curStreak = streakRef.current >= 0 ? streakRef.current + 1 : 1;
       const streakBonus = curStreak >= 7 ? 5 : curStreak >= 5 ? 3 : curStreak >= 3 ? 2 : 0;
       const pts = basePts + speedBonus + streakBonus;
@@ -9916,6 +9796,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       // F1: Use ref for accurate streak tracking
       const newStreak = curStreak;
       streakRef.current = newStreak; setStreak(newStreak);
+      if (newStreak > maxStreakGameRef.current) maxStreakGameRef.current = newStreak;
       let msg = GALAXY_CORRECT_MSGS[Math.floor(Math.random() * GALAXY_CORRECT_MSGS.length)];
       // Task-specific encouragement with galaxy flavor
       const qt = question?.type;
@@ -10211,11 +10092,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         else if (q.type === "addChips") { explain = `${q.start} + ${q.toAdd} = ${correctAnswer}`; teachTip = `Mevcut ${q.start} pula ${q.toAdd} tane ekle — hepsini baştan say! ➕`; }
         else if (q.type === "removeChips") { explain = `${q.start} − ${q.toRemove} = ${correctAnswer}`; teachTip = `${q.toRemove} pulu çıkar (tıkla söndür) — kalan pulları say! ➖`; }
         else if (q.type === "numberLine") { const nlL=["①","②","③"]; explain = `${q.target} pullu kapsül: ${nlL[q.correctPos]}`; teachTip = `Kapsül uzunluğuna bak — ${q.target} pul, ${nlL[q.correctPos]} numaralı kapsül! 📏`; }
-        else if (q.type === "lengthGuess") { explain = `Gizli kapsül: ${correctAnswer} pul`; teachTip = "Yanındaki kapsülla boy ölç — gizem çözüldü! 🕵️"; }
+        else if (q.type === "lengthGuess") { explain = `Gizli kapsül: ${correctAnswer} pul`; teachTip = "Yanındaki kapsülle boy ölç — gizem çözüldü! 🕵️"; }
         else if (q.type === "beforeAfter") {
           if (q.subType === "before") { explain = `${q.number}'den önce ${correctAnswer} gelir`; teachTip = "Bir önceki = 1 eksik. Sayı doğrusunda bir adım sola git! ⬅️"; }
           else if (q.subType === "after") { explain = `${q.number}'den sonra ${correctAnswer} gelir`; teachTip = "Bir sonraki = 1 fazla. Sayı doğrusunda bir adım sağa git! ➡️"; }
-          else { explain = `${q.low} ile ${q.high} arasında ${correctAnswer} var`; teachTip = "Sırayla say: ${q.low}, ?, ${q.high} — ortadaki sayıyı bul! 🔎"; }
+          else { explain = `${q.low} ile ${q.high} arasında ${correctAnswer} var`; teachTip = `Sırayla say: ${q.low}, ?, ${q.high} — ortadaki sayıyı bul! 🔎`; }
         }
         else if (q.type === "quantityMatch") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Pulları tek tek say ve doğru rakamla eşle! Her pul bir birim 🎲"; }
         else if (q.type === "matching") { explain = `Doğru kapsül: ${correctAnswer} pullu`; teachTip = "Her kapsüldeki pulları tek tek say, rakamla eşleşeni bul! 🎯"; }
@@ -10371,8 +10252,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       if (question) setRetryQueue(q => [...q, { ...question, _savedOpts: options, retryCount: (question.retryCount || 0) + 1 }].slice(-10));
       const fullMsg = teachTip ? `${explain}\n${teachTip}` : explain;
       // §2.2: Çoklu temsil ile görsel açıklama
-      const wrongExplanation = MULTI_REP.getExplanation(q.type, correctAnswer, q);
-      const baseMathInsight = getMathInsight(q.type || gameMode, false, question, correctAnswer);
+      const wrongExplanation = MULTI_REP.getExplanation(q?.type, correctAnswer, q);
+      const baseMathInsight = getMathInsight(q?.type || gameMode, false, question, correctAnswer);
       // Combine mathInsight with MODE_STORIES wrongInsight for richer feedback
       const mathInsight = modeWrongInsight
         ? (baseMathInsight ? `${baseMathInsight}\n${modeWrongInsight}` : modeWrongInsight)
@@ -10427,6 +10308,31 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     if (round + 1 >= roundsPerGame) finishGame(correctCnt, score);
     else { setRound(r => r + 1); createQuestion(); }
   }, [round, finishGame, correctCnt, score, createQuestion]);
+
+  // ═══ KLAVye NAVİGASYONU — Erişilebilirlik (1-4 cevap tuşları, Enter devam, H ipucu) ═══
+  useEffect(() => {
+    if (screen !== "game") return;
+    const handleKeyDown = (e) => {
+      // 1-4 tuşları: cevap seçenekleri
+      if (!answered && question && ["1","2","3","4"].includes(e.key)) {
+        const idx = parseInt(e.key) - 1;
+        const opts = question.options || question.opts;
+        if (opts && idx < opts.length) { handleOptionTap(opts[idx]); e.preventDefault(); }
+      }
+      // Enter / Space: devam et (cevaplandıysa)
+      if (answered && feedback && (e.key === "Enter" || e.key === " ")) { advanceNext(); e.preventDefault(); }
+      // H tuşu: ipucu
+      if (!answered && e.key === "h" && !e.ctrlKey && !e.metaKey) {
+        // İpucu mekanizmasını tetikle — hint butonuna tıklama simülasyonu
+        const hintBtn = document.querySelector('[aria-label*="İpucu"]');
+        if (hintBtn) { hintBtn.click(); e.preventDefault(); }
+      }
+      // Escape: menüye dön
+      if (e.key === "Escape") { goMenu(); e.preventDefault(); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [screen, answered, question, feedback, advanceNext, handleOptionTap]);
 
   const checkInteractive = useCallback(() => {
     if (answered) return;
@@ -10484,7 +10390,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const catKey = Object.entries(CATEGORIES).find(([_, cat]) => cat.modes[gameMode])?.[0] || "menu";
       BGM.play(catKey);
     }
-    setRound(0); setCorrectCnt(0); setScore(0); setStreak(0); streakRef.current = 0; usedKeys.current = new Set(); lastQKeyRef.current = ""; setNewBadges([]); setNewCard(null);
+    setRound(0); setCorrectCnt(0); setScore(0); setStreak(0); streakRef.current = 0; maxStreakGameRef.current = 0; usedKeys.current = new Set(); lastQKeyRef.current = ""; setNewBadges([]); setNewCard(null);
     // GalakSay Analytics — 2026-03-18 — Modül başlangıcını kaydet
     try { setCurrentModule(gameMode, level); } catch (_) {}
     // Show mission briefing overlay — çocuk "Göreve Hazırım!" butonuna basana kadar bekle
@@ -10542,8 +10448,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         ? `${miss !== "first" ? numWord(n1) : "?"} ${op === "+" ? "artı" : op === "−" ? "eksi" : op} ${miss !== "second" ? numWord(n2) : "?"}`
         : (miss !== "result" && showRes ? numWord(res) : "?");
       return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, maxWidth: "100%", overflow: "hidden", animation: "slideInFromBottom .35s ease" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center", maxWidth: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, maxWidth: "100%", overflow: "visible", animation: "slideInFromBottom .35s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center", maxWidth: "100%", boxSizing: "border-box" }}>
             {leftPart}
             <OpSym symbol="=" />
             {rightPart}
@@ -10942,7 +10848,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 istChoices.map(function(ch, ci) {
                   return React.createElement("button", { key: ci, onClick: function() {
                     if (ch === istenenTR) { sfx("correct"); showFloatPts(stepPts[1]); setScore(function(s) { return s + stepPts[1]; }); setWpStep(2); }
-                    else { sfx("wrong"); }
+                    else { sfx("wrong"); wpStepErrorsRef.current++; }
                   }, style: {
                     padding: "12px 16px", borderRadius: 14, width: "100%",
                     border: "2px solid " + wpc.brd, background: "rgba(49,46,129,.5)", fontSize: 13, fontWeight: 700,
@@ -10978,7 +10884,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ops.map(function(op) {
                   return React.createElement("button", { key: op.sym, onClick: function() {
                     if (op.sym === wpOp) { sfx("correct"); showFloatPts(stepPts[2]); setScore(function(s) { return s + stepPts[2]; }); setWpBuildPhase(0); setWpBuildA(0); setWpBuildB(0); setWpModelCount(0); setWpStep(3); }
-                    else { sfx("wrong"); }
+                    else { sfx("wrong"); wpStepErrorsRef.current++; }
                   }, style: { padding: "14px 8px", borderRadius: 16, border: "2.5px solid " + op.clr + "25", background: op.bg, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, fontFamily: "inherit", transition: "all 0.15s" } },
                     React.createElement("span", { style: { fontSize: 28 } }, op.emoji),
                     React.createElement("span", { style: { fontSize: 15, fontWeight: 800, color: op.clr } }, op.name)
@@ -11215,7 +11121,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     React.createElement("button", { onClick: function() {
                       if (wpModelCount === modelAnswer) {
                         sfx("correct"); showFloatPts(stepPts[3]); setScore(function(s) { return s + stepPts[3]; }); setWpBuildPhase(2);
-                      } else { sfx("wrong"); setWpModelCount(0); }
+                      } else { sfx("wrong"); wpStepErrorsRef.current++; setWpModelCount(0); }
                     }, style: { padding: "8px 24px", borderRadius: 10, border: "none", background: wpc.accent, color: "#fff", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" } }, "Kontrol Et \u2713")
                   )
                 ) : React.createElement("div", null,
@@ -11245,7 +11151,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           { icon: "\uD83E\uDDEE", label: "Denklem", detail: eqStr.replace("?", String(q.answer)) },
           { icon: "\u2705", label: "Cevap", detail: String(q.answer) + " " + q.obj },
         ];
-        var totalPts = stepPts[0] + stepPts[1] + stepPts[2] + stepPts[3] + 10;
+        var totalPts = Math.max(10, stepPts[0] + stepPts[1] + stepPts[2] + stepPts[3] + 10 - wpStepErrorsRef.current * 8);
         var stars = totalPts >= 55 ? 3 : totalPts >= 40 ? 2 : 1;
 
         return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
@@ -11281,6 +11187,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         );
 
       }
+      // fall-through guard
+      return null;
       case "counting":
         { const cntSize = capsuleSize(q.number);
         return (<div style={{ textAlign: "center" }}>
@@ -11302,7 +11210,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         { const rbSize = capsuleSize(q.number);
         const rbDm = q.rbDisplay || "rod";
         const rbHintMap = {
-          rod: "Kapsültaki pulları say!",
+          rod: "Kapsüldeki pulları say!",
           twoColor: "Mavi ve kırmızı grupları ayrı say, topla!",
           frame: q.number <= 5 ? "Beşlik çerçevedeki pulları say!" : "Üst sıra doluysa 5 — alt sırayı ekle!",
           domino: "Domino kalıbını tanı — sol ve sağı topla!",
@@ -11443,7 +11351,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           return <NumberRod count={q.number} size={rbSize} blank />;
         };
         const rbDisplayLabel = { rod: "Kapsül", twoColor: "Renkli Kapsül", frame: q.number <= 5 ? "Beşlik Kart" : "Onluk Kart", domino: "Domino", finger: "Parmak", dice: "Zar" }[rbDm] || "Kapsül";
-        const rbLocLabel = { rod: "Kapsülta", twoColor: "Renkli Kapsülta", frame: q.number <= 5 ? "Beşlik Kartta" : "Onluk Kartta", domino: "Dominoda", finger: "Parmakta", dice: "Zarda" }[rbDm] || "Kapsülta";
+        const rbLocLabel = { rod: "Kapsülde", twoColor: "Renkli Kapsülde", frame: q.number <= 5 ? "Beşlik Kartta" : "Onluk Kartta", domino: "Dominoda", finger: "Parmakta", dice: "Zarda" }[rbDm] || "Kapsülde";
         return (<div style={{ textAlign: "center" }}>
           <TXT>{isHidden ? `${rbLocLabel} kaç pul vardı? Hatırla!` : `${rbHintMap[rbDm]}`}</TXT>
           {!isHidden && <SUB>{rbDisplayLabel} birazdan gizlenecek — saydığın sayıyı hatırla!</SUB>}
@@ -11482,8 +11390,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const renderCmpItem = (n, color, sz) => {
           if (cDsp === "chips") {
             return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: n > 6 ? 160 : 120 }}>
-                {Array.from({ length: n }, (_, i) => <Chip key={i} color={color} size={Math.min(sz, 28)} />)}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: n > 10 ? 220 : n > 6 ? 170 : 130 }}>
+                {Array.from({ length: n }, (_, i) => <Chip key={i} color={color} size={n > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />)}
               </div>
             );
           }
@@ -11635,7 +11543,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Sayma adımları: +1, +1, ... şeklinde ok ile */}
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8" }}>say →</span>
-              {q.countSeq.map((num, i) => (
+              {(q.countSeq || []).map((num, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   <div style={{
                     padding: "4px 10px", borderRadius: 10,
@@ -11702,15 +11610,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {stratBadge[q.strategy] && <div style={{ display: "inline-block", padding: "2px 10px", borderRadius: 12,
             background: "rgba(245,158,11,.15)", border: "1px solid rgba(245,158,11,.3)",
             fontSize: 10, fontWeight: 800, color: "#f59e0b", marginBottom: 6 }}>⚡ {stratBadge[q.strategy]}</div>}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            {(() => { const addSz = capsuleSize(Math.max(q.num1,q.num2)); return (<>
-            <div style={{ animation: "slideRight .4s ease" }}><NumberRod count={q.num1} defaultColor="blue" size={addSz} /></div>
-            <span style={{ fontSize: 20, fontWeight: 900, color: "#f59e0b", animation: "fadeIn .5s ease" }}>+</span>
-            <div style={{ animation: "slideRight .6s ease" }}><NumberRod count={q.num2} defaultColor="red" size={addSz} /></div>
-            </>); })()}
-          </div>
           {/* Değişme özelliği ipucu */}
           {q.showCommute && !answered && <SUB>💡 İpucu: {q.num2} + {q.num1} de aynı sonucu verir! (değişme özelliği)</SUB>}
+          {/* OpRow: kapsül + operatör + sözel — üçlü kodlama tek satırda */}
           <OpRow n1={q.num1} n2={q.num2} op="+" res={q.result} showRes={false} />
           {answered && <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.num1)} + {numWord(q.num2)} = {numWord(q.result)}
@@ -11734,14 +11636,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {sStratBadge[q.strategy] && <div style={{ display: "inline-block", padding: "2px 10px", borderRadius: 12,
             background: "rgba(220,38,38,.12)", border: "1px solid rgba(220,38,38,.25)",
             fontSize: 10, fontWeight: 800, color: "#dc2626", marginBottom: 6 }}>⚡ {sStratBadge[q.strategy]}</div>}
-          <SUB>{q.num1} − {q.num2}: mavi kapsülden kırmızı kadarını çıkar!</SUB>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            {(() => { const subSz = capsuleSize(Math.max(q.num1,q.num2)); return (<>
-            <div style={{ animation: "fadeUp .3s ease" }}><NumberRod count={q.num1} defaultColor="blue" size={subSz} /></div>
-            <span style={{ fontSize: 20, fontWeight: 900, color: "#dc2626", animation: "fadeIn .4s ease" }}>−</span>
-            <div style={{ animation: "fadeUp .5s ease", opacity: 0.6 }}><NumberRod count={q.num2} defaultColor="red" size={subSz} /></div>
-            </>); })()}
-          </div>
+          {/* OpRow: kapsül + operatör + sözel — üçlü kodlama tek satırda */}
           <OpRow n1={q.num1} n2={q.num2} op="−" res={q.result} showRes={false} />
           {answered && <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.num1)} − {numWord(q.num2)} = {numWord(q.result)}
@@ -12210,8 +12105,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const renderOrdItem = (val, sz) => {
           if (ordDsp === "chips") {
             return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: val > 5 ? 100 : 80 }}>
-                {Array.from({ length: val }, (_, i) => <Chip key={i} color="blue" size={Math.min(sz, 22)} />)}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center", maxWidth: val > 10 ? 160 : val > 5 ? 110 : 80 }}>
+                {Array.from({ length: val }, (_, i) => <Chip key={i} color="blue" size={val > 10 ? Math.min(sz, 16) : Math.min(sz, 22)} />)}
               </div>
             );
           }
@@ -12225,7 +12120,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <TXT>{q.descending ? "Büyükten küçüğe sırala!" : "Küçükten büyüğe sırala!"}</TXT>
           <SUB>{q.descending ? "En büyükten en küçüğe sırala!" : "En küçükten en büyüğe sırala!"}</SUB>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-            {/* Seçim alanı — henüz yerleştirilmemiş kapsüllar */}
+            {/* Seçim alanı — henüz yerleştirilmemiş kapsüller */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center",
               padding: 12, borderRadius: 14, background: "rgba(124,58,237,.08)", border: "2px dashed rgba(196,181,253,.3)", minHeight: 70 }}>
               {unplacedItems.length > 0 ? unplacedItems.map((s) => (
@@ -12252,7 +12147,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
             {/* Ok */}
             <span style={{ fontSize: 20, color: "#8b5cf6" }}>⬇️</span>
-            {/* Sıralama alanı — yerleştirilmiş kapsüllar */}
+            {/* Sıralama alanı — yerleştirilmiş kapsüller */}
             <div style={{ display: "flex", gap: 6, alignItems: "flex-end", padding: "10px 14px",
               borderRadius: 14, background: "rgba(5,150,105,.1)", border: "1px solid rgba(134,239,172,.25)", minHeight: 70, minWidth: 120 }}>
               {placedItems.length > 0 ? placedItems.map((s, i) => (
@@ -12302,7 +12197,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <SUB>{ocDirLabel} başlayarak say: birinci, ikinci, üçüncü...</SUB>
           {/* Yıldız sırası */}
           <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "14px 8px", flexWrap: "wrap" }}>
-            {q.items.map((item, i) => {
+            {(q.items || []).map((item, i) => {
               const isHighlight = i === q.highlightIdx;
               const posLabel = q.fromRight ? q.count - i : i + 1;
               return (<div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
@@ -12566,9 +12461,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const maxCells = Math.max(q.known, q.unknown);
         const rodSize = capsuleSize(maxCells);
         return (<div style={{ textAlign: "center" }}>
-          <TXT>Gizli kapsüldekaç pul var?</TXT>
+          <TXT>Gizli kapsülde kaç pul var?</TXT>
           <SUB>Bilinen kapsülle karşılaştır!</SUB>
-          {/* Karşılaştırma çerçevesi — sol hizalı kapsüllar */}
+          {/* Karşılaştırma çerçevesi — sol hizalı kapsüller */}
           <div style={{ display: "inline-flex", flexDirection: "column", gap: 10, marginTop: 10,
             padding: "16px 20px", borderRadius: 18,
             background: "rgba(49,46,129,.4)",
@@ -12779,8 +12674,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const renderLmeGroup = (count, displayType, color, sz) => {
           if (displayType === "chips") {
             return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: count > 5 ? 120 : 100 }}>
-                {Array.from({ length: count }, (_, i) => <Chip key={i} color={color} size={Math.min(sz, 28)} />)}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: count > 10 ? 180 : count > 5 ? 130 : 100 }}>
+                {Array.from({ length: count }, (_, i) => <Chip key={i} color={color} size={count > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />)}
               </div>
             );
           }
@@ -13001,7 +12896,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {/* Noktalar */}
               <div style={{ transition: "all .4s ease", opacity: isHidden ? 0 : 1, filter: isHidden ? "blur(10px)" : "none",
                 width: "100%", height: "100%", position: "relative" }}>
-                {q.dots.map((dot, i) => {
+                {(q.dots || []).map((dot, i) => {
                   const dotC = subColorHex(i);
                   const dotC2 = Math.floor(i / 5) % 2 === 0 ? "#60a5fa" : "#f87171";
                   return (
@@ -13198,7 +13093,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const mvSz = capsuleSize(q.b);
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{q.a}</BIG> × <BIG>{q.b}</BIG> = ?</TXT>
-          <SUB>{q.a} × {q.b} = ?</SUB>
+          <SUB>{q.a} eşit grup, her grupta {q.b} pul</SUB>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "12px 8px",
             borderRadius: 16, background: "rgba(124,58,237,.1)", border: "2px solid rgba(167,139,250,.3)" }}>
             {Array.from({ length: q.a }, (_, gi) => (
@@ -13597,7 +13492,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             borderRadius: 18, background: "rgba(124,58,237,.1)", border: "2px solid rgba(167,139,250,.3)",
             maxWidth: "90%", overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-              {/* Onluk kapsüllar */}
+              {/* Onluk kapsüller */}
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 10, fontWeight: 800, color: "#3b82f6", marginBottom: 4 }}>ONLAR</div>
                 {q.askTens ? (
@@ -13708,7 +13603,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{ninTarget}</BIG>'i iki parçaya ayır!</TXT>
           <SUB>Toplamı {ninTarget} yapan ikililer!</SUB>
-          {/* Hedef sayıyı kapsülla göster */}
+          {/* Hedef sayıyı kapsülle göster */}
           <div style={{ display: "inline-block", padding: "12px 20px", borderRadius: 18,
             background: "rgba(124,58,237,.1)", border: `2px solid ${ninC}30`,
             boxShadow: `0 4px 16px ${ninC}12` }}>
@@ -13722,7 +13617,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {ninTarget}'in tüm parçaları:
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center" }}>
-                {q.allPairs.map((pair, pi) => (
+                {(q.allPairs || []).map((pair, pi) => (
                   <div key={pi} style={{ padding: "3px 8px", borderRadius: 8,
                     background: pair[0] === q.correctPair[0] && pair[1] === q.correctPair[1] ? `${ninC}20` : "rgba(49,46,129,.4)",
                     border: pair[0] === q.correctPair[0] && pair[1] === q.correctPair[1] ? `2px solid ${ninC}` : "1px solid #e2e8f0",
@@ -13791,7 +13686,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
           )}
           {/* Cevaptan sonra tüm çözümleri göster */}
-          {answered && q.solutions.length > 1 && (
+          {answered && q.solutions?.length > 1 && (
             <div style={{ marginTop: 10, animation: "fadeUp .5s ease" }}>
               <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 4 }}>Diğer çözümler de olabilirdi:</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: "100%", overflow: "hidden" }}>
@@ -14254,10 +14149,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
     // ═══ FiveMore: Az / Eşit / Çok butonları ═══
     if (question.type === "fiveMore") {
+      const fmRef = question.fmRef || 5;
       const fmLabels = [
-        { val: 0, label: "5'ten Az", icon: "⬇️", color: "#3b82f6" },
-        { val: 1, label: "5'e Eşit", icon: "🟰", color: "#eab308" },
-        { val: 2, label: "5'ten Çok", icon: "⬆️", color: "#ef4444" },
+        { val: 0, label: `${fmRef}'${fmRef === 10 ? "dan" : "ten"} Az`, icon: "⬇️", color: "#3b82f6" },
+        { val: 1, label: `${fmRef}'${fmRef === 10 ? "a" : "e"} Eşit`, icon: "🟰", color: "#eab308" },
+        { val: 2, label: `${fmRef}'${fmRef === 10 ? "dan" : "ten"} Çok`, icon: "⬆️", color: "#ef4444" },
       ];
       return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 10 }}>
         {fmLabels.map((fm) => {
@@ -14591,7 +14487,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     }
 
     // 3-option grid (default) — large & vivid with glassmorphism
-    return (<div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`, gap: 10, marginTop: 14, maxWidth: "100%" }}>
+    return (<div style={{ marginTop: 14, maxWidth: "100%" }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`, gap: 10 }}>
       {options.map((opt, i) => {
         if (isEliminated(opt) && !answered) return (
           <div key={i} style={{ padding: "14px 8px", borderRadius: 18, background: "rgba(30,27,75,.25)", backdropFilter: "blur(8px)", opacity: .3, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -14604,7 +14501,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         if (answered) { if (opt === correctAnswer) bg = C.correct; else if (opt === userAnswer) bg = C.wrong; else bg = "rgba(30,27,75,.3)"; }
         if (isHighlighted(opt) && !answered) bg = C.yellow;
         const isPreviewing = previewOpt === opt && !answered;
-        return (<button key={i} className={`option-btn answer-option${isCorrectOpt ? " correct-flash" : ""}${isWrongOpt ? " wrong-flash" : ""}`} aria-label={`Secenek ${typeof opt === "number" ? numWord(opt) || opt : opt}`} onClick={() => { if (!noAnswerYet) { handleOptionTap(opt); }}} disabled={answered || noAnswerYet} style={{
+        return (<button key={i} className={`option-btn answer-option${isCorrectOpt ? " correct-flash" : ""}${isWrongOpt ? " wrong-flash" : ""}`} aria-label={`Seçenek ${typeof opt === "number" ? numWord(opt) || opt : opt}`} onClick={() => { if (!noAnswerYet) { handleOptionTap(opt); }}} disabled={answered || noAnswerYet} style={{
           padding: "16px 8px", borderRadius: 18, border: isCorrectOpt ? "2px solid rgba(52,211,153,.6)" : isWrongOpt ? "2px solid rgba(248,113,113,.5)" : isPreviewing ? "2.5px solid #fbbf24" : "1.5px solid rgba(255,255,255,.08)",
           background: bg,
           cursor: (answered || noAnswerYet) ? "default" : "pointer",
@@ -14626,6 +14523,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           )}
         </button>);
       })}
+      </div>
+      {/* v5.9.1: "Bilmiyorum" butonu — tahmin etmeyi önler, diagnostik veri temizler */}
+      {!answered && (
+        <button onClick={handleSkip} aria-label={lang === "ku" ? "Ez nizanim" : lang === "en" ? "I don't know" : "Bilmiyorum"} style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          width: "100%", marginTop: 8, padding: "10px 16px", borderRadius: 14,
+          background: "rgba(148,163,184,.12)", backdropFilter: "blur(8px)",
+          border: "1px solid rgba(148,163,184,.15)", color: "#94a3b8",
+          fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F,
+          transition: "all .2s", opacity: .7,
+        }}>
+          <span style={{ fontSize: 14 }}>🤔</span>
+          {lang === "ku" ? "Ez nizanim — alîkarî" : lang === "en" ? "I don't know — help me" : "Bilmiyorum — yardım et"}
+        </button>
+      )}
     </div>);
   };
 
@@ -14673,8 +14585,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const loginMaxW = isDesktop ? 500 : isWide ? 440 : 380;
     const inputStyle = { width: "100%", padding: isWide ? "14px 14px 14px 44px" : "13px 14px 13px 42px", borderRadius: isWide ? 16 : 14, border: "1px solid rgba(148,163,184,.18)", fontSize: isWide ? 14 : 13, fontWeight: 600, background: "rgba(30,27,75,.45)", outline: "none", color: "#e2e8f0", fontFamily: F, boxSizing: "border-box", transition: "all .25s cubic-bezier(.4,0,.2,1)", backdropFilter: "blur(12px)" };
     return (
-      <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, justifyContent: "flex-start", overflow: "auto", paddingTop: isWide ? 0 : 16 }}>
+      <div className={"page space-bg " + pageAnim + a11yCls} role="main" lang={lang === "ku" ? "ku" : lang === "en" ? "en" : "tr"} aria-label={lang === "ku" ? "GalakSay - Platforma Fêrbûna Matematîkê" : lang === "en" ? "GalakSay - Math Learning Platform" : "GalakSay - Matematik Öğrenme Platformu"} style={{ fontFamily: F, justifyContent: "flex-start", overflow: "auto", paddingTop: isWide ? 0 : 16 }}>
         <style>{CSS}</style>
+        {/* Skip to content link for keyboard navigation */}
+        <a href="#login-card" style={{ position: "absolute", top: -40, left: 0, background: "#6366f1", color: "#fff", padding: "8px 16px", zIndex: 9999, fontSize: 14, fontWeight: 700, borderRadius: "0 0 8px 0", transition: "top .2s" }} onFocus={(e) => e.target.style.top = "0"} onBlur={(e) => e.target.style.top = "-40px"}>Ana içeriğe atla</a>
         {/* Nebula glows */}
         <div className="nebula-glow" style={{ width: 350, height: 350, background: "#6366f1", top: "-12%", right: "-8%", opacity: .35, animation: "nebulaFloat 10s ease-in-out infinite" }} />
         <div className="nebula-glow" style={{ width: 280, height: 280, background: "#7c3aed", bottom: "-8%", left: "-6%", opacity: .25, animation: "nebulaFloat 12s ease-in-out infinite reverse" }} />
@@ -14783,7 +14697,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         <div style={{ position: "absolute", top: isWide ? 10 : 8, right: isWide ? 14 : 10, zIndex: 20 }}>
           <div style={{ display: "flex", gap: 3, background: "linear-gradient(135deg, rgba(15,12,50,.8), rgba(30,27,75,.7))", borderRadius: 12, padding: 3, backdropFilter: "blur(14px)", border: "1px solid rgba(167,139,250,.15)", boxShadow: "0 4px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06)" }}>
             {[{ code: "tr", name: "TR", icon: "🌍" }, { code: "en", name: "EN", icon: "🌎" }, { code: "ku", name: "KU", icon: "🌏" }].map(l => (
-              <button key={l.code} onClick={() => { setLang(l.code); try { localStorage.setItem("ds_lang", l.code); } catch {} }}
+              <button key={l.code} onClick={() => { setLang(l.code); try { localStorage.setItem("ds_lang", l.code); localStorage.setItem(`ds_lang_${currentUser?.username || "guest"}`, l.code); } catch {} }}
                 style={{
                   padding: "5px 10px", borderRadius: 9, border: lang === l.code ? "1px solid rgba(167,139,250,.3)" : "1px solid transparent",
                   background: lang === l.code ? "linear-gradient(135deg, rgba(99,102,241,.35), rgba(124,58,237,.25))" : "transparent",
@@ -16323,31 +16237,19 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 const contextMsg = missionContexts[0];
                 return (
                   <div style={{
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginBottom: 10,
-                    padding: "10px 14px 8px", borderRadius: 16,
-                    background: `linear-gradient(135deg, ${mp.color}18, ${mp.color}06)`,
-                    border: `1.5px solid ${mp.color}25`,
+                    display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8,
+                    padding: "6px 12px", borderRadius: 14,
+                    background: `linear-gradient(135deg, ${mp.color}14, ${mp.color}04)`,
+                    border: `1px solid ${mp.color}20`,
                     animation: hintHighlight ? `questionSlideIn .4s cubic-bezier(.16,1,.3,1), hintBlink 1s ease 3` : "questionSlideIn .4s cubic-bezier(.16,1,.3,1)",
-                    boxShadow: hintHighlight ? `0 4px 16px ${mp.color}12, 0 0 20px rgba(59,130,246,.35)` : `0 4px 16px ${mp.color}12`,
+                    boxShadow: hintHighlight ? `0 0 16px rgba(59,130,246,.3)` : "none",
                     position: "relative", overflow: "hidden",
                   }}>
-                    {/* Subtle energy wave across card */}
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${mp.color}40, transparent)`, backgroundSize: "200% 100%", animation: "shimmer 3s ease infinite" }} />
-                    {["spaceKitchen","rodSplit","spaceBalance","wordProblem"].includes(gameMode) ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <GuideCharacter guide={mp.guide} color={mp.color} mood="idle" size={40} showName={false} compact />
-                        <div>
-                          <span style={{ fontSize: 13, fontWeight: 900, color: mp.color, letterSpacing: .3 }}>{mp.guide.name}:</span>
-                          <span style={{ fontSize: 14, fontWeight: 800, color: "#f1f5f9", marginLeft: 5 }}>{msgs[round % msgs.length]}</span>
-                        </div>
-                      </div>
-                    ) : (<>
-                      <GuideCharacter guide={mp.guide} color={mp.color} mood="idle" size={50} showName={false} />
-                      <div style={{ textAlign: "center" }}>
-                        <span style={{ fontSize: 13, fontWeight: 900, color: mp.color, letterSpacing: .3 }}>{mp.guide.name}:</span>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: "#f1f5f9", marginLeft: 5 }}>{msgs[round % msgs.length]}</span>
-                      </div>
-                    </>)}
+                    <GuideCharacter guide={mp.guide} color={mp.color} mood="idle" size={32} showName={false} compact />
+                    <div>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: mp.color, letterSpacing: .3 }}>{mp.guide.name}:</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginLeft: 5 }}>{msgs[round % msgs.length]}</span>
+                    </div>
                   </div>
                 );
               })()}
@@ -16361,7 +16263,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* ── Feedback — kart içinde, seçeneklerin hemen altında ── */}
             {feedback && !(question && question.type === "wordProblem") && (
               <div onClick={feedback.ok && !feedback.needNext ? advanceNext : undefined}
-                role="status" aria-live="polite" aria-label={feedback.ok ? "Dogru cevap" : "Yanlis cevap"}
+                role="status" aria-live="polite" aria-label={feedback.ok ? "Doğru cevap" : "Yanlış cevap"}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginTop: 10, animation: "fadeUp .3s ease",
                   cursor: feedback.ok && !feedback.needNext ? "pointer" : "default" }}>
                 {/* Guide character speech reaction — with mathematical insight */}
@@ -16737,7 +16639,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     // v5.5: Karakter seslendirme useEffect'e taşındı (render-body TTS bug fix)
     // Akıcılık modu özeti
     const fluencySummary = fluencyMode && fluencySession ? getFluencySummary(fluencySession) : null;
-    if (fluencySummary) {
+    if (fluencySummary && !fluencySummary._recorded) {
+      fluencySummary._recorded = true;
       PersonalRecords.update(gameMode, level, fluencySummary);
       // GalakSay Analytics — 2026-03-18 — Akıcılık modu oturum kaydı
       try { onFluencySessionEnd(gameMode, fluencySummary); } catch (_) {}
@@ -16873,7 +16776,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             const perfKey = acc === 100 ? "perfect" : acc >= 80 ? "excellent" : acc >= 60 ? "good" : "struggling";
             const celebrations = MISSION_COMPLETION_CELEBRATIONS[perfKey];
             if (!celebrations || celebrations.length === 0) return null;
-            const cel = celebrations[Math.floor(Math.random() * celebrations.length)];
+            const cel = celebrations[(sessionCorrects + sessionErrors + level) % celebrations.length];
             return (
               <div style={{
                 margin: "0 16px", padding: "12px 16px", borderRadius: 16,
@@ -18452,7 +18355,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     const us = adminUserStats[u.username];
                     if (!us || us.totalGames === 0) groups[4].count++;
                     else {
-                      const a = Math.round((us.totalCorrect / us.totalQ) * 100);
+                      const a = us.totalQ > 0 ? Math.round((us.totalCorrect / us.totalQ) * 100) : 0;
                       if (a >= 80) groups[0].count++;
                       else if (a >= 60) groups[1].count++;
                       else if (a >= 40) groups[2].count++;
@@ -18467,7 +18370,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         <span style={{ fontSize: 10, fontWeight: 800, color: g.color }}>{g.count} öğrenci</span>
                       </div>
                       <div style={{ height: 8, borderRadius: 4, background: "#f1f5f9", overflow: "hidden" }}>
-                        <div style={{ height: "100%", borderRadius: 4, width: `${(g.count / total) * 100}%`, background: g.color, transition: "width .6s" }} />
+                        <div style={{ height: "100%", borderRadius: 4, width: `${total > 0 ? (g.count / total) * 100 : 0}%`, background: g.color, transition: "width .6s" }} />
                       </div>
                     </div>
                   ));
@@ -18499,7 +18402,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const currentTitle = getTitle(stats.totalScore);
     const nextTitle = getNextTitle(stats.totalScore);
     const unlockedBadgeIds = getUnlockedBadges(stats);
-    const progressToNext = nextTitle ? Math.min(100, Math.round(((stats.totalScore - currentTitle.min) / (nextTitle.min - currentTitle.min)) * 100)) : 100;
+    const progressDenom = nextTitle ? (nextTitle.min - currentTitle.min) : 0;
+    const progressToNext = nextTitle && progressDenom > 0 ? Math.min(100, Math.round(((stats.totalScore - currentTitle.min) / progressDenom) * 100)) : 100;
 
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
@@ -18574,27 +18478,29 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       }
     };
     const celebrateFn = () => { setLearnCelebrate(true); sfx("correct"); setTimeout(() => setLearnCelebrate(false), 1200); };
-    const tap = (idx) => { if (learnTapped.has(idx)) return; sfx("chipClick"); setLearnTapped(prev => new Set([...prev, idx])); };
+    const tap = (idx) => { if (learnTapped.has(idx)) return; sfx("chipPop"); setLearnTapped(prev => new Set([...prev, idx])); };
 
     // ═══ ETKİLEŞİMLİ GÖRSEL ═══
     const renderVis = (st) => {
-      const bx = { display:"flex",flexDirection:"column",alignItems:"center",gap:12,padding:"16px 14px",borderRadius:18,background:"rgba(30,27,75,.4)",border:`1px solid ${lc.color}25`,boxShadow:`0 0 20px ${lc.color}08, inset 0 1px 0 rgba(255,255,255,.04)`,width:"100%",overflow:"hidden" };
+      const bx = { display:"flex",flexDirection:"column",alignItems:"center",gap:12,padding:"16px 10px",borderRadius:18,background:"rgba(30,27,75,.4)",border:`1px solid ${lc.color}25`,boxShadow:`0 0 20px ${lc.color}08, inset 0 1px 0 rgba(255,255,255,.04)`,width:"100%",overflow:"auto",boxSizing:"border-box",maxWidth:"100%" };
       const hint = (t) => <div style={{fontSize:12,fontWeight:800,color:"#fbbf24",textAlign:"center",animation:"fadeIn .5s ease"}}>👆 {t}</div>;
       // DokunSay kapsül helper — fiziksel formatla aynı görsel
+      // v5.9.1: Kapsül boyutunu sayıya göre otomatik küçült — taşma önleme
+      const rodSize = (count, baseSize=28) => count > 10 ? Math.max(14, Math.min(baseSize - 6, 22)) : count > 7 ? Math.max(16, baseSize - 4) : baseSize;
       const Rod = ({count, size=28, showNum, interactive, onTap, tapped, label}) => (
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,maxWidth:"100%"}}>
           {interactive ? (
-            <div style={{display:"inline-flex",padding:"6px 10px",borderRadius:12,background:"rgba(30,27,75,.5)",border:"1px solid rgba(148,163,184,.15)",boxShadow:"inset 0 2px 4px rgba(0,0,0,.2)"}}>
-              <div style={{display:"flex",gap:3}}>
+            <div style={{display:"inline-flex",padding:"6px 8px",borderRadius:12,background:"rgba(30,27,75,.5)",border:"1px solid rgba(148,163,184,.15)",boxShadow:"inset 0 2px 4px rgba(0,0,0,.2)",maxWidth:"100%",overflowX:"auto",boxSizing:"border-box"}}>
+              <div style={{display:"flex",gap:2,flexShrink:1}}>
                 {Array.from({length:count},(_,i) => (
-                  <div key={i} onClick={()=>onTap&&onTap(i)} style={{cursor:"pointer"}}>
-                    <Chip color={i<5?"blue":"red"} size={size} number={showNum&&(tapped?tapped.has(i):true)?i+1:null} glow={tapped&&tapped.has(i)} />
+                  <div key={i} onClick={()=>onTap&&onTap(i)} style={{cursor:"pointer",flexShrink:1,minWidth:0}}>
+                    <Chip color={i<5?"blue":"red"} size={rodSize(count,size)} number={showNum&&(tapped?tapped.has(i):true)?i+1:null} glow={tapped&&tapped.has(i)} />
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <NumberRod count={count} defaultColor={count<=5?"blue":"red"} size={Math.max(14, Math.min(size, 32))} showNumber={showNum} />
+            <NumberRod count={count} defaultColor={count<=5?"blue":"red"} size={Math.max(14, Math.min(rodSize(count,size), 32))} showNumber={showNum} />
           )}
           {label && <div style={{fontSize:10,fontWeight:800,color:"#3b82f6"}}>{label}</div>}
         </div>
@@ -18837,7 +18743,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* After all tapped — show predecessor/successor */}
             {learnTapped.size >= n && phase === 0 && (
               <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,animation:"fadeUp .4s ease"}}>
-                <div style={{fontSize:16,fontWeight:900,color:"#cbd5e1"}}>Kapsülta {n} yeşil sayı pulu var!</div>
+                <div style={{fontSize:16,fontWeight:900,color:"#cbd5e1"}}>Kapsülde {n} yeşil sayı pulu var!</div>
                 <button onClick={()=>setLearnRevealed(1)} style={{padding:"12px 28px",borderRadius:14,border:"none",fontFamily:F,
                   background:"linear-gradient(135deg,#22c55e,#16a34a)",color:"#fff",fontSize:15,fontWeight:900,
                   cursor:"pointer",boxShadow:"0 4px 12px rgba(22,163,74,.3)"}}>
@@ -18881,7 +18787,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               </div>);
             })()}
-            )}
             {phase >= 1 && (
               <div style={{fontSize:14,fontWeight:900,color:"#059669",textAlign:"center",animation:"bounce .5s ease"}}>
                 ✅ {n-1} ← {n} → {n+1}
@@ -19142,7 +19047,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <span style={{fontSize:13,fontWeight:900,color:"#cbd5e1"}}>{st.b}</span>
                 </div>
               </div>
-              <button onClick={()=>{setLearnRevealed(1);sfx("chipClick");}} style={{padding:"10px 24px",borderRadius:12,border:"none",fontFamily:F,background:"linear-gradient(135deg,#0891b2,#0e7490)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"}}>Farkı göster! 🔍</button>
+              <button onClick={()=>{setLearnRevealed(1);sfx("chipPop");}} style={{padding:"10px 24px",borderRadius:12,border:"none",fontFamily:F,background:"linear-gradient(135deg,#0891b2,#0e7490)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"}}>Farkı göster! 🔍</button>
             </>)}
             {ph>=1 && (<>
               <div style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-start",animation:"fadeUp .4s ease"}}>
@@ -19168,7 +19073,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {ph===0 && (<>
               <div style={{fontSize:11,fontWeight:800,color:"#c026d3"}}>{st.count} sayısını hatırla! İpucu: renkleri kullan</div>
               <NumberRod count={st.count} defaultColor="blue" size={40} />
-              <button onClick={()=>{setLearnRevealed(1);sfx("chipClick");}} style={{padding:"10px 24px",borderRadius:12,border:"none",fontFamily:F,background:"linear-gradient(135deg,#c026d3,#a21caf)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"}}>Renkleri göster! 🎨</button>
+              <button onClick={()=>{setLearnRevealed(1);sfx("chipPop");}} style={{padding:"10px 24px",borderRadius:12,border:"none",fontFamily:F,background:"linear-gradient(135deg,#c026d3,#a21caf)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer"}}>Renkleri göster! 🎨</button>
             </>)}
             {ph>=1 && (<div style={{animation:"fadeUp .3s ease",textAlign:"center"}}>
               <div style={{display:"flex",gap:8,alignItems:"center",justifyContent:"center"}}>
@@ -19397,7 +19302,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               ))}
             </div>
-            <button onClick={()=>{if(!learnTapped.has(0)){tap(0);sfx("chipClick");}}} style={{padding:"10px 20px",borderRadius:10,border:"none",fontFamily:F,background:learnTapped.has(0)?"#059669":"linear-gradient(135deg,#3b82f6,#60a5fa)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",animation:learnTapped.has(0)?"none":"pulse 3s ease infinite"}}>{learnTapped.has(0)?"✅ Sıralandı!":"Küçükten büyüğe sırala!"}</button>
+            <button onClick={()=>{if(!learnTapped.has(0)){tap(0);sfx("chipPop");}}} style={{padding:"10px 20px",borderRadius:10,border:"none",fontFamily:F,background:learnTapped.has(0)?"#059669":"linear-gradient(135deg,#3b82f6,#60a5fa)",color:"#fff",fontSize:13,fontWeight:900,cursor:"pointer",animation:learnTapped.has(0)?"none":"pulse 3s ease infinite"}}>{learnTapped.has(0)?"✅ Sıralandı!":"Küçükten büyüğe sırala!"}</button>
             {learnTapped.has(0) && (<div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center",width:"100%",animation:"fadeUp .4s ease"}}>
               <div style={{fontSize:12,fontWeight:800,color:"#059669"}}>Doğru sıra:</div>
               {sorted.map((n,i)=>(
@@ -19671,7 +19576,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   </div>
                   {rev ? (<div style={{flex:1,animation:"fadeUp .4s ease"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                      {/* Onluk kapsüllar — tek renk */}
+                      {/* Onluk kapsüller — tek renk */}
                       <div style={{display:"flex",flexDirection:"column",gap:3}}>
                         {Array.from({length:t},(_,j) => (
                           <div key={j} style={{animation:`slideRight ${0.2+j*0.15}s ease`}}>
@@ -19709,7 +19614,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   </div>
                   {rev && <span style={{fontSize:18,color:"#94a3b8",animation:"fadeIn .3s ease"}}>=</span>}
                   {rev && (<div style={{display:"flex",alignItems:"center",gap:8,animation:"fadeUp .4s ease"}}>
-                    {/* Onluk kapsüllar */}
+                    {/* Onluk kapsüller */}
                     <div style={{textAlign:"center",padding:"6px 8px",borderRadius:10,background:"rgba(234,179,8,.12)",border:"1.5px solid #fcd34d"}}>
                       <div style={{display:"flex",flexDirection:"column",gap:2}}>
                         {Array.from({length:ex.tens},(_,j)=>(
@@ -19740,7 +19645,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               const num=ex.tens*10+ex.ones;
               return (<div key={i} style={{padding:"12px 14px",borderRadius:14,background:"rgba(30,27,75,.45)",border:"1px solid rgba(148,163,184,.12)",width:"100%",textAlign:"center"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,justifyContent:"center",flexWrap:"wrap"}}>
-                  {/* Onluk kapsüllar */}
+                  {/* Onluk kapsüller */}
                   <div style={{textAlign:"center",padding:"4px 6px",borderRadius:8,background:"rgba(234,179,8,.12)",border:"1px solid #fcd34d"}}>
                     <div style={{display:"flex",flexDirection:"column",gap:2}}>
                       {Array.from({length:ex.tens},(_,j)=><NumberRod key={j} count={10} defaultColor="blue" solid size={10} />)}
@@ -20186,7 +20091,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "matching": {
           return (<div style={bx}>
-            {hint("Kapsültaki pulları say, doğru rakamı bul!")}
+            {hint("Kapsüldeki pulları say, doğru rakamı bul!")}
             {(st.examples||[{num:5},{num:3}]).map((ex,i) => {
               const rev=learnTapped.has(i);
               const n=ex.num||5;
@@ -20665,7 +20570,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   ))}
                 </div>
                 <div style={{ fontSize: 10, color: "#cbd5e1", fontWeight: 600, lineHeight: 1.6, padding: "8px 10px", borderRadius: 8, background: "rgba(59,130,246,.06)" }}>
-                  <strong style={{ color: "#60a5fa" }}>Dijital-Fiziksel Döngü:</strong> Ekranda soruyu gör → Fiziksel kapsülla çöz → Ekranda cevabı seç → Sonucu fiziksel olarak doğrula. Bu döngü sayısal kavramları bedensel hafızaya yerleştirir.
+                  <strong style={{ color: "#60a5fa" }}>Dijital-Fiziksel Döngü:</strong> Ekranda soruyu gör → Fiziksel kapsülle çöz → Ekranda cevabı seç → Sonucu fiziksel olarak doğrula. Bu döngü sayısal kavramları bedensel hafızaya yerleştirir.
                 </div>
               </div>
 
@@ -20733,10 +20638,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   Bu çocuklar soyut sembollere geçişte zorlanır; somut deneyim süresinin uzatılması gerekir.
                 </div>
                 {[
-                  { rule: "Somut aşamayı uzat", desc: "Akranlar soyuta geçse bile, diskalkuli riski olan çocuk fiziksel kapsülla çalışmaya devam etmeli.", icon: "⏳" },
-                  { rule: "Çoklu temsil kullan", desc: "Aynı sayıyı kapsülta, kartta, parmakta ve ekranda göster. Üçlü Kod Modeli (Dehaene) beyin ağlarını güçlendirir.", icon: "🔄" },
+                  { rule: "Somut aşamayı uzat", desc: "Akranlar soyuta geçse bile, diskalkuli riski olan çocuk fiziksel kapsülle çalışmaya devam etmeli.", icon: "⏳" },
+                  { rule: "Çoklu temsil kullan", desc: "Aynı sayıyı kapsülde, kartta, parmakta ve ekranda göster. Üçlü Kod Modeli (Dehaene) beyin ağlarını güçlendirir.", icon: "🔄" },
                   { rule: "Beşlik yapıyı öncelikle", desc: "5+n yapısı nöral sayı çizgisini destekler. 7'yi '5 ve 2' olarak görme otomatikleşene kadar çalışın.", icon: "5️⃣" },
-                  { rule: "Hata anında materyale dön", desc: "Ekranda hata yapıldığında çocuktan kapsülla tekrar çözmesini isteyin. Hata düzeltme somut düzeyde daha etkilidir.", icon: "🎯" },
+                  { rule: "Hata anında materyale dön", desc: "Ekranda hata yapıldığında çocuktan kapsülle tekrar çözmesini isteyin. Hata düzeltme somut düzeyde daha etkilidir.", icon: "🎯" },
                   { rule: "Kaygı belirtilerine dikkat", desc: "Çocuk materyali reddetmeye veya hızlıca tıklamaya başlarsa matematik kaygısı işareti olabilir. Tempo yavaşlatılmalı.", icon: "💛" },
                 ].map(r => (
                   <div key={r.rule} style={{ display: "flex", gap: 8, padding: "8px 10px", borderRadius: 10, background: "rgba(248,113,113,.06)", border: "1px solid rgba(248,113,113,.1)", marginBottom: 6 }}>
@@ -20845,7 +20750,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
               {[
                 { icon: "🏗️", title: "CRA Köprüsü", desc: "Somut → Temsili → Soyut geçişinde AR, temsili aşamayı zenginleştirir" },
-                { icon: "🤲", title: "Fiziksel+Dijital", desc: "Gerçek DokunSay kapsüllerinin yanında sanal kapsüllar kullanılabilir" },
+                { icon: "🤲", title: "Fiziksel+Dijital", desc: "Gerçek DokunSay kapsüllerinin yanında sanal kapsüller kullanılabilir" },
                 { icon: "🧠", title: "Çoklu Temsil", desc: "Aynı sayıyı hem fiziksel hem AR hem ekranda görmek Üçlü Kod'u güçlendirir" },
               ].map(b => (
                 <div key={b.title} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8, padding: "8px 10px", borderRadius: 10, background: "rgba(5,150,105,.08)" }}>
@@ -21023,7 +20928,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         ))}
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                        {[...new Set([sq.correct, sq.correct - 1, sq.correct + 1, sq.correct + 2].filter(n => n > 0))].sort(() => Math.random() - 0.5).slice(0, 3).map(n => (
+                        {fyShuffle([...new Set([sq.correct, sq.correct - 1, sq.correct + 1, sq.correct + 2].filter(n => n > 0))]).slice(0, 3).map(n => (
                           <button key={n} onClick={() => answerScreening(n)} style={{
                             padding: "12px", borderRadius: 12, border: "1px solid rgba(148,163,184,.12)",
                             background: "#fff", fontSize: 20, fontWeight: 900, color: "#4c1d95",
@@ -21042,7 +20947,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         ))}
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                        {[...new Set([sq.correct, Math.max(1, sq.correct - 1), sq.correct + 1])].sort(() => Math.random() - 0.5).map(n => (
+                        {fyShuffle([...new Set([sq.correct, Math.max(1, sq.correct - 1), sq.correct + 1])]).map(n => (
                           <button key={n} onClick={() => answerScreening(n)} style={{
                             padding: "12px", borderRadius: 12, border: "1px solid rgba(148,163,184,.12)",
                             background: "#fff", fontSize: 20, fontWeight: 900, color: "#4c1d95",
@@ -21586,7 +21491,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               }}>{theme.char}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ color: "#fff", fontSize: 14, fontWeight: 900, textShadow: "0 1px 3px rgba(0,0,0,.4)" }}>🚀 Kaşif {playerName || ""}</div>
-                <div style={{ color: "rgba(255,255,255,.8)", fontSize: 12, fontWeight: 700, marginTop: 1 }}>Sayılar Galaksisi — {theme.label} Yörüngesi</div>
+                <div style={{ color: "rgba(255,255,255,.8)", fontSize: 12, fontWeight: 700, marginTop: 1 }}>{theme.label} Yörüngesi</div>
               </div>
               {/* Kristal & Puan */}
               <div style={{ display: "flex", gap: 6 }}>
@@ -21677,26 +21582,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
           </div>
 
-          {/* ═══ GÜNLÜK MOTİVASYON — Daily Motivation ═══ */}
-          {(() => {
-            try {
-              const mot = getDailyMotivation?.();
-              if (!mot) return null;
-              return (
-                <div style={{
-                  margin: "4px 10px 0", padding: "8px 12px", borderRadius: 12,
-                  background: "linear-gradient(135deg, rgba(99,102,241,.05), rgba(15,20,45,.35))",
-                  border: "1px solid rgba(99,102,241,.1)",
-                  display: "flex", alignItems: "center", gap: 8,
-                  animation: "fadeUp .4s ease .2s both",
-                }}>
-                  <span style={{ fontSize: 14, flexShrink: 0, animation: "float 3s ease-in-out infinite" }}>{mot.emoji}</span>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.6)", lineHeight: 1.5, fontStyle: "italic" }}>{mot.message}</div>
-                </div>
-              );
-            } catch { return null; }
-          })()}
-
           {/* ═══ GÜNLÜK GİRİŞ SERİSİ — Daily Streak ═══ */}
           {dailyStreak.current > 0 && (() => {
             const streakDays = dailyStreak.current;
@@ -21714,39 +21599,25 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             };
             return (
               <div style={{
-                margin: "4px 10px 0", padding: "8px 12px", borderRadius: 14,
-                background: `linear-gradient(135deg, ${streakColor}08, rgba(255,255,255,.02))`,
-                backdropFilter: "blur(8px)",
+                margin: "4px 10px 0", padding: "4px 10px", borderRadius: 10,
+                background: `${streakColor}08`,
                 border: `1px solid ${streakColor}20`,
-                display: "flex", alignItems: "center", gap: 10,
+                display: "flex", alignItems: "center", gap: 8,
                 animation: "fadeUp .4s ease",
               }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10,
-                  background: `${streakColor}15`, border: `1.5px solid ${streakColor}30`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 18, flexShrink: 0,
-                  animation: streakDays >= 7 ? "streakFlame 1s ease infinite, float 2s ease-in-out infinite" : streakDays >= 3 ? "float 2s ease-in-out infinite" : "none",
-                  boxShadow: streakDays >= 5 ? `0 0 12px ${streakColor}30` : "none",
-                }}>{streakDays >= 7 ? "🔥" : streakDays >= 3 ? "⭐" : "📅"}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 900, color: streakColor }}>{streakMilestone}</div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.6)" }}>
-                    {streakDays} gün üst üste • En iyi: {dailyStreak.best} gün
-                  </div>
+                <span style={{ fontSize: 14, flexShrink: 0 }}>{streakDays >= 7 ? "🔥" : streakDays >= 3 ? "⭐" : "📅"}</span>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: streakColor }}>{streakDays} gün</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.5)" }}>üst üste • en iyi: {dailyStreak.best}</span>
                 </div>
                 {canClaim ? (
                   <button onClick={claimReward} className="space-btn-hover" style={{
-                    padding: "5px 10px", borderRadius: 8, border: `1px solid ${streakColor}40`,
-                    background: `linear-gradient(135deg, ${streakColor}20, ${streakColor}10)`,
+                    padding: "3px 8px", borderRadius: 6, border: `1px solid ${streakColor}40`,
+                    background: `${streakColor}18`,
                     color: streakColor, fontSize: 10, fontWeight: 900, cursor: "pointer", fontFamily: F,
-                    display: "flex", alignItems: "center", gap: 3,
-                    boxShadow: `0 2px 8px ${streakColor}20`,
-                    animation: "cosmicGlow 2s ease infinite",
-                    "--glow-color": `${streakColor}40`,
                   }}>💎 +{streakReward}</button>
                 ) : (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.55)", padding: "4px 8px", borderRadius: 6, background: "rgba(255,255,255,.05)" }}>✓ Alındı</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.45)" }}>✓</span>
                 )}
               </div>
             );
@@ -21886,15 +21757,16 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               background: "linear-gradient(135deg, rgba(168,85,247,.06), rgba(15,20,45,.4))",
               border: "1px solid rgba(168,85,247,.12)",
               display: "flex", alignItems: "center", gap: 8,
+              maxWidth: "100%", boxSizing: "border-box",
             }}>
-              <span style={{ fontSize: 11 }}>🏛️</span>
-              <span style={{ fontSize: 10, fontWeight: 900, color: "#c4b5fd", letterSpacing: 1.5, textTransform: "uppercase" }}>Eserler</span>
-              <div style={{ display: "flex", gap: 2, flex: 1, justifyContent: "center" }}>
+              <span style={{ fontSize: 11, flexShrink: 0 }}>🏛️</span>
+              <span style={{ fontSize: 10, fontWeight: 900, color: "#c4b5fd", letterSpacing: 1.5, textTransform: "uppercase", flexShrink: 0 }}>Eserler</span>
+              <div style={{ display: "flex", gap: 2, flex: "1 1 0", minWidth: 0, justifyContent: "center", overflow: "hidden" }}>
                 {ALIEN_ARTIFACTS.slice(0, 10).map((art, i) => {
                   const owned = unlockedArtifacts.includes(art.id);
                   return (
                     <div key={art.id} style={{
-                      width: 20, height: 20, borderRadius: 6,
+                      width: 18, height: 18, borderRadius: 5, flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 10,
                       background: owned ? "rgba(168,85,247,.2)" : "rgba(255,255,255,.03)",
@@ -21907,7 +21779,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   );
                 })}
               </div>
-              <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(196,181,253,.6)" }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(196,181,253,.6)", flexShrink: 0 }}>
                 {unlockedArtifacts.length}/{ALIEN_ARTIFACTS.length}
               </span>
             </div>
@@ -22157,8 +22029,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       position: "absolute",
                       top: pos.y > 50 ? "auto" : sz + 20,
                       bottom: pos.y > 50 ? sz + 20 : "auto",
-                      left: "50%", transform: "translateX(-50%)",
-                      width: 220, borderRadius: 18, padding: 0,
+                      // Stop sola/sağa yakınsa popup'ı içeri it (dar viewportta taşmayı önler)
+                      left: "50%",
+                      transform: `translateX(calc(-50% + ${pos.x < 30 ? Math.round((30 - pos.x) * 3) : pos.x > 70 ? Math.round(-(pos.x - 70) * 3) : 0}px))`,
+                      width: "min(220px, calc(100vw - 24px))",
+                      borderRadius: 18, padding: 0,
                       background: "rgba(15,20,45,.95)",
                       boxShadow: `0 12px 40px rgba(0,0,0,.4), 0 0 0 1px ${isDone ? theme.accent : sc}30`,
                       animation: "fadeUp .2s ease", zIndex: 40,
@@ -22859,7 +22734,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       } else if (type === "match") {
         a = Math.floor(Math.random() * 9) + 1;
         answer = a;
-        prompt = "Kapsülta kaç pul var?";
+        prompt = "Kapsülde kaç pul var?";
       } else {
         a = Math.floor(Math.random() * 9) + 1;
         b = Math.floor(Math.random() * 9) + 1;
@@ -22883,17 +22758,17 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       if (arMode === "count") {
         setArCount(c => c + 1);
         setArChips(prev => [...prev, { x, y, id: Date.now(), color: "green", num: prev.length + 1 }]);
-        sfx("chipClick");
+        sfx("chipPop");
       } else if (arMode === "free") {
         const colors = ["blue", "red", "green", "purple", "orange"];
         setArChips(prev => [...prev, { x, y, id: Date.now(), color: colors[prev.length % colors.length] }]);
-        sfx("chipClick");
+        sfx("chipPop");
       } else if (arMode === "measure") {
         setArMeasurePoints(prev => {
           if (prev.length >= 2) return [{ x, y }];
           return [...prev, { x, y }];
         });
-        sfx("chipClick");
+        sfx("chipPop");
       }
     };
 
@@ -23539,7 +23414,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 partWhole: "Bütünü iki parçaya ayır — parça + parça = bütün",
                 count: "Ekrana dokunarak nesneleri say",
                 frame: "Beşlik/onluk kartla sayı gösterimi",
-                match: "Kapsültaki pul sayısını tahmin et",
+                match: "Kapsüldeki pul sayısını tahmin et",
                 task: "Rastgele matematik görevlerini çöz",
                 measure: "İki noktaya dokunarak mesafe ölç",
                 free: "Ekrana dokunarak renkli pullar yerleştir",
@@ -23817,6 +23692,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {[
                   { code: "tr", label: "Türkçe", flag: "🇹🇷" },
                   { code: "en", label: "English", flag: "🇬🇧" },
+                  { code: "ku", label: "Kurmancî", flag: "🏔️" },
                 ].map(l => (
                   <button key={l.code} onClick={() => {
                     setLang(l.code);
@@ -23908,7 +23784,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 22 }}>🔮</div>
                 <div style={{ textAlign: "left" }}>
                   <div style={{ fontSize: 12, fontWeight: 800, color: "#a5b4fc" }}>AR Deneyimi <span style={{ fontSize: 10, background: "#059669", color: "#fff", padding: "3px 8px", borderRadius: 4, marginLeft: 4 }}>Aktif</span></div>
-                  <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 600 }}>Sanal kapsüllar ile gerçek dünya etkileşimi</div>
+                  <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 600 }}>Sanal kapsüller ile gerçek dünya etkileşimi</div>
                 </div>
               </button>
             </div>
