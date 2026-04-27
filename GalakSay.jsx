@@ -15557,23 +15557,22 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       padding: "14px 16px", borderRadius: 16,
                       background: "rgba(30,27,75,.8)", backdropFilter: "blur(12px)",
                       border: `1px solid ${mp.color}20`,
+                      position: "relative",
                     }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 900, color: mp.color }}>{mp.guide.name}:</span>
-                        {/* Seslendir butonu */}
-                        {narrationOn && (
-                          <button onClick={(e) => {
-                            e.stopPropagation();
-                            const greetText = modeGamesLocal === 0 ? (mp.guideGreet || `${mp.planet} gezegenine hoş geldin!`) : (mp.progressMsgs?.[progressLevel] || `Tekrar hoş geldin, kaşif!`);
-                            const briefText = mp.missionBriefs?.[briefIdx] || "";
-                            narrateWith(true, mp.guide.name, [greetText, briefText].filter(Boolean));
-                          }} style={{
-                            width: 28, height: 28, borderRadius: 8, border: `1px solid ${mp.color}25`,
-                            background: `${mp.color}12`, cursor: "pointer",
-                            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
-                          }}>🔊</button>
-                        )}
-                      </div>
+                      {/* Seslendir butonu — karakter ismi pill'de zaten var, balonda tekrar etme */}
+                      {narrationOn && (
+                        <button onClick={(e) => {
+                          e.stopPropagation();
+                          const greetText = modeGamesLocal === 0 ? (mp.guideGreet || `${mp.planet} gezegenine hoş geldin!`) : (mp.progressMsgs?.[progressLevel] || `Tekrar hoş geldin, kaşif!`);
+                          const briefText = mp.missionBriefs?.[briefIdx] || "";
+                          narrateWith(true, mp.guide.name, [greetText, briefText].filter(Boolean));
+                        }} style={{
+                          position: "absolute", top: 6, right: 6,
+                          width: 28, height: 28, borderRadius: 8, border: `1px solid ${mp.color}25`,
+                          background: `${mp.color}12`, cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
+                        }}>🔊</button>
+                      )}
                       <TypewriterText
                         text={modeGamesLocal === 0 ? (mp.guideGreet || `${mp.planet} gezegenine hoş geldin!`) : (mp.progressMsgs?.[progressLevel] || `${mp.planet}'a tekrar hoş geldin, kaşif!`)}
                         speed={28} delay={300} tag="div"
@@ -16212,7 +16211,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             )}
 
             {/* ─── Guide Character + Question Layout ─── */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }}>
+            {/* justifyContent: flex-start + paddingTop → içerik üstte, fazla boşluk yok */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", paddingTop: 16, minHeight: 0 }}>
 
               {/* Character row — guide gives contextual encouragement (TXT prompt below has the actual instruction) */}
               {!feedback && (() => { const mp = getModePlanet(gameMode); if (!mp) return null;
@@ -21280,7 +21280,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ position: "relative" }}>
               <button onClick={() => setShowExitMenu(!showExitMenu)} style={{
                 height: "100%", padding: "8px 14px", borderRadius: 12,
-                background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.2)",
+                background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)",
                 backdropFilter: "blur(8px)", cursor: "pointer", fontFamily: F,
                 display: "flex", alignItems: "center", gap: 4,
               }}>
