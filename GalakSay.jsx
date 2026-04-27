@@ -16120,7 +16120,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 }}>{soundOn ? "🔊" : "🔇"}</button>
                 <button aria-label="Oyunu durdur" onClick={goMenu} style={{
                   width: 30, height: 30, borderRadius: 8, border: "none",
-                  background: "rgba(255,255,255,.15)", color: "#fff", fontSize: 14,
+                  background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 14,
                   cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                   backdropFilter: "blur(4px)",
                 }}>⏹</button>
