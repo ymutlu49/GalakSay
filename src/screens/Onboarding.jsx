@@ -6,6 +6,13 @@ import { spacing, layout } from '../design-system/spacing.js';
 import { Button } from '../design-system/components/Button.jsx';
 import { SpaceBackground } from '../design-system/components/SpaceBackground.jsx';
 import { getMotionSafe } from '../design-system/animations.js';
+import { setEncrypted } from '../utils/crypto.js';
+
+const PROFILE_KEY = 'galaksay_profile';
+
+async function persistProfile(profile) {
+  try { await setEncrypted(PROFILE_KEY, profile); } catch {}
+}
 
 // ═══ AVATAR SEÇENEKLERİ ═════════════════════════════════════════════════════
 const AVATARS = [
@@ -329,7 +336,7 @@ function StepHowToPlay({ onNext }) {
 
   const demos = [
     {
-      instruction: 'Kapsülleri sürükleyebilirsin!',
+      instruction: 'Yıldız taşına dokun!',
       emoji: '\uD83D\uDD35',
       content: (
         <div style={{ position: 'relative', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -515,22 +522,22 @@ export function Onboarding({ onComplete }) {
   const totalSteps = 4; // welcome, profile, numap, howtoplay
 
   const handleSkip = useCallback(() => {
-    // Varsayılan profil oluştur ve devam et
     const profile = { name: name || 'Uzay Kaşifi', avatar, grade };
-    try { localStorage.setItem('galaksay_profile', JSON.stringify(profile)); } catch {}
+    persistProfile(profile);
     try { localStorage.setItem('galaksay_onboarding_done', 'true'); } catch {}
     onComplete?.(profile);
   }, [name, avatar, grade, onComplete]);
 
   const handleProfileNext = useCallback(() => {
     const profile = { name: name.trim() || 'Uzay Kaşifi', avatar, grade };
-    try { localStorage.setItem('galaksay_profile', JSON.stringify(profile)); } catch {}
+    persistProfile(profile);
     setStep(2);
   }, [name, avatar, grade]);
 
   const handleComplete = useCallback(() => {
     try { localStorage.setItem('galaksay_onboarding_done', 'true'); } catch {}
     const profile = { name: name.trim() || 'Uzay Kaşifi', avatar, grade };
+    persistProfile(profile);
     onComplete?.(profile);
   }, [name, avatar, grade, onComplete]);
 
