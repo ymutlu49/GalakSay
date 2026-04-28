@@ -942,9 +942,9 @@ const TTS = {
       addition: `${q.num1} artı ${q.num2} kaç eder?`,
       subtraction: `${q.num1} eksi ${q.num2} kaç eder?`,
       subitizing: `Hızlı bak! Kaç tane gördün?`,
-      fivesFrame: `Beşlik çerçevede kaç pul var?`,
-      tensFrame: `Onluk çerçevede kaç pul var?`,
-      doubleTensFrame: `Çift onluk çerçevede toplam kaç pul var?`,
+      fivesFrame: `Beşlik çerçevede kaç yıldız taşı var?`,
+      tensFrame: `Onluk çerçevede kaç yıldız taşı var?`,
+      doubleTensFrame: `Çift onluk çerçevede toplam kaç yıldız taşı var?`,
       comparison: `Hangisi daha ${q.askMin ? "az" : "çok"}?`,
       makeFive: `Beşe tamamlamak için kaç tane daha lazım?`,
       makeTen: `Ona tamamlamak için kaç tane daha lazım?`,
@@ -956,7 +956,7 @@ const TTS = {
       wpCompare: q.text || `Problemi dinle ve karşılaştır!`,
       wpMul: q.text || `Problemi dinle ve çarparak çöz!`,
       wpDiv: q.text || `Problemi dinle ve bölerek çöz!`,
-      matching: `Pulları say ve doğru rakam kartını bul!`,
+      matching: `Yıldız taşlarını say ve doğru kapsülü bul!`,
       beforeAfter: q.subType === "before" ? `${q.number}'den önce ne gelir?` : q.subType === "after" ? `${q.number}'den sonra ne gelir?` : `${q.low} ile ${q.high} arasında ne var?`,
       ordering: q.descending ? `Sayıları büyükten küçüğe sırala` : `Sayıları küçükten büyüğe sırala`,
       lessMoreEqual: `Hangisi daha az, daha çok, yoksa eşit mi?`,
@@ -970,7 +970,7 @@ const TTS = {
       growingPattern: q.isVariable ? `Sayı deseni — adımlar değişiyor, kuralı keşfet!` : (q.direction === "increasing" ? `Artan desen: her adım ${q.step} artıyor, sıradaki ne?` : `Azalan desen: her adım ${Math.abs(q.step)} azalıyor, sıradaki ne?`),
       patternTranslate: q.subType === "coreUnit" ? `Bu desenin çekirdeği ne?` : `Bu deseni sayılara çevir!`,
       // ═══ Eksik TTS'ler — eklenen 28 mod ═══
-      quantityMatch: `Bu pullar hangi sayıyı gösteriyor?`,
+      quantityMatch: `Bu yıldız taşları hangi sayıyı gösteriyor?`,
       ordinalCount: q.fromRight ? `Sağdan saydığında kaçıncı sırada?` : `Soldan saydığında kaçıncı sırada?`,
       counterFromN: q.direction === "forward" ? `${q.start}'dan ${q.steps} adım ileriye say!` : `${q.start}'dan ${q.steps} adım geriye say!`,
       decadeCount: `${q.sequence ? q.sequence[0] : ""}'dan başlayarak say — onluk geçişine dikkat!`,
@@ -980,15 +980,15 @@ const TTS = {
       fiveMore: `Bu sayı 5'ten az mı, eşit mi, çok mu?`,
       numberLineEstimate: `Sayı doğrusunda bu işaret nereye düşüyor?`,
       nlPlacement: `${q.target} sayısını sayı doğrusuna yerleştir!`,
-      numberLine: `Hangi kapsül ${q.target} pullu?`,
-      lengthGuess: `Gizli kapsüldeki pulları tahmin et!`,
+      numberLine: `Hangi kapsülde ${q.target} yıldız taşı var?`,
+      lengthGuess: `Gizli kapsüldeki yıldız taşlarını tahmin et!`,
       numbersInNumbers: `${q.target} sayısının parçalarını bul!`,
       composeNumber: `${q.tens} onluk ve ${q.ones} birlik. Toplam kaç?`,
       expandForm: `${q.number} sayısının açılımını bul!`,
       bundleTens: `10'arlı grupla! Kaç onluk, kaç birlik?`,
-      addChips: `${q.start} pula ${q.toAdd} tane daha ekle. Toplam kaç?`,
+      addChips: `${q.start} yıldız taşına ${q.toAdd} tane daha ekle. Toplam kaç?`,
       countOnAdd: `${q.bigNum}'den başla, ${q.addOn} tane daha say!`,
-      removeChips: `${q.start} puldan ${q.toRemove} tane çıkar. Kaç kalır?`,
+      removeChips: `${q.start} yıldız taşından ${q.toRemove} tane çıkar. Kaç kalır?`,
       difference: `İki kapsül arasındaki fark kaç?`,
       inversePractice: q.direction === "addToSub" ? `Toplama biliyorsan çıkarmayı bulabilirsin!` : `Çıkarma biliyorsan toplamayı bulabilirsin!`,
       repeatAdd: `${q.groups} grup, her grupta ${q.perGroup}. Toplam kaç?`,
@@ -1011,16 +1011,16 @@ const TTS = {
     const t = q.type;
     const texts = {
       counting: "Enerji kapsülünde kaç yıldız taşı var?",
-      quantityMatch: "Bu pullar hangi sayıyı gösteriyor?",
-      matching: "Pulları say ve doğru rakam kartını bul!",
+      quantityMatch: "Bu yıldız taşları hangi sayıyı gösteriyor?",
+      matching: "Yıldız taşlarını say ve doğru kapsülü bul!",
       chipGuess: "Yıldız taşlarını hatırla, kaç taneydi?",
       rodBack: "Gizlendi! Kaç yıldız taşı vardı?",
       addition: `${q.num1 || ""} artı ${q.num2 || ""} kaç eder?`,
       subtraction: `${q.num1 || ""} eksi ${q.num2 || ""} kaç eder?`,
       subitizing: "Hızlı bak, kaç tane gördün?",
-      fivesFrame: "Beşlik çerçevede kaç pul var?",
-      tensFrame: "Onluk çerçevede kaç pul var?",
-      doubleTensFrame: "Çift onluk çerçevede toplam kaç pul var?",
+      fivesFrame: "Beşlik çerçevede kaç yıldız taşı var?",
+      tensFrame: "Onluk çerçevede kaç yıldız taşı var?",
+      doubleTensFrame: "Çift onluk çerçevede toplam kaç yıldız taşı var?",
       comparison: `Hangisi daha ${q.askMin ? "az" : "çok"}?`,
       ordering: q.descending ? "Sayıları büyükten küçüğe sırala!" : "Sayıları küçükten büyüğe sırala!",
       lessMoreEqual: "Hangisi daha az, daha çok, yoksa eşit mi?",
@@ -5871,7 +5871,7 @@ const MASCOT = {
     comparison: "İkisini yan yana koy ve karşılaştır! 📏",
     makeTen: "10'u doldurmak için kaç eksik? 🎯",
     makeFive: "5'i doldurmak için kaç tane daha lazım? ✋",
-    chipGuess: "Gözlerini kapat ve hatırla — kaç puldu? 💭",
+    chipGuess: "Gözlerini kapat ve hatırla — kaç yıldız taşıydı? 💭",
     rodBack: "Gizlenmeden önce grupları say! Mavi + Kırmızı = Toplam 🎨",
     doubleTensFrame: "Sol çerçeve tam 10! Sağdaki pulları say ve 10'a ekle! 🔟🔟",
     estimateCount: "Referans grubunu ipucu olarak kullan — kaç tane grup var? 🎯",
@@ -8748,8 +8748,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         chipGuess: "Yıldız taşlarını dikkatlice say, gizlenince hatırla!",
         rodBack: "İyi bak, gizlenince hatırla!",
         subitizing: "İyi bak, kaç tane?",
-        fivesFrame: "Beşlik kartta kaç pul var?",
-        tensFrame: "Onluk kartta kaç pul var?",
+        fivesFrame: "Beşlik kartta kaç yıldız taşı var?",
+        tensFrame: "Onluk kartta kaç yıldız taşı var?",
         doubleTensFrame: "İki çerçeveye bak, 10 artı kaç?",
         comparison: `Hangisi daha ${q.askMin ? "az" : "fazla"}?`,
         lessMoreEqual: "Sol taraf sağ tarafa göre nasıl?",
@@ -8799,7 +8799,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         numberLine: `Hangi kapsül ${q.target} pullu?`,
         nlPlacement: `${q.target} doğruda nerede?`,
         numberLineEstimate: "İşaret hangi sayıyı gösteriyor?",
-        lengthGuess: "Gizli kapsülde kaç pul var?",
+        lengthGuess: "Gizli kapsülde kaç yıldız taşı var?",
         decadeCount: `${q.sequence ? q.sequence[0] : ""}'dan başlayarak say!`,
         counterFromN: q.direction === "forward" ? `${q.start}'dan ileriye say!` : `${q.start}'dan geriye say!`,
       };
@@ -9024,7 +9024,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         gorsel = `${nw(q.a)} kapsül al, her birine ${nw(q.b)} pul koy. Tüm pullları topla.`;
         sembolik = `${q.a} × ${q.b} = ?`;
       } else if (ct === "multiplyGroupSizeUnknown") {
-        somut = `${nw(q.c)} pulu ${nw(q.a)} eşit gruba paylaştır. Her grupta kaç pul var?`;
+        somut = `${nw(q.c)} yıldız taşını ${nw(q.a)} eşit gruba paylaştır. Her grupta kaç yıldız taşı var?`;
         gorsel = `${nw(q.c)} pulu ${nw(q.a)} kapsüle eşit dağıt. Her kapsüldeki pul sayısı cevap.`;
         sembolik = `${q.c} ÷ ${q.a} = ?`;
       } else if (ct === "multiplyNumGroupsUnknown") {
@@ -11355,7 +11355,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const rbDisplayLabel = { rod: "Kapsül", twoColor: "Renkli Kapsül", frame: q.number <= 5 ? "Beşlik Kart" : "Onluk Kart", domino: "Domino", finger: "Parmak", dice: "Zar" }[rbDm] || "Kapsül";
         const rbLocLabel = { rod: "Kapsülde", twoColor: "Renkli Kapsülde", frame: q.number <= 5 ? "Beşlik Kartta" : "Onluk Kartta", domino: "Dominoda", finger: "Parmakta", dice: "Zarda" }[rbDm] || "Kapsülde";
         return (<div style={{ textAlign: "center" }}>
-          <TXT>{isHidden ? `${rbLocLabel} kaç pul vardı? Hatırla!` : `${rbHintMap[rbDm]}`}</TXT>
+          <TXT>{isHidden ? `${rbLocLabel} kaç yıldız taşı vardı? Hatırla!` : `${rbHintMap[rbDm]}`}</TXT>
           {!isHidden && <SUB>{rbDisplayLabel} birazdan gizlenecek — saydığın sayıyı hatırla!</SUB>}
           <div style={{ display: "flex", justifyContent: "center", perspective: 800 }}>
             <div style={{ transition: "transform .6s ease", transform: isHidden ? "rotateY(180deg)" : "rotateY(0)" }}>
@@ -11730,11 +11730,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         </div>);
 
       case "fivesFrame":
-        return (<div style={{ textAlign: "center" }}><TXT>Beşlik kartta kaç pul var?</TXT><SUB>Dolu kutuları say!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={5} filled={q.number} cols={5} label="Beşlik Kart" chipColor="blue" size={52} /></div>
+        return (<div style={{ textAlign: "center" }}><TXT>Beşlik kartta kaç yıldız taşı var?</TXT><SUB>Dolu kutuları say!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={5} filled={q.number} cols={5} label="Beşlik Kart" chipColor="blue" size={52} /></div>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>🔊 {numWord(q.number)} — {5 - q.number === 0 ? "Tam 5!" : `5'e ${5 - q.number} eksik`}</div>}
         </div>);
       case "tensFrame":
-        return (<div style={{ textAlign: "center" }}><TXT>Onluk kartta kaç pul var?</TXT><SUB>Üst sıra 5, alt sırayı ekle!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={10} filled={q.number} cols={5} label="Onluk Kart" chipColor="red" size={46} /></div>
+        return (<div style={{ textAlign: "center" }}><TXT>Onluk kartta kaç yıldız taşı var?</TXT><SUB>Üst sıra 5, alt sırayı ekle!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={10} filled={q.number} cols={5} label="Onluk Kart" chipColor="red" size={46} /></div>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>🔊 {numWord(q.number)} {q.number > 5 ? `= 5 + ${q.number - 5}` : q.number === 5 ? "= tam 5" : ""} — {10 - q.number === 0 ? "Tam 10!" : `10'a ${10 - q.number} eksik`}</div>}
           {/* v5.4: Rekenrek alternatif gösterimi — cevaptan sonra sayı yapısını pekiştir */}
           {answered && <div style={{ marginTop: 8, display: "flex", justifyContent: "center", animation: "fadeUp .4s ease .3s both" }}><Rekenrek total={10} filled={q.number} rows={2} /></div>}
@@ -12463,7 +12463,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const maxCells = Math.max(q.known, q.unknown);
         const rodSize = capsuleSize(maxCells);
         return (<div style={{ textAlign: "center" }}>
-          <TXT>Gizli kapsülde kaç pul var?</TXT>
+          <TXT>Gizli kapsülde kaç yıldız taşı var?</TXT>
           <SUB>Bilinen kapsülle karşılaştır!</SUB>
           {/* Karşılaştırma çerçevesi — sol hizalı kapsüller */}
           <div style={{ display: "inline-flex", flexDirection: "column", gap: 10, marginTop: 10,
@@ -16211,8 +16211,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             )}
 
             {/* ─── Guide Character + Question Layout ─── */}
-            {/* justifyContent: flex-start + paddingTop → içerik üstte, fazla boşluk yok */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", paddingTop: 16, minHeight: 0 }}>
+            {/* justifyContent: center → telefon/tablet için başparmak erişimi kolay (içerik orta) */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }}>
 
               {/* Character row — guide gives contextual encouragement (TXT prompt below has the actual instruction) */}
               {!feedback && (() => { const mp = getModePlanet(gameMode); if (!mp) return null;
@@ -22745,7 +22745,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       } else if (type === "match") {
         a = Math.floor(Math.random() * 9) + 1;
         answer = a;
-        prompt = "Kapsülde kaç pul var?";
+        prompt = "Kapsülde kaç yıldız taşı var?";
       } else {
         a = Math.floor(Math.random() * 9) + 1;
         b = Math.floor(Math.random() * 9) + 1;
@@ -23128,7 +23128,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* ── Eşleme modu: kapsül + seçenekler ── */}
             {arMode === "match" && arMatchTarget && (
               <div style={{ position: "absolute", left: "50%", top: "35%", transform: "translate(-50%, -50%)", zIndex: 20, textAlign: "center" }}>
-                <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 800, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>Bu kaç pul?</div>
+                <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 800, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>Bu kaç yıldız taşı?</div>
                 <div style={{ filter: "drop-shadow(0 6px 20px rgba(0,0,0,.5))" }}>
                   <NumberRod count={arMatchTarget} defaultColor="blue" size={48} />
                 </div>

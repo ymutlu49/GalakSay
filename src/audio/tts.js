@@ -27,7 +27,7 @@ export const TTS = {
       // ── SAYMA ──
       counting: `Enerji kapsülünde kaç yıldız taşı var?`,
       quantityMatch: `Bu yıldız taşları hangi sayıyı gösteriyor?`,
-      matching: `Yıldız taşlarını say ve doğru rakam kartını bul!`,
+      matching: `Yıldız taşlarını say ve doğru kapsülü bul!`,
       buildNumber: `${q.target || ""} sayısı kadar yıldız taşı yerleştir!`,
       backwardCount: `${q.startNum || ""}'den ${q.stepsBack || ""} geriye doğru say!`,
       counterFromN: q.direction === "forward" ? `${q.start || ""}'dan ${q.steps || ""} adım ileriye say!` : `${q.start || ""}'dan ${q.steps || ""} adım geriye say!`,
