@@ -431,7 +431,7 @@ const SFX = (() => {
       chime(2637, 0.12, 0.03, 0.12);
     },
     pulToKapsul: () => {
-      // 10 pul → kapsül dönüşüm — enerji birikimi + patlama
+      // 10 yıldız taşı→ kapsül dönüşüm — enerji birikimi + patlama
       [523, 587, 659, 784, 880, 988, 1047, 1175, 1319, 1568].forEach((f, i) =>
         warm(f, 0.08, 0.06 + i * 0.005, i * 0.05)
       );
@@ -1172,7 +1172,7 @@ const SCREENING = {
         return { type: "screenCount", number: n, correct: n };
       }
     },
-    { id: "symbolMatch", name: "Sembol-Miktar Eşleme", desc: "Sayı ile pulları eşle", count: 6,
+    { id: "symbolMatch", name: "Sembol-Miktar Eşleme", desc: "Sayı ile yıldız taşlarını eşle", count: 6,
       generate: () => {
         const n = 1 + Math.floor(Math.random() * 9);
         return { type: "symbolMatch", number: n, correct: n };
@@ -1552,10 +1552,10 @@ const CGI_LABELS_TR = {
 const MULTI_REP = {
   // Her mod için hangi temsil biçimlerini kullandığı
   representations: {
-    counting:      ["concrete", "iconic"],      // kapsül + pul sayma
-    subitizing:    ["iconic", "abstract"],       // pul dizilimi + sayı
+    counting:      ["concrete", "iconic"],      // kapsül + yıldız taşısayma
+    subitizing:    ["iconic", "abstract"],       // yıldız taşıdizilimi + sayı
     doubleTensFrame:["iconic", "abstract"],       // çift onluk çerçeve + 10+n stratejisi
-    addition:      ["concrete", "iconic", "abstract"], // kapsül + pul + sembol
+    addition:      ["concrete", "iconic", "abstract"], // kapsül + yıldız taşı+ sembol
     subtraction:   ["concrete", "iconic", "abstract"],
     countOnAdd:    ["concrete", "iconic", "abstract"], // üzerine sayma: kapsül + sayı dizisi + sembol
     inversePractice:["iconic", "abstract"],            // ters ilişki: denklem çifti + kapsül
@@ -1622,7 +1622,7 @@ const MULTI_REP = {
     } else if ((mode === "wpAdd" || mode === "wpSub" || mode === "wpCompare" || mode === "wpMul" || mode === "wpDiv") && question && question.equation) {
       reps.push({ type: "abstract", label: "Denklem", text: question.equation });
     }
-    // İkonik: pul görseli
+    // İkonik: yıldız taşıgörseli
     reps.push({ type: "iconic", label: "Pul ile gösterelim", count: correctAnswer });
     // Üçlü Kod: çokluk ↔ rakam ↔ sözcük (Dehaene Triple Code)
     if (typeof correctAnswer === "number" && correctAnswer >= 0 && correctAnswer <= 99) {
@@ -1758,7 +1758,7 @@ const capsuleSize = (count) => {
 };
 
 
-// SVG Logo — NuMap tarzı mor gezegen, 1-2-3 pullar, orbit halkası
+// SVG Logo — NuMap tarzı mor gezegen, 1-2-3 yıldız taşları, orbit halkası
 const GalaksayLogo = ({ height = 70, dark }) => {
   const svg = (
   <svg viewBox="0 0 340 100" height={height} xmlns="http://www.w3.org/2000/svg" style={{ display: "block", margin: "0 auto" }}>
@@ -1978,15 +1978,15 @@ const LEARN_CONTENT = {
     steps: [
       {
         title: "İki Grubu Karşılaştır",
-        text: "İki grup pulu karşılaştırmak için onları alt alta koy. Her pulu birer birer eşle. Eşi kalmayan tarafta daha çok pul vardır!",
-        tts: "İki grubu yan yana koy. Her pulu birer birer eşle. Eşi kalmayanlar fazlalıktır!",
+        text: "İki grup yıldız taşını karşılaştırmak için onları alt alta koy. Her yıldız taşını birer birer eşle. Eşi kalmayan tarafta daha çok yıldız taşıvardır!",
+        tts: "İki grubu yan yana koy. Her yıldız taşını birer birer eşle. Eşi kalmayanlar fazlalıktır!",
         visual: "compare",
         pairs: [{ a: 3, b: 5, answer: "5 > 3 → 2 fazla" }, { a: 4, b: 4, answer: "4 = 4 → eşit" }],
         note: "Kapsülleri alt alta koy — hangisi uzunsa o daha çok!"
       },
       {
         title: "Daha Az, Eşit, Daha Çok",
-        text: "İki miktarı karşılaştırınca üç sonuç olabilir: daha az, eşit veya daha çok. 3 pul ile 5 pul: 3 daha az, 5 daha çok. 4 pul ile 4 pul: eşit!",
+        text: "İki miktarı karşılaştırınca üç sonuç olabilir: daha az, eşit veya daha çok. 3 yıldız taşıile 5 yıldız taşı: 3 daha az, 5 daha çok. 4 yıldız taşıile 4 yıldız taşı: eşit!",
         tts: "Üç sonuç var: daha az, eşit, daha çok!",
         visual: "lessMoreEqual",
         examples: [{ a: 2, b: 5, result: "az" }, { a: 4, b: 4, result: "eşit" }, { a: 7, b: 3, result: "çok" }],
@@ -1994,17 +1994,17 @@ const LEARN_CONTENT = {
       },
       {
         title: "Büyük Sayı, Uzun Kapsül",
-        text: "Bir sayı büyüdükçe kapsülü de uzar. 3 pulluk kapsül kısa, 8 pulluk kapsül uzundur. Kapsüllerin boyunu karşılaştırarak hangi sayının büyük olduğunu görebilirsin.",
+        text: "Bir sayı büyüdükçe kapsülü de uzar. 3 yıldız taşlık kapsül kısa, 8 yıldız taşlık kapsül uzundur. Kapsüllerin boyunu karşılaştırarak hangi sayının büyük olduğunu görebilirsin.",
         tts: "Büyük sayının kapsülü daha uzun! Üç kısa, sekiz uzun.",
         visual: "compare", pairs: [{ a: 3, b: 8, answer: "8 > 3" }],
         note: "Uzun kapsül = büyük sayı. Kapsül boyu sayı büyüklüğünü gözle gösterir."
       },
       {
         title: "Rakam ile Miktar Eşleme",
-        text: "Bir rakam gördüğünde onun kaç nesneyi gösterdiğini bilmelisin. 5 pulu say, sonra '5' kartını bul ve eşle! Rakam ile miktar her zaman birlikte gider.",
+        text: "Bir rakam gördüğünde onun kaç nesneyi gösterdiğini bilmelisin. 5 yıldız taşını say, sonra '5' kartını bul ve eşle! Rakam ile miktar her zaman birlikte gider.",
         tts: "Pulları say ve doğru rakamı bul. Rakam ile miktar arkadaştır!",
         visual: "matching",
-        examples: [{ num: 3, desc: "3 pul → rakam 3" }, { num: 7, desc: "7 pul → rakam 7" }],
+        examples: [{ num: 3, desc: "3 yıldız taşı→ rakam 3" }, { num: 7, desc: "7 yıldız taşı→ rakam 7" }],
         note: "Pulları say, doğru rakamı bul ve eşle!"
       },
       {
@@ -2097,31 +2097,31 @@ const LEARN_CONTENT = {
       },
       {
         title: "5'lik Kart",
-        text: "5'lik kart 5 kutuluk bir çerçevedir. Pulları kutulara yerleştir. Dolu kutu sayısı kadar pul var! 3 pul koyarsan 2 kutu boş kalır → 5'e 2 eksik.",
+        text: "5'lik kart 5 kutuluk bir çerçevedir. Pulları kutulara yerleştir. Dolu kutu sayısı kadar yıldız taşıvar! 3 yıldız taşıkoyarsan 2 kutu boş kalır → 5'e 2 eksik.",
         tts: "Beşlik çerçeveye yıldız taşlarını yerleştir. Kaç dolu, kaç boş?",
         visual: "fivesFrameLearn", examples: [2, 3, 5],
         note: "5'lik çerçeve, bakarak tanımayı güçlendirir ve 5'e tamamlama stratejisini somutlaştırır."
       },
       {
         title: "10'luk Çerçeve",
-        text: "10'luk çerçevede 2 sıra ve her sırada 5 kutu var. Üst sıra doluysa saymadan '5' de! Sonra alt sıradaki pulları say ve ekle. 5 + 3 = 8.",
+        text: "10'luk çerçevede 2 sıra ve her sırada 5 kutu var. Üst sıra doluysa saymadan '5' de! Sonra alt sıradaki yıldız taşlarını say ve ekle. 5 + 3 = 8.",
         tts: "Onluk çerçevede üst sıra beş, alt sıra beş. Üst sıra doluysa saymadan beş de!",
         visual: "tensFrameLearn", examples: [4, 7, 10],
         note: "10'luk çerçeve: Parçaları görerek büyük sayıları hızlıca tanımayı sağlar."
       },
       {
         title: "10'luk Çerçevede Boşluklar",
-        text: "10'luk çerçevede 7 pul varsa 3 kutu boş kalır. Boş kutular '10'a ne kadar eksik' olduğunu gösterir. 7 pul → 3 boşluk → 10'a 3 eksik!",
-        tts: "Yedi pul, üç boş kutu. Ona üç eksik!",
+        text: "10'luk çerçevede 7 yıldız taşıvarsa 3 kutu boş kalır. Boş kutular '10'a ne kadar eksik' olduğunu gösterir. 7 yıldız taşı→ 3 boşluk → 10'a 3 eksik!",
+        tts: "Yedi yıldız taşı, üç boş kutu. Ona üç eksik!",
         visual: "tensFrameLearn", examples: [6, 8, 9],
         note: "Boş kutuları saymak, 10'a ne kadar eksik olduğunu gösterir."
       },
       {
         title: "Pul Dizmek",
-        text: "Hedef sayıyı düşün, kapsüle pulları sürükleyerek yerleştir ve say. Tıpkı fiziksel kapsüllerde pul takmak gibi! 6 pul koyacaksan → 5 mavi, 1 kırmızı.",
-        tts: "Hedef sayıyı düşün, pul koy ve say. Altı: beş mavi, bir kırmızı!",
+        text: "Hedef sayıyı düşün, kapsüle yıldız taşlarını sürükleyerek yerleştir ve say. Tıpkı fiziksel kapsüllerde yıldız taşıtakmak gibi! 6 yıldız taşıkoyacaksan → 5 mavi, 1 kırmızı.",
+        tts: "Hedef sayıyı düşün, yıldız taşıkoy ve say. Altı: beş mavi, bir kırmızı!",
         visual: "buildNumberLearn",
-        examples: [{ n: 3, desc: "3 pul" }, { n: 6, desc: "6 pul" }],
+        examples: [{ n: 3, desc: "3 yıldız taşı" }, { n: 6, desc: "6 yıldız taşı" }],
         note: "Pul dizerek sayı oluşturma, somuttan soyuta geçişin ilk adımıdır."
       },
       {
@@ -2172,15 +2172,15 @@ const LEARN_CONTENT = {
     steps: [
       {
         title: "Toplama Nedir?",
-        text: "Toplama, iki grubu bir araya getirmektir. 3 mavi pul ve 4 kırmızı pulu birleştir: toplam 7 pul. 3 + 4 = 7. '+' işareti birleştir, '=' işareti eşittir demektir.",
+        text: "Toplama, iki grubu bir araya getirmektir. 3 mavi yıldız taşıve 4 kırmızı yıldız taşını birleştir: toplam 7 yıldız taşı. 3 + 4 = 7. '+' işareti birleştir, '=' işareti eşittir demektir.",
         tts: "Toplama, iki grubu birleştirmektir. Üç artı dört eşittir yedi!",
         visual: "additionLearn", a: 3, b: 4,
         note: "İki grubu bir araya getirme: toplamayı öğrenmenin ilk yolu."
       },
       {
         title: "Pul Ekleyerek Topla",
-        text: "3 pulun var. Pulları sürükleyerek kapsüle 4 tane daha ekle. Şimdi kaç pul var? Her pula dokunarak say: 1, 2, 3, 4, 5, 6, 7. Cevap 7!",
-        tts: "Üç pulun var. Dört tane daha ekle. Hepsini baştan say: yedi!",
+        text: "3 yıldız taşın var. Pulları sürükleyerek kapsüle 4 tane daha ekle. Şimdi kaç yıldız taşıvar? Her yıldız taşına dokunarak say: 1, 2, 3, 4, 5, 6, 7. Cevap 7!",
+        tts: "Üç yıldız taşın var. Dört tane daha ekle. Hepsini baştan say: yedi!",
         visual: "countAllLearn", a: 3, b: 4,
         note: "Hepsini sırayla saymak, toplamayı öğrenmenin ilk yoludur."
       },
@@ -2262,14 +2262,14 @@ const LEARN_CONTENT = {
     steps: [
       {
         title: "Çıkarma Nedir? Ayırma",
-        text: "7 puldan 3 tanesini çıkar. Kaç pul kaldı? 7 − 3 = 4. Çıkarma, bir gruptan bir kısmını ayırmaktır.",
-        tts: "Yedi puldan üç tanesini çıkar: dört kalır!",
+        text: "7 yıldız taşından 3 tanesini çıkar. Kaç yıldız taşıkaldı? 7 − 3 = 4. Çıkarma, bir gruptan bir kısmını ayırmaktır.",
+        tts: "Yedi yıldız taşından üç tanesini çıkar: dört kalır!",
         visual: "subtractionLearn", total: 7, remove: 3,
         note: "Ayırma, en temel çıkarma yöntemidir."
       },
       {
         title: "Fark Bulma",
-        text: "7 pul ile 4 pulu yan yana koy. 7'de 3 tane fazla var → fark 3. Çıkarma ile de bulabilirsin: 7 − 4 = 3.",
+        text: "7 yıldız taşıile 4 yıldız taşını yan yana koy. 7'de 3 tane fazla var → fark 3. Çıkarma ile de bulabilirsin: 7 − 4 = 3.",
         tts: "Yedi ile dört arasındaki fark üç!",
         visual: "differenceLearn", a: 7, b: 4,
         note: "İki kapsülü karşılaştır, farkı gör!"
@@ -2454,8 +2454,8 @@ const LEARN_CONTENT = {
       },
       {
         title: "Eşit Gruplara Ayırmak",
-        text: "12 pulu 3'erli gruplara ayır: 3, 3, 3, 3 — tam 4 grup oldu! 12 ÷ 3 = 4. Burada 'kaç grup oluşur?' sorusunu cevaplıyoruz.",
-        tts: "On iki pulu üçerli gruplara ayır: dört grup oldu!",
+        text: "12 yıldız taşını 3'erli gruplara ayır: 3, 3, 3, 3 — tam 4 grup oldu! 12 ÷ 3 = 4. Burada 'kaç grup oluşur?' sorusunu cevaplıyoruz.",
+        tts: "On iki yıldız taşını üçerli gruplara ayır: dört grup oldu!",
         visual: "groupingLearn", total: 12, groupSize: 3,
         note: "Kaç tane eşit grup yapabilirim? Bu da bir bölmedir!"
       },
@@ -2563,11 +2563,11 @@ const LEARN_CONTENT = {
         text: "Sayı doğrusunda 5'ten 8'e kaç adım? Parmağını 5'e koy ve 8'e doğru ilerle: 6, 7, 8 — 3 adım! Farkı sayı doğrusu üzerinde görmek kolaylaştırır.",
         tts: "Sayı doğrusunda beşten sekize: altı, yedi, sekiz — üç adım!",
         visual: "numberLineDiffLearn", from: 5, to: 8, range: [0, 10],
-        note: "Sayı kapsülünde farkı görmek: aradaki pulları say!"
+        note: "Sayı kapsülünde farkı görmek: aradaki yıldız taşlarını say!"
       },
       {
         title: "Tahmin Etme",
-        text: "Her zaman saymamız gerekmez! DokunSay kapsülündeki pullara bakarak miktarı tahmin et. '5'ten az mı, fazla mı?' Mavi-kırmızı renk ayrımı sana ipucu verir.",
+        text: "Her zaman saymamız gerekmez! DokunSay kapsülündeki yıldız taşlarıa bakarak miktarı tahmin et. '5'ten az mı, fazla mı?' Mavi-kırmızı renk ayrımı sana ipucu verir.",
         tts: "Beşten az mı, fazla mı? Ona yakın mı? Referans noktalarıyla tahmin et!",
         visual: "estimateLearn", examples: [3, 7, 11, 5],
         note: "Yaklaşık olarak nerede olduğunu tahmin et!"
@@ -2608,14 +2608,14 @@ const LEARN_CONTENT = {
       },
       {
         title: "Gruplar Halinde Tanıma",
-        text: "7 pulu tek tek saymak yavaştır. Ama '5 ve 2' olarak görürsen hemen tanırsın! Büyük miktarları küçük gruplara bölerek tanımaya 'kavramsal hızlı tanıma' denir.",
+        text: "7 yıldız taşını tek tek saymak yavaştır. Ama '5 ve 2' olarak görürsen hemen tanırsın! Büyük miktarları küçük gruplara bölerek tanımaya 'kavramsal hızlı tanıma' denir.",
         tts: "Yediyi beş ve iki olarak gör. Gruplar halinde tanımak hızlı!",
         visual: "subitizingLearn", examples: [5, 6, 7, 8],
         note: "Büyük sayılarda sanbil: Parçaları ayrı ayrı tanı, sonra birleştir."
       },
       {
         title: "Renk Gruplaması",
-        text: "DokunSay kapsülündeki 5 mavi + kırmızılar düzeni hafızana yardımcı olur. 8 pul gördüğünde '5 mavi, 3 kırmızı' diye hemen tanırsın!",
+        text: "DokunSay kapsülündeki 5 mavi + kırmızılar düzeni hafızana yardımcı olur. 8 yıldız taşıgördüğünde '5 mavi, 3 kırmızı' diye hemen tanırsın!",
         tts: "Beş mavi artı üç kırmızı: sekiz! Renk gruplaması hafızanı güçlendirir.",
         visual: "memoryLearn", count: 8,
         note: "Renkleri kullanarak sayıları daha kolay hatırla!"
@@ -2687,22 +2687,22 @@ const LEARN_CONTENT = {
       },
       {
         title: "10 Birlik = 1 Onluk",
-        text: "10 tane birliği bir araya getirince yeni bir birim oluşur: 'onluk'. 10 pulu bir kapsüldegrupla → artık '10 birlik' yerine '1 onluk' de!",
+        text: "10 tane birliği bir araya getirince yeni bir birim oluşur: 'onluk'. 10 yıldız taşını bir kapsüldegrupla → artık '10 birlik' yerine '1 onluk' de!",
         tts: "On birliği grupla ve bir onluk yap! On birlik eşittir bir onluk.",
         visual: "bundleLearn", count: 10,
         note: "10 birlik = 1 onluk. Bu kural sayı sisteminin temelidir."
       },
       {
         title: "Grubu Grup Olarak Gör",
-        text: "10 pulu tek tek saymak yerine bir grup olarak görmek çok önemli. Bir onluk kapsül 10 puludur — ama artık onu '1 onluk' olarak düşün. Böylece büyük sayıları daha kolay anlarsın!",
-        tts: "On pulu bir grup olarak gör. Bu gruba bir onluk deriz!",
+        text: "10 yıldız taşını tek tek saymak yerine bir grup olarak görmek çok önemli. Bir onluk kapsül 10 puludur — ama artık onu '1 onluk' olarak düşün. Böylece büyük sayıları daha kolay anlarsın!",
+        tts: "On yıldız taşını bir grup olarak gör. Bu gruba bir onluk deriz!",
         visual: "rodBundleLearn", examples: [10, 20, 30],
-        note: "10 pulu tek tek saymak yerine bir grup olarak görmek önemlidir."
+        note: "10 yıldız taşını tek tek saymak yerine bir grup olarak görmek önemlidir."
       },
       {
         title: "Sayı Çubuğu ile Onluk",
-        text: "DokunSay kapsülünde 10 pul varsa bu bir onluktur. 10 pulun hepsi bir arada: tam bir onluk kapsül! Onluk kapsülü bir bütün olarak düşün.",
-        tts: "Sayı kapsülünde on pul: tam bir onluk! On pulu bir grup olarak gör.",
+        text: "DokunSay kapsülünde 10 yıldız taşıvarsa bu bir onluktur. 10 yıldız taşının hepsi bir arada: tam bir onluk kapsül! Onluk kapsülü bir bütün olarak düşün.",
+        tts: "Sayı kapsülünde on yıldız taşı: tam bir onluk! On yıldız taşını bir grup olarak gör.",
         visual: "pvRodLearn", examples: [13, 27, 35],
         note: "Kapsüller birleştirilebilir ve ayrılabilir — birler ve onlar arasında geçiş sağlar."
       },
@@ -2724,7 +2724,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "Parçalardan Sayı Oluştur",
-        text: "Onluk kapsülleri ve birlik pulları birleştirerek sayı yap. 3 onluk + 6 birlik = 36. Parçaları bir araya getirerek bütünü oluşturuyoruz.",
+        text: "Onluk kapsülleri ve birlik yıldız taşlarını birleştirerek sayı yap. 3 onluk + 6 birlik = 36. Parçaları bir araya getirerek bütünü oluşturuyoruz.",
         tts: "Üç onluk artı altı birlik: otuz altı!",
         visual: "composeLearn",
         examples: [{ tens: 1, ones: 7 }, { tens: 3, ones: 2 }, { tens: 5, ones: 0 }],
@@ -4087,9 +4087,9 @@ const Chip = ({ color = "blue", size = 44, number = null, glow, countAnim, hidde
   );
 };
 
-// ─── Yeşil Sayı Pulu — Fiziksel materyaldeki numaralı yeşil pul ───────────
+// ─── Yeşil Sayı Pulu — Fiziksel materyaldeki numaralı yeşil yıldız taşı───────────
 // Kapsam: 1-20 tekli, 0-100 beşerli (0,5,10,15,...,100)
-// Çubuğun oyuklarına takılır, mavi/kırmızı pulların yerini alabilir
+// Çubuğun oyuklarına takılır, mavi/kırmızı yıldız taşlarının yerini alabilir
 const GreenChip = ({ num, size = 44, glow, onClick, style: sx, countAnim }) => {
   const digits = String(num).length;
   const fs = digits >= 3 ? Math.round(size * .34) : digits >= 2 ? Math.round(size * .42) : Math.round(size * .5);
@@ -5642,7 +5642,7 @@ const MATH_INSIGHTS = {
     wrong: ["Nesneleri say ve doğru rakamla eşle!", "Sayarak miktarı bul, sonra o rakamı seç!", "Her rakam bir miktarı temsil eder — doğru eşleşmeyi bul!"],
   },
   buildNumber: {
-    correct: ["Sayıyı doğru oluşturdun!", "Sayı oluşturmak yapı taşlarıyla inşa etmek gibi!", "Her pul yerli yerine — yapıcı düşünce!"],
+    correct: ["Sayıyı doğru oluşturdun!", "Sayı oluşturmak yapı taşlarıyla inşa etmek gibi!", "Her yıldız taşıyerli yerine — yapıcı düşünce!"],
     wrong: ["İstenen sayıya ulaşana kadar ekle!", "Sayıyı parça parça oluştur!", "Kaç tane olduğunu say — hedefe ulaşana kadar devam et!"],
   },
   spaceKitchen: {
@@ -5688,7 +5688,7 @@ const getMathInsight = (mode, isCorrect, question, correctAnswer) => {
           ca <= 10 ? `${ca} — 10'luk çerçeveye sığıyor!` : `${ca} = 10 + ${ca - 10} — 10'u aşarak topladın!`,
           // CRA deepening
           craTip(
-            `Somut: ${q.num1} pul + ${q.num2} pul = ${ca} pul — birleştir ve say!`,
+            `Somut: ${q.num1} yıldız taşı+ ${q.num2} yıldız taşı= ${ca} yıldız taşı— birleştir ve say!`,
             `Görsel: Sayı doğrusunda ${bigger}'den ${smaller} adım ilerle → ${ca}!`,
             `Soyut: ${q.num1} + ${q.num2} = ${ca} — değişme özelliği: ${q.num2} + ${q.num1} de aynı!`
           ),
@@ -5704,7 +5704,7 @@ const getMathInsight = (mode, isCorrect, question, correctAnswer) => {
           `${q.num1} − ${q.num2} = ${ca} — ters düşünce: ${q.num2} + ${ca} = ${q.num1}!`,
           ca <= 3 ? `${q.num1}'den ${q.num2} adım geriye saydın!` : `Toplama ile düşündün: ${q.num2} + ? = ${q.num1} → ${ca}!`,
           craTip(
-            `Somut: ${q.num1} puldan ${q.num2} tane çıkar — kalan ${ca}!`,
+            `Somut: ${q.num1} yıldız taşından ${q.num2} tane çıkar — kalan ${ca}!`,
             `Görsel: Sayı doğrusunda ${q.num1}'den ${q.num2} adım geri → ${ca}!`,
             `Soyut: ${q.num1} − ${q.num2} = ${ca} ↔ ${q.num2} + ${ca} = ${q.num1} — sayı ailesi!`
           ),
@@ -5751,14 +5751,14 @@ const getMathInsight = (mode, isCorrect, question, correctAnswer) => {
       if (q.type === "addition" && q.num1 != null && q.num2 != null) {
         const bigger = Math.max(q.num1, q.num2), smaller = Math.min(q.num1, q.num2);
         return craTip(
-          `Somut: ${bigger} pul koy, sonra ${smaller} tane daha ekle — hepsini say → ${ca}!`,
+          `Somut: ${bigger} yıldız taşıkoy, sonra ${smaller} tane daha ekle — hepsini say → ${ca}!`,
           `Görsel: Sayı doğrusunda ${bigger}'yi bul, ${smaller} adım ilerle → ${ca}!`,
           `${bigger}'den başla ve ${smaller} tane ileriye say → ${ca}!`
         );
       }
       if (q.type === "subtraction" && q.num1 != null && q.num2 != null) {
         return craTip(
-          `Somut: ${q.num1} pul koy, ${q.num2} tanesini çıkar — kalan ${ca}!`,
+          `Somut: ${q.num1} yıldız taşıkoy, ${q.num2} tanesini çıkar — kalan ${ca}!`,
           `Görsel: Sayı doğrusunda ${q.num1}'den ${q.num2} adım geri → ${ca}!`,
           ca <= 3 ? `${q.num1}'den geriye ${q.num2} adım say → ${ca}!` : `Toplama olarak düşün: ${q.num2} + ? = ${q.num1} → ${ca}!`
         );
@@ -5878,14 +5878,14 @@ const MASCOT = {
   wrongTaskTips: {
     counting: "Pulları teker teker say — parmaklarınla takip et! ☝️",
     subitizing: "Bir daha bak — gruplayarak gör! 👀",
-    addition: "Parmaklarınla veya pullarla deneyebilirsin! 🖐️",
+    addition: "Parmaklarınla veya yıldız taşlarıla deneyebilirsin! 🖐️",
     subtraction: "Büyükten başla ve geriye doğru say! ⬇️",
     comparison: "İkisini yan yana koy ve karşılaştır! 📏",
     makeTen: "10'u doldurmak için kaç eksik? 🎯",
     makeFive: "5'i doldurmak için kaç tane daha lazım? ✋",
     chipGuess: "Gözlerini kapat ve hatırla — kaç yıldız taşıydı? 💭",
     rodBack: "Gizlenmeden önce grupları say! Mavi + Kırmızı = Toplam 🎨",
-    doubleTensFrame: "Sol çerçeve tam 10! Sağdaki pulları say ve 10'a ekle! 🔟🔟",
+    doubleTensFrame: "Sol çerçeve tam 10! Sağdaki yıldız taşlarını say ve 10'a ekle! 🔟🔟",
     estimateCount: "Referans grubunu ipucu olarak kullan — kaç tane grup var? 🎯",
   },
   streakReactions: [
@@ -6005,7 +6005,7 @@ const ScreenTimeManager = {
   // Fiziksel manipülatif yönlendirme mesajları (Montessori/Reggio entegrasyonu)
   physicalPracticeHints: [
     "💡 İpucu: Evdeki düğmeler, boncuklar veya lego parçalarıyla aynı oyunu gerçek nesnelerle dene!",
-    "💡 İpucu: Merdivenleri çıkarken sayarak pratik yap — her basamak bir pul!",
+    "💡 İpucu: Merdivenleri çıkarken sayarak pratik yap — her basamak bir yıldız taşı!",
     "💡 İpucu: Sofra hazırlarken kaşık ve çatalları sayarak eşle!",
     "💡 İpucu: Parkta taşları toplayıp ikili ve üçlü gruplar oluştur!",
   ],
@@ -8709,7 +8709,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const itemMs = level <= 2 ? 350 : level <= 4 ? 300 : 250; // ms per item
       const baseMs = level <= 2 ? 800 : level <= 4 ? 500 : 300; // base overhead
       showTime = baseMs + q.number * itemMs;
-      // L1: 3 pul → 800+1050=1850ms, L6: 10 pul → 300+2500=2800ms
+      // L1: 3 yıldız taşı→ 800+1050=1850ms, L6: 10 yıldız taşı→ 300+2500=2800ms
       showTime = Math.max(1500, Math.min(showTime, 4000)); // 1.5s-4s arası
       setFlashDuration(showTime);
       timerRef.current = setTimeout(() => { setIsHidden(true); setFlashDuration(0); sfx("hide"); }, showTime);
@@ -8755,7 +8755,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     if (!q.ttsText) {
       const _tts = {
         counting: "Enerji kapsülünde kaç yıldız taşı var?",
-        quantityMatch: ["Pulları say ve doğru rakamı bul!", "Bu pullar hangi sayıyı gösteriyor?", "Kaç pul var? Rakamla eşle!"][round % 3],
+        quantityMatch: ["Pulları say ve doğru rakamı bul!", "Bu yıldız taşları hangi sayıyı gösteriyor?", "Kaç yıldız taşıvar? Rakamla eşle!"][round % 3],
         matching: `${q.number} yıldız taşlı kapsülü bul`,
         chipGuess: "Yıldız taşlarını dikkatlice say, gizlenince hatırla!",
         rodBack: "İyi bak, gizlenince hatırla!",
@@ -8779,7 +8779,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         ordering: q.descending ? "Büyükten küçüğe sırala!" : "Küçükten büyüğe sırala!",
         ordinalCount: `Parlayan yıldız ${q.fromRight ? "sağdan" : "soldan"} kaçıncı sırada?`,
         backwardCount: `${q.startNum}'den ${q.stepsBack} geri say!`,
-        conservation: "İki gruptaki pullar eşit mi?",
+        conservation: "İki gruptaki yıldız taşları eşit mi?",
         estimateCount: "Kaç tane var? Tahmin et!",
         beforeAfter: q.subType === "before" ? `${q.number}'den önce ne gelir?` : q.subType === "after" ? `${q.number}'den sonra ne gelir?` : `${q.low} ile ${q.high} arasında ne var?`,
         fiveMore: "Bu kapsül 5'e göre nasıl?",
@@ -8901,7 +8901,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const blueN = q.rbColors.filter(c => c === "blue").length;
         setHintData({ type: "breakdown", value: `Grupları gör!`, sub: `${blueN} mavi + ${q.number - blueN} kırmızı = ${q.number}`, icon: "🎨" });
       } else if (dm === "frame") {
-        setHintData({ type: "breakdown", value: `Çerçeveyi oku!`, sub: q.number > 5 ? `5 + ${q.number - 5} = ${q.number}` : `${q.number} pul`, icon: "🔟" });
+        setHintData({ type: "breakdown", value: `Çerçeveyi oku!`, sub: q.number > 5 ? `5 + ${q.number - 5} = ${q.number}` : `${q.number} yıldız taşı`, icon: "🔟" });
       } else if (dm === "finger") {
         const lf = Math.min(q.number, 5), rf = q.number > 5 ? q.number - 5 : 0;
         setHintData({ type: "breakdown", value: `Parmakları say!`, sub: rf > 0 ? `Sol ${lf} + Sağ ${rf} = ${q.number}` : `${lf} parmak`, icon: "🖐️" });
@@ -8946,7 +8946,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     else if (q.type === "fiveMore") {
       const fRef = q.fmRef || 5;
       const label = q.number < fRef ? "az" : q.number === fRef ? "eşit" : "çok";
-      setHintData({ type: "breakdown", value: `${q.number} pul — ${fRef}'${fRef === 10 ? "dan" : "ten"} ${label}!`, sub: `${fRef} pullu kapsüle bak ve karşılaştır`, icon: "🖐️" });
+      setHintData({ type: "breakdown", value: `${q.number} yıldız taşı— ${fRef}'${fRef === 10 ? "dan" : "ten"} ${label}!`, sub: `${fRef} yıldız taşlı kapsüle bak ve karşılaştır`, icon: "🖐️" });
     }
     else if (q.type === "comparison") {
       const cHints = {
@@ -8959,7 +8959,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       setHintData({ type: "breakdown", value: `A: ${q.num1}, B: ${q.num2}`, sub: cHints[q.cmpDisplay] || cHints.rod, icon: "⚖️" });
     }
     else if (q.type === "numberLine") {
-      setHintData({ type: "breakdown", value: `${q.target} pullu kapsülü bul`, sub: `Pulları dikkatlice say`, icon: "🔍" });
+      setHintData({ type: "breakdown", value: `${q.target} yıldız taşlı kapsülü bul`, sub: `Pulları dikkatlice say`, icon: "🔍" });
     }
     else if (q.type === "ordering") {
       setHintData({ type: "breakdown", value: q.descending ? `Büyükten küçüğe sırala` : `Küçükten büyüğe sırala`, sub: q.sorted.join(q.descending ? " > " : " < "), icon: "📊" });
@@ -8982,10 +8982,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       setHintData({ type: "breakdown", value: hint, icon: "💡" });
     }
     else if (q.type === "makeFive") {
-      setHintData({ type: "breakdown", value: `${q.current} pulun var, 5 lazım`, sub: `Kaç boş yuva kaldı? Boşlukları say!`, icon: "✋" });
+      setHintData({ type: "breakdown", value: `${q.current} yıldız taşın var, 5 lazım`, sub: `Kaç boş yuva kaldı? Boşlukları say!`, icon: "✋" });
     }
     else if (q.type === "makeTen") {
-      setHintData({ type: "breakdown", value: `${q.current} pulun var, 10 lazım`, sub: `Boş yuvaları say: 10 − ${q.current} = ?`, icon: "🎯" });
+      setHintData({ type: "breakdown", value: `${q.current} yıldız taşın var, 10 lazım`, sub: `Boş yuvaları say: 10 − ${q.current} = ?`, icon: "🎯" });
     }
     else if (q.type === "trueFalse") {
       setHintData({ type: "breakdown", value: `${q.numA} + ${q.numB} = ${q.correctResult}`, sub: `Şimdi denklemdeki sayıyla karşılaştır — aynı mı?`, icon: "⚖️" });
@@ -9028,24 +9028,24 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         gorsel = `${nw(q.a)} yıldız taşlı ve ${nw(q.b)} yıldız taşlı iki enerji kapsülünü alt alta koy. Farkı gör.`;
         sembolik = `${q.a} − ${q.b} = ?`;
       } else if (ct === "compareReferentUnknown") {
-        somut = `${nw(q.c)} pul koy. ${nw(q.b)} fazlalığı ayır. Kalan diğer miktardır.`;
-        gorsel = `${nw(q.c)} pullu kapsülün ${nw(q.b)} pulunu kırmızıya çevir. Mavi kalanlar kaç?`;
+        somut = `${nw(q.c)} yıldız taşıkoy. ${nw(q.b)} fazlalığı ayır. Kalan diğer miktardır.`;
+        gorsel = `${nw(q.c)} yıldız taşlı kapsülün ${nw(q.b)} yıldız taşını kırmızıya çevir. Mavi kalanlar kaç?`;
         sembolik = `${q.c} − ${q.b} = ?`;
       } else if (ct === "multiplyProductUnknown" || ct === "multCompareProductUnknown") {
-        somut = `${nw(q.a)} küme oluştur. Her kümeye ${nw(q.b)} pul koy. Hepsini birlikte say.`;
-        gorsel = `${nw(q.a)} kapsül al, her birine ${nw(q.b)} pul koy. Tüm pullları topla.`;
+        somut = `${nw(q.a)} küme oluştur. Her kümeye ${nw(q.b)} yıldız taşıkoy. Hepsini birlikte say.`;
+        gorsel = `${nw(q.a)} kapsül al, her birine ${nw(q.b)} yıldız taşıkoy. Tüm pullları topla.`;
         sembolik = `${q.a} × ${q.b} = ?`;
       } else if (ct === "multiplyGroupSizeUnknown") {
         somut = `${nw(q.c)} yıldız taşını ${nw(q.a)} eşit gruba paylaştır. Her grupta kaç yıldız taşı var?`;
-        gorsel = `${nw(q.c)} pulu ${nw(q.a)} kapsüle eşit dağıt. Her kapsüldeki pul sayısı cevap.`;
+        gorsel = `${nw(q.c)} yıldız taşını ${nw(q.a)} kapsüle eşit dağıt. Her kapsüldeki yıldız taşısayısı cevap.`;
         sembolik = `${q.c} ÷ ${q.a} = ?`;
       } else if (ct === "multiplyNumGroupsUnknown") {
-        somut = `${nw(q.c)} puldan ${nw(q.b)}'şerli gruplar oluştur. Kaç grup yapabildin?`;
-        gorsel = `${nw(q.c)} pulu ${nw(q.b)}'erli kapsüllere yerleştir. Kaç kapsül doldu?`;
+        somut = `${nw(q.c)} yıldız taşından ${nw(q.b)}'şerli gruplar oluştur. Kaç grup yapabildin?`;
+        gorsel = `${nw(q.c)} yıldız taşını ${nw(q.b)}'erli kapsüllere yerleştir. Kaç kapsül doldu?`;
         sembolik = `${q.c} ÷ ${q.b} = ?`;
       } else {
         somut = `Pullarla problemi masada canlandır.`;
-        gorsel = `DokunSay kapsül ve pullarıyla modelle.`;
+        gorsel = `DokunSay kapsül ve yıldız taşlarınıyla modelle.`;
         sembolik = q.equation || "?";
       }
       setHintData({ type: "multiRep", reps: [
@@ -9064,12 +9064,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       setHintData({ type: "showTarget", value: correctAnswer, msg: `${q.start} yıldız taşından ${q.toRemove} tane çıkar → ${correctAnswer} kalmalı` });
     }
     else if (q.type === "matching") {
-      setHintData({ type: "highlightAnswer", value: correctAnswer, msg: `Rakam ${q.number} → kapsüldeki pulları tek tek say ve ${q.number} pullu olanı bul!` });
+      setHintData({ type: "highlightAnswer", value: correctAnswer, msg: `Rakam ${q.number} → kapsüldeki yıldız taşlarını tek tek say ve ${q.number} yıldız taşlı olanı bul!` });
       setTimeout(() => setHintData(null), 3500);
     }
     else if (q.type === "lengthGuess") {
       setIsHidden(false);
-      setHintData({ type: "text", value: `Gizli kapsülde${q.unknown} pul var! Bilinen kapsülle karşılaştır.` });
+      setHintData({ type: "text", value: `Gizli kapsülde${q.unknown} yıldız taşıvar! Bilinen kapsülle karşılaştır.` });
       setTimeout(() => { setIsHidden(true); setHintData(null); }, 3500);
     }
     else if (q.type === "difference") {
@@ -9088,10 +9088,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     }
     else if (q.type === "lessMoreEqual") {
       const rel = q.group1 < q.group2 ? "daha az" : q.group1 === q.group2 ? "eşit" : "daha çok";
-      setHintData({ type: "breakdown", value: `Sol: ${q.group1} pul, Sağ: ${q.group2} pul`, sub: `Sol taraf ${rel}!`, icon: "⚖️" });
+      setHintData({ type: "breakdown", value: `Sol: ${q.group1} yıldız taşı, Sağ: ${q.group2} yıldız taşı`, sub: `Sol taraf ${rel}!`, icon: "⚖️" });
     }
     else if (q.type === "conservation") {
-      setHintData({ type: "breakdown", value: `Üst: ${q.number} pul, Alt: ${q.number2} pul`, sub: q.isSame ? "Dizilimleri farklı ama sayıları eşit!" : `Farklı! ${q.number} ≠ ${q.number2}`, icon: "🔄" });
+      setHintData({ type: "breakdown", value: `Üst: ${q.number} yıldız taşı, Alt: ${q.number2} yıldız taşı`, sub: q.isSame ? "Dizilimleri farklı ama sayıları eşit!" : `Farklı! ${q.number} ≠ ${q.number2}`, icon: "🔄" });
     }
     else if (q.type === "estimateCount") {
       setIsHidden(false);
@@ -9112,7 +9112,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       setHintData({ type: "breakdown", value: `${q.rows} satır × ${q.cols} sütun`, sub: `${q.rows} × ${q.cols} = ${q.total}`, icon: "⬛" });
     }
     else if (q.type === "multiplyVisual") {
-      setHintData({ type: "breakdown", value: `${q.a} grup, her grupta ${q.b} pul`, sub: `${q.a} × ${q.b} = ${q.result}`, icon: "✖️" });
+      setHintData({ type: "breakdown", value: `${q.a} grup, her grupta ${q.b} yıldız taşı`, sub: `${q.a} × ${q.b} = ${q.result}`, icon: "✖️" });
     }
     else if (q.type === "timesTable") {
       setHintData({ type: "breakdown", value: `${q.a} × ${q.b}`, sub: `${q.a} kez ${q.b} → ${q.result}`, icon: "📋" });
@@ -9325,7 +9325,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {title("Hedef:")}
               <span style={{ fontSize: 24, fontWeight: 900, color: "#059669", animation: "numberReveal .5s ease", display: "inline-block" }}>{d.value}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8" }}>pul</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8" }}>yıldız taşı</span>
             </div>
             {d.msg && sub(d.msg)}
           </div>
@@ -9344,7 +9344,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       return (<div style={box}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {guideIcon()}
-          <div><div style={{ fontSize: 10, fontWeight: 700, color: guideColor, marginBottom: 2, textTransform: "uppercase", letterSpacing: .3 }}>{hintLabel}</div>{title("Dikkatli bak!")}{sub(d.msg || "Doğru cevap parlatıldı — pulları say!")}</div>
+          <div><div style={{ fontSize: 10, fontWeight: 700, color: guideColor, marginBottom: 2, textTransform: "uppercase", letterSpacing: .3 }}>{hintLabel}</div>{title("Dikkatli bak!")}{sub(d.msg || "Doğru cevap parlatıldı — yıldız taşlarını say!")}</div>
         </div>
       </div>);
     }
@@ -10029,7 +10029,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             ? "İki taraf bir terazinin kefesi gibi — aynı ağırlıkta olmalı! ⚖️"
             : "Dedektif gibi düşün — gizli sayı nerede saklanmış? 🕵️";
         }
-        else if (q.type === "buildNumber") { explain = `Hedef: ${q.target} pul`; teachTip = "Koyduğun pulları tek tek say — hedef sayıya ulaşana kadar ekle veya çıkar! 🔨"; }
+        else if (q.type === "buildNumber") { explain = `Hedef: ${q.target} yıldız taşı`; teachTip = "Koyduğun yıldız taşlarını tek tek say — hedef sayıya ulaşana kadar ekle veya çıkar! 🔨"; }
         else if (q.type === "makeFive") { explain = `${q.current} + ${correctAnswer} = 5`; teachTip = "5'lik çerçevedeki boş kutuları say — boş kalan sayı, 5'in diğer parçasıdır! ✋"; }
         else if (q.type === "makeTen") { explain = `${q.current} + ${correctAnswer} = 10`; teachTip = "10'luk çerçevedeki boş kutuları say — boş kalan sayı, 10'un arkadaşıdır! 🎯"; }
         else if (q.type === "trueFalse") {
@@ -10079,8 +10079,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         else if (q.type === "comparison") {
           explain = `${correctAnswer} daha ${q.askMin ? "az" : "fazla"}`;
           const cmpTips = {
-            rod: "Kapsülleri alt alta koy ve pulları birer birer eşle — eşi kalmayan taraf fazla! 📏",
-            chips: "Her iki gruptaki pulları tek tek say ve karşılaştır! 🔢",
+            rod: "Kapsülleri alt alta koy ve yıldız taşlarını birer birer eşle — eşi kalmayan taraf fazla! 📏",
+            chips: "Her iki gruptaki yıldız taşlarını tek tek say ve karşılaştır! 🔢",
             frame: "Çerçevelerdeki boş yerleri say — boşu az olan daha çok! 🔟",
             domino: "Dominonun iki yarısını topla, sonra karşılaştır! 🎲",
             finger: "Kalkık parmakları say — her el en fazla 5! 🖐️",
@@ -10088,32 +10088,32 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           teachTip = cmpTips[q.cmpDisplay] || cmpTips.rod;
         }
         else if (q.type === "tensFrame") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Üst sıra doluysa 5! Sonra alt sıradakileri sayarak devam et — Hızlı Beşli stratejisi! 🔟"; }
-        else if (q.type === "doubleTensFrame") { explain = `10 + ${q.secondFrame} = ${correctAnswer}`; teachTip = "Sol çerçeve tam 10! Sağdaki pulları say ve 10'a ekle — 10 artı kaç? 🔟🔟"; }
-        else if (["counting","chipGuess","fivesFrame"].includes(q.type)) { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Her pula bir sayı söyle, hiçbirini atlama! Son söylediğin sayı toplamı verir 👆"; }
+        else if (q.type === "doubleTensFrame") { explain = `10 + ${q.secondFrame} = ${correctAnswer}`; teachTip = "Sol çerçeve tam 10! Sağdaki yıldız taşlarını say ve 10'a ekle — 10 artı kaç? 🔟🔟"; }
+        else if (["counting","chipGuess","fivesFrame"].includes(q.type)) { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Her yıldız taşına bir sayı söyle, hiçbirini atlama! Son söylediğin sayı toplamı verir 👆"; }
         else if (q.type === "rodBack") {
           const rbDmName = { rod: "kapsül", twoColor: "renkli kapsül", frame: "çerçeve", domino: "domino", finger: "parmak", dice: "zar" }[q.rbDisplay] || "kapsül";
           explain = `Doğru sayı: ${correctAnswer}`;
           teachTip = q.rbDisplay === "twoColor" ? `Mavi ve kırmızı grupları ayrı say: ${q.rbColors ? q.rbColors.filter(c => c === "blue").length + " + " + q.rbColors.filter(c => c === "red").length : ""} 🧩`
             : q.rbDisplay === "frame" ? "Üst sıra doluysa 5! Alt sıradakileri ekle 🔟"
             : q.rbDisplay === "finger" ? "Kalkık parmakları say — her el en fazla 5! 🖐️"
-            : q.rbDisplay === "domino" ? "Sol ve sağ parçadaki pulları ayrı say, topla! 🎲"
-            : `${rbDmName}deki pulları tek tek say ve aklında tut! 💭`;
+            : q.rbDisplay === "domino" ? "Sol ve sağ parçadaki yıldız taşlarını ayrı say, topla! 🎲"
+            : `${rbDmName}deki yıldız taşlarını tek tek say ve aklında tut! 💭`;
         }
-        else if (q.type === "subitizing") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = q.number <= 4 ? "Küçük grupları tek bakışta tanımaya çalış! ⚡" : "Grupları gör: Mavi pullar kaç? Kırmızılar kaç? Topla! 🧩"; }
+        else if (q.type === "subitizing") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = q.number <= 4 ? "Küçük grupları tek bakışta tanımaya çalış! ⚡" : "Grupları gör: Mavi yıldız taşları kaç? Kırmızılar kaç? Topla! 🧩"; }
         else if (q.type === "fiveMore") { const labels = ["5'ten az","5'e eşit","5'ten çok"]; explain = `${q.number} → ${labels[correctAnswer]}`; teachTip = "Referans kapsülüyle karşılaştır — altındaysa az, aynıysa eşit, üstündeyse çok! 🖐️"; }
         else if (q.type === "ordering") { explain = `Doğru sıra: ${q.sorted.join(q.descending ? " > " : " < ")}`; teachTip = q.descending ? "En uzun kapsülü bul ve başa koy. Sonra kalanlardan en uzunu seç — adım adım ilerle! 📊" : "En kısa kapsülü bul ve başa koy. Sonra kalanlardan en kısayı seç — adım adım ilerle! 📊"; }
         else if (q.type === "backwardCount") { explain = `${q.startNum} − ${q.stepsBack} = ${correctAnswer}`; teachTip = `${q.startNum}'den başla, ${q.stepsBack} adım geriye doğru say — her adım eksi 1! ⏪`; }
-        else if (q.type === "addChips") { explain = `${q.start} + ${q.toAdd} = ${correctAnswer}`; teachTip = `Mevcut ${q.start} pula ${q.toAdd} tane ekle — hepsini baştan say! ➕`; }
-        else if (q.type === "removeChips") { explain = `${q.start} − ${q.toRemove} = ${correctAnswer}`; teachTip = `${q.toRemove} pulu çıkar (tıkla söndür) — kalan pulları say! ➖`; }
-        else if (q.type === "numberLine") { const nlL=["①","②","③"]; explain = `${q.target} pullu kapsül: ${nlL[q.correctPos]}`; teachTip = `Kapsül uzunluğuna bak — ${q.target} pul, ${nlL[q.correctPos]} numaralı kapsül! 📏`; }
-        else if (q.type === "lengthGuess") { explain = `Gizli kapsül: ${correctAnswer} pul`; teachTip = "Yanındaki kapsülle boy ölç — gizem çözüldü! 🕵️"; }
+        else if (q.type === "addChips") { explain = `${q.start} + ${q.toAdd} = ${correctAnswer}`; teachTip = `Mevcut ${q.start} yıldız taşına ${q.toAdd} tane ekle — hepsini baştan say! ➕`; }
+        else if (q.type === "removeChips") { explain = `${q.start} − ${q.toRemove} = ${correctAnswer}`; teachTip = `${q.toRemove} yıldız taşını çıkar (tıkla söndür) — kalan yıldız taşlarını say! ➖`; }
+        else if (q.type === "numberLine") { const nlL=["①","②","③"]; explain = `${q.target} yıldız taşlı kapsül: ${nlL[q.correctPos]}`; teachTip = `Kapsül uzunluğuna bak — ${q.target} yıldız taşı, ${nlL[q.correctPos]} numaralı kapsül! 📏`; }
+        else if (q.type === "lengthGuess") { explain = `Gizli kapsül: ${correctAnswer} yıldız taşı`; teachTip = "Yanındaki kapsülle boy ölç — gizem çözüldü! 🕵️"; }
         else if (q.type === "beforeAfter") {
           if (q.subType === "before") { explain = `${q.number}'den önce ${correctAnswer} gelir`; teachTip = "Bir önceki = 1 eksik. Sayı doğrusunda bir adım sola git! ⬅️"; }
           else if (q.subType === "after") { explain = `${q.number}'den sonra ${correctAnswer} gelir`; teachTip = "Bir sonraki = 1 fazla. Sayı doğrusunda bir adım sağa git! ➡️"; }
           else { explain = `${q.low} ile ${q.high} arasında ${correctAnswer} var`; teachTip = `Sırayla say: ${q.low}, ?, ${q.high} — ortadaki sayıyı bul! 🔎`; }
         }
-        else if (q.type === "quantityMatch") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Pulları tek tek say ve doğru rakamla eşle! Her pul bir birim 🎲"; }
-        else if (q.type === "matching") { explain = `Doğru kapsül: ${correctAnswer} pullu`; teachTip = "Her kapsüldeki pulları tek tek say, rakamla eşleşeni bul! 🎯"; }
+        else if (q.type === "quantityMatch") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Pulları tek tek say ve doğru rakamla eşle! Her yıldız taşıbir birim 🎲"; }
+        else if (q.type === "matching") { explain = `Doğru kapsül: ${correctAnswer} yıldız taşlı`; teachTip = "Her kapsüldeki yıldız taşlarını tek tek say, rakamla eşleşeni bul! 🎯"; }
         else if (q.type === "lessMoreEqual") {
           const lmeL = ["Daha az","Eşit","Daha çok"]; explain = `Sol: ${q.group1}, Sağ: ${q.group2} → ${lmeL[correctAnswer]}`;
           const lmeTips = {
@@ -10173,7 +10173,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             : `${q.product} ÷ ${q.base} = ${q.multiplier} kat — kaç grup ${q.base} oluşur? 🔢`;
         }
         else if (q.type === "bundleTens") { explain = `${q.total} = ${q.tens} onluk + ${q.ones} birlik`; teachTip = "10'arlı gruplar yap (birimleştir) — her grup 1 onluk! Kalanlar birlik olur 📦"; }
-        else if (q.type === "placeValue") { explain = `${q.number}: ${q.askTens ? "onlar" : "birler"} = ${correctAnswer}`; teachTip = q.askTens ? "Soldaki rakam onluk sayısıdır — onluk kapsül sayısını say! 🏛️" : "Sağdaki rakam birlik sayısıdır — kalan pulları say! 🏛️"; }
+        else if (q.type === "placeValue") { explain = `${q.number}: ${q.askTens ? "onlar" : "birler"} = ${correctAnswer}`; teachTip = q.askTens ? "Soldaki rakam onluk sayısıdır — onluk kapsül sayısını say! 🏛️" : "Sağdaki rakam birlik sayısıdır — kalan yıldız taşlarını say! 🏛️"; }
         else if (q.type === "expandForm") { explain = `${q.number} = ${q.tensVal} + ${q.ones}`; teachTip = "Onluk kapsüllerini say ve 10 ile çarp — bu onluk değeridir! 🔭"; }
         else if (q.type === "composeNumber") { explain = `${q.tens} onluk + ${q.ones} birlik = ${correctAnswer}`; teachTip = "Onlukları onar onar say (10, 20, 30...) sonra birlikleri ekle! 🧱"; }
         // ═══ Eksik teachTip'ler — eklenen 7 mod ═══
@@ -10351,7 +10351,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   const checkInteractive = useCallback(() => {
     if (answered) return;
     if (question?.type === "partWhole") {
-      // Sadece boş bölgeye (part1 sonrası) eklenen pulları say
+      // Sadece boş bölgeye (part1 sonrası) eklenen yıldız taşlarını say
       const gapFilled = slots.slice(question.part1).filter(s => s !== null).length;
       handleAnswer(gapFilled);
     } else if (question?.type === "ordering") {
@@ -10529,7 +10529,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             ))}
           </div>
           <div style={{ marginTop: 10, padding: "4px 16px", borderRadius: 12, background: "#38bdf8", color: "#fff", fontWeight: 800, fontSize: 16 }}>
-            {slots.filter(x => x !== null).length} pul
+            {slots.filter(x => x !== null).length} yıldız taşı
           </div>
         </div>
       );
@@ -11224,9 +11224,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         { const rbSize = capsuleSize(q.number);
         const rbDm = q.rbDisplay || "rod";
         const rbHintMap = {
-          rod: "Kapsüldeki pulları say!",
+          rod: "Kapsüldeki yıldız taşlarını say!",
           twoColor: "Mavi ve kırmızı grupları ayrı say, topla!",
-          frame: q.number <= 5 ? "Beşlik çerçevedeki pulları say!" : "Üst sıra doluysa 5 — alt sırayı ekle!",
+          frame: q.number <= 5 ? "Beşlik çerçevedeki yıldız taşlarını say!" : "Üst sıra doluysa 5 — alt sırayı ekle!",
           domino: "Domino kalıbını tanı — sol ve sağı topla!",
           finger: "Parmakları say — kaç tane kalkık?",
           dice: "Zar kalıbını tanı!",
@@ -11397,7 +11397,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           rod: si ? "Dikkat! Boyut yanıltmasın — sayı önemli!" : "Kapsülleri alt alta karşılaştır — uzun olan daha çoktur!",
           chips: "Pulları say — hangi grupta daha çok var?",
           frame: "Çerçevelerdeki dolu yerleri karşılaştır!",
-          domino: "Domino kalıplarındaki toplam pulları karşılaştır!",
+          domino: "Domino kalıplarındaki toplam yıldız taşlarını karşılaştır!",
           finger: "Kalkık parmakları karşılaştır — hangisi daha çok?",
         };
         // Render helper for comparison display types
@@ -11571,7 +11571,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               ))}
             </div>
           </div>
-          {/* Denklem satırı — NumberRod yerine sayı + pul ile */}
+          {/* Denklem satırı — NumberRod yerine sayı + yıldız taşıile */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8 }}>
             <div style={{ padding: "4px 14px", borderRadius: 10, background: "rgba(13,148,136,.15)", border: "1.5px solid #0d948850",
               fontSize: 18, fontWeight: 900, color: "#0d9488" }}>{q.bigNum}</div>
@@ -12668,13 +12668,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       // ═══ FAZ1: Sayı-Çokluk Eşleme ═══
       case "quantityMatch": {
         const qmSize = q.number > 7 ? 28 : q.number > 5 ? 34 : 40;
-        const qmPrompts = ["Pulları say ve doğru rakamı bul!", "Bu pullar hangi sayıyı gösteriyor?", "Kaç pul var? Rakamla eşle!"];
+        const qmPrompts = ["Pulları say ve doğru rakamı bul!", "Bu yıldız taşları hangi sayıyı gösteriyor?", "Kaç yıldız taşıvar? Rakamla eşle!"];
         return (<div style={{ textAlign: "center" }}>
           <TXT>{qmPrompts[round % qmPrompts.length]}</TXT>
           <SUB>Pulları tek tek say!</SUB>
           <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "18px 22px",
             borderRadius: 18, background: "linear-gradient(135deg,rgba(49,46,129,.5),rgba(30,27,75,.4))", border: "1px solid rgba(148,163,184,.12)" }}>
-            {/* Rastgele düzende pullar */}
+            {/* Rastgele düzende yıldız taşları */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", maxWidth: q.number > 6 ? 200 : 160 }}>
               {Array.from({ length: q.number }, (_, i) => (
                 <div key={i} style={{ animation: `fadeIn ${0.1 + i * 0.08}s ease` }}>
@@ -12851,25 +12851,26 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         };
         return (<div style={{ textAlign: "center" }}>
-          <TXT>İki gruptaki pullar <strong>eşit</strong> mi?</TXT>
+          <TXT>İki gruptaki yıldız taşları <strong>eşit</strong> mi?</TXT>
           <SUB>Dizilişe aldanma — say!</SUB>
           <div style={{ display: "inline-flex", gap: 8, borderRadius: 18, overflow: "hidden",
             border: `2px solid ${cvColor}40`, boxShadow: `0 4px 16px ${cvColor}15` }}>
             {/* Grup A */}
             <div style={{ padding: "12px 16px", background: "rgba(124,58,237,.1)", minHeight: 60, minWidth: 80,
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: cvColor, marginBottom: 4, letterSpacing: .5 }}>GRUP A</div>
+              {/* Etiket: mod rengini beyazla %50 karıştırıp koyu zeminde okunaklı yap */}
+              <div style={{ fontSize: 11, fontWeight: 900, color: `color-mix(in srgb, ${cvColor}, white 55%)`, marginBottom: 4, letterSpacing: 1 }}>GRUP A</div>
               {renderLayout(q.number, q.layoutA, "blue")}
-              {answered && <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic", marginTop: 4 }}>{q.number}</div>}
+              {answered && <div style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", marginTop: 4 }}>{q.number}</div>}
             </div>
             {/* Ayırıcı */}
             <div style={{ width: 3, background: `linear-gradient(180deg,${cvColor}20,${cvColor}60,${cvColor}20)`, alignSelf: "stretch" }} />
             {/* Grup B */}
             <div style={{ padding: "12px 16px", background: "rgba(234,88,12,.1)", minHeight: 60, minWidth: 80,
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#b45309", marginBottom: 4, letterSpacing: .5 }}>GRUP B</div>
+              <div style={{ fontSize: 11, fontWeight: 900, color: "color-mix(in srgb, #ea580c, white 55%)", marginBottom: 4, letterSpacing: 1 }}>GRUP B</div>
               {renderLayout(q.number2, q.layoutB, "red")}
-              {answered && <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic", marginTop: 4 }}>{q.number2}</div>}
+              {answered && <div style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", marginTop: 4 }}>{q.number2}</div>}
             </div>
           </div>
         </div>);
@@ -13115,7 +13116,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const mvSz = capsuleSize(q.b);
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{q.a}</BIG> × <BIG>{q.b}</BIG> = ?</TXT>
-          <SUB>{q.a} eşit grup, her grupta {q.b} pul</SUB>
+          <SUB>{q.a} eşit grup, her grupta {q.b} yıldız taşı</SUB>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "12px 8px",
             borderRadius: 16, background: "rgba(124,58,237,.1)", border: "2px solid rgba(167,139,250,.3)" }}>
             {Array.from({ length: q.a }, (_, gi) => (
@@ -13151,7 +13152,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             borderRadius: 20, background: `${badge.color}18`, border: `1.5px solid ${badge.color}40`,
             fontSize: 11, fontWeight: 800, color: badge.color, marginBottom: 6 }}>{badge.label}</div>}
           <TXT>{q.a} × {q.b} kaç eder?</TXT>
-          {!isZeroOne && <SUB>{ttSmaller} grup, her grupta {ttBigger} pul</SUB>}
+          {!isZeroOne && <SUB>{ttSmaller} grup, her grupta {ttBigger} yıldız taşı</SUB>}
           {isZeroOne && <SUB style={{ fontSize: 11, color: badge?.color || "#94a3b8" }}>{badge?.tip}</SUB>}
           {/* Pul grupları görseli — 0 stratejisi için boş kutu */}
           {ttStrat === "zero" ? (
@@ -13211,7 +13212,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{q.total}</BIG>'yi <BIG>{q.groups}</BIG> gruba paylaş</TXT>
           <SUB>{q.total} ÷ {q.groups} = ?</SUB>
-          {/* Toplam pullar — subitizing renkli */}
+          {/* Toplam yıldız taşları — subitizing renkli */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", padding: "12px 8px",
             borderRadius: 16, background: "linear-gradient(135deg,#ecfeff,#cffafe)", border: "2px solid #67e8f9",
             maxWidth: 280, margin: "0 auto" }}>
@@ -13273,7 +13274,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <Chip key={i} color={subColor(i)} size={hdSz} />
               ))}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#94a3b8" }}>{q.number} pul</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#94a3b8" }}>{q.number} yıldız taşı</div>
             <div style={{ fontSize: 24, color: hdColor }}>
               {q.subType === "half" ? "✂️ ÷ 2" : "× 2 🔄"}
             </div>
@@ -13325,7 +13326,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
              dbStrat === "divBySelf" ? `${q.a} ÷ ${q.a} = ? — kendine bölmek her zaman 1!` :
              `💡 Çarpmayı düşün: ${q.b} × ? = ${q.a}`}
           </SUB>
-          {/* Toplam pullar — divBySelf için özel görsel */}
+          {/* Toplam yıldız taşları — divBySelf için özel görsel */}
           {dbStrat === "divBySelf" ? (
             <div style={{ padding: "14px 20px", borderRadius: 16, background: "rgba(124,58,237,.08)",
               border: "2px dashed #7c3aed", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
@@ -13630,7 +13631,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             background: "rgba(124,58,237,.1)", border: `2px solid ${ninC}30`,
             boxShadow: `0 4px 16px ${ninC}12` }}>
             <NumberRod count={ninTarget} defaultColor="blue" size={ninSz} />
-            <div style={{ marginTop: 8, fontSize: 14, fontWeight: 900, color: ninC }}>{ninTarget} pul</div>
+            <div style={{ marginTop: 8, fontSize: 14, fontWeight: 900, color: ninC }}>{ninTarget} yıldız taşı</div>
           </div>
           {/* Tüm kombinasyonları cevaptan sonra göster */}
           {answered && (
@@ -13743,7 +13744,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Rod gösterimi ve kesme noktaları */}
           <div style={{ padding: "14px 20px", borderRadius: 18, background: "rgba(49,46,129,.35)", border: `1px solid ${rsC}25`, display: "inline-block", maxWidth: "100%", overflow: "hidden" }}>
             <NumberRod count={rsTarget} defaultColor="blue" size={rsTarget > 8 ? 20 : 28} />
-            <div style={{ marginTop: 8, fontSize: 13, fontWeight: 900, color: "#e2e8f0" }}>{rsTarget} pul</div>
+            <div style={{ marginTop: 8, fontSize: 13, fontWeight: 900, color: "#e2e8f0" }}>{rsTarget} yıldız taşı</div>
           </div>
           {/* Kesme noktası butonları */}
           {!answered && (
@@ -18524,7 +18525,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       );
 
       switch(st.visual) {
-        // ── Kapsül: pullara dokun, say ──
+        // ── Kapsül: yıldız taşlarıa dokun, say ──
         case "rod": {
           const n = st.rodCount;
           const rs = capsuleSize(n);
@@ -18535,7 +18536,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             return idx !== -1 ? idx + 1 : undefined;
           });
           return (<div style={bx}>
-            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı pulunu yerleştir!")}
+            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı yıldız taşını yerleştir!")}
             <NumberRod count={n} defaultColor="blue" size={rs}
               interactive={true}
               filledSlots={Array(n).fill(false)}
@@ -18573,7 +18574,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         }
 
-        // ── Sayma: kapsülün pullarına dokun (sıra fark etmez) ──
+        // ── Sayma: kapsülün yıldız taşlarınına dokun (sıra fark etmez) ──
         case "counting": {
           const n = st.countTo;
           const rs = capsuleSize(n);
@@ -18584,7 +18585,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             return idx !== -1 ? idx + 1 : undefined;
           });
           return (<div style={bx}>
-            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı pulunu yerleştir!")}
+            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı yıldız taşını yerleştir!")}
             <NumberRod count={n} defaultColor="blue" size={rs}
               interactive={true}
               filledSlots={Array(n).fill(false)}
@@ -18745,7 +18746,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             return idx !== -1 ? idx + 1 : undefined;
           });
           return (<div style={bx}>
-            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı pulunu tak!")}
+            {learnTapped.size < n && hint("Her oyuğa dokunarak yeşil sayı yıldız taşını tak!")}
             {/* Main rod - green numbered chips placed into slots */}
             <NumberRod count={n} defaultColor="blue" size={capsuleSize(n)}
               interactive={true}
@@ -18755,12 +18756,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               countingSlots={Array.from(learnTapped)}
             />
             {learnTapped.size > 0 && learnTapped.size < n && (
-              <div style={{fontSize:14,fontWeight:800,color:"#16a34a"}}>{learnTapped.size}/{n} pul takıldı — devam!</div>
+              <div style={{fontSize:14,fontWeight:800,color:"#16a34a"}}>{learnTapped.size}/{n} yıldız taşıtakıldı — devam!</div>
             )}
             {/* After all tapped — show predecessor/successor */}
             {learnTapped.size >= n && phase === 0 && (
               <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,animation:"fadeUp .4s ease"}}>
-                <div style={{fontSize:16,fontWeight:900,color:"#cbd5e1"}}>Kapsülde {n} yeşil sayı pulu var!</div>
+                <div style={{fontSize:16,fontWeight:900,color:"#cbd5e1"}}>Kapsülde {n} yeşil sayı yıldız taşı var!</div>
                 <button onClick={()=>setLearnRevealed(1)} style={{padding:"12px 28px",borderRadius:14,border:"none",fontFamily:F,
                   background:"linear-gradient(135deg,#22c55e,#16a34a)",color:"#fff",fontSize:15,fontWeight:900,
                   cursor:"pointer",boxShadow:"0 4px 12px rgba(22,163,74,.3)"}}>
@@ -18894,7 +18895,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <span style={{fontSize:13,fontWeight:800,color:"#94a3b8"}}>+</span>
                   <span style={{fontSize:13,fontWeight:800,color:"#dc2626"}}>{st.b} kırmızı</span>
                   <span style={{fontSize:13,fontWeight:800,color:"#94a3b8"}}>=</span>
-                  <span style={{fontSize:13,fontWeight:800,color:"#059669"}}>{total} pul</span>
+                  <span style={{fontSize:13,fontWeight:800,color:"#059669"}}>{total} yıldız taşı</span>
                 </div>
               </div>
               <button onClick={()=>{setLearnRevealed(2);celebrateFn();}} style={{padding:"10px 24px",borderRadius:14,border:"none",fontFamily:F,background:"linear-gradient(135deg,#f59e0b,#d97706)",color:"#fff",fontSize:15,fontWeight:900,cursor:"pointer",boxShadow:"0 4px 12px rgba(245,158,11,.3)"}}>Sonuç? 🎯</button>
@@ -18907,12 +18908,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         }
 
-        // ── Çıkarma: pullara dokun, çıkar ──
+        // ── Çıkarma: yıldız taşlarıa dokun, çıkar ──
         case "subtractionLearn": {
           const kept = st.total - st.remove;
           const allRemoved = learnTapped.size >= st.remove;
           return (<div style={bx}>
-            {hint(`${st.remove} pulu kapsülünden çıkar!`)}
+            {hint(`${st.remove} yıldız taşını kapsülünden çıkar!`)}
             {/* Full rod with removable chips */}
             <div style={{display:"inline-flex",padding:"8px 12px",borderRadius:14,background:"rgba(30,27,75,.5)",border:"1px solid rgba(148,163,184,.2)"}}>
               <div style={{display:"flex",gap:2}}>
@@ -18944,7 +18945,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         }
 
-        // ── Çarpma: gruplara dokun, pul dol ──
+        // ── Çarpma: gruplara dokun, yıldız taşıdol ──
         case "multiplyLearn": {
           return (<div style={bx}>
             <div style={{fontSize:11,fontWeight:800,color:"#ea580c"}}>{st.groups} × {st.perGroup} → her gruba dokun!</div>
@@ -18966,7 +18967,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         case "divisionLearn": {
           const pg=st.total/st.groups;
           return (<div style={bx}>
-            <div style={{fontSize:11,fontWeight:800,color:"#0891b2"}}>{st.total} pulu {st.groups} gruba paylaştır!</div>
+            <div style={{fontSize:11,fontWeight:800,color:"#0891b2"}}>{st.total} yıldız taşını {st.groups} gruba paylaştır!</div>
             <div style={{textAlign:"center",marginBottom:4}}>
               <NumberRod count={st.total} defaultColor="blue" size={capsuleSize(st.total)} />
               <div style={{fontSize:10,fontWeight:700,color:"#c0cbda",marginTop:2}}>Toplam: {st.total}</div>
@@ -18978,7 +18979,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <span style={{fontSize:10,fontWeight:800,color:rev?"#0891b2":"#94a3b8",minWidth:48}}>Grup {g+1}</span>
                   {rev ? <div style={{animation:"fadeUp .3s ease"}}><NumberRod count={pg} defaultColor="blue" size={22} /></div>
                   : <span style={{fontSize:16,color:"#94a3b8",animation:"fadeIn .5s ease"}}>?</span>}
-                  {rev && <span style={{fontSize:11,fontWeight:900,color:"#0891b2",marginLeft:"auto"}}>{pg} pul</span>}
+                  {rev && <span style={{fontSize:11,fontWeight:900,color:"#0891b2",marginLeft:"auto"}}>{pg} yıldız taşı</span>}
                 </div>;
               })}
             </div>
@@ -19380,7 +19381,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           const lo=st.range[0], hi=st.range[1], cnt=hi-lo+1;
           const rs=capsuleSize(cnt);
           return (<div style={bx}>
-            {hint(`${fr}'ten ${to}'ye kaç adım? Aradaki pullara sırayla dokun!`)}
+            {hint(`${fr}'ten ${to}'ye kaç adım? Aradaki yıldız taşlarıa sırayla dokun!`)}
             <div style={{display:"inline-flex",padding:"8px 10px",borderRadius:14,background:"rgba(30,27,75,.5)",border:"1px solid rgba(148,163,184,.2)",boxShadow:"inset 0 2px 4px rgba(0,0,0,.06)"}}>
               <div style={{display:"flex",gap:2}}>
                 {Array.from({length:cnt},(_,i) => {
@@ -19424,7 +19425,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           const lo=st.range[0], hi=st.range[1], cnt=hi-lo+1;
           const rs=capsuleSize(cnt);
           return (<div style={bx}>
-            {hint("Sırayla dokunarak yeşil sayı pullarını kapsüle yerleştir!")}
+            {hint("Sırayla dokunarak yeşil sayı yıldız taşlarınını kapsüle yerleştir!")}
             <div style={{display:"inline-flex",padding:"8px 10px",borderRadius:14,background:"rgba(30,27,75,.5)",border:"1px solid rgba(148,163,184,.2)",boxShadow:"inset 0 2px 4px rgba(0,0,0,.06)",overflowX:"auto",maxWidth:"100%"}}>
               <div style={{display:"flex",gap:2}}>
                 {Array.from({length:cnt},(_,i) => {
@@ -19468,14 +19469,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         // ══ BASAMAK DEĞERİ GÖRSELLERİ ══
 
-        // ── Onluk Yapma Animasyonu: 10 pul → 1 onluk ──
+        // ── Onluk Yapma Animasyonu: 10 yıldız taşı→ 1 onluk ──
         case "bundleLearn": {
           const ph=learnRevealed;
           const n=st.count||10;
           const gn = Array.from({length:n}, (_,i) => learnTapped.has(i) ? i+1 : undefined);
           return (<div style={bx}>
             {ph===0 && (<>
-              <div style={{fontSize:13,fontWeight:800,color:"#b45309"}}>Her oyuğa sırayla dokunarak yeşil sayı pulunu yerleştir!</div>
+              <div style={{fontSize:13,fontWeight:800,color:"#b45309"}}>Her oyuğa sırayla dokunarak yeşil sayı yıldız taşını yerleştir!</div>
               <NumberRod count={n} defaultColor="blue" size={capsuleSize(n)}
                 interactive={true}
                 filledSlots={Array(n).fill(false)}
@@ -19537,13 +19538,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         }
 
         // ── Onluk Kapsül +Birlik Pul: sayıyı görselleştir ──
-        // ── Ritmik Sayma: 10'ar ritmik sayarak yeşil pullarla say ──
+        // ── Ritmik Sayma: 10'ar ritmik sayarak yeşil yıldız taşlarıla say ──
         case "rhythmicCountLearn": {
           const step=st.step||10;
           const cnt=st.count||5;
           const ss={2:"'şer",3:"'er",4:"'er",5:"'er",6:"'şar",7:"'şer",8:"'er",9:"'ar",10:"'ar"}[step]||"'er";
           return (<div style={bx}>
-            {hint(`${step}${ss} ritmik say — her pula dokunarak yeşil sayı pulunu yerleştir!`)}
+            {hint(`${step}${ss} ritmik say — her yıldız taşına dokunarak yeşil sayı yıldız taşını yerleştir!`)}
             <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",alignItems:"flex-end"}}>
               {Array.from({length:cnt},(_,i) => {
                 const num=(i+1)*step;
@@ -19558,7 +19559,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <NumberRod key={j} count={10} defaultColor="blue" solid size={8} />
                     ))}
                   </div>
-                  {/* Yeşil pul veya placeholder */}
+                  {/* Yeşil yıldız taşıveya placeholder */}
                   {rev
                     ? <GreenChip num={num} size={44} glow countAnim />
                     : <div style={{width:44,height:44,borderRadius:"50%",
@@ -19603,7 +19604,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         <span style={{fontSize:10,fontWeight:800,color:"#b45309"}}>{t} onluk</span>
                       </div>
                       {o>0 && <span style={{fontSize:16,color:"#94a3b8",fontWeight:900}}>+</span>}
-                      {/* Birlik pullar */}
+                      {/* Birlik yıldız taşları */}
                       {o>0 && <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
                         <NumberRod count={o} defaultColor="red" solid size={18} />
                         <span style={{fontSize:10,fontWeight:800,color:"#dc2626"}}>{o} birlik</span>
@@ -19641,7 +19642,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <div style={{fontSize:11,fontWeight:900,color:"#b45309",marginTop:3}}>{ex.tens} onluk = {ex.tens*10}</div>
                     </div>
                     <span style={{fontSize:16,fontWeight:900,color:"#94a3b8"}}>+</span>
-                    {/* Birlik pullar */}
+                    {/* Birlik yıldız taşları */}
                     <div style={{textAlign:"center",padding:"6px 8px",borderRadius:10,background:"#fee2e2",border:"1.5px solid #fca5a5"}}>
                       <NumberRod count={ex.ones} defaultColor="red" solid size={14} />
                       <div style={{fontSize:11,fontWeight:900,color:"#dc2626",marginTop:3}}>{ex.ones} birlik</div>
@@ -19670,7 +19671,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{fontSize:10,fontWeight:800,color:"#b45309"}}>{ex.tens} onluk</span>
                   </div>
                   <span style={{fontSize:16,fontWeight:900,color:"#94a3b8"}}>+</span>
-                  {/* Birlik pullar */}
+                  {/* Birlik yıldız taşları */}
                   <div style={{textAlign:"center"}}>
                     <NumberRod count={ex.ones} defaultColor="red" solid size={14} />
                     <div><span style={{fontSize:10,fontWeight:800,color:"#dc2626"}}>{ex.ones} birlik</span></div>
@@ -19789,10 +19790,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "buildNumberLearn": {
           return (<div style={bx}>
-            {hint("Kapsüle pul sürükleyerek sayıyı kur!")}
-            {(st.examples||[{n:6,desc:"6 pul"}]).map((ex,i) => {
+            {hint("Kapsüle yıldız taşısürükleyerek sayıyı kur!")}
+            {(st.examples||[{n:6,desc:"6 yıldız taşı"}]).map((ex,i) => {
               const n=typeof ex==="number"?ex:ex.n;
-              return <Rod key={i} count={n} size={30} showNum label={`${n} pul`} />;
+              return <Rod key={i} count={n} size={30} showNum label={`${n} yıldız taşı`} />;
             })}
           </div>);
         }
@@ -19820,7 +19821,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "countAllLearn": {
           return (<div style={bx}>
-            {hint("Tüm pulları baştan say!")}
+            {hint("Tüm yıldız taşlarını baştan say!")}
             <div style={{display:"flex",alignItems:"center",gap:6}}>
               <Rod count={st.a} size={28} label={`${st.a}`} />
               <span style={{fontSize:16,fontWeight:900,color:"#f59e0b"}}>+</span>
@@ -19887,7 +19888,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "fivesFrameLearn": {
           return (<div style={bx}>
-            {hint("5'lik karta pullara dokunarak yerleştir!")}
+            {hint("5'lik karta yıldız taşlarıa dokunarak yerleştir!")}
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               {(st.examples||[2,3,5]).map((n,i) => {
                 const rev=learnTapped.has(i);
@@ -19951,7 +19952,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         case "groupingLearn": {
           const gs=st.groupSize, total=st.total, groups=total/gs;
           return (<div style={bx}>
-            <div style={{fontSize:12,fontWeight:800,color:"#7c3aed"}}>{total} pulu {gs}'erli grupla</div>
+            <div style={{fontSize:12,fontWeight:800,color:"#7c3aed"}}>{total} yıldız taşını {gs}'erli grupla</div>
             <div style={{display:"flex",flexDirection:"column",gap:6,width:"100%"}}>
               {Array.from({length:groups},(_,g) => {
                 const rev=learnTapped.has(g);
@@ -20043,7 +20044,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <NumberRod count={st.total} defaultColor="blue" size={26} />
               <div style={{fontSize:10,fontWeight:700,color:"#c0cbda",marginTop:2}}>Başlangıç: {st.total}</div>
             </div>
-            <div style={{fontSize:11,fontWeight:800,color:"#c0cbda"}}>{st.remove} pulu çıkar...</div>
+            <div style={{fontSize:11,fontWeight:800,color:"#c0cbda"}}>{st.remove} yıldız taşını çıkar...</div>
             <div style={{textAlign:"center"}}>
               <NumberRod count={kept} defaultColor="blue" size={26} />
               <div style={{fontSize:10,fontWeight:700,color:"#059669",marginTop:2}}>Kalan: {kept}</div>
@@ -20108,7 +20109,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "matching": {
           return (<div style={bx}>
-            {hint("Kapsüldeki pulları say, doğru rakamı bul!")}
+            {hint("Kapsüldeki yıldız taşlarını say, doğru rakamı bul!")}
             {(st.examples||[{num:5},{num:3}]).map((ex,i) => {
               const rev=learnTapped.has(i);
               const n=ex.num||5;
@@ -20397,32 +20398,32 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     // Mod bazlı materyal kullanım rehberi
     const modeGuides = [
       { cat: "Sayma (Sayalon)", color: "#7c3aed", modes: [
-        { mode: "Göktaşı Say", mat: "Kapsül +Mavi pul", tip: "Her sayılan nesne için bir pul kapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsüldeda sayar." },
-        { mode: "Miktar Eşle", mat: "Kapsül +Pul", tip: "Ekrandaki miktara eşit sayıda pul kapsüle dizilir. Birebir eşleme prensibi pekiştirilir." },
-        { mode: "Sıra Sayısı", mat: "Kapsül +Renkli pul", tip: "Pullar sırayla dizilerek 'birinci, ikinci...' sıra kavramı somutlaştırılır." },
+        { mode: "Göktaşı Say", mat: "Kapsül +Mavi yıldız taşı", tip: "Her sayılan nesne için bir yıldız taşıkapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsüldeda sayar." },
+        { mode: "Miktar Eşle", mat: "Kapsül +Pul", tip: "Ekrandaki miktara eşit sayıda yıldız taşıkapsüle dizilir. Birebir eşleme prensibi pekiştirilir." },
+        { mode: "Sıra Sayısı", mat: "Kapsül +Renkli yıldız taşı", tip: "Pullar sırayla dizilerek 'birinci, ikinci...' sıra kavramı somutlaştırılır." },
       ]},
       { cat: "Sanbil (Şimşeron)", color: "#7c3aed", modes: [
-        { mode: "Şimşek Bakışı", mat: "Pul düzeni (kartlar)", tip: "Zarara düzeni, domino düzeni gibi pul dizilimleri hazırlayıp çocuğa kısa süre gösterin." },
+        { mode: "Şimşek Bakışı", mat: "Pul düzeni (kartlar)", tip: "Zarara düzeni, domino düzeni gibi yıldız taşıdizilimleri hazırlayıp çocuğa kısa süre gösterin." },
         { mode: "Beşli/Onlu Çerçeve", mat: "Beşlik + Onluk çerçeve", tip: "Çerçevenin oyuklarına yıldız taşı yerleştirilir. 5+n yapısı görsel bellekte kalıcılaşır (ör. 7 = 5 dolu + 2 dolu)." },
       ]},
       { cat: "Karşılaştırma (Terazya)", color: "#059669", modes: [
-        { mode: "Büyük/Küçük", mat: "2 kapsül yan yana", tip: "İki kapsülü yan yana koyup hangi kapsüldeki pul sayısının fazla olduğunu görsel olarak karşılaştırın." },
-        { mode: "Sıraya Diz", mat: "3-5 kapsül", tip: "Farklı miktarda pul yerleştirilmiş kapsülleri küçükten büyüğe dizin." },
+        { mode: "Büyük/Küçük", mat: "2 kapsül yan yana", tip: "İki kapsülü yan yana koyup hangi kapsüldeki yıldız taşısayısının fazla olduğunu görsel olarak karşılaştırın." },
+        { mode: "Sıraya Diz", mat: "3-5 kapsül", tip: "Farklı miktarda yıldız taşıyerleştirilmiş kapsülleri küçükten büyüğe dizin." },
       ]},
       { cat: "Bileşim (Bileşya)", color: "#d97706", modes: [
-        { mode: "5'e Tamamla", mat: "Kapsül (ilk 5 oyuk)", tip: "Çubuğun mavi bölümünde n pul var, kaç tane daha koyarsan 5 olur? Tamamlama stratejisi." },
-        { mode: "10'a Tamamla", mat: "Tam kapsül (10 oyuk)", tip: "Kapsüle n pul koy, boş kalan oyuk sayısı 10'un tamamlayıcısıdır." },
-        { mode: "Parça-Bütün", mat: "1 kapsül + 2 renk pul", tip: "Bütünü (ör. 8) mavi ve kırmızı pullara ayırarak farklı parçalama olasılıklarını deneyin." },
+        { mode: "5'e Tamamla", mat: "Kapsül (ilk 5 oyuk)", tip: "Çubuğun mavi bölümünde n yıldız taşıvar, kaç tane daha koyarsan 5 olur? Tamamlama stratejisi." },
+        { mode: "10'a Tamamla", mat: "Tam kapsül (10 oyuk)", tip: "Kapsüle n yıldız taşıkoy, boş kalan oyuk sayısı 10'un tamamlayıcısıdır." },
+        { mode: "Parça-Bütün", mat: "1 kapsül + 2 renk yıldız taşı", tip: "Bütünü (ör. 8) mavi ve kırmızı yıldız taşlarıa ayırarak farklı parçalama olasılıklarını deneyin." },
       ]},
       { cat: "Toplama-Çıkarma (Toplarya)", color: "#f59e0b", modes: [
-        { mode: "Toplama", mat: "2 kapsül + Pul", tip: "Birinci kapsüle a, ikinciye b pul koyun. İkinci kapsülden birinciye aktararak toplamı bulun." },
-        { mode: "Çıkarma", mat: "1 kapsül + Pul", tip: "Kapsüle a pul koyun, sonra b tanesini çıkarın. Kalan pul sayısı sonuçtur." },
+        { mode: "Toplama", mat: "2 kapsül + Pul", tip: "Birinci kapsüle a, ikinciye b yıldız taşıkoyun. İkinci kapsülden birinciye aktararak toplamı bulun." },
+        { mode: "Çıkarma", mat: "1 kapsül + Pul", tip: "Kapsüle a yıldız taşıkoyun, sonra b tanesini çıkarın. Kalan yıldız taşısayısı sonuçtur." },
         { mode: "Üzerine Say", mat: "Kapsül +Pul", tip: "Büyük sayıdan başlayıp parmakla oyukları göstererek üzerine sayın (ör. 5... 6, 7, 8)." },
       ]},
       { cat: "Çarpma-Bölme (Çarpanya)", color: "#9333ea", modes: [
-        { mode: "Tekrarlı Toplama", mat: "Birden fazla kapsül", tip: "3 kapsüle 4'er pul koyarak 3×4'ü somutlaştırın. 'Her kapsülde4, toplam kaç?'" },
-        { mode: "Eşit Paylaşım", mat: "Pullar + Küçük kaplar", tip: "12 pulu 3 kaba eşit dağıtın. Her kapta kaç pul kaldığı bölme sonucudur." },
-        { mode: "Dizi Düzeni", mat: "Satır×sütun pul dizilimi", tip: "Pulları ızgara düzeninde dizip satır ve sütun sayılarını çarpma olarak okuyun." },
+        { mode: "Tekrarlı Toplama", mat: "Birden fazla kapsül", tip: "3 kapsüle 4'er yıldız taşıkoyarak 3×4'ü somutlaştırın. 'Her kapsülde4, toplam kaç?'" },
+        { mode: "Eşit Paylaşım", mat: "Pullar + Küçük kaplar", tip: "12 yıldız taşını 3 kaba eşit dağıtın. Her kapta kaç yıldız taşıkaldığı bölme sonucudur." },
+        { mode: "Dizi Düzeni", mat: "Satır×sütun yıldız taşıdizilimi", tip: "Pulları ızgara düzeninde dizip satır ve sütun sayılarını çarpma olarak okuyun." },
       ]},
     ];
 
@@ -20480,8 +20481,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6 }}>
                   {[
                     { n: "Beş yapısı", d: "7 = 5 mavi + 2 kırmızı → beşlik düşünme", icon: "5️⃣" },
-                    { n: "Birebir eşleme", d: "Her oyuğa bir pul → sayı kavramı", icon: "🔵" },
-                    { n: "Kardinalite", d: "Son pul = toplam sayı", icon: "🔢" },
+                    { n: "Birebir eşleme", d: "Her oyuğa bir yıldız taşı→ sayı kavramı", icon: "🔵" },
+                    { n: "Kardinalite", d: "Son yıldız taşı= toplam sayı", icon: "🔢" },
                     { n: "Korunum", d: "Pulları düzenleme → miktar değişmez", icon: "🔄" },
                   ].map(f => (
                     <div key={f.n} style={{ padding: "8px", borderRadius: 10, background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.1)" }}>
@@ -20516,7 +20517,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
                   Pul kapsülün oyuğuna yerleştirildiğinde <strong style={{ color: "#cbd5e1" }}>dokunsal geri bildirim</strong> sağlar.
-                  Çocuk pulu tutma, yerleştirme ve çıkarma eylemlerini yaparken bire-bir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
+                  Çocuk yıldız taşını tutma, yerleştirme ve çıkarma eylemlerini yaparken bire-bir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
                 </div>
               </div>
 
@@ -20571,7 +20572,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
                   {[
-                    { phase: "Somut (C)", desc: "Fiziksel kapsül + pul ile dokunarak öğrenme", color: "#3b82f6", icon: "🤲", active: true },
+                    { phase: "Somut (C)", desc: "Fiziksel kapsül + yıldız taşıile dokunarak öğrenme", color: "#3b82f6", icon: "🤲", active: true },
                     { phase: "Temsili (R)", desc: "Ekrandaki dijital kapsül görseli + AR kamera", color: "#8b5cf6", icon: "📱", active: true },
                     { phase: "Soyut (A)", desc: "Sembolik ifade: 3 + 5 = 8", color: "#f59e0b", icon: "✏️", active: false },
                   ].map(p => (
@@ -20599,10 +20600,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   Her yörünge, çocuğun gelişimsel basamağına uygun somut etkinlikler önerir.
                 </div>
                 {[
-                  { lt: "Sayma Yörüngesi", desc: "Sözel sayma → Birebir eşlemeli sayma → Kardinal sayma → İleri-geri sayma", mat: "Kapsül +sıralı pul yerleştirme" },
+                  { lt: "Sayma Yörüngesi", desc: "Sözel sayma → Birebir eşlemeli sayma → Kardinal sayma → İleri-geri sayma", mat: "Kapsül +sıralı yıldız taşıyerleştirme" },
                   { lt: "Sanbil Yörüngesi", desc: "Algısal sanbil (1-4) → Algısal sanbil (5) → Kavramsal sanbil (5+n) → Onluk kart sanbil", mat: "Pul düzenleri, beşlik/onluk kartlar" },
-                  { lt: "Toplama/Çıkarma", desc: "Somut birleştirme → Üzerine sayma → Türetilmiş olgular → Akıcı hesap", mat: "2 kapsül yan yana, pul aktarma" },
-                  { lt: "Parça-Bütün", desc: "Sezgisel ayrıştırma → Yapılandırılmış ayrıştırma → Esnek ayrıştırma", mat: "1 kapsül + 2 renk pul" },
+                  { lt: "Toplama/Çıkarma", desc: "Somut birleştirme → Üzerine sayma → Türetilmiş olgular → Akıcı hesap", mat: "2 kapsül yan yana, yıldız taşıaktarma" },
+                  { lt: "Parça-Bütün", desc: "Sezgisel ayrıştırma → Yapılandırılmış ayrıştırma → Esnek ayrıştırma", mat: "1 kapsül + 2 renk yıldız taşı" },
                 ].map(lt => (
                   <div key={lt.lt} style={{ padding: "10px", borderRadius: 10, background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.1)", marginBottom: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>{lt.lt}</div>
@@ -20676,7 +20677,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#fbbf24", marginBottom: 8 }}>👶 Yaş Grubuna Göre Kullanım</div>
                 {[
                   { age: "Okul Öncesi (5-6)", rules: ["Her etkinlikte fiziksel kapsül zorunlu", "Yalnızca 1-5 arası sayılarla başla", "Beşlik kart ağırlıklı", "Serbest keşif zamanı tanı"], color: "#059669" },
-                  { age: "1. Sınıf (6-7)", rules: ["Yeni kavramlarda fiziksel, bilinen kavramlarda dijital", "Onluk kart ve iki kapsül toplama", "Parça-bütün ayrıştırma aktiviteleri", "Üzerine sayma stratejisi için pul aktarma"], color: "#7c3aed" },
+                  { age: "1. Sınıf (6-7)", rules: ["Yeni kavramlarda fiziksel, bilinen kavramlarda dijital", "Onluk kart ve iki kapsül toplama", "Parça-bütün ayrıştırma aktiviteleri", "Üzerine sayma stratejisi için yıldız taşıaktarma"], color: "#7c3aed" },
                   { age: "2. Sınıf (7-8)", rules: ["Çarpma için çoklu kapsül dizilimi", "Basamak değeri için onluk-birlik grupla", "Fiziksel materyal zorlandığında devrede", "Zihinsel stratejiler öne çıktığında azaltılabilir"], color: "#8b5cf6" },
                 ].map(g => (
                   <div key={g.age} style={{ padding: "10px", borderRadius: 10, background: `${g.color}08`, border: `1px solid ${g.color}15`, marginBottom: 6 }}>
@@ -20737,7 +20738,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <div style={{ fontSize: 16, fontWeight: 900, color: "#c4b5fd", marginBottom: 8 }}>Artırılmış Gerçeklik (AR) Nedir?</div>
               <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, lineHeight: 1.7, textAlign: "left" }}>
                 Artırılmış Gerçeklik, telefonunuzun kamerasını kullanarak <strong>gerçek dünya görüntüsü üzerine dijital nesneler yerleştiren</strong> bir teknolojidir.
-                DokunSay AR ile çocuğunuz masasına, kitabına veya herhangi bir yüzeye <strong>sanal sayı kapsülleri ve pullar</strong> yerleştirebilir.
+                DokunSay AR ile çocuğunuz masasına, kitabına veya herhangi bir yüzeye <strong>sanal sayı kapsülleri ve yıldız taşları</strong> yerleştirebilir.
               </div>
             </div>
             {/* Nasıl Çalışır? */}
@@ -20745,8 +20746,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <div style={{ fontSize: 13, fontWeight: 900, color: "#a5b4fc", marginBottom: 10 }}>🎓 Nasıl Çalışır?</div>
               {[
                 { step: "1", icon: "📱", text: "Telefon veya tabletin kamerasını bir düz yüzeye (masa, yer) doğrultun" },
-                { step: "2", icon: "🧮", text: "Ekranda sanal DokunSay kapsülü ve pullar yüzey üzerinde belirir" },
-                { step: "3", icon: "👆", text: "Parmağınızla sanal pullara dokunarak sayma, toplama veya çıkarma yapın" },
+                { step: "2", icon: "🧮", text: "Ekranda sanal DokunSay kapsülü ve yıldız taşları yüzey üzerinde belirir" },
+                { step: "3", icon: "👆", text: "Parmağınızla sanal yıldız taşlarıa dokunarak sayma, toplama veya çıkarma yapın" },
                 { step: "4", icon: "🔄", text: "Telefonu hareket ettirin — sanal nesneler yerinde kalır, tıpkı gerçek gibi!" },
               ].map(s => (
                 <div key={s.step} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
@@ -20804,7 +20805,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 { scenario: "Mutfakta Sayma", desc: "Masadaki meyvelerin yanına AR kapsül koyun, gerçek ve sanal nesneleri birlikte sayın" },
                 { scenario: "Ölçme Etkinliği", desc: "Oyuncakları AR sayı kapsülüyle ölçün — kaç birim uzunluğunda?" },
                 { scenario: "Fiziksel Kapsülle Birlikte", desc: "Gerçek DokunSay kapsülünün yanına sanal ikincisini ekleyip toplama yapın" },
-                { scenario: "Hikâye ile Matematik", desc: "Bir resimli kitap sayfasında AR pulları yerleştirip hikâyedeki sayıları canlandırın" },
+                { scenario: "Hikâye ile Matematik", desc: "Bir resimli kitap sayfasında AR yıldız taşlarını yerleştirip hikâyedeki sayıları canlandırın" },
               ].map((s, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", marginTop: 5, flexShrink: 0 }} />
@@ -21263,7 +21264,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               }}>📷</div>
               <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#fff" }}>AR Deneyimi</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Kamerada sanal kapsül ve pullarla öğren</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Kamerada sanal kapsül ve yıldız taşlarıla öğren</div>
               </div>
               <div style={{ fontSize: 14, color: "rgba(255,255,255,.55)", fontWeight: 900, position: "relative", zIndex: 1 }}>▶</div>
             </button>
@@ -23379,7 +23380,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <button onClick={() => setArFrameCount(c => Math.max(0, c - 1))} style={{ width: 44, height: 44, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 22, fontWeight: 900, cursor: "pointer" }}>−</button>
               <div style={{ textAlign: "center", minWidth: 50 }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{arFrameCount}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 700 }}>pul</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 700 }}>yıldız taşı</div>
               </div>
               <button onClick={() => setArFrameCount(c => Math.min(arFrameTotal, c + 1))} style={{ width: 44, height: 44, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 22, fontWeight: 900, cursor: "pointer" }}>+</button>
             </div>
@@ -23431,7 +23432,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{arChips.length}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 700 }}>pul yerleştirildi</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 700 }}>yıldız taşı yerleştirildi</div>
               </div>
               <button onClick={() => setArChips([])} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(239,68,68,.6)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F }}>🗑️ Temizle</button>
             </div>
@@ -23447,10 +23448,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 partWhole: "Bütünü iki parçaya ayır — parça + parça = bütün",
                 count: "Ekrana dokunarak nesneleri say",
                 frame: "Beşlik/onluk kartla sayı gösterimi",
-                match: "Kapsüldeki pul sayısını tahmin et",
+                match: "Kapsüldeki yıldız taşısayısını tahmin et",
                 task: "Rastgele matematik görevlerini çöz",
                 measure: "İki noktaya dokunarak mesafe ölç",
-                free: "Ekrana dokunarak renkli pullar yerleştir",
+                free: "Ekrana dokunarak renkli yıldız taşları yerleştir",
               }[arMode]}
             </div>
           </div>
@@ -23748,7 +23749,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>♿ Erişilebilirlik</div>
               {[
-                { key: "colorBlind", label: "Renk Körü Modu", desc: "Desen tabanlı pul ayrımı: mavi=çizgili, kırmızı=noktalı", emoji: "🎨" },
+                { key: "colorBlind", label: "Renk Körü Modu", desc: "Desen tabanlı yıldız taşıayrımı: mavi=çizgili, kırmızı=noktalı", emoji: "🎨" },
                 { key: "largeText", label: "Büyük Yazı", desc: "Tüm ekranı %15 yakınlaştırır (zoom)", emoji: "🔤" },
                 { key: "reducedMotion", label: "Azaltılmış Animasyon", desc: "Tüm animasyonları ve konfetileri kapatır", emoji: "✨" },
                 { key: "highContrast", label: "Yüksek Kontrast", desc: "Renkler ve kenarlıklar daha belirgin hale gelir", emoji: "🔳" },
@@ -23853,7 +23854,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 900, color: "#60a5fa" }}>DokunSay Materyal Rehberi</div>
                   <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginTop: 2 }}>
-                    Sayı kapsülü, pullar, beşlik/onluk kartlar, QR etiketler.
+                    Sayı kapsülü, yıldız taşları, beşlik/onluk kartlar, QR etiketler.
                     CRA modeli, Clements & Sarama yörüngeleri, diskalkuli rehberi, mod bazlı kullanım kılavuzu.
                   </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
