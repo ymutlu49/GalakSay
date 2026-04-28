@@ -38,7 +38,7 @@ export default function AlertList({ alerts, onDismiss }) {
                 </div>
                 <p style={{ color: '#cbd5e1', fontSize: 12, margin: '0 0 4px', lineHeight: 1.4 }}>{alert.message}</p>
                 {alert.recommendation && (
-                  <p style={{ color: '#94a3b8', fontSize: 11, margin: 0, fontStyle: 'italic' }}>{alert.recommendation}</p>
+                  <p style={{ color: '#a8b2d1', fontSize: 11, margin: 0, fontStyle: 'italic' }}>{alert.recommendation}</p>
                 )}
               </div>
               {onDismiss && (

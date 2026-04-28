@@ -56,5 +56,5 @@ export default function CategoryTable({ categories, onCategoryClick }) {
   );
 }
 
-const thStyle = { textAlign: 'left', padding: '8px 12px', color: '#94a3b8', fontWeight: 500, fontSize: 12 };
+const thStyle = { textAlign: 'left', padding: '8px 12px', color: '#a8b2d1', fontWeight: 500, fontSize: 12 };
 const tdStyle = { padding: '10px 12px', color: '#e2e8f0' };

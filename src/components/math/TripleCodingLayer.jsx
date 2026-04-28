@@ -124,7 +124,7 @@ export const VisualLayer = ({ count, model = "tenFrame", mode, animate = true })
 
   if (model === "numberRod") {
     return (
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ display: "flex", justifyContent: "center", maxWidth: "100%", overflow: "visible", boxSizing: "border-box" }}>
         <NumberRod count={count} showNumber />
       </div>
     );

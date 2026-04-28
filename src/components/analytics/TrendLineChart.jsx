@@ -23,7 +23,7 @@ export default function TrendLineChart({ data, lines, title, xKey = 'date', yDom
           {lines.map((line, i) => (
             <Line key={line.key} type="monotone" dataKey={line.key} name={line.label} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
           ))}
-          {lines.length > 1 && <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 12 }} />}
+          {lines.length > 1 && <Legend wrapperStyle={{ color: '#a8b2d1', fontSize: 12 }} />}
         </LineChart>
       </ResponsiveContainer>
     </div>

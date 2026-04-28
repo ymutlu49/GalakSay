@@ -39,7 +39,7 @@ export default function RadarChartComponent({ data, comparisonData, title, heigh
             contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#e2e8f0' }}
             formatter={(value) => `%${Math.round(value)}`}
           />
-          {comparisonData && <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 12 }} />}
+          {comparisonData && <Legend wrapperStyle={{ color: '#a8b2d1', fontSize: 12 }} />}
         </RechartsRadar>
       </ResponsiveContainer>
     </div>

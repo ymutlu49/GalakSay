@@ -29,7 +29,7 @@ export default function ProgressRing({ value = 0, size = 80, strokeWidth = 8, co
         </text>
       </svg>
       {label && <span style={{ color: '#e2e8f0', fontSize: 12, fontWeight: 600 }}>{label}</span>}
-      {sublabel && <span style={{ color: '#94a3b8', fontSize: 10 }}>{sublabel}</span>}
+      {sublabel && <span style={{ color: '#a8b2d1', fontSize: 10 }}>{sublabel}</span>}
     </div>
   );
 }

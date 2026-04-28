@@ -1676,7 +1676,7 @@ const PREMIUM = {
     "Reklamsız deneyim",
   ],
   tiers: [
-    { name: "Ücretsiz", price: "₺0", features: "20 mod, temel raporlar, günlük görevler", color: "#94a3b8" },
+    { name: "Ücretsiz", price: "₺0", features: "20 mod, temel raporlar, günlük görevler", color: "#a8b2d1" },
     { name: "Aile", price: "₺99/ay", features: "61 mod, AI rapor, diskalkuli, koleksiyon", color: "#7c3aed" },
     { name: "Okul", price: "₺49/öğrenci/yıl", features: "Tüm modlar, toplu analiz, MEB eşleme", color: "#8b5cf6" },
   ],
@@ -3521,13 +3521,13 @@ const SpaceDecor = ({ variant = "default" }) => {
     ],
     // Settings — subtle purple glow
     settings: [
-      { type: "nebula", color: "#94a3b8", size: 250, top: "-8%", right: "-10%", opacity: .15 },
-      { type: "nebula", color: "#475569", size: 200, bottom: "-5%", left: "-5%", opacity: .12 },
-      { type: "planet", color: "#94a3b8", size: 48, top: "4%", left: "2%", ring: true },
-      { type: "planet", color: "#64748b", size: 34, bottom: "10%", right: "4%" },
+      { type: "nebula", color: "#a8b2d1", size: 250, top: "-8%", right: "-10%", opacity: .15 },
+      { type: "nebula", color: "#94a3b8", size: 200, bottom: "-5%", left: "-5%", opacity: .12 },
+      { type: "planet", color: "#a8b2d1", size: 48, top: "4%", left: "2%", ring: true },
+      { type: "planet", color: "#94a3b8", size: 34, bottom: "10%", right: "4%" },
       { type: "planet", color: "#7c3aed", size: 22, top: "42%", right: "12%" },
-      { type: "math", symbol: "⊕", color: "#94a3b8", size: 16, top: "20%", right: "8%", delay: 2 },
-      { type: "math", symbol: "≈", color: "#94a3b8", size: 14, bottom: "25%", left: "6%", delay: 5 },
+      { type: "math", symbol: "⊕", color: "#a8b2d1", size: 16, top: "20%", right: "8%", delay: 2 },
+      { type: "math", symbol: "≈", color: "#a8b2d1", size: 14, bottom: "25%", left: "6%", delay: 5 },
       { type: "earth", size: 110, bottom: "-8%", left: "-6%", opacity: .2 },
     ],
     // Mode selection — colorful scattered with math
@@ -4282,7 +4282,7 @@ const Rekenrek = ({ total = 10, filled = 0, rows = 2 }) => {
           </div>
         );
       })}
-      <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textAlign: "center" }}>Rekenrek</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1", textAlign: "center" }}>Rekenrek</div>
     </div>
   );
 };
@@ -4366,7 +4366,7 @@ const TripleCode = ({ n, size = "md", preReader = false, showFinger = false, ani
         {Array.from({ length: chipCount }, (_, i) => (
           <div key={i} style={{ width: s.chip, height: s.chip, borderRadius: "50%", background: subColorHex(i), flexShrink: 0 }} />
         ))}
-        {n > chipCount && <span style={{ fontSize: s.chip * 0.8, color: "#94a3b8", fontWeight: 700 }}>+{n - chipCount}</span>}
+        {n > chipCount && <span style={{ fontSize: s.chip * 0.8, color: "#a8b2d1", fontWeight: 700 }}>+{n - chipCount}</span>}
       </div>
       <span style={{ fontSize: s.word - 1, color: "#cbd5e1", fontWeight: 900, flexShrink: 0 }}>↔</span>
       {/* Rakam */}
@@ -4382,7 +4382,7 @@ const TripleCode = ({ n, size = "md", preReader = false, showFinger = false, ani
           animation: "pulse 3s ease-in-out infinite",
         }}>
           <span style={{ fontSize: Math.max(s.num * 0.7, 14) }}>🔊</span>
-          <span style={{ fontSize: Math.max(s.word, 9), fontWeight: 800, color: "rgba(255,255,255,.5)" }}>{word}</span>
+          <span style={{ fontSize: Math.max(s.word, 9), fontWeight: 800, color: "rgba(255,255,255,.65)" }}>{word}</span>
         </button>
       ) : (
         <span style={{ fontSize: s.word, fontWeight: 800, color: "#7c3aed", fontStyle: "italic", flexShrink: 0 }}>{word}</span>
@@ -4599,7 +4599,7 @@ const getUnlockedBadges = (stats) => BADGES.filter(b => b.check(stats)).map(b =>
 // ═══ YILDIZ PARÇASI & GEMİ SİSTEMİ ═══════════════════════════════════════════
 // Star fragments are earned during gameplay — collectible currency for ship upgrades
 const SHIP_LEVELS = [
-  { min: 0,    name: "Keşif Kapsülü",       emoji: "🛸", color: "#94a3b8", desc: "İlk uzay aracın — küçük ama cesur!", hull: 1, speed: 1, shape: "capsule" },
+  { min: 0,    name: "Keşif Kapsülü",       emoji: "🛸", color: "#a8b2d1", desc: "İlk uzay aracın — küçük ama cesur!", hull: 1, speed: 1, shape: "capsule" },
   { min: 25,   name: "Yıldız Kaşifi",       emoji: "🚀", color: "#60a5fa", desc: "Hızlı ve çevik bir keşif gemisi", hull: 2, speed: 2, shape: "scout" },
   { min: 75,   name: "Nebula Gemisi",        emoji: "🛰️", color: "#a78bfa", desc: "Nebulalar arasında süzülen zarif gemi", hull: 3, speed: 3, shape: "nebula" },
   { min: 150,  name: "Galaksi Kruvazörü",    emoji: "🚢", color: "#34d399", desc: "Galaksiler arası yolculuk gemisi", hull: 4, speed: 4, shape: "cruiser" },
@@ -6226,7 +6226,7 @@ class GalaksayErrorBoundary extends React.Component {
           <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{
             padding: "10px 24px", borderRadius: 12, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "rgba(255,255,255,.6)", fontSize: 12, fontWeight: 700, cursor: "pointer",
           }}>Sifirla ve Yeniden Baslat</button>
-          <div style={{ marginTop: 20, fontSize: 10, color: "rgba(255,255,255,.5)", fontWeight: 600 }}>
+          <div style={{ marginTop: 20, fontSize: 10, color: "rgba(255,255,255,.65)", fontWeight: 600 }}>
             Hata: {this.state.error?.message || "Bilinmeyen hata"}
           </div>
         </div>
@@ -9325,7 +9325,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {title("Hedef:")}
               <span style={{ fontSize: 24, fontWeight: 900, color: "#059669", animation: "numberReveal .5s ease", display: "inline-block" }}>{d.value}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8" }}>yıldız taşı</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "#a8b2d1" }}>yıldız taşı</span>
             </div>
             {d.msg && sub(d.msg)}
           </div>
@@ -10470,7 +10470,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, opacity: 0.85, animation: "fadeIn .3s ease .1s both" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>{wordLeft}</span>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>=</span>
+            <span style={{ fontSize: 12, color: "#a8b2d1" }}>=</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#059669", fontStyle: "italic" }}>{wordRight}</span>
           </div>
         </div>
@@ -10666,7 +10666,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         if (wpStep === 0) {
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 12 } }, "\uD83D\uDCD6 Problemi Oku"),
+              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 12 } }, "\uD83D\uDCD6 Problemi Oku"),
               React.createElement("div", { style: wpCard },
                 React.createElement("div", { style: { textAlign: "center", marginBottom: 4 } }, React.createElement("span", { style: { fontSize: 36 } }, q.icon)),
                 React.createElement("p", { style: { fontSize: 17, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.8, margin: 0, textAlign: "center", wordBreak: "break-word", maxWidth: "100%" } }, wpText),
@@ -10764,8 +10764,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
               React.createElement("div", { style: { flex: 1 } },
-                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 4 } }, "\uD83D\uDCD6 Problemi Tekrar Oku"),
-                React.createElement("p", { style: { fontSize: 11, color: "#94a3b8", fontWeight: 600, margin: "0 auto 10px", maxWidth: 320 } },
+                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 4 } }, "\uD83D\uDCD6 Problemi Tekrar Oku"),
+                React.createElement("p", { style: { fontSize: 11, color: "#a8b2d1", fontWeight: 600, margin: "0 auto 10px", maxWidth: 320 } },
                   "Problemi \u00E7\u00F6zmek i\u00E7in bize verilen bilgilere dokun."),
                 React.createElement("div", { style: {
                   padding: "16px 18px", borderRadius: 16, background: "rgba(49,46,129,.35)",
@@ -10823,7 +10823,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     foundCount >= totalPhrases ? "\u2705 T\u00FCm verilenleri buldun!" : foundCount + " / " + totalPhrases + " verilen bulundu")
                 ),
                 foundCount < totalPhrases
-                  ? React.createElement("p", { style: { fontSize: 11, color: "#94a3b8", margin: "0 auto", maxWidth: 300 } },
+                  ? React.createElement("p", { style: { fontSize: 11, color: "#a8b2d1", margin: "0 auto", maxWidth: 300 } },
                     "Verilen bilgilere dokunarak bul \uD83D\uDC46")
                   : wpBtn("Devam Et \u2192", function() { sfx("click"); setWpAnlaStep(1); setWpFoundNums([]); })
               ),
@@ -10844,10 +10844,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1 } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 6 } }, "\uD83C\uDFAF Problemde Bizden Ne \u0130steniyor?"),
+              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, "\uD83C\uDFAF Problemde Bizden Ne \u0130steniyor?"),
               // Problem metni (küçük, referans için)
               React.createElement("div", { style: { padding: "10px 14px", borderRadius: 12, background: "rgba(49,46,129,.35)", border: "1px solid rgba(148,163,184,.12)", maxWidth: 340, margin: "0 auto 8px", textAlign: "left" } },
-                React.createElement("div", { style: { fontSize: 12, fontWeight: 500, color: "#94a3b8", lineHeight: 1.7 } },
+                React.createElement("div", { style: { fontSize: 12, fontWeight: 500, color: "#a8b2d1", lineHeight: 1.7 } },
                   React.createElement("span", { style: { fontSize: 16, marginRight: 6 } }, q.icon), wpText)
               ),
               // Verilenler kutusu
@@ -10888,7 +10888,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           ];
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1 } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 6 } }, "\uD83D\uDD0D Problemi \u00E7\u00F6zmek i\u00E7in hangi i\u015Flemi kullanaca\u011F\u0131z?"),
+              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, "\uD83D\uDD0D Problemi \u00E7\u00F6zmek i\u00E7in hangi i\u015Flemi kullanaca\u011F\u0131z?"),
               // Verilen & İstenen özeti
               React.createElement("div", { style: { padding: "8px 14px", borderRadius: 12, background: "rgba(5,150,105,.1)", border: "1.5px solid #86efac", maxWidth: 340, margin: "0 auto 12px", textAlign: "left" } },
                 React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#059669" } }, "\u2705 Verilen: " + verilenA + "  \u2022  " + verilenB),
@@ -10964,7 +10964,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     color: placed ? clrHex : "#94a3b8",
                     transition: "all 0.3s",
                   }}, placed ? count : "?"),
-                  label ? React.createElement("div", { style: { fontSize: 10, fontWeight: 600, color: "#94a3b8", marginTop: 1 } }, label) : null
+                  label ? React.createElement("div", { style: { fontSize: 10, fontWeight: 600, color: "#a8b2d1", marginTop: 1 } }, label) : null
                 )
               );
             };
@@ -10991,7 +10991,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     fontSize: 16, fontWeight: 900, color: "#f59e0b",
                     animation: allPlaced ? "none" : "pulse 3s infinite",
                   }}, "?"),
-                  label ? React.createElement("div", { style: { fontSize: 10, fontWeight: 600, color: "#94a3b8", marginTop: 1 } }, label) : null
+                  label ? React.createElement("div", { style: { fontSize: 10, fontWeight: 600, color: "#a8b2d1", marginTop: 1 } }, label) : null
                 )
               );
             };
@@ -11038,7 +11038,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               var grpEls = [];
               for (var gi = 0; gi < Math.min(q.a, 6); gi++) {
                 grpEls.push(React.createElement("div", { key: gi, style: { display: "flex", alignItems: "center", gap: 4 } },
-                  React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: "#94a3b8", width: 16, textAlign: "right" } }, (gi+1) + "."),
+                  React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: "#a8b2d1", width: 16, textAlign: "right" } }, (gi+1) + "."),
                   aPlaced
                     ? React.createElement(NumberRod, { count: q.b, filledSlots: Array(q.b).fill(true), defaultColor: "blue", size: RS })
                     : React.createElement("div", { style: { width: q.b * RS + 6, height: RS + 16, borderRadius: 8, background: "rgba(148,163,184,.12)", border: "2px dashed #94a3b850" } })
@@ -11065,7 +11065,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
               React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } },
-                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 10 } }, "\uD83E\uDDEE \u00C7ubukla Modelle"),
+                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 10 } }, "\uD83E\uDDEE \u00C7ubukla Modelle"),
                 // Tek temiz kart
                 React.createElement("div", { style: {
                   padding: "20px 16px", borderRadius: 20,
@@ -11079,7 +11079,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   // Kapsül şeması
                   schemaContent,
                   // İpucu
-                  !allPlaced ? React.createElement("div", { style: { fontSize: 10, color: "#94a3b8", marginTop: 12, fontWeight: 600 } },
+                  !allPlaced ? React.createElement("div", { style: { fontSize: 10, color: "#a8b2d1", marginTop: 12, fontWeight: 600 } },
                     !aPlaced ? "\u261D\uFE0F \u0130lk de\u011Feri yerle\u015Ftirmek i\u00E7in \u00E7ubu\u011Fa dokun" : "\u261D\uFE0F \u0130kinci de\u011Feri de yerle\u015Ftir"
                   ) : null
                 ),
@@ -11182,7 +11182,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 }},
                   React.createElement("span", { style: { fontSize: 18, minWidth: 24, textAlign: "center" } }, rs.icon),
                   React.createElement("div", { style: { flex: 1 } },
-                    React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase" } }, rs.label),
+                    React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase" } }, rs.label),
                     React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.4 } }, rs.detail)
                   )
                 );
@@ -11454,7 +11454,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   {[4,3,2,1,0].map(i => <div key={i}>{fEl(i < leftF)}</div>)}
                 </div>
                 {rightF > 0 && <>
-                  <span style={{ fontSize: 10, fontWeight: 900, color: "#94a3b8" }}>+</span>
+                  <span style={{ fontSize: 10, fontWeight: 900, color: "#a8b2d1" }}>+</span>
                   <div style={{ display: "inline-flex", gap: 2, padding: "4px 6px", borderRadius: 10,
                     background: `${color === "blue" ? "rgba(59,130,246,.1)" : "rgba(239,68,68,.1)"}`, border: `1px solid ${color === "blue" ? "rgba(96,165,250,.3)" : "rgba(248,113,113,.3)"}` }}>
                     {[0,1,2,3,4].map(i => <div key={i}>{fEl(i < rightF)}</div>)}
@@ -11489,7 +11489,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <span style={{ minWidth: 22 }} />
               <div style={{ display: "flex", marginLeft: 3, width: compMax * compSize + 6 }}>
                 {Array.from({ length: compMax }, (_, i) => (
-                  <div key={i} style={{ width: compSize, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>
+                  <div key={i} style={{ width: compSize, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>
                     {i + 1}
                   </div>
                 ))}
@@ -11556,7 +11556,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
             {/* Sayma adımları: +1, +1, ... şeklinde ok ile */}
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8" }}>say →</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1" }}>say →</span>
               {(q.countSeq || []).map((num, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   <div style={{
@@ -11566,7 +11566,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     animation: `fadeIn ${0.3 + i * 0.2}s ease`,
                     boxShadow: "0 2px 8px rgba(245,158,11,.3)"
                   }}>{num}!</div>
-                  {i < q.countSeq.length - 1 && <span style={{ color: "#94a3b8", fontSize: 10 }}>→</span>}
+                  {i < q.countSeq.length - 1 && <span style={{ color: "#a8b2d1", fontSize: 10 }}>→</span>}
                 </div>
               ))}
             </div>
@@ -11581,7 +11581,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <Chip key={i} color={subColor(i)} size={22} />
               ))}
             </div>
-            <span style={{ fontSize: 20, fontWeight: 900, color: "#94a3b8" }}>=</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: "#a8b2d1" }}>=</span>
             <MysteryBox />
           </div>
           <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
@@ -11589,7 +11589,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           {answered && <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.bigNum)}, {q.countSeq.map(n => numWord(n)).join(", ")} → {numWord(q.result)}!
-            <br/><span style={{ color: "#94a3b8" }}>Sayma: {q.bigNum}… {q.countSeq.join("… ")} = {q.result}</span>
+            <br/><span style={{ color: "#a8b2d1" }}>Sayma: {q.bigNum}… {q.countSeq.join("… ")} = {q.result}</span>
           </div>}
         </div>);
 
@@ -11631,8 +11631,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {answered && <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.num1)} + {numWord(q.num2)} = {numWord(q.result)}
             {q.strategy === "doubles" ? " (çiftler!)" : q.strategy === "nearDoubles" ? " (yakın çiftler!)" : q.strategy === "zero" ? " (sıfır olgusu)" : q.strategy === "makeTen" ? ` (10'a tamamla: ${q.num1}+${10 - q.num1}+${q.num2 - (10 - q.num1)})` : ""}
-            <br/><span style={{ color: "#94a3b8" }}>⇄ Ters: {q.result} − {q.num2} = {q.num1}</span>
-            {q.num1 !== q.num2 && q.num1 > 0 && q.num2 > 0 && <><br/><span style={{ color: "#94a3b8" }}>⇌ Değişme: {q.num2} + {q.num1} = {q.result}</span></>}
+            <br/><span style={{ color: "#a8b2d1" }}>⇄ Ters: {q.result} − {q.num2} = {q.num1}</span>
+            {q.num1 !== q.num2 && q.num1 > 0 && q.num2 > 0 && <><br/><span style={{ color: "#a8b2d1" }}>⇌ Değişme: {q.num2} + {q.num1} = {q.result}</span></>}
           </div>}
         </div>); }
       case "subtraction":
@@ -11658,7 +11658,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {q.strategy === "thinkAdd" ? ` (düşün: ${q.num2} + ${q.result} = ${q.num1})` : ""}
             {q.strategy === "doubles" ? ` (yarı: ${q.num1} ÷ 2 = ${q.result})` : ""}
             {q.strategy === "bridgeTen" ? ` (10 üzerinden: ${q.num1}−${q.num1 - 10}=10, 10−${q.num2 - (q.num1 - 10)}=${q.result})` : ""}
-            <br/><span style={{ color: "#94a3b8" }}>⇄ Ters: {q.num2} + {q.result} = {q.num1}</span>
+            <br/><span style={{ color: "#a8b2d1" }}>⇄ Ters: {q.num2} + {q.result} = {q.num1}</span>
           </div>}
         </div>); }
 
@@ -11844,7 +11844,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 : <NumberRod count={q.number} defaultColor="blue" size={subChipSize} countingSlots={countSlots} />
               }
               {q.subColors && !isHidden && (
-                <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>
+                <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>
                   <span style={{ color: "#3b82f6" }}>●{subSplit}</span> + <span style={{ color: "#dc2626" }}>●{q.number - subSplit}</span>
                 </div>
               )}
@@ -12056,7 +12056,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <span style={{ fontSize: 30, color: "#fff" }}>?</span>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: subLabelColor, opacity: .7 }}>{subLabel}</span>
-                {q.subColors && <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>{subSplit} + {q.number - subSplit} = ?</span>}
+                {q.subColors && <span style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>{subSplit} + {q.number - subSplit} = ?</span>}
               </div>
             )}
           </div>
@@ -12231,7 +12231,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             })}
           </div>
           {/* Yön oku */}
-          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>
+          <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 700 }}>
             {q.fromRight ? "← sağdan sola say" : "soldan sağa say →"}
           </div>
           {answered && <div style={{ marginTop: 4, fontSize: 11, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
@@ -12378,7 +12378,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <p style={{ color: "#e2e8f0", fontSize: 17, fontWeight: 700 }}>{q.current} + ? = 5</p>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.current)} + {numWord(q.needed)} = beş — sayı bağı!
-            <br/><span style={{ color: "#94a3b8" }}>5'in diğer bağları: {[0,1,2,3,4,5].filter(x=>x!==q.current).map(x=>`${x}+${5-x}`).join(", ")}</span>
+            <br/><span style={{ color: "#a8b2d1" }}>5'in diğer bağları: {[0,1,2,3,4,5].filter(x=>x!==q.current).map(x=>`${x}+${5-x}`).join(", ")}</span>
           </div>}
         </div>);
       case "makeTen":
@@ -12393,7 +12393,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* §T6 Number Bonds: Kapsül birleştirme görseli */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 4, marginBottom: 8, minHeight: 30 }}>
             <NumberRod count={q.current} defaultColor="blue" size={20} />
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#94a3b8" }}>+</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: "#a8b2d1" }}>+</span>
             {answered ? (
               <NumberRod count={q.needed} defaultColor="green" size={20} />
             ) : (
@@ -12407,7 +12407,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ))}
               </div>
             )}
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#94a3b8" }}>=</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: "#a8b2d1" }}>=</span>
             {answered ? (
               <NumberRod count={10} defaultColor="blue" solid size={16} />
             ) : (
@@ -12417,7 +12417,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <p style={{ color: "#e2e8f0", fontSize: 17, fontWeight: 700 }}>{q.current} + ? = 10</p>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 {numWord(q.current)} + {numWord(q.needed)} = on — 10'un arkadaşları!
-            <br/><span style={{ color: "#94a3b8" }}>Köprüleme: {q.current > 5 ? `${q.current}+${q.needed} → zaten 5'in üstünde!` : `${q.current}+${5-q.current}=5, sonra +${q.needed-(5-q.current)}=10`}</span>
+            <br/><span style={{ color: "#a8b2d1" }}>Köprüleme: {q.current > 5 ? `${q.current}+${q.needed} → zaten 5'in üstünde!` : `${q.current}+${5-q.current}=5, sonra +${q.needed-(5-q.current)}=10`}</span>
           </div>}
         </div>);
 
@@ -12471,8 +12471,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {q.isCorrect
                   ? `✓ Doğru! ${q.leftSide} = ${q.rightSide} — terazi dengede!`
                   : `✗ Yanlış! ${q.leftSide} ≠ ${q.rightSide}`}
-                {q.strategy === "commutativity" && <><br/><span style={{ fontSize: 11, color: "#94a3b8" }}>💡 Değişme özelliği: toplananların yeri değişince toplam değişmez!</span></>}
-                {q.strategy === "identity" && <><br/><span style={{ fontSize: 11, color: "#94a3b8" }}>💡 Etkisiz eleman: 0 eklemek veya çıkarmak sayıyı değiştirmez!</span></>}
+                {q.strategy === "commutativity" && <><br/><span style={{ fontSize: 11, color: "#a8b2d1" }}>💡 Değişme özelliği: toplananların yeri değişince toplam değişmez!</span></>}
+                {q.strategy === "identity" && <><br/><span style={{ fontSize: 11, color: "#a8b2d1" }}>💡 Etkisiz eleman: 0 eklemek veya çıkarmak sayıyı değiştirmez!</span></>}
               </div>
             )}
           </div>
@@ -12556,7 +12556,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <span style={{ minWidth: 22 }} />
               <div style={{ display: "flex", marginLeft: 3, width: maxC * dSize + 6 }}>
                 {Array.from({ length: maxC }, (_, i) => (
-                  <div key={i} style={{ width: dSize, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>
+                  <div key={i} style={{ width: dSize, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>
                     {i + 1}
                   </div>
                 ))}
@@ -12565,7 +12565,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           {answered && <div style={{ marginTop: 6, fontSize: 11, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 Fark: {q.bigger} − {q.smaller} = {q.diff}
-            <br/><span style={{ color: "#94a3b8" }}>🟢 Eşleşen: {Math.min(q.num1,q.num2)} | 🟡 Fark: {q.diff}</span>
+            <br/><span style={{ color: "#a8b2d1" }}>🟢 Eşleşen: {Math.min(q.num1,q.num2)} | 🟡 Fark: {q.diff}</span>
           </div>}
         </div>);
       }
@@ -12614,7 +12614,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <NumberRod count={q.num1} defaultColor="blue" size={ipSize} />
               <span style={{ fontSize: 14, fontWeight: 900, color: ipColor }}>{givenOp}</span>
               <NumberRod count={q.num2} defaultColor="red" size={ipSize} />
-              <span style={{ fontSize: 14, fontWeight: 900, color: "#94a3b8" }}>=</span>
+              <span style={{ fontSize: 14, fontWeight: 900, color: "#a8b2d1" }}>=</span>
               <NumberRod count={q.sum} defaultColor="green" size={ipSize} />
             </div>
           </div>
@@ -12622,7 +12622,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             🔊 {givenEq} ⇄ {q.direction === "addToSub"
               ? `${q.sum} − ${q.askPart === "a" ? q.num2 : q.num1} = ${q.askPart === "a" ? q.num1 : q.num2}`
               : `${q.num1} + ${q.num2} = ${q.sum}`}
-            <br/><span style={{ color: "#94a3b8" }}>Toplama ve çıkarma birbirinin tersidir!</span>
+            <br/><span style={{ color: "#a8b2d1" }}>Toplama ve çıkarma birbirinin tersidir!</span>
           </div>}
         </div>);
       }
@@ -13008,7 +13008,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const gpSz = capsuleSize(q.perGroup);
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{q.groups}</BIG> grup, her grupta <BIG>{q.perGroup}</BIG> — toplam kaç?</TXT>
-          <SUB style={{ fontSize: 10, color: "#94a3b8" }}>{Array.from({length: q.groups}, () => q.perGroup).join(" + ")} = ?</SUB>
+          <SUB style={{ fontSize: 10, color: "#a8b2d1" }}>{Array.from({length: q.groups}, () => q.perGroup).join(" + ")} = ?</SUB>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", padding: "12px 8px",
             borderRadius: 16, background: "rgba(234,88,12,.1)", border: "2px solid rgba(253,186,116,.3)" }}>
             {Array.from({ length: q.groups }, (_, gi) => (
@@ -13019,7 +13019,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           {/* Değişme özelliği ipucu */}
           {q.showCommut && !answered && (
-            <div style={{ marginTop: 4, fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>
+            <div style={{ marginTop: 4, fontSize: 11, color: "#a8b2d1", fontStyle: "italic" }}>
               💡 Değişme: {q.perGroup} × {q.groups} de aynı sonucu verir!
             </div>
           )}
@@ -13159,7 +13159,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ padding: "16px 24px", borderRadius: 16, background: "rgba(99,102,241,.08)",
               border: "2px dashed #6366f1", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: 32, fontWeight: 900, color: "#6366f1" }}>∅</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginLeft: 8 }}>0 ile çarp → hiçbir şey kalmaz</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1", marginLeft: 8 }}>0 ile çarp → hiçbir şey kalmaz</span>
             </div>
           ) : (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "12px 8px",
@@ -13171,7 +13171,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   {Array.from({ length: ttPerGroup }, (_, ci) => (
                     <Chip key={ci} color={subColor(ci)} size={ttChipSz} />
                   ))}
-                  <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#94a3b8", marginTop: 2 }}>{ttBigger}</div>
+                  <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a8b2d1", marginTop: 2 }}>{ttBigger}</div>
                 </div>
               ))}
             </div>
@@ -13179,14 +13179,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <div style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 16px",
             borderRadius: 12, background: "rgba(239,68,68,.08)" }}>
             <span style={{ fontSize: 20, fontWeight: 900, color: "#dc2626" }}>{q.a} × {q.b}</span>
-            <span style={{ fontSize: 20, fontWeight: 900, color: "#94a3b8" }}>=</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: "#a8b2d1" }}>=</span>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#dc2626,#ef4444)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 22, fontWeight: 900, color: "#fff" }}>?</div>
           </div>
           {/* Değişme özelliği ipucu */}
           {q.a !== q.b && q.a !== 0 && q.b !== 0 && q.a !== 1 && q.b !== 1 && !answered && (
-            <div style={{ marginTop: 4, fontSize: 10, color: "#94a3b8", fontStyle: "italic" }}>
+            <div style={{ marginTop: 4, fontSize: 10, color: "#a8b2d1", fontStyle: "italic" }}>
               💡 İpucu: {q.b} × {q.a} de aynı sonucu verir!
             </div>
           )}
@@ -13239,7 +13239,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const gcSz = q.perGroup > 6 ? 14 : q.perGroup > 4 ? 18 : q.perGroup > 3 ? 22 : 26;
         return (<div style={{ textAlign: "center" }}>
           <TXT><BIG>{q.total}</BIG>'den <BIG>{q.perGroup}</BIG>'erli grupla!</TXT>
-          <SUB style={{ fontSize: 10, color: "#94a3b8" }}>{q.total}'den {q.perGroup}'er çıkar — kaç kez?</SUB>
+          <SUB style={{ fontSize: 10, color: "#a8b2d1" }}>{q.total}'den {q.perGroup}'er çıkar — kaç kez?</SUB>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "12px 8px",
             borderRadius: 16, background: "rgba(124,58,237,.1)", border: "2px solid rgba(167,139,250,.3)" }}>
             {Array.from({ length: q.groups }, (_, gi) => (
@@ -13274,7 +13274,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <Chip key={i} color={subColor(i)} size={hdSz} />
               ))}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#94a3b8" }}>{q.number} yıldız taşı</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#a8b2d1" }}>{q.number} yıldız taşı</div>
             <div style={{ fontSize: 24, color: hdColor }}>
               {q.subType === "half" ? "✂️ ÷ 2" : "× 2 🔄"}
             </div>
@@ -13345,7 +13345,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
               <div style={{ marginTop: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <span style={{ fontSize: 18, fontWeight: 900, color: "#b45309" }}>{q.a} ÷ {q.b}</span>
-                <span style={{ fontSize: 18, fontWeight: 900, color: "#94a3b8" }}>=</span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: "#a8b2d1" }}>=</span>
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#b45309,#d97706)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 20, fontWeight: 900, color: "#fff" }}>?</div>
@@ -13428,7 +13428,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <NumberRod count={Math.min(invF2, 10)} defaultColor="blue" size={capsuleSize(invF2)} />
               </div>
             ))}
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{invF1} × {invF2} = {invProd}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>{invF1} × {invF2} = {invProd}</div>
           </div>
           {answered && <div style={{ marginTop: 4, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
             🔊 Ters İlişki: {mulEq} ⇄ {divEq1} ⇄ {divEq2}
@@ -13467,11 +13467,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {Array.from({ length: Math.min(katBase, 10) }, (_, ci) => (
                   <Chip key={ci} color={subColor(ci)} size={katGpSz} />
                 ))}
-                <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{katBase}</div>
+                <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>{katBase}</div>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: "#94a3b8" }}>
+          <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: "#a8b2d1" }}>
             {katBase} × {katMul} kat = ?
           </div>
           {answered && <div style={{ marginTop: 4, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
@@ -13532,7 +13532,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 )}
                 {!q.askTens && <div style={{ fontSize: 12, fontWeight: 900, color: "#3b82f6", marginTop: 2 }}>{pvTens}</div>}
               </div>
-              <span style={{ fontSize: 16, fontWeight: 900, color: "#94a3b8" }}>+</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: "#a8b2d1" }}>+</span>
               {/* Birlik kapsül */}
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 10, fontWeight: 800, color: C.pvOnes, marginBottom: 4 }}>BİRLER</div>
@@ -13546,7 +13546,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ) : pvOnes > 0 ? (
                   <NumberRod count={pvOnes} defaultColor="green" size={18} />
                 ) : (
-                  <div style={{ fontSize: 14, fontWeight: 900, color: "#94a3b8", padding: "8px 12px" }}>0</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "#a8b2d1", padding: "8px 12px" }}>0</div>
                 )}
                 {q.askTens && <div style={{ fontSize: 12, fontWeight: 900, color: C.pvOnes, marginTop: 2 }}>{pvOnes}</div>}
               </div>
@@ -13573,11 +13573,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Denklem */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center" }}>
               <span style={{ fontSize: 28, fontWeight: 900, color: "#059669" }}>{q.number}</span>
-              <span style={{ fontSize: 18, color: "#94a3b8", fontWeight: 900 }}>=</span>
+              <span style={{ fontSize: 18, color: "#a8b2d1", fontWeight: 900 }}>=</span>
               <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#059669,#34d399)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 20, fontWeight: 900, color: "#fff", animation: "pulse 3s ease infinite" }}>?</div>
-              <span style={{ fontSize: 18, color: "#94a3b8", fontWeight: 900 }}>+</span>
+              <span style={{ fontSize: 18, color: "#a8b2d1", fontWeight: 900 }}>+</span>
               <span style={{ fontSize: 28, fontWeight: 900, color: "#059669" }}>{q.ones}</span>
             </div>
           </div>
@@ -13601,14 +13601,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               ))}
               <span style={{ fontSize: 10, fontWeight: 800, color: "#b45309" }}>{q.tens} onluk</span>
             </div>
-            <div style={{ fontSize: 22, color: "#94a3b8", fontWeight: 900, animation: `fadeIn ${0.3 + q.tens * 0.12}s ease` }}>+</div>
+            <div style={{ fontSize: 22, color: "#a8b2d1", fontWeight: 900, animation: `fadeIn ${0.3 + q.tens * 0.12}s ease` }}>+</div>
             {/* Birlik kapsülü */}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
               {q.ones > 0 ? <NumberRod count={q.ones} defaultColor="green" size={16} />
-                : <span style={{ fontSize: 14, fontWeight: 900, color: "#94a3b8" }}>0</span>}
+                : <span style={{ fontSize: 14, fontWeight: 900, color: "#a8b2d1" }}>0</span>}
               <span style={{ fontSize: 10, fontWeight: 800, color: C.pvOnes }}>{q.ones} birlik</span>
             </div>
-            <div style={{ fontSize: 22, color: "#94a3b8", fontWeight: 900 }}>=</div>
+            <div style={{ fontSize: 22, color: "#a8b2d1", fontWeight: 900 }}>=</div>
             <div style={{ width: 50, height: 50, borderRadius: 14, background: "linear-gradient(135deg,#d97706,#f59e0b)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 24, fontWeight: 900, color: "#fff", animation: "pulse 3s ease infinite",
@@ -13636,7 +13636,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Tüm kombinasyonları cevaptan sonra göster */}
           {answered && (
             <div style={{ marginTop: 10, animation: "fadeUp .5s ease" }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 4 }}>
                 {ninTarget}'in tüm parçaları:
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center" }}>
@@ -13684,7 +13684,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Blender (yerleştirilen rod'lar) */}
           <div style={{ minHeight: 60, padding: "10px 14px", borderRadius: 16, background: skComplete ? "rgba(16,185,129,.08)" : "rgba(49,46,129,.3)", border: skComplete ? "2px solid rgba(16,185,129,.25)" : "1px solid rgba(148,163,184,.1)", marginBottom: 10, display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", alignItems: "center", transition: "all .3s ease", maxWidth: "100%", overflow: "hidden" }}>
             {skPlaced.length === 0 ? (
-              <span style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>Rod'ları seçerek buraya ekle →</span>
+              <span style={{ fontSize: 11, color: "#a8b2d1", fontStyle: "italic" }}>Rod'ları seçerek buraya ekle →</span>
             ) : skPlaced.map((val, i) => (
               <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, animation: "scaleInBounce .3s ease" }}>
                 <NumberRod count={val} defaultColor={i % 2 === 0 ? "blue" : "red"} size={val > 7 ? 20 : 28} />
@@ -13711,7 +13711,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Cevaptan sonra tüm çözümleri göster */}
           {answered && q.solutions?.length > 1 && (
             <div style={{ marginTop: 10, animation: "fadeUp .5s ease" }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 4 }}>Diğer çözümler de olabilirdi:</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 4 }}>Diğer çözümler de olabilirdi:</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: "100%", overflow: "hidden" }}>
                 {q.solutions.slice(0, 6).map((sol, si) => (
                   <div key={si} style={{ padding: "3px 8px", borderRadius: 8, background: "rgba(49,46,129,.4)", border: "1px solid rgba(148,163,184,.15)", fontSize: 11, fontWeight: 700, color: "#e2e8f0" }}>
@@ -13749,7 +13749,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Kesme noktası butonları */}
           {!answered && (
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 6 }}>Nereden bölelim?</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6 }}>Nereden bölelim?</div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center", maxWidth: "100%", overflow: "hidden" }}>
                 {Array.from({ length: rsTarget - 1 }, (_, i) => i + 1).map(cutAt => {
                   const pair = [cutAt, rsTarget - cutAt];
@@ -13777,7 +13777,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {rsDiscovered.map((pair, i) => (
                 <div key={i} style={{ display: "flex", gap: 4, alignItems: "center", padding: "4px 10px", borderRadius: 10, background: "rgba(16,185,129,.08)", border: "1px solid rgba(16,185,129,.15)", animation: "scaleInBounce .3s ease" }}>
                   <NumberRod count={pair[0]} defaultColor="blue" size={16} />
-                  <span style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8" }}>+</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1" }}>+</span>
                   <NumberRod count={pair[1]} defaultColor="red" size={16} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: "#10b981" }}>= {rsTarget}</span>
                 </div>
@@ -13845,7 +13845,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ width: 40, height: 6, background: "#94a3b8", margin: "0 auto", borderRadius: "0 0 4px 4px" }} />
           </div>
           {/* Denklem gösterimi */}
-          <div style={{ marginTop: 6, fontSize: 13, fontWeight: 700, color: "#94a3b8", maxWidth: "100%", overflow: "hidden", wordBreak: "break-word" }}>
+          <div style={{ marginTop: 6, fontSize: 13, fontWeight: 700, color: "#a8b2d1", maxWidth: "100%", overflow: "hidden", wordBreak: "break-word" }}>
             {q.left.join(" + ")} = {q.right.join(" + ")} + <span style={{ color: "#fbbf24", fontWeight: 900 }}>?</span>
           </div>
         </div>);
@@ -13901,7 +13901,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {answered && (
             <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic", animation: "fadeUp .4s ease" }}>
               🔊 Çekirdek: {q.coreUnit.map(el => q.shapes ? patShapeLabels[q.shapes[el]] : (el === "A" ? "🔵" : el === "B" ? "🔴" : "🟢")).join(" ")} ({q.coreUnit.join("-")})
-              {q.patModeType === "extend" && <><br/><span style={{ color: "#94a3b8" }}>Uzatma: desen tekrar ediyor → çekirdek sonra tekrar başlar!</span></>}
+              {q.patModeType === "extend" && <><br/><span style={{ color: "#a8b2d1" }}>Uzatma: desen tekrar ediyor → çekirdek sonra tekrar başlar!</span></>}
             </div>
           )}
         </div>);
@@ -13960,7 +13960,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   {isMissing ? "?" : num}
                 </div>
                 {/* Ok göstergeleri — adım farkları */}
-                {gpShowRule && i < q.sequence.length - 1 && <span style={{ fontSize: 10, color: "#94a3b8", marginTop: -2 }}>
+                {gpShowRule && i < q.sequence.length - 1 && <span style={{ fontSize: 10, color: "#a8b2d1", marginTop: -2 }}>
                   {gpIsVar && q.stepPattern ? (q.stepPattern[i] > 0 ? `+${q.stepPattern[i]}` : `${q.stepPattern[i]}`) : gpStepLabel}
                 </span>}
               </div>);
@@ -13976,7 +13976,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ fontSize: 11, fontWeight: 800, color: gpColor }}>
               ✓ Kural: {gpIsVar ? `Değişken adım (${gpStepLabel})` : `${gpStepDesc}`} → {q.sequence.join(", ")}
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2 }}>
               {gpIsVar
                 ? "Her fark bir öncekinden büyük — adım deseni bul!"
                 : q.direction === "increasing"
@@ -14015,7 +14015,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {answered && (
             <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
               🔊 Çekirdek: {q.coreUnit.map(el => el === "A" ? "🔵" : el === "B" ? "🔴" : "🟢").join(" ")} = {q.coreUnit.map(el => q.numMap[el]).join("-")}
-              <br/><span style={{ color: "#94a3b8" }}>Bu çekirdek {Math.floor(q.fullPattern.length / q.coreUnit.length)} kez tekrar ediyor!</span>
+              <br/><span style={{ color: "#a8b2d1" }}>Bu çekirdek {Math.floor(q.fullPattern.length / q.coreUnit.length)} kez tekrar ediyor!</span>
             </div>
           )}
         </div>);
@@ -14058,7 +14058,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           {/* Cevaptan sonra sayı dizisi göster */}
           {answered && (
-            <div style={{ marginTop: 8, animation: "fadeUp .5s ease", fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>
+            <div style={{ marginTop: 8, animation: "fadeUp .5s ease", fontSize: 12, fontWeight: 700, color: "#a8b2d1" }}>
               🔊 {q.direction === "forward"
                 ? Array.from({ length: q.steps + 1 }, (_, i) => q.start + i).join(" → ")
                 : Array.from({ length: q.steps + 1 }, (_, i) => q.start - i).join(" → ")}
@@ -14430,7 +14430,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             animation: !answered ? `slideInFromBottom .35s ease ${i * 0.1}s both` : isCmpCorrect ? "optionCorrect .6s cubic-bezier(.16,1,.3,1) forwards" : isCmpWrong ? "optionWrong .5s ease forwards" : "none",
             display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
           }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8" }}>{i === 0 ? "A" : "B"}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#a8b2d1" }}>{i === 0 ? "A" : "B"}</div>
             <NumberRod count={opt} defaultColor={isCmpCorrect ? "green" : i === 0 ? "blue" : "red"} size={cmpSize} />
             <div style={{ fontSize: 22, fontWeight: 900, color: isCmpCorrect ? "#6ee7b7" : "#e2e8f0", transition: "color .3s" }}>{opt}</div>
             <div style={{ fontSize: 12, fontWeight: 800, color: isCmpCorrect ? "#6ee7b7" : "#c4b5fd" }}>{numWord(opt)}</div>
@@ -14515,7 +14515,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       {options.map((opt, i) => {
         if (isEliminated(opt) && !answered) return (
           <div key={i} style={{ padding: "14px 8px", borderRadius: 18, background: "rgba(30,27,75,.25)", backdropFilter: "blur(8px)", opacity: .3, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: "#94a3b8", textDecoration: "line-through" }}>{opt}</span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: "#a8b2d1", textDecoration: "line-through" }}>{opt}</span>
           </div>
         );
         const isCorrectOpt = answered && opt === correctAnswer;
@@ -14976,7 +14976,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     background: `${s.color}10`, border: `1px solid ${s.color}15`,
                   }}>
                     <div style={{ fontSize: 15, fontWeight: 900, color: s.color }}>{s.val}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginTop: 2, textTransform: "uppercase", letterSpacing: .3 }}>{s.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1", marginTop: 2, textTransform: "uppercase", letterSpacing: .3 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -14999,7 +14999,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* ── ADMIN ── */}
             {role === "admin" && (<>
               {/* Yönetim Bölümü */}
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>⚙️ Yönetim</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>⚙️ Yönetim</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "🛡️", label: "Yönetim Paneli", desc: "Kullanıcı ve sistem", color: "#ef4444", onClick: () => { loadAdminData(); navigateTo("admin"); } },
@@ -15014,7 +15014,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
 
               {/* Analiz & Takip */}
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz & Takip</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz & Takip</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "📊", label: "Gelişim", desc: "Beceri analizi", color: "#3b82f6", onClick: () => navigateTo("devTrack") },
@@ -15030,7 +15030,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
 
               {/* GalakSay Analytics — 2026-03-18 — Analitik ve raporlama menü öğeleri */}
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analitik</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analitik</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
                   { icon: "📊", label: "Gelişim Paneli", desc: "Detaylı performans analizi", color: "#22d3ee", onClick: () => navigateTo("dashboard") },
@@ -15048,11 +15048,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
 
               {/* Araçlar */}
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
                   { icon: "📏", label: "Materyal Rehberi", desc: "DokunSay Sayı Kapsülleri", color: "#3b82f6", onClick: () => navigateTo("materialGuide") },
-                  { icon: "⚙️", label: "Ayarlar", desc: "Erişilebilirlik, ses, tercihler", color: "#94a3b8", onClick: () => navigateTo("settings") },
+                  { icon: "⚙️", label: "Ayarlar", desc: "Erişilebilirlik, ses, tercihler", color: "#a8b2d1", onClick: () => navigateTo("settings") },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 14px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{c.icon}</div>
@@ -15067,7 +15067,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             {/* ── TEACHER ── */}
             {role === "teacher" && (<>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🏫 Sınıf Yönetimi</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🏫 Sınıf Yönetimi</div>
               <button onClick={() => { loadAdminData(); navigateTo("teacherDash"); }} style={{ ...DS.card, padding: "14px", border: "1px solid rgba(5,150,105,.2)", cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12, background: "linear-gradient(135deg,rgba(5,150,105,.1),rgba(16,185,129,.06))" }}>
                 <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#059669,#047857)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👨‍🎓</div>
                 <div>
@@ -15076,7 +15076,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               </button>
 
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz & Takip</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz & Takip</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "📊", label: "Gelişim", desc: "Beceri analizi", color: "#3b82f6", onClick: () => navigateTo("devTrack") },
@@ -15091,7 +15091,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ))}
               </div>
 
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "📏", label: "Materyal Rehberi", desc: "DokunSay Sayı Kapsülleri", color: "#3b82f6", onClick: () => navigateTo("materialGuide") },
@@ -15117,14 +15117,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(100,116,139,.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>⚙️</div>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: "#e2e8f0" }}>Ayarlar</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, marginTop: 1 }}>Erişilebilirlik, ses, tercihler</div>
+                  <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, marginTop: 1 }}>Erişilebilirlik, ses, tercihler</div>
                 </div>
               </button>
             </>)}
 
             {/* ── PARENT ── */}
             {role === "parent" && (<>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>👶 Çocuğum</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>👶 Çocuğum</div>
               <button onClick={() => navigateTo("devTrack")} style={{ ...DS.card, padding: "14px", border: "1px solid rgba(124,58,237,.2)", cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12, background: "linear-gradient(135deg,rgba(124,58,237,.1),rgba(99,102,241,.06))" }}>
                 <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg,#7c3aed,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👶</div>
                 <div>
@@ -15133,7 +15133,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               </button>
 
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>📊 Analiz</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "📈", label: "İstatistik", desc: "Detaylı veri", color: "#10b981", onClick: () => navigateTo("progress") },
@@ -15148,11 +15148,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ))}
               </div>
 
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>🧰 Araçlar</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
                   { icon: "📏", label: "Materyal Rehberi", desc: "DokunSay Sayı Kapsülleri", color: "#3b82f6", onClick: () => navigateTo("materialGuide") },
-                  { icon: "⚙️", label: "Ayarlar", desc: "Erişilebilirlik, ses, tercihler", color: "#94a3b8", onClick: () => navigateTo("settings") },
+                  { icon: "⚙️", label: "Ayarlar", desc: "Erişilebilirlik, ses, tercihler", color: "#a8b2d1", onClick: () => navigateTo("settings") },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 14px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{c.icon}</div>
@@ -15637,7 +15637,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {fluencyMode ? "⚡ Akıcılık Modu açık — Hız Odaklı" : "⚡ Akıcılık Modu"}
             </button>
             {fluencyMode && (
-              <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 10, margin: "-2px 0 6px", fontWeight: 600 }}>
+              <p style={{ textAlign: "center", color: "#a8b2d1", fontSize: 10, margin: "-2px 0 6px", fontWeight: 600 }}>
                 Üst üste sorular — kendi rekorunu kır! Acelen yok, sadece akıcılık.
               </p>
             )}
@@ -15801,7 +15801,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       </span>
                     </button>
                   </div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.45)", marginTop: 10, animation: "fadeUp .5s ease .7s both", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.6)", marginTop: 10, animation: "fadeUp .5s ease .7s both", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                     <div style={{ display: "flex", gap: 3 }}>
                       {[0,1,2,3,4].map(i => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: mi?.c || "#a78bfa", opacity: .3, animation: `pulse 1.4s ease ${i * .2}s infinite` }} />)}
                     </div>
@@ -15919,7 +15919,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>🧘</div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: "#e2e8f0", marginBottom: 8 }}>Mola Zamanı!</div>
-                <div style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.6, marginBottom: 16 }}>
+                <div style={{ fontSize: 14, color: "#a8b2d1", lineHeight: 1.6, marginBottom: 16 }}>
                   {breakMessage?.msg || "Biraz dinlenme zamanı!"}
                 </div>
                 <div style={{ fontSize: 12, color: "#34d399", background: "rgba(16,185,129,.1)", borderRadius: 12, padding: "10px 14px", marginBottom: 16, lineHeight: 1.5, border: "1px solid rgba(16,185,129,.2)" }}>
@@ -15940,11 +15940,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     goBack();
                   }} style={{
                     flex: 1, padding: "12px 16px", borderRadius: 14, border: "1px solid rgba(148,163,184,.1)",
-                    background: "rgba(49,46,129,.6)", color: "#94a3b8",
+                    background: "rgba(49,46,129,.6)", color: "#a8b2d1",
                     fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: F,
                   }}>🏠 Menüye Dön</button>
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 10 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 10 }}>
                   ⏱️ {screenTimeMinutes} dakikadır oynuyorsun
                 </div>
               </div>
@@ -15980,7 +15980,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 }}>🏠 Bugünlük Tamam!</button>
                 <button onClick={() => setShowScreenTimeWarning(false)} style={{
                   width: "100%", padding: "10px 16px", borderRadius: 14, border: "none",
-                  background: "transparent", color: "#94a3b8",
+                  background: "transparent", color: "#a8b2d1",
                   fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: F, marginTop: 6,
                 }}>5 dakika daha (ebeveyn izni)</button>
               </div>
@@ -16055,7 +16055,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {fluencyMode && fluencySession && (
               <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 2 }}>
                 <span style={{ fontSize: 10, color: "#fbbf24", fontWeight: 700 }}>⚡ Akıcılık</span>
-                <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>
+                <span style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>
                   {fluencySession.totalCorrect}/{fluencySession.totalQuestions} doğru
                 </span>
                 {fluencySession.bestStreak >= 3 && (
@@ -16354,7 +16354,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         border: `1px solid ${feedback.ok ? "rgba(16,185,129,.25)" : "rgba(234,179,8,.25)"}`,
                         animation: "fadeUp .5s ease .3s both", overflow: "hidden",
                       }}>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6, textAlign: "center" }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6, textAlign: "center" }}>
                           {feedback.ok ? "✨ Neden Doğru?" : "🔍 Neden Yanlış?"}
                         </div>
                         {/* Görsel rod animasyonu */}
@@ -16666,7 +16666,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
             <h2 style={{ fontSize: acc === 100 ? 26 : 24, fontWeight: 900, color: "#fff", margin: "0 0 6px", textShadow: acc === 100 ? "0 2px 20px rgba(251,191,36,.4), 0 4px 12px rgba(0,0,0,.3)" : "0 2px 12px rgba(0,0,0,.3)", animation: acc === 100 ? "supernovaFlash .8s cubic-bezier(.16,1,.3,1) .6s both" : "fadeUp .4s ease", wordBreak: "break-word", letterSpacing: acc === 100 ? 1 : .3 }}>{title}</h2>
             {/* Subtitle - motivational context */}
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.55)", marginBottom: 8, animation: "fadeUp .4s ease .15s both" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.7)", marginBottom: 8, animation: "fadeUp .4s ease .15s both" }}>
               {`${correctCnt}/${roundsPerGame} doğru`}
             </div>
             <div style={{
@@ -16676,7 +16676,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             }}>
               <span style={{ fontSize: 14 }}>{mi?.i}</span>
               <span style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 700 }}>{mi?.n}</span>
-              <span style={{ color: "rgba(255,255,255,.5)" }}>•</span>
+              <span style={{ color: "rgba(255,255,255,.65)" }}>•</span>
               <span style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 700 }}>Sv.{level}</span>
             </div>
           </div>
@@ -16774,7 +16774,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${s.c}40, transparent)` }} />
                 <div style={{ fontSize: 10, marginBottom: 2 }}>{s.icon}</div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: s.c, lineHeight: 1, animation: `statTick .4s ease ${s.delay + .2}s both` }}>{s.v}</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.5)", marginTop: 3 }}>{s.l}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.65)", marginTop: 3 }}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -16901,21 +16901,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <span style={{ fontSize: 24 }}>{fluencySummary.badge.emoji}</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: fluencySummary.badge.color }}>{fluencySummary.badge.label}</div>
-                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Akıcılık Özeti</div>
+                  <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Akıcılık Özeti</div>
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, fontSize: 11 }}>
                 <div style={{ textAlign: "center", padding: 4, borderRadius: 8, background: "rgba(255,255,255,.04)" }}>
                   <div style={{ fontWeight: 900, color: "#f1f5f9" }}>{fluencySummary.accuracy}%</div>
-                  <div style={{ color: "#94a3b8", fontSize: 9 }}>Doğruluk</div>
+                  <div style={{ color: "#a8b2d1", fontSize: 9 }}>Doğruluk</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 4, borderRadius: 8, background: "rgba(255,255,255,.04)" }}>
                   <div style={{ fontWeight: 900, color: "#f1f5f9" }}>{(fluencySummary.avgTime / 1000).toFixed(1)}s</div>
-                  <div style={{ color: "#94a3b8", fontSize: 9 }}>Ort. Süre</div>
+                  <div style={{ color: "#a8b2d1", fontSize: 9 }}>Ort. Süre</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 4, borderRadius: 8, background: "rgba(255,255,255,.04)" }}>
                   <div style={{ fontWeight: 900, color: "#f1f5f9" }}>{fluencySummary.bestStreak}</div>
-                  <div style={{ color: "#94a3b8", fontSize: 9 }}>En İyi Seri</div>
+                  <div style={{ color: "#a8b2d1", fontSize: 9 }}>En İyi Seri</div>
                 </div>
               </div>
             </div>
@@ -16923,9 +16923,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           {/* ═══ Secondary actions — kompakt ═══ */}
           <div style={{ display: "flex", gap: 8, padding: "8px 16px 0", justifyContent: "center" }}>
-            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🏠 Menü</button>
-            <button onClick={() => navigateTo("modeSelect")} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>📋 Görevler</button>
-            <button onClick={() => { loadLeaderboard(); navigateTo("achievements"); }} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🏆 Ödüller</button>
+            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🏠 Menü</button>
+            <button onClick={() => navigateTo("modeSelect")} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>📋 Görevler</button>
+            <button onClick={() => { loadLeaderboard(); navigateTo("achievements"); }} style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.4)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🏆 Ödüller</button>
           </div>
 
           {/* ═══ MATEMATİK KARTI — Yeni kart kazanıldıysa göster ═══ */}
@@ -16954,7 +16954,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     padding: "3px 8px", borderRadius: 4,
                     background: newCard.rarity === "legendary" ? "linear-gradient(135deg,#f59e0b,#ef4444)" : newCard.rarity === "epic" ? "linear-gradient(135deg,#8b5cf6,#6366f1)" : newCard.rarity === "rare" ? "linear-gradient(135deg,#3b82f6,#60a5fa)" : "rgba(148,163,184,.3)",
                   }}>{rarityLabels[newCard.rarity]}</span>
-                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>{collectedCards.length}/{MATH_CARDS.length}</span>
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>{collectedCards.length}/{MATH_CARDS.length}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{
@@ -16987,7 +16987,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <span style={{ fontSize: 20 }}>{ship.emoji}</span>
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 12, fontWeight: 800, color: ship.color }}>{ship.name}</span>
-                <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 6 }}>• {totalFrags} parça</span>
+                <span style={{ fontSize: 11, color: "#a8b2d1", marginLeft: 6 }}>• {totalFrags} parça</span>
               </div>
               {newBadges.length > 0 && <span style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", padding: "2px 8px", borderRadius: 6, background: "rgba(251,191,36,.12)" }}>🏅 Yeni Rozet!</span>}
             </div>
@@ -16996,12 +16996,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ marginTop: 8, padding: "10px 14px", borderRadius: 12, background: "rgba(30,27,75,.4)", border: "1px solid rgba(148,163,184,.08)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                 <span style={{ fontSize: 12, fontWeight: 800, color: "#e2e8f0" }}>Bu Modda</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>{modeGames} oyun • %{modeAvgAcc}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1" }}>{modeGames} oyun • %{modeAvgAcc}</span>
               </div>
               <div style={{ height: 6, borderRadius: 3, background: "rgba(148,163,184,.1)", overflow: "hidden" }}>
                 <div style={{ height: "100%", borderRadius: 3, width: `${modeAvgAcc}%`, background: modeAvgAcc >= 80 ? "linear-gradient(90deg,#059669,#34d399)" : modeAvgAcc >= 60 ? "linear-gradient(90deg,#eab308,#fbbf24)" : "linear-gradient(90deg,#ef4444,#f87171)", transition: "width 1s ease" }} />
               </div>
-              {avgRT && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>⏱ Ort. yanıt: {avgRT}sn {parseFloat(avgRT) < 4 && acc >= 80 ? "⚡" : ""}</div>}
+              {avgRT && <div style={{ fontSize: 11, color: "#a8b2d1", marginTop: 4 }}>⏱ Ort. yanıt: {avgRT}sn {parseFloat(avgRT) < 4 && acc >= 80 ? "⚡" : ""}</div>}
             </div>
 
             {/* Retry queue — sadece varsa */}
@@ -17064,7 +17064,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span style={{ fontSize: 14 }}>🗺️</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: "#a5b4fc" }}>Görev Arkı</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", marginLeft: "auto" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1", marginLeft: "auto" }}>
                       {rescuedCrew.length}/{chapters.filter(ch => ch.crewMember).length} mürettebat
                     </span>
                   </div>
@@ -17112,7 +17112,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   background: `linear-gradient(135deg, ${ni.c}08, ${ni.c}03)`, cursor: "pointer", fontFamily: F,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>{acc >= 80 ? "🎯 Sonraki" : "💡 Öneri"}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{acc >= 80 ? "🎯 Sonraki" : "💡 Öneri"}</span>
                   <span style={{ fontSize: 14 }}>{ni.i}</span>
                   <span style={{ fontSize: 12, fontWeight: 800, color: ni.c }}>{ni.n}</span>
                 </button>
@@ -17138,12 +17138,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <span style={{ fontSize: 24 }}>📓</span>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: "#fbbf24" }}>Kaptan Günlüğü</div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8" }}>{captainsLog.length} giriş</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#a8b2d1" }}>{captainsLog.length} giriş</div>
                 </div>
               </div>
               <button onClick={() => setShowCaptainsLog(false)} style={{
                 padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(148,163,184,.15)",
-                background: "rgba(30,27,75,.5)", color: "#94a3b8", fontSize: 12, fontWeight: 700,
+                background: "rgba(30,27,75,.5)", color: "#a8b2d1", fontSize: 12, fontWeight: 700,
                 cursor: "pointer", fontFamily: F,
               }}>✕ Kapat</button>
             </div>
@@ -17152,7 +17152,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Günlük Girişleri */}
           <div style={{ flex: 1, overflow: "auto", padding: "0 16px 20px" }}>
             {captainsLog.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+              <div style={{ textAlign: "center", padding: 40, color: "#a8b2d1" }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>🚀</div>
                 <div style={{ fontSize: 14, fontWeight: 700 }}>Henüz günlük girişi yok</div>
                 <div style={{ fontSize: 12, marginTop: 4 }}>İlk oyununu oyna ve kaptan günlüğün başlasın!</div>
@@ -17174,7 +17174,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     )}
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                       {log.isMilestone && <span style={{ fontSize: 10, fontWeight: 900, color: "#fff", background: "linear-gradient(135deg,#f59e0b,#ef4444)", padding: "3px 8px", borderRadius: 4 }}>ÖZEL</span>}
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>
                         {new Date(log.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                       {log.planet && <span style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc" }}>• {log.planet}</span>}
@@ -17279,7 +17279,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             marginBottom: 16,
           }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: "#a5b4fc", letterSpacing: 1, marginBottom: 4 }}>📍 Bölüm: {ch.title}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8" }}>{ch.desc}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#a8b2d1" }}>{ch.desc}</div>
           </div>
           <button onClick={() => setShowCrewRescue(null)} style={{
             padding: "10px 28px", borderRadius: 12, border: "1px solid rgba(251,191,36,.3)",
@@ -17314,21 +17314,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <div style={{ ...DS.card, padding: "10px 8px", flexShrink: 0 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, textAlign: "center" }}>
               {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "✨", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
-                <div key={s.l} style={{ borderRadius: 8, padding: "6px 2px", background: "rgba(30,27,75,.35)" }}><div style={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</div><div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>{s.l}</div></div>
+                <div key={s.l} style={{ borderRadius: 8, padding: "6px 2px", background: "rgba(30,27,75,.35)" }}><div style={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</div><div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1", textTransform: "uppercase" }}>{s.l}</div></div>
               ))}
             </div>
           </div>
           {/* Mode stats */}
           <div style={{ ...DS.card, padding: "10px 10px 8px", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-            <h3 style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Modlar</h3>
+            <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Modlar</h3>
             {Object.keys(stats.modeStats).length === 0
-              ? <p style={{ color: "#94a3b8", textAlign: "center", fontSize: 13, padding: 10 }}>Henüz oyun oynamadın</p>
+              ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 10 }}>Henüz oyun oynamadın</p>
               : <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
                   {Object.entries(stats.modeStats).map(([m, ms]) => {
                     const info = gmi(m), ac = Math.round((ms.total > 0 ? ms.correct / ms.total : 0) * 100);
                     return (<div key={m} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 8, background: "rgba(30,27,75,.35)" }}>
                       <span style={{ fontSize: 16 }}>{info?.i}</span>
-                      <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>{info?.n}</div><div style={{ fontSize: 11, color: "#94a3b8" }}>{ms.games} oyun</div></div>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>{info?.n}</div><div style={{ fontSize: 11, color: "#a8b2d1" }}>{ms.games} oyun</div></div>
                       <div style={{ fontSize: 13, fontWeight: 800, color: ac >= 80 ? "#059669" : ac >= 60 ? "#ca8a04" : "#ef4444" }}>%{ac}</div>
                     </div>);
                   })}
@@ -17337,13 +17337,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {/* Recent games */}
           {stats.recent.length > 0 && (
             <div style={{ ...DS.card, padding: "10px 10px 8px", maxHeight: "25vh", display: "flex", flexDirection: "column", flexShrink: 0, minHeight: 0 }}>
-              <h3 style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Son Oyunlar</h3>
+              <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Son Oyunlar</h3>
               <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
                 {stats.recent.slice(0, 6).map((g, i) => {
                   const info = gmi(g.mode);
                   return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 7, background: "rgba(255,255,255,.04)" }}>
                     <span style={{ fontSize: 13 }}>{info?.i}</span>
-                    <div style={{ flex: 1, fontSize: 11 }}><span style={{ fontWeight: 700, color: "#e2e8f0" }}>{info?.n}</span><span style={{ color: "rgba(255,255,255,.55)" }}> Sv.{g.level}</span></div>
+                    <div style={{ flex: 1, fontSize: 11 }}><span style={{ fontWeight: 700, color: "#e2e8f0" }}>{info?.n}</span><span style={{ color: "rgba(255,255,255,.7)" }}> Sv.{g.level}</span></div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: g.acc >= 80 ? "#059669" : g.acc >= 60 ? "#ca8a04" : "#ef4444" }}>{g.correct}/{g.total}</span>
                   </div>);
                 })}
@@ -17466,7 +17466,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "✨", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
                 <div key={s.l} style={{ borderRadius: 10, padding: "8px 2px", background: "rgba(49,46,129,.35)", border: "1px solid rgba(148,163,184,.08)" }}>
                   <div style={{ fontSize: 18, fontWeight: 900, color: s.c }}>{s.v}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>{s.l}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1", textTransform: "uppercase" }}>{s.l}</div>
                 </div>
               ))}
             </div>
@@ -17478,7 +17478,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🎯</div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: "#e2e8f0", letterSpacing: .3 }}>Beceri Haritası</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>8 gezegen yörüngesi</div>
+                  <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600 }}>8 gezegen yörüngesi</div>
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -17521,7 +17521,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div key={s.key} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 2, display: "flex", alignItems: "center", gap: 3 }}>
                     <span>{s.icon}</span> <span style={{ fontWeight: 700, flex: 1 }}>{s.label}</span> <span style={{ color: "#059669", fontWeight: 800 }}>%{s.score}</span>
                   </div>
-                )) : <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>Daha fazla oyun oyna!</p>}
+                )) : <p style={{ fontSize: 11, color: "#a8b2d1", margin: 0 }}>Daha fazla oyun oyna!</p>}
               </div>
               <div style={{ ...DS.card, padding: "10px 10px", background: "rgba(234,88,12,.08)" }}>
                 <h4 style={{ fontSize: 12, fontWeight: 800, color: "#ea580c", margin: "0 0 5px" }}>🎯 Gelişim Alanları</h4>
@@ -17529,7 +17529,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div key={s.key} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 2, display: "flex", alignItems: "center", gap: 3 }}>
                     <span>{s.icon}</span> <span style={{ fontWeight: 700, flex: 1 }}>{s.label}</span> <span style={{ color: "#f97316", fontWeight: 800 }}>%{s.score}</span>
                   </div>
-                )) : <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{stats.totalGames > 0 ? "Harika gidiyorsun!" : "Henüz veri yok"}</p>}
+                )) : <p style={{ fontSize: 11, color: "#a8b2d1", margin: 0 }}>{stats.totalGames > 0 ? "Harika gidiyorsun!" : "Henüz veri yok"}</p>}
               </div>
             </div>
 
@@ -17595,7 +17595,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         opacity: sk.score >= 50 ? 1 : 0.7,
                       }} />
                     </div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{sk.correct}/{sk.total} doğru • {sk.modes.filter(m => stats.modeStats[m]).length}/{sk.modes.length} mod</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 1 }}>{sk.correct}/{sk.total} doğru • {sk.modes.filter(m => stats.modeStats[m]).length}/{sk.modes.length} mod</div>
                   </div>
                 ))}
               </div>
@@ -17631,7 +17631,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     })()}
                   </svg>
                 </div>
-                <div style={{ textAlign: "center", fontSize: 10, color: "#94a3b8", marginTop: 2 }}>Son {recentGames.length} oyun</div>
+                <div style={{ textAlign: "center", fontSize: 10, color: "#a8b2d1", marginTop: 2 }}>Son {recentGames.length} oyun</div>
               </div>
             )}
 
@@ -17673,7 +17673,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   desc: "Tekrar eden örüntü → büyüyen desen → desen çevirme → eşitlik ilkeleri → bilinmeyen bulma" },
               };
               return (<>
-                <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.4, padding: "0 0 4px" }}>
+                <div style={{ fontSize: 11, color: "#a8b2d1", lineHeight: 1.4, padding: "0 0 4px" }}>
                   MEB 2024 Türkiye Yüzyılı Maarif Modeli & Clements-Sarama öğrenme yörüngeleri
                 </div>
 
@@ -17685,7 +17685,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   ].map(s => (
                     <div key={s.l} style={{ textAlign: "center", padding: "8px 4px", borderRadius: 10, background: `${s.c}10`, border: `1px solid ${s.c}15` }}>
                       <div style={{ fontSize: 16, fontWeight: 900, color: s.c }}>{s.v}/{s.t}</div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{s.l}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>{s.l}</div>
                     </div>
                   ))}
                 </div>
@@ -17717,14 +17717,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                           <span style={{ fontSize: 16 }}>{ac.icon}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 11, fontWeight: 900, color: ac.color }}>{ac.realName}</div>
-                            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>
+                            <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600 }}>
                               {ac.trajectory}{ltRange ? ` L${ltRange.min}-${ltRange.max}` : ""}
                             </div>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                             {catPct !== null && <span style={{ fontSize: 11, fontWeight: 900, color: catPct >= 80 ? "#059669" : catPct >= 60 ? "#ca8a04" : "#ea580c" }}>%{catPct}</span>}
-                            <span style={{ fontSize: 11, color: "#94a3b8" }}>{catPlayed}/{catModes.length}</span>
-                            <span style={{ fontSize: 11, color: "#94a3b8", transition: "transform .2s", transform: isDetailOpen ? "rotate(180deg)" : "" }}>▼</span>
+                            <span style={{ fontSize: 11, color: "#a8b2d1" }}>{catPlayed}/{catModes.length}</span>
+                            <span style={{ fontSize: 11, color: "#a8b2d1", transition: "transform .2s", transform: isDetailOpen ? "rotate(180deg)" : "" }}>▼</span>
                           </div>
                         </button>
                         {isDetailOpen && (
@@ -17763,7 +17763,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                                         <span style={{ fontSize: 10, color: "#4b5563" }}>—</span>
                                       )}
                                     </div>
-                                    {meb && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, paddingLeft: 18, lineHeight: 1.3 }}>
+                                    {meb && <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2, paddingLeft: 18, lineHeight: 1.3 }}>
                                       <span style={{ color: "#059669", fontWeight: 700 }}>{meb.kod}</span> — {meb.kazanim}
                                     </div>}
                                   </div>
@@ -17781,7 +17781,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ padding: "8px 10px", borderRadius: 8, background: "rgba(30,27,75,.35)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, color: "#cbd5e1" }}>📚 Toplam Kapsam</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>{Object.keys(stats.modeStats).length}/61 mod</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{Object.keys(stats.modeStats).length}/61 mod</span>
                   </div>
                   <div style={{ height: 6, borderRadius: 3, background: "rgba(148,163,184,.12)", overflow: "hidden" }}>
                     <div style={{ height: "100%", borderRadius: 3, width: `${(Object.keys(stats.modeStats).length / 61) * 100}%`,
@@ -17832,7 +17832,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 900, color: "#e2e8f0" }}>{playerName || "Öğrenci"}</div>
-                {currentUser && <div style={{ fontSize: 12, color: "#94a3b8" }}>@{currentUser.username}</div>}
+                {currentUser && <div style={{ fontSize: 12, color: "#a8b2d1" }}>@{currentUser.username}</div>}
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 4, padding: "3px 10px", borderRadius: 8, background: `${devColor}15`, border: `1px solid ${devColor}25` }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: devColor }}>{devLevel}</span>
                 </div>
@@ -17843,7 +17843,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div key={s.l} style={{ borderRadius: 10, padding: "8px 4px", background: "rgba(30,27,75,.35)" }}>
                   <div style={{ fontSize: 12, marginBottom: 2 }}>{s.icon}</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>{s.l}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{s.l}</div>
                 </div>
               ))}
             </div>
@@ -17863,7 +17863,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <span key={lt} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: "rgba(124,58,237,.12)", color: "#a78bfa", border: "1px solid rgba(124,58,237,.2)" }}>{lt}</span>
               ))}
             </div>
-            {coveredLTs.length === 0 && <div style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>Henüz yeterli oyun verisi yok. Daha fazla mod deneyin!</div>}
+            {coveredLTs.length === 0 && <div style={{ fontSize: 12, color: "#a8b2d1", fontStyle: "italic" }}>Henüz yeterli oyun verisi yok. Daha fazla mod deneyin!</div>}
           </div>
 
           {/* Güçlü ve Gelişim Alanları */}
@@ -17877,7 +17877,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", flex: 1 }}>{x.info?.n}</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: "#059669" }}>%{x.acc}</span>
                   </div>
-                )) : <div style={{ fontSize: 11, color: "#94a3b8" }}>Daha fazla oyun oyna!</div>}
+                )) : <div style={{ fontSize: 11, color: "#a8b2d1" }}>Daha fazla oyun oyna!</div>}
               </div>
               <div style={{ ...DS.card, padding: "10px 10px" }}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: "#eab308", marginBottom: 6 }}>🌱 Gelişim Alanları</div>
@@ -17887,7 +17887,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", flex: 1 }}>{x.info?.n}</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: "#eab308" }}>%{x.acc}</span>
                   </div>
-                )) : <div style={{ fontSize: 11, color: "#94a3b8" }}>Harika gidiyorsun!</div>}
+                )) : <div style={{ fontSize: 11, color: "#a8b2d1" }}>Harika gidiyorsun!</div>}
               </div>
             </div>
           )}
@@ -17906,7 +17906,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <div style={{ height: "100%", borderRadius: 4, width: `${ac}%`, background: ac >= 80 ? "linear-gradient(90deg,#059669,#34d399)" : ac >= 60 ? "linear-gradient(90deg,#eab308,#fbbf24)" : "linear-gradient(90deg,#ef4444,#f87171)", transition: "width .5s" }} />
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 800, color: ac >= 80 ? "#059669" : ac >= 60 ? "#ca8a04" : "#ef4444", width: 35, textAlign: "right" }}>%{ac}</span>
-                    <span style={{ fontSize: 11, color: "#94a3b8", width: 20, textAlign: "right" }}>{ms.games}</span>
+                    <span style={{ fontSize: 11, color: "#a8b2d1", width: 20, textAlign: "right" }}>{ms.games}</span>
                   </div>);
                 })}
               </div>
@@ -17920,20 +17920,20 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: "#7c3aed" }}>Yapay Zeka Gelişim Analizi</div>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>Clements & Sarama yörüngelerine dayalı profesyonel değerlendirme</div>
+                <div style={{ fontSize: 11, color: "#a8b2d1" }}>Clements & Sarama yörüngelerine dayalı profesyonel değerlendirme</div>
               </div>
             </div>
             {aiLoading ? (
               <div style={{ textAlign: "center", padding: 30 }}>
                 <div style={{ fontSize: 32 }}>🤖</div>
-                <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, marginTop: 10 }}>Rapor hazırlanıyor...</p>
-                <p style={{ color: "#94a3b8", fontSize: 12 }}>Yapay zeka performansınızı analiz ediyor</p>
+                <p style={{ color: "#a8b2d1", fontSize: 13, fontWeight: 600, marginTop: 10 }}>Rapor hazırlanıyor...</p>
+                <p style={{ color: "#a8b2d1", fontSize: 12 }}>Yapay zeka performansınızı analiz ediyor</p>
               </div>
             ) : aiReport ? (
               <div style={{ fontSize: 13, lineHeight: 1.8, color: "#e2e8f0", whiteSpace: "pre-wrap", flex: 1 }}>{aiReport}</div>
             ) : (
               <div style={{ textAlign: "center", padding: 20 }}>
-                <p style={{ color: "#94a3b8", fontSize: 13 }}>Henüz rapor oluşturulmadı</p>
+                <p style={{ color: "#a8b2d1", fontSize: 13 }}>Henüz rapor oluşturulmadı</p>
                 <button onClick={generateAiReport} style={{ marginTop: 10, padding: "10px 24px", borderRadius: 10, border: "none", background: DS.accent, color: "#fff", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: F }}>🤖 Rapor Oluştur</button>
               </div>
             )}
@@ -18001,7 +18001,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {adminTab === "users" && (<>
               {/* Add user toggle */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                <h3 style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", margin: 0, textTransform: "uppercase", letterSpacing: .5 }}>Kullanıcılar ({adminUsers.length})</h3>
+                <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: 0, textTransform: "uppercase", letterSpacing: .5 }}>Kullanıcılar ({adminUsers.length})</h3>
                 <button onClick={() => { setAddUserMode(!addUserMode); setAddUserMsg(""); }} style={{
                   padding: "4px 12px", borderRadius: 8, border: "none", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: F,
                   background: addUserMode ? "#fee2e2" : "#7c3aed", color: addUserMode ? "#dc2626" : "#fff",
@@ -18055,8 +18055,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               )}
 
               {/* User list */}
-              {adminLoading ? <p style={{ color: "#94a3b8", textAlign: "center", fontSize: 13, padding: 20 }}>Yükleniyor...</p> :
-              adminUsers.length === 0 ? <p style={{ color: "#94a3b8", textAlign: "center", fontSize: 13, padding: 20 }}>Henüz kullanıcı yok</p> :
+              {adminLoading ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 20 }}>Yükleniyor...</p> :
+              adminUsers.length === 0 ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 20 }}>Henüz kullanıcı yok</p> :
               <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 5 }}>
                 {adminUsers.map((u, i) => {
                   const ri = { student: { i: "🎓", l: "Öğrenci", c: "#7c3aed" }, parent: { i: "👨‍👩‍👧", l: "Ebeveyn", c: "#059669" }, teacher: { i: "📚", l: "Öğretmen", c: "#7c3aed" }, admin: { i: "⚙️", l: "Yönetici", c: "#ef4444" } }[u.role] || { i: "👤", l: u.role, c: "#999" };
@@ -18070,9 +18070,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     }}>{ri.i}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {u.displayName} {isMe && <span style={{ fontSize: 10, color: "#94a3b8" }}>(sen)</span>}
+                        {u.displayName} {isMe && <span style={{ fontSize: 10, color: "#a8b2d1" }}>(sen)</span>}
                       </div>
-                      <div style={{ fontSize: 10, color: "#94a3b8" }}>@{u.username} {us ? `• ${us.totalGames || 0} oyun` : ""}</div>
+                      <div style={{ fontSize: 10, color: "#a8b2d1" }}>@{u.username} {us ? `• ${us.totalGames || 0} oyun` : ""}</div>
                     </div>
                     {ua !== null && <span style={{ fontSize: 11, fontWeight: 900, color: ua >= 80 ? "#059669" : ua >= 60 ? "#ca8a04" : "#ea580c" }}>%{ua}</span>}
                     <span style={{ fontSize: 10, fontWeight: 800, color: ri.c, background: `${ri.c}12`, padding: "3px 8px", borderRadius: 6 }}>{ri.l}</span>
@@ -18087,18 +18087,18 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>}
             </>)}
             {adminTab === "data" && (<>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Platform Veri Analizi</h3>
+              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Platform Veri Analizi</h3>
               <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
                 {/* Role distribution */}
                 <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase" }}>Rol Dağılımı</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>Rol Dağılımı</div>
                   {["student","parent","teacher","admin"].map(role => {
                     const count = adminUsers.filter(u => u.role === role).length;
                     const pct = adminUsers.length > 0 ? Math.round((count / adminUsers.length) * 100) : 0;
                     const labels = { student: "Öğrenci", parent: "Ebeveyn", teacher: "Öğretmen", admin: "Yönetici" };
                     const colors = { student: "#7c3aed", parent: "#059669", teacher: "#7c3aed", admin: "#dc2626" };
                     return (<div key={role} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", width: 55 }}>{labels[role]}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1", width: 55 }}>{labels[role]}</span>
                       <div style={{ flex: 1, height: 10, borderRadius: 5, background: "rgba(148,163,184,.12)", overflow: "hidden" }}>
                         <div style={{ height: "100%", borderRadius: 5, width: `${pct}%`, background: colors[role], transition: "width .5s" }} />
                       </div>
@@ -18108,7 +18108,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 {/* Top performers */}
                 <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase" }}>En Aktif Kullanıcılar</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>En Aktif Kullanıcılar</div>
                   {adminUsers
                     .map(u => ({ ...u, games: adminUserStats[u.username]?.totalGames || 0, acc: adminUserStats[u.username]?.totalQ > 0 ? Math.round((adminUserStats[u.username].totalCorrect / adminUserStats[u.username].totalQ) * 100) : 0 }))
                     .sort((a, b) => b.games - a.games)
@@ -18117,15 +18117,15 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0" }}>
                         <span style={{ fontSize: 12, fontWeight: 900, color: i === 0 ? "#eab308" : i === 1 ? "#94a3b8" : i === 2 ? "#b45309" : "#ccc", width: 16 }}>{i+1}.</span>
                         <span style={{ fontSize: 11, fontWeight: 700, color: "#c4b5fd", flex: 1 }}>{u.displayName}</span>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>{u.games} oyun</span>
+                        <span style={{ fontSize: 10, color: "#a8b2d1" }}>{u.games} oyun</span>
                         {u.acc > 0 && <span style={{ fontSize: 10, fontWeight: 800, color: u.acc >= 80 ? "#059669" : "#ca8a04" }}>%{u.acc}</span>}
                       </div>
                     ))}
-                  {adminUsers.length === 0 && <p style={{ color: "#94a3b8", fontSize: 11, textAlign: "center" }}>Veri yok</p>}
+                  {adminUsers.length === 0 && <p style={{ color: "#a8b2d1", fontSize: 11, textAlign: "center" }}>Veri yok</p>}
                 </div>
                 {/* Activity summary */}
                 <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase" }}>Genel İstatistikler</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>Genel İstatistikler</div>
                   {[
                     { l: "Toplam Oyun", v: totalGamesAll },
                     { l: "Toplam Doğru Cevap", v: totalCorrectAll },
@@ -18134,7 +18134,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     { l: "Aktif Öğrenci", v: Object.values(adminUserStats).filter(s => s?.totalGames > 0).length },
                   ].map(s => (
                     <div key={s.l} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
-                      <span style={{ fontSize: 11, color: "#94a3b8" }}>{s.l}</span>
+                      <span style={{ fontSize: 11, color: "#a8b2d1" }}>{s.l}</span>
                       <span style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>{s.v}</span>
                     </div>
                   ))}
@@ -18142,7 +18142,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
             </>)}
             {adminTab === "system" && (<>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Sistem Bilgileri</h3>
+              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Sistem Bilgileri</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {[
                   { l: "Platform", v: "GalakSay v5.9", c: "#a78bfa" },
@@ -18156,7 +18156,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   { l: "Geliştirici", v: "Prof. Dr. Yılmaz MUTLU", c: "#e2e8f0" },
                 ].map(s => (
                   <div key={s.l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", borderRadius: 8, background: "rgba(30,27,75,.5)", border: "1px solid rgba(148,163,184,.08)" }}>
-                    <span style={{ fontSize: 12, color: "#94a3b8" }}>{s.l}</span>
+                    <span style={{ fontSize: 12, color: "#a8b2d1" }}>{s.l}</span>
                     <span style={{ fontSize: 12, fontWeight: 800, color: s.c }}>{s.v}</span>
                   </div>
                 ))}
@@ -18217,7 +18217,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ ...DS.card, padding: "14px 14px", animation: "fadeUp .4s ease" }}>
               <h3 style={{ fontSize: 12, fontWeight: 800, color: "#4c1d95", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: .5 }}>👤 Öğrenci Listesi</h3>
               {studentUsers.length === 0
-                ? <p style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 10 }}>Henüz kayıtlı öğrenci yok</p>
+                ? <p style={{ color: "#a8b2d1", fontSize: 12, textAlign: "center", padding: 10 }}>Henüz kayıtlı öğrenci yok</p>
                 : <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {studentUsers.map((u, i) => {
                       const us = adminUserStats[u.username];
@@ -18240,7 +18240,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                             <div style={{ fontSize: 16, fontWeight: 900, color: uAcc >= 80 ? "#16a34a" : uAcc >= 50 ? "#ca8a04" : us?.totalGames > 0 ? "#dc2626" : "#94a3b8" }}>
                               {us?.totalGames > 0 ? `%${uAcc}` : "—"}
                             </div>
-                            <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>BAŞARI</div>
+                            <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 700 }}>BAŞARI</div>
                           </div>
                         </div>
                       );
@@ -18259,7 +18259,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     { label: "İyi (%60-79)", color: "#eab308", bg: "rgba(234,179,8,.1)", count: 0 },
                     { label: "Gelişmeli (%40-59)", color: "#f97316", bg: "rgba(234,88,12,.1)", count: 0 },
                     { label: "Destek Gerekli (<%40)", color: "#ef4444", bg: "#fee2e2", count: 0 },
-                    { label: "Henüz Başlamadı", color: "#94a3b8", bg: "#f1f5f9", count: 0 },
+                    { label: "Henüz Başlamadı", color: "#a8b2d1", bg: "#f1f5f9", count: 0 },
                   ];
                   studentUsers.forEach(u => {
                     const us = adminUserStats[u.username];
@@ -20158,7 +20158,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
 
               {/* Tarama durumu */}
-              <div style={{ marginTop: 10, fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>
+              <div style={{ marginTop: 10, fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>
                 {qrScanning && "DokunSay QR kodunu çerçeveye yerleştirin"}
                 {qrError === "fallback" && (
                   <div style={{ color: "#fbbf24", padding: "6px 10px", borderRadius: 8, background: "rgba(234,179,8,.1)" }}>
@@ -20170,7 +20170,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: 16 }}>✅</span>
                     <div>
                       <div style={{ fontWeight: 800, color: "#4ade80", fontSize: 12 }}>{qrLastScan.label}</div>
-                      <div style={{ fontSize: 10, color: "#94a3b8" }}>Kod: {qrLastScan.code} • Yönlendiriliyorsunuz...</div>
+                      <div style={{ fontSize: 10, color: "#a8b2d1" }}>Kod: {qrLastScan.code} • Yönlendiriliyorsunuz...</div>
                     </div>
                   </div>
                 )}
@@ -20206,7 +20206,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* ── Desteklenen QR Kodları ── */}
             <div style={{ ...DS.card, padding: "14px 16px", width: "100%" }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: "#c4b5fd", marginBottom: 8 }}>🏷️ Desteklenen QR Kodlar</div>
-              <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5, marginBottom: 8 }}>
                 Fiziksel DokunSay kapsüllerindeki QR kodları taratarak ilgili etkinliğe anında geçin.
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 4 }}>
@@ -20229,7 +20229,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: 14 }}>{q.emoji}</span>
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 800, color: "#e2e8f0" }}>{q.label}</div>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", fontFamily: "monospace" }}>{q.code}</div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: "#a8b2d1", fontFamily: "monospace" }}>{q.code}</div>
                     </div>
                   </div>
                 ))}
@@ -20267,7 +20267,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0", borderBottom: i < qrScanHistory.length - 1 ? "1px solid rgba(148,163,184,.08)" : "none" }}>
                     <span style={{ fontSize: 10, color: "#4ade80", fontWeight: 800 }}>✓</span>
                     <span style={{ fontSize: 10, fontWeight: 700, color: "#e2e8f0", flex: 1 }}>{s.label}</span>
-                    <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>{new Date(s.time).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</span>
+                    <span style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>{new Date(s.time).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                 ))}
               </div>
@@ -20359,7 +20359,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#3b82f6,#3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>📏</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#60a5fa" }}>Sayı Çubuğu (NumberRod)</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Ana manipülatif — tüm etkinliklerde kullanılır</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Ana manipülatif — tüm etkinliklerde kullanılır</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 10, color: "#cbd5e1", fontWeight: 600, lineHeight: 1.7, marginBottom: 10 }}>
@@ -20380,7 +20380,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <div key={f.n} style={{ padding: "8px", borderRadius: 10, background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.1)" }}>
                       <div style={{ fontSize: 14, marginBottom: 2 }}>{f.icon}</div>
                       <div style={{ fontSize: 10, fontWeight: 800, color: "#60a5fa" }}>{f.n}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, marginTop: 1, lineHeight: 1.4 }}>{f.d}</div>
+                      <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, marginTop: 1, lineHeight: 1.4 }}>{f.d}</div>
                     </div>
                   ))}
                 </div>
@@ -20392,7 +20392,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#059669,#047857)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🔵</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#34d399" }}>Pullar (Chips)</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Çubuğun oyuklarına yerleştirilen yuvarlak parçalar</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Çubuğun oyuklarına yerleştirilen yuvarlak parçalar</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
@@ -20407,7 +20407,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   Pul kapsülün oyuğuna yerleştirildiğinde <strong style={{ color: "#cbd5e1" }}>dokunsal geri bildirim</strong> sağlar.
                   Çocuk yıldız taşını tutma, yerleştirme ve çıkarma eylemlerini yaparken bire-bir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
                 </div>
@@ -20419,7 +20419,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#7c3aed,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🔲</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#a78bfa" }}>Beşlik & Onluk Çerçevelar (Frames)</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Yapılandırılmış sanbil (subitizing) destekçisi</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Yapılandırılmış sanbil (subitizing) destekçisi</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 10 }}>
@@ -20432,7 +20432,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <div style={{ fontSize: 10, fontWeight: 700, color: "#a78bfa", marginTop: 4 }}>Onluk kart (7/10)</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   Kartların düzenli yapısı çocuğun <strong style={{ color: "#cbd5e1" }}>bir bakışta algılamasını</strong> (sanbil) destekler.
                   Dolu ve boş gözler arasındaki ilişki tamamlama stratejisinin temelini oluşturur. "7 = 5 dolu + 2 dolu" veya "7'nin tamamlayıcısı 3 boş göz" gibi yapılar.
                 </div>
@@ -20444,10 +20444,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#6366f1,#4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>📸</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#818cf8" }}>QR Etiketleri</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Fiziksel-dijital köprü</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Fiziksel-dijital köprü</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   Her fiziksel kapsülün altında <strong style={{ color: "#cbd5e1" }}>DOKUNSAY-</strong> ön ekli QR kod bulunur.
                   Çocuk kapsülü taratarak ilgili dijital etkinliğe anında geçer. 13 farklı QR komutu desteklenir: sayma, toplama, çıkarma, sanbil, karşılaştırma, parça-bütün, örüntü ve daha fazlası.
                 </div>
@@ -20459,7 +20459,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {/* CRA Modeli */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#60a5fa", marginBottom: 8 }}>🎓 Bruner'in CRA Modeli</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
                   DokunSay materyalleri, Bruner'in Somut → Temsili → Soyut (Concrete-Representational-Abstract) öğrenme modelinin somut aşamasını karşılar.
                 </div>
                 <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
@@ -20474,7 +20474,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     }}>
                       <div style={{ fontSize: 22, marginBottom: 4 }}>{p.icon}</div>
                       <div style={{ fontSize: 10, fontWeight: 900, color: p.color }}>{p.phase}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>{p.desc}</div>
+                      <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>{p.desc}</div>
                       {p.active && <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", marginTop: 4 }}>✓ DokunSay</div>}
                     </div>
                   ))}
@@ -20487,7 +20487,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {/* Clements & Sarama */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#a78bfa", marginBottom: 8 }}>📐 Clements & Sarama Öğrenme Yörüngeleri</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
                   GalakSay'ın 18 öğrenme yörüngesi, Clements & Sarama'nın [LT]² çerçevesinden haritalanmıştır.
                   Her yörünge, çocuğun gelişimsel basamağına uygun somut etkinlikler önerir.
                 </div>
@@ -20499,7 +20499,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ].map(lt => (
                   <div key={lt.lt} style={{ padding: "10px", borderRadius: 10, background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.1)", marginBottom: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>{lt.lt}</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginTop: 2 }}>{lt.desc}</div>
+                    <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5, marginTop: 2 }}>{lt.desc}</div>
                     <div style={{ fontSize: 10, color: "#60a5fa", fontWeight: 700, marginTop: 3 }}>📏 {lt.mat}</div>
                   </div>
                 ))}
@@ -20508,7 +20508,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {/* MEB Uyumu */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#34d399", marginBottom: 8 }}>🏫 MEB Müfredat Uyumu</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   2024 Türkiye Yüzyılı Maarif Modeli okul öncesi ve ilkokul matematik programları,
                   <strong style={{ color: "#cbd5e1" }}> manipülatif materyaller</strong> kullanımını açıkça vurgular.
                   Özellikle MAB.3 (matematiksel temsil) becerisinde "sayı kapsülleri, farklı materyaller kullanılarak kodlama ve örüntü çalışmaları" ifadesi yer alır.
@@ -20519,7 +20519,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             {/* ═══ TAB 2: Mod Rehberi ═══ */}
             {matTab === 2 && (<>
-              <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
+              <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
                 Her oyun modu için önerilen fiziksel materyal kullanımı ve uygulama ipuçları:
               </div>
               {modeGuides.map(cat => (
@@ -20531,7 +20531,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         <span style={{ fontSize: 11, fontWeight: 800, color: "#e2e8f0" }}>{m.mode}</span>
                         <span style={{ fontSize: 10, fontWeight: 700, color: cat.color, background: `${cat.color}15`, padding: "2px 8px", borderRadius: 6 }}>{m.mat}</span>
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5 }}>{m.tip}</div>
+                      <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5 }}>{m.tip}</div>
                     </div>
                   ))}
                 </div>
@@ -20543,7 +20543,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {/* Diskalkuli */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#f87171", marginBottom: 8 }}>🧠 Diskalkuli ve Matematik Güçlüğü</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
                   Diskalkuli riski olan çocuklarda fiziksel materyal kullanımı her aşamada kritiktir.
                   Bu çocuklar soyut sembollere geçişte zorlanır; somut deneyim süresinin uzatılması gerekir.
                 </div>
@@ -20558,7 +20558,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: 18, flexShrink: 0 }}>{r.icon}</span>
                     <div>
                       <div style={{ fontSize: 10, fontWeight: 800, color: "#f87171" }}>{r.rule}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginTop: 1 }}>{r.desc}</div>
+                      <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5, marginTop: 1 }}>{r.desc}</div>
                     </div>
                   </div>
                 ))}
@@ -20577,7 +20577,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     {g.rules.map((r, i) => (
                       <div key={i} style={{ display: "flex", gap: 6, marginBottom: 2 }}>
                         <span style={{ color: g.color, fontSize: 10, marginTop: 3 }}>●</span>
-                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.4 }}>{r}</span>
+                        <span style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.4 }}>{r}</span>
                       </div>
                     ))}
                   </div>
@@ -20596,7 +20596,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   ].map(w => (
                     <div key={w.when} style={{ padding: "8px", borderRadius: 10, background: `${w.color}08`, border: `1px solid ${w.color}12`, textAlign: "center" }}>
                       <div style={{ fontSize: 10, fontWeight: 900, color: w.color }}>{w.when}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>{w.ctx}</div>
+                      <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>{w.ctx}</div>
                     </div>
                   ))}
                 </div>
@@ -20628,7 +20628,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ ...DS.card, padding: "20px 16px", textAlign: "center" }}>
               <div style={{ fontSize: 42, marginBottom: 10, animation: "float1 3s ease infinite" }}>🔮</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: "#c4b5fd", marginBottom: 8 }}>Artırılmış Gerçeklik (AR) Nedir?</div>
-              <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, lineHeight: 1.7, textAlign: "left" }}>
+              <div style={{ fontSize: 12, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.7, textAlign: "left" }}>
                 Artırılmış Gerçeklik, telefonunuzun kamerasını kullanarak <strong>gerçek dünya görüntüsü üzerine dijital nesneler yerleştiren</strong> bir teknolojidir.
                 DokunSay AR ile çocuğunuz masasına, kitabına veya herhangi bir yüzeye <strong>sanal sayı kapsülleri ve yıldız taşları</strong> yerleştirebilir.
               </div>
@@ -20654,7 +20654,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Eğitimsel Değer */}
             <div style={{ ...DS.card, padding: "16px" }}>
               <div style={{ fontSize: 13, fontWeight: 900, color: "#34d399", marginBottom: 10 }}>🌱 Neden AR ile Öğrenme?</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.7, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.7, marginBottom: 10 }}>
                 Clements & Sarama'nın öğrenme yörüngeleri modelinde, somut manipülatiflerden dijitale geçiş kritik bir adımdır.
                 AR bu geçişi <strong>birleştirir</strong>: çocuk hem gerçek dünyayı görür hem de dijital nesnelerle etkileşir.
               </div>
@@ -20667,7 +20667,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <span style={{ fontSize: 20 }}>{b.icon}</span>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 800, color: "#e2e8f0" }}>{b.title}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginTop: 1 }}>{b.desc}</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, marginTop: 1 }}>{b.desc}</div>
                   </div>
                 </div>
               ))}
@@ -20684,7 +20684,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ fontSize: 28, animation: "float2 4s ease infinite" }}>{feat.emoji}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: "#e2e8f0" }}>{feat.name}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginTop: 1 }}>{feat.desc}</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, marginTop: 1 }}>{feat.desc}</div>
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", padding: "3px 8px", borderRadius: 8, background: "rgba(5,150,105,.15)" }}>✓ Aktif</div>
                 </div>
@@ -20703,7 +20703,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", marginTop: 5, flexShrink: 0 }} />
                   <div>
                     <span style={{ fontSize: 11, fontWeight: 800, color: "#e2e8f0" }}>{s.scenario}: </span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>{s.desc}</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "#a8b2d1" }}>{s.desc}</span>
                   </div>
                 </div>
               ))}
@@ -20748,7 +20748,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ ...DS.card, padding: "20px 16px", textAlign: "center" }}>
                   <div style={{ fontSize: 48, marginBottom: 8 }}>🔬</div>
                   <div style={{ fontSize: 16, fontWeight: 900, color: "#4c1d95", marginBottom: 6 }}>Diskalkuli Tarama Testi</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6, marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 16 }}>
                     Bu test, çocuğunuzun sayısal becerilerini 5 farklı alanda değerlendirir: nokta karşılaştırma, sayma, sembol-miktar eşleme, sayı sırası ve ani algılama. Test yaklaşık 5-10 dakika sürer.
                   </div>
                   <div style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, marginBottom: 16 }}>
@@ -20768,8 +20768,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", marginBottom: 8 }}>📋 Test Fazları</div>
                   {SCREENING.phases.map((p, i) => (
                     <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < 4 ? "1px solid #f1f5f9" : "none" }}>
-                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>{i + 1}</div>
-                      <div><div style={{ fontSize: 11, fontWeight: 700, color: "#cbd5e1" }}>{p.name}</div><div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>{p.desc} — {p.count} soru</div></div>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#a8b2d1" }}>{i + 1}</div>
+                      <div><div style={{ fontSize: 11, fontWeight: 700, color: "#cbd5e1" }}>{p.name}</div><div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>{p.desc} — {p.count} soru</div></div>
                     </div>
                   ))}
                 </div>
@@ -20803,7 +20803,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ ...DS.card, padding: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                     <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b" }}>{phase.name}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{doneQ + 1}/{totalQ}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1" }}>{doneQ + 1}/{totalQ}</span>
                   </div>
                   <div style={{ height: 4, background: "rgba(148,163,184,.12)", borderRadius: 2, marginBottom: 16 }}>
                     <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg,#f59e0b,#059669)", borderRadius: 2, transition: "width .3s" }} />
@@ -20898,7 +20898,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     {SCREENING.riskLabels[screeningReport.risk].text}
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: "#4c1d95", marginTop: 8 }}>%{screeningReport.overallAcc}</div>
-                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>Genel Başarı — Ort. {Math.round(screeningReport.avgTime / 1000)}sn/soru</div>
+                  <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 700 }}>Genel Başarı — Ort. {Math.round(screeningReport.avgTime / 1000)}sn/soru</div>
                 </div>
                 <div style={{ ...DS.card, padding: "14px 16px", marginBottom: 12 }}>
                   <div style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", marginBottom: 8 }}>📊 Faz Bazlı Sonuçlar</div>
@@ -20922,11 +20922,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 <div style={{ ...DS.card, padding: "14px 16px" }}>
                   <div style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", marginBottom: 6 }}>💡 Öneri</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 11, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                     {SCREENING.riskAdvice[screeningReport.risk]}
                   </div>
                   {screeningReport.weakPhases.length > 0 && (
-                    <div style={{ marginTop: 8, fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>
+                    <div style={{ marginTop: 8, fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>
                       Zayıf alanlar: {screeningReport.weakPhases.map(p => SCREENING.phases.find(ph => ph.id === p)?.name).join(", ")}
                     </div>
                   )}
@@ -20978,7 +20978,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
           <div style={{ flex: 1, overflow: "auto", padding: "14px 18px" }}>
             {collectedCards.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "#a8b2d1" }}>
                 <div style={{ fontSize: 48, marginBottom: 8 }}>🃏</div>
                 <div style={{ fontSize: 14, fontWeight: 800 }}>Henüz kart yok!</div>
                 <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4 }}>Oyun oynayarak matematik kartları kazan. %60+ başarıda kart şansı!</div>
@@ -21055,7 +21055,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,.4), 0 0 20px rgba(99,102,241,.15)", letterSpacing: .3 }}>
               {playerName ? `Merhaba, ${playerName}!` : "Merhaba!"} 👋
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,.55)", fontWeight: 700, marginTop: 6, letterSpacing: .5 }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 700, marginTop: 6, letterSpacing: .5 }}>
               Macera dünyanı seç!
             </div>
             {/* Gemi durumu rozeti */}
@@ -21071,7 +21071,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 }}>
                   <span style={{ fontSize: 16 }}>{ship.emoji}</span>
                   <span style={{ fontSize: 11, fontWeight: 800, color: ship.color }}>{ship.name}</span>
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,.5)", fontWeight: 700 }}>•</span>
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,.65)", fontWeight: 700 }}>•</span>
                   <span style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24" }}>{frags}✦</span>
                 </div>
               );
@@ -21134,7 +21134,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#fff" }}>Genel Erişim</div>
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Tüm etkinlikleri serbest keşfet</div>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,.55)", fontWeight: 900 }}>▶</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,.7)", fontWeight: 900 }}>▶</div>
             </button>
           </div>
 
@@ -21158,7 +21158,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#fff" }}>AR Deneyimi</div>
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Kamerada sanal kapsül ve yıldız taşlarıla öğren</div>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,.55)", fontWeight: 900, position: "relative", zIndex: 1 }}>▶</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,.7)", fontWeight: 900, position: "relative", zIndex: 1 }}>▶</div>
             </button>
           </div>
 
@@ -21210,7 +21210,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   boxShadow: "0 8px 32px rgba(0,0,0,.25)", zIndex: 50,
                   animation: "fadeUp .2s ease",
                 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", padding: "6px 10px", borderBottom: "1px solid rgba(148,163,184,.1)", marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", padding: "6px 10px", borderBottom: "1px solid rgba(148,163,184,.1)", marginBottom: 4 }}>
                     {isPreReader ? "🤔" : "Ne yapmak istersin?"}
                   </div>
                   {!isPreReader && (
@@ -21221,7 +21221,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <span style={{ fontSize: 16 }}>⚙️</span>
                       <div style={{ textAlign: "left" }}>
                         <div style={{ fontSize: 12, fontWeight: 800, color: "#e2e8f0" }}>Ayarlar</div>
-                        <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Erişilebilirlik, ses, tercihler</div>
+                        <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Erişilebilirlik, ses, tercihler</div>
                       </div>
                     </button>
                   )}
@@ -21232,7 +21232,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <span style={{ fontSize: isPreReader ? 28 : 16 }}>😢</span>
                     <div style={{ textAlign: "left" }}>
                       <div style={{ fontSize: isPreReader ? 16 : 12, fontWeight: 800, color: "#f87171" }}>{isPreReader ? "Çık" : "Oturumu Kapat"}</div>
-                      {!isPreReader && <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Giriş ekranına dön</div>}
+                      {!isPreReader && <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Giriş ekranına dön</div>}
                     </div>
                   </button>
                   {isPreReader && (
@@ -21248,7 +21248,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <button onClick={() => setShowExitMenu(false)} style={{
                     width: "100%", padding: "6px", borderRadius: 8, border: "none",
                     background: "none", cursor: "pointer", fontFamily: F,
-                    fontSize: 10, fontWeight: 700, color: "#94a3b8", marginTop: 2,
+                    fontSize: 10, fontWeight: 700, color: "#a8b2d1", marginTop: 2,
                   }}>✕ Vazgeç</button>
                 </div>
               )}
@@ -21451,7 +21451,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ marginTop: 10, padding: "8px 12px", borderRadius: 14, background: "linear-gradient(135deg, rgba(251,191,36,.08), rgba(167,139,250,.06), rgba(251,191,36,.04))", border: "1px solid rgba(251,191,36,.15)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                 <div style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", letterSpacing: 1.5, textTransform: "uppercase" }}>Işık Kristalleri</div>
-                <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,.5)" }}>{(() => { let earned = 0; Object.entries(GALAXY_THEME).forEach(([k]) => { const ms = stats.modeStats; const catModes = CATEGORIES[k]?.modes || {}; const played = Object.keys(catModes).filter(m => ms[m] && ms[m].games >= 3 && ms[m].total > 0 && (ms[m].correct / ms[m].total) >= 0.6); if (played.length >= 2) earned++; }); return `${earned}/8`; })()}</div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,.65)" }}>{(() => { let earned = 0; Object.entries(GALAXY_THEME).forEach(([k]) => { const ms = stats.modeStats; const catModes = CATEGORIES[k]?.modes || {}; const played = Object.keys(catModes).filter(m => ms[m] && ms[m].games >= 3 && ms[m].total > 0 && (ms[m].correct / ms[m].total) >= 0.6); if (played.length >= 2) earned++; }); return `${earned}/8`; })()}</div>
               </div>
               <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
                 {Object.entries(GALAXY_THEME).map(([k, gt]) => {
@@ -21518,7 +21518,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <span style={{ fontSize: 14, flexShrink: 0 }}>{streakDays >= 7 ? "🔥" : streakDays >= 3 ? "⭐" : "📅"}</span>
                 <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: streakColor }}>{streakDays} gün</span>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.5)" }}>üst üste • en iyi: {dailyStreak.best}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.65)" }}>üst üste • en iyi: {dailyStreak.best}</span>
                 </div>
                 {canClaim ? (
                   <button onClick={claimReward} className="space-btn-hover" style={{
@@ -21527,7 +21527,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     color: streakColor, fontSize: 10, fontWeight: 900, cursor: "pointer", fontFamily: F,
                   }}>💎 +{streakReward}</button>
                 ) : (
-                  <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.45)" }}>✓</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.6)" }}>✓</span>
                 )}
               </div>
             );
@@ -21594,7 +21594,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   </div>
                 ))}
                 {nextPlanet?.trajectoryLabel && completedCount > 0 && completedCount < N && (
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.5)", marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,.06)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.65)", marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,.06)", display: "flex", alignItems: "center", gap: 4 }}>
                     <span style={{ fontSize: 10 }}>🗺️</span> Yörünge: {nextPlanet.trajectoryLabel}
                   </div>
                 )}
@@ -22183,7 +22183,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <p style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,.9)", lineHeight: 1.7, marginTop: 14, animation: "storyTypewriter .6s ease .6s both" }}>
                     <span style={{ color: "#fbbf24" }}>Sayılar Galaksisi</span> karanlığa gömülüyor...
                   </p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.55)", lineHeight: 1.6, marginTop: 8, animation: "storyTypewriter .6s ease 1s both" }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.7)", lineHeight: 1.6, marginTop: 8, animation: "storyTypewriter .6s ease 1s both" }}>
                     NuméraYıldız'ın ışığı sönmek üzere. Gezegenler donuyor. Nehirler kuruyor. Sayılar unutuluyor.
                   </p>
                   <div style={{
@@ -22279,7 +22279,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         }}>{fp.guide.emoji}</div>
                         <div>
                           <div style={{ fontSize: 11, fontWeight: 800, color: fp.color }}>{fp.guide.name}</div>
-                          <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.55)", lineHeight: 1.4, marginTop: 2 }}>
+                          <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.7)", lineHeight: 1.4, marginTop: 2 }}>
                             "{fp.guideGreet || fp.story}"
                           </div>
                         </div>
@@ -22327,7 +22327,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       }}>
                         <div style={{ fontSize: 18 }}>{s.icon}</div>
                         <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,.8)", marginTop: 2 }}>{s.label}</div>
-                        <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.55)" }}>{s.desc}</div>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.7)" }}>{s.desc}</div>
                       </div>
                     ))}
                   </div>
@@ -22452,7 +22452,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <GuideCharacter guide={gd.guide} color={gd.color} size={56} mood="happy" showName={false} talking={true} />
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 900, color: gd.color }}>{gd.guide.name}</div>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.55)" }}>Rehber</div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.7)" }}>Rehber</div>
                     </div>
                     {/* Seslendirme butonu */}
                     {narrationOn && (
@@ -22906,9 +22906,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     fontSize: 18, fontWeight: 900, color: "#fff",
                   }}>
                     <span style={{ color: "#fbbf24" }}>{arRodCount}</span>
-                    <span style={{ margin: "0 6px", color: "#94a3b8" }}>=</span>
+                    <span style={{ margin: "0 6px", color: "#a8b2d1" }}>=</span>
                     <span style={{ color: "#60a5fa" }}>{arRod2Count}</span>
-                    <span style={{ margin: "0 6px", color: "#94a3b8" }}>+</span>
+                    <span style={{ margin: "0 6px", color: "#a8b2d1" }}>+</span>
                     <span style={{ color: "#f87171" }}>{Math.max(0, arRodCount - arRod2Count)}</span>
                   </div>
                 </div>
@@ -23184,16 +23184,16 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <button onClick={() => setArRodCount(c => Math.max(1, c - 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>−</button>
                 <div style={{ textAlign: "center", minWidth: 36 }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#60a5fa" }}>{arRodCount}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.55)", fontWeight: 700 }}>mavi</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.7)", fontWeight: 700 }}>mavi</div>
                 </div>
                 <button onClick={() => setArRodCount(c => Math.min(20, c + 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
-              <div style={{ fontSize: 20, color: "rgba(255,255,255,.55)", fontWeight: 900 }}>{arMode === "add" ? "+" : "vs"}</div>
+              <div style={{ fontSize: 20, color: "rgba(255,255,255,.7)", fontWeight: 900 }}>{arMode === "add" ? "+" : "vs"}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button onClick={() => setArRod2Count(c => Math.max(1, c - 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(248,113,113,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>−</button>
                 <div style={{ textAlign: "center", minWidth: 36 }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#f87171" }}>{arRod2Count}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.55)", fontWeight: 700 }}>kırmızı</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.7)", fontWeight: 700 }}>kırmızı</div>
                 </div>
                 <button onClick={() => setArRod2Count(c => Math.min(20, c + 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(248,113,113,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
@@ -23207,16 +23207,16 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <button onClick={() => setArRodCount(c => Math.max(1, c - 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>−</button>
                 <div style={{ textAlign: "center", minWidth: 36 }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#60a5fa" }}>{arRodCount}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.55)", fontWeight: 700 }}>bütün</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.7)", fontWeight: 700 }}>bütün</div>
                 </div>
                 <button onClick={() => setArRodCount(c => Math.min(20, c + 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
-              <div style={{ fontSize: 20, color: "rgba(255,255,255,.55)", fontWeight: 900 }}>−</div>
+              <div style={{ fontSize: 20, color: "rgba(255,255,255,.7)", fontWeight: 900 }}>−</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <button onClick={() => setArRod2Count(c => Math.max(0, c - 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(248,113,113,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>−</button>
                 <div style={{ textAlign: "center", minWidth: 36 }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#f87171" }}>{arRod2Count}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.55)", fontWeight: 700 }}>çıkan</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.7)", fontWeight: 700 }}>çıkan</div>
                 </div>
                 <button onClick={() => setArRod2Count(c => Math.min(arRodCount, c + 1))} style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: "rgba(248,113,113,.4)", color: "#fff", fontSize: 18, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
@@ -23236,7 +23236,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 <button onClick={() => setArRodCount(c => Math.min(20, c + 1))} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(251,191,36,.4)", color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,.55)", fontWeight: 900 }}>=</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,.7)", fontWeight: 900 }}>=</div>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <button onClick={() => setArRod2Count(c => Math.max(0, c - 1))} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer" }}>−</button>
                 <div style={{ textAlign: "center", minWidth: 28 }}>
@@ -23244,7 +23244,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
                 <button onClick={() => setArRod2Count(c => Math.min(arRodCount, c + 1))} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(96,165,250,.4)", color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer" }}>+</button>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,.55)", fontWeight: 900 }}>+</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,.7)", fontWeight: 900 }}>+</div>
               <div style={{ fontSize: 18, fontWeight: 900, color: "#f87171", minWidth: 28, textAlign: "center" }}>{Math.max(0, arRodCount - arRod2Count)}</div>
             </div>
           )}
@@ -23253,7 +23253,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {arMode === "task" && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)", fontWeight: 700 }}>Skor</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.65)", fontWeight: 700 }}>Skor</div>
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#fbbf24" }}>{arTaskScore}</div>
               </div>
               <button onClick={generateArTask} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: "rgba(124,58,237,.6)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F }}>🔄 Yeni Görev</button>
@@ -23332,7 +23332,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           {/* İpucu */}
           <div style={{ textAlign: "center", marginTop: 8 }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.55)", fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.7)", fontWeight: 600 }}>
               {{ rod: "Çubuğu sürükle • +/− ile boyut değiştir",
                 compare: "İki kapsülü sürükle ve karşılaştır",
                 add: "İki kapsülü sürükle, toplam otomatik hesaplanır",
@@ -23356,7 +23356,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   if (screen === "dashboard") {
     const DashboardScreen = React.lazy(() => import("./src/screens/Dashboard.jsx"));
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#94a3b8" }}>Dashboard yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>Dashboard yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
           <style>{CSS}</style>
           <DashboardScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
@@ -23368,7 +23368,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   if (screen === "spaceMap") {
     const SpaceMapScreen = React.lazy(() => import("./src/screens/SpaceMap.jsx"));
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#94a3b8" }}>Uzay haritası yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>Uzay haritası yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
           <style>{CSS}</style>
           <SpaceMapScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
@@ -23380,7 +23380,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   if (screen === "nuMapReport") {
     const NuMapScreen = React.lazy(() => import("./src/screens/NuMapComparison.jsx"));
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#94a3b8" }}>NuMap raporu yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>NuMap raporu yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
           <style>{CSS}</style>
           <NuMapScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
@@ -23403,7 +23403,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <div style={{ ...DS.card, padding: "28px 24px", maxWidth: 360, textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
             <div style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", marginBottom: 6 }}>Ebeveyn Doğrulaması</div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 16 }}>Ayarlara erişmek için bu soruyu çözün:</div>
+            <div style={{ fontSize: 11, color: "#a8b2d1", marginBottom: 16 }}>Ayarlara erişmek için bu soruyu çözün:</div>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#e2e8f0", marginBottom: 16 }}>{gateA} + {gateB} = ?</div>
             <input
               type="number" inputMode="numeric"
@@ -23413,7 +23413,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               autoFocus
             />
             <div style={{ marginTop: 16 }}>
-              <button onClick={goMenu} style={{ padding: "8px 20px", borderRadius: 10, border: "none", background: "rgba(148,163,184,.12)", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}><span style={{fontSize:16}}>◀</span>{!isPreReader && " Geri"}</button>
+              <button onClick={goMenu} style={{ padding: "8px 20px", borderRadius: 10, border: "none", background: "rgba(148,163,184,.12)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F }}><span style={{fontSize:16}}>◀</span>{!isPreReader && " Geri"}</button>
             </div>
           </div>
         </div>
@@ -23488,7 +23488,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       fontSize: 10, fontWeight: 800, transition: "all .2s",
                     }}>{opt.on ? "✓ Açık" : "Kapalı"}</button>
                   </div>
-                  <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>{opt.desc}</div>
+                  <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>{opt.desc}</div>
                 </div>
               ))}
             </div>
@@ -23515,7 +23515,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     fontSize: 10, fontWeight: 800, transition: "all .2s",
                   }}>{ttsOn ? "✓ Açık" : "Kapalı"}</button>
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>
                   Soruları ve yönergeleri sesli okur
                 </div>
               </div>
@@ -23542,7 +23542,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     fontSize: 10, fontWeight: 800, transition: "all .2s",
                   }} role="switch" aria-checked={narrationOn} aria-label="Karakter Seslendirme">{narrationOn ? "✓ Açık" : "Kapalı"}</button>
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>
                   Her rehber karakter kendi sesiyle konuşur. <span style={{ color: "#fbbf24", fontWeight: 700 }}>Okuma yazma bilmeyen çocuklar için önerilir.</span>
                 </div>
               </div>
@@ -23573,7 +23573,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                         <span style={{ fontSize: 12, width: 16, textAlign: "center" }}>{opt.icon}</span>
                         <div>
                           <div style={{ fontSize: 11, fontWeight: 700, color: "#cbd5e1" }}>{opt.label}</div>
-                          <div style={{ fontSize: 10, color: "#94a3b8", lineHeight: 1.2 }}>{opt.desc}</div>
+                          <div style={{ fontSize: 10, color: "#a8b2d1", lineHeight: 1.2 }}>{opt.desc}</div>
                         </div>
                       </div>
                       <button onClick={() => {
@@ -23604,7 +23604,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       try { localStorage.setItem(`ds_voiceSettings_${currentUser?.username || "guest"}`, JSON.stringify(allOff)); } catch {}
                     }} style={{
                       flex: 1, padding: "5px 0", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: F,
-                      background: "rgba(148,163,184,.1)", color: "#94a3b8", fontSize: 10, fontWeight: 800,
+                      background: "rgba(148,163,184,.1)", color: "#a8b2d1", fontSize: 10, fontWeight: 800,
                     }}>— Tümünü Kapat</button>
                   </div>
                 </div>
@@ -23650,7 +23650,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div key={opt.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0" }}>{opt.emoji} {opt.label}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginTop: 1 }}>{opt.desc}</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, marginTop: 1 }}>{opt.desc}</div>
                   </div>
                   <button onClick={() => toggleA11y(opt.key)} role="switch" aria-checked={a11y[opt.key]} aria-label={opt.label} style={{
                     width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
@@ -23726,7 +23726,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   }}>
                     <div style={{ fontSize: 12, fontWeight: 900, color: tier.color }}>{tier.name}</div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#e2e8f0", marginTop: 4 }}>{tier.price}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginTop: 4, lineHeight: 1.4 }}>{tier.features}</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, marginTop: 4, lineHeight: 1.4 }}>{tier.features}</div>
                   </div>
                 ))}
               </div>
@@ -23745,7 +23745,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg,#3b82f6,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>📏</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 900, color: "#60a5fa" }}>DokunSay Materyal Rehberi</div>
-                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.5, marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.5, marginTop: 2 }}>
                     Sayı kapsülü, yıldız taşları, beşlik/onluk kartlar, QR etiketler.
                     CRA modeli, Clements & Sarama yörüngeleri, diskalkuli rehberi, mod bazlı kullanım kılavuzu.
                   </div>
@@ -23755,7 +23755,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     ))}
                   </div>
                 </div>
-                <span style={{ fontSize: 18, color: "rgba(255,255,255,.55)" }}>▶</span>
+                <span style={{ fontSize: 18, color: "rgba(255,255,255,.7)" }}>▶</span>
               </div>
             </button>
             </>)}
@@ -23765,7 +23765,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Adaptif Motor Bilgisi */}
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>🧠 Adaptif Öğrenme</div>
-              <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                 GalakSay, performansını takip ederek sana en uygun zorluk seviyesini önerir. Her oyun sonrası öğrenme motorumuz güncellenir.
               </div>
               {Object.keys(adaptivePerf).length > 0 && (
@@ -23791,7 +23791,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {stats.totalGames >= 3 && (
               <div style={{ ...DS.card, padding: "14px 16px" }}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 8 }}>🔬 Öğrenme Davranış Analizi</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
                   Oyun içi davranış örüntülerinden üretilen göstergeler. Bu bir klinik değerlendirme değildir.
                 </div>
                 {(() => {
@@ -23808,7 +23808,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                           Matematik Kaygısı Göstergesi: {anxReport.label}
                         </div>
                       </div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", lineHeight: 1.6, fontWeight: 600, marginBottom: 8 }}>
+                      <div style={{ fontSize: 10, color: "#a8b2d1", lineHeight: 1.6, fontWeight: 600, marginBottom: 8 }}>
                         {anxReport.suggestion}
                       </div>
                       {anxReport.isRapidGuessing && (
@@ -23842,7 +23842,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <span style={{ fontSize: 16 }}>{summary.icon}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: summary.status === "limit" ? "#f87171" : summary.status === "warning" ? "#fbbf24" : "#34d399" }}>{summary.msg}</span>
                     </div>
-                    <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                       Önerilen günlük süre: {ScreenTimeManager.maxMinutes[ageGroup] || 25} dakika.
                       Düzenli molalar ve fiziksel aktivitelerle destekleyin.
                     </div>
@@ -23854,7 +23854,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Hakkında */}
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 6 }}>ℹ️ Hakkında</div>
-              <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                 GalakSay v5.9 — Prof. Dr. Yılmaz MUTLU, 2026<br/>
                 61 mod, 8 öğrenme yörüngesi, Clements & Sarama [LT]² entegrasyonu<br/>
                 Öğrenme yörüngesi haritalaması (18 yörünge × 61 mod)<br/>
@@ -23899,14 +23899,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           {/* İsim */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>Çocuğun Adı</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1", marginBottom: 4 }}>Çocuğun Adı</div>
             <input value={manualName} onChange={e => setManualName(e.target.value)} placeholder="İsim..."
               style={{ width: "100%", padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(124,58,237,.3)", background: "rgba(30,27,75,.6)", color: "#fff", fontSize: 14, fontFamily: F, outline: "none", boxSizing: "border-box" }} />
           </div>
 
           {/* Risk Düzeyi */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>Risk Düzeyi</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 }}>Risk Düzeyi</div>
             <div style={{ display: "flex", gap: 8 }}>
               {[
                 { key: "low", label: "Düşük", icon: "🟢", color: "#059669" },
@@ -23928,7 +23928,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           {/* Alanlar */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>Zayıf Alanlar (kırmızı) / Güçlü Alanlar (yeşil)</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 }}>Zayıf Alanlar (kırmızı) / Güçlü Alanlar (yeşil)</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {areas.map(a => (
                 <div key={a.key} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 12, background: manualWeak.includes(a.key) ? "rgba(220,38,38,.15)" : manualStrong.includes(a.key) ? "rgba(5,150,105,.15)" : "rgba(30,27,75,.4)", border: manualWeak.includes(a.key) ? "1.5px solid rgba(220,38,38,.4)" : manualStrong.includes(a.key) ? "1.5px solid rgba(5,150,105,.4)" : "1px solid rgba(148,163,184,.15)" }}>
@@ -23976,7 +23976,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {!numapProfile && (
             <div style={{ textAlign: "center", padding: "40px 20px", background: "rgba(30,27,75,.5)", borderRadius: 16 }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>📋</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8" }}>Henüz NuMap profili yok</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#a8b2d1" }}>Henüz NuMap profili yok</div>
               <div style={{ fontSize: 12, color: "rgba(148,163,184,.6)", marginTop: 4 }}>JSON yükle veya manuel profil oluştur</div>
             </div>
           )}
@@ -23984,7 +23984,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {numapProfile && !report && (
             <div style={{ textAlign: "center", padding: "40px 20px", background: "rgba(30,27,75,.5)", borderRadius: 16 }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>🔭</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8" }}>Henüz oyun verisi yok</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#a8b2d1" }}>Henüz oyun verisi yok</div>
               <div style={{ fontSize: 12, color: "rgba(148,163,184,.6)", marginTop: 4 }}>Birkaç oyun oyna, rapor burada oluşsun</div>
             </div>
           )}
@@ -23996,13 +23996,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 22 }}>👤</div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#e2e8f0" }}>{numapProfile.child?.name || "Kaşif"}</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8" }}>Risk: {RISK_LEVEL_MAP[numapProfile.assessment?.overallRisk]?.label || "Bilinmiyor"} • {report.totalSessions} oturum</div>
+                  <div style={{ fontSize: 11, color: "#a8b2d1" }}>Risk: {RISK_LEVEL_MAP[numapProfile.assessment?.overallRisk]?.label || "Bilinmiyor"} • {report.totalSessions} oturum</div>
                 </div>
               </div>
             </div>
 
             {/* Alan Bazlı Performans */}
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>Alan Performansı</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>Alan Performansı</div>
             {Object.entries(report.areaAccuracy).map(([area, acc]) => {
               const comp = report.comparison[area];
               const improved = comp && comp.improved;
@@ -24034,7 +24034,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#e2e8f0" }}>
                     {stars === 3 ? "Efsanevi Kaşif!" : stars === 2 ? "Harika gidiyorsun!" : stars === 1 ? "İlerliyorsun!" : "Devam et!"}
                   </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Genel Başarı: %{overallAcc}</div>
+                  <div style={{ fontSize: 11, color: "#a8b2d1", marginTop: 2 }}>Genel Başarı: %{overallAcc}</div>
                 </>);
               })()}
             </div>
@@ -24097,7 +24097,7 @@ function AchTabs({ F, currentTitle, unlockedBadgeIds, leaderboard, loadLeaderboa
       {achTab === "leaderboard" && (
         <div>
           {leaderboard.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 30, color: "#94a3b8" }}>
+            <div style={{ textAlign: "center", padding: 30, color: "#a8b2d1" }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>🏆</div>
               <div style={{ fontSize: 13, fontWeight: 700 }}>Henüz skor yok</div>
               <div style={{ fontSize: 11, marginTop: 4 }}>Oyun oyna ve ilk sıraya yerleş!</div>
@@ -24120,18 +24120,18 @@ function AchTabs({ F, currentTitle, unlockedBadgeIds, leaderboard, loadLeaderboa
                     <div style={{ fontSize: 20 }}>{entry.emoji || "🐣"}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: "#1e293b" }}>{entry.name} {isMe && <span style={{ fontSize: 10, color: "#7c3aed" }}>(sen)</span>}</div>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: "#64748b" }}>{entry.title || "Matematik Yumurtası"} • %{entry.acc || 0}</div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>{entry.title || "Matematik Yumurtası"} • %{entry.acc || 0}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontSize: 16, fontWeight: 900, color: "#6d28d9" }}>{entry.score}</div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "#64748b" }}>{entry.games} oyun</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{entry.games} oyun</div>
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
-          <button onClick={loadLeaderboard} style={{ width: "100%", marginTop: 12, padding: "10px 0", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "#fff", color: "#94a3b8", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🔄 Yenile</button>
+          <button onClick={loadLeaderboard} style={{ width: "100%", marginTop: 12, padding: "10px 0", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "#fff", color: "#a8b2d1", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🔄 Yenile</button>
         </div>
       )}
       {achTab === "titles" && (
@@ -24151,7 +24151,7 @@ function AchTabs({ F, currentTitle, unlockedBadgeIds, leaderboard, loadLeaderboa
                 <div style={{ fontSize: 28, filter: reached ? "none" : "grayscale(1)" }}>{reached ? t.emoji : "🔒"}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: reached ? t.color : "#94a3b8" }}>{t.name}</div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>{t.min}+ puan</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "#a8b2d1" }}>{t.min}+ puan</div>
                 </div>
                 {isCurrent && <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", background: t.color, padding: "3px 10px", borderRadius: 8, animation: "pulse 2s ease infinite" }}>Şu anki</span>}
                 {reached && !isCurrent && <span style={{ fontSize: 10, fontWeight: 700, color: "#059669" }}>✓</span>}
