@@ -217,28 +217,29 @@ export default function SpaceMap({ childId, onBack }) {
                 )}
               </div>
 
-              {/* Gezegen adı */}
+              {/* Gezegen adı — etiket okunabilirliği için tam opaklık ve daha büyük font */}
               <span style={{
-                color: isLocked ? colors.text.disabled : colors.text.primary,
-                fontSize: 10,
-                fontWeight: typography.fontWeight.semibold,
+                color: isLocked ? colors.text.secondary : colors.text.primary,
+                fontSize: 13,
+                fontWeight: typography.fontWeight.bold,
                 fontFamily: typography.fontFamily.display,
-                opacity: statusStyle.opacity,
+                /* opacity sabit: gezegen silik olsa bile etiket okunsun */
                 textAlign: 'center',
-                maxWidth: 80,
-                textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                maxWidth: 100,
+                textShadow: '0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.7)',
+                marginTop: 2,
               }}>
                 {config.label}
               </span>
 
-              {/* Mini ilerleme göstergesi */}
+              {/* Mini ilerleme göstergesi — daha okunabilir */}
               {!isLocked && cat.modulesTotal > 0 && (
                 <div style={{
-                  fontSize: 9,
-                  fontWeight: 700,
+                  fontSize: 12,
+                  fontWeight: 800,
                   fontFamily: typography.fontFamily.display,
                   color: config.color,
-                  opacity: 0.8,
+                  textShadow: '0 1px 3px rgba(0,0,0,0.7)',
                 }}>
                   {cat.modulesCompleted}/{cat.modulesTotal}
                 </div>

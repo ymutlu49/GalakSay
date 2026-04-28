@@ -60,15 +60,15 @@ export default function NuMapComparison({ childId, onBack }) {
       <div style={{ overflow: 'auto', flex: 1, padding: 16 }}>
         {/* Başlık bilgisi */}
         <div style={cardStyle}>
-          <h3 style={{ color: '#e2e8f0', fontSize: 14, margin: '0 0 8px' }}>NuMap Başlangıç vs GalakSay İlerleme</h3>
+          <h3 style={{ color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 10px' }}>NuMap Başlangıç vs GalakSay İlerleme</h3>
           {comparison && (
-            <div style={{ color: '#94a3b8', fontSize: 12 }}>
+            <div style={{ color: '#cbd5e1', fontSize: 13, lineHeight: 1.5 }}>
               <div>Geçen süre: {comparison.timeElapsed_days || '?'} gün</div>
               <div>Başlangıç risk: Düzey {comparison.nuMapRiskLevel} → Güncel: Düzey {comparison.currentRiskLevel}</div>
             </div>
           )}
           {!comparison && (
-            <div style={{ color: '#64748b', fontSize: 12 }}>NuMap başlangıç verisi bulunamadı. Çocuk profili NuMap verileriyle güncellendiğinde karşılaştırma yapılabilir.</div>
+            <div style={{ color: '#cbd5e1', fontSize: 13, lineHeight: 1.5 }}>NuMap başlangıç verisi bulunamadı. Çocuk profili NuMap verileriyle güncellendiğinde karşılaştırma yapılabilir.</div>
           )}
         </div>
 
@@ -101,7 +101,7 @@ export default function NuMapComparison({ childId, onBack }) {
                   {comparison.currentRiskLevel === level && (
                     <div style={{ position: 'absolute', top: -4, left: '50%', transform: 'translateX(-50%)', width: 8, height: 32, borderRadius: 4, background: '#22d3ee', border: '2px solid #e2e8f0' }} />
                   )}
-                  <div style={{ textAlign: 'center', color: '#64748b', fontSize: 9, marginTop: 2 }}>{level}</div>
+                  <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 11, fontWeight: 700, marginTop: 4 }}>{level}</div>
                 </div>
               ))}
             </div>
@@ -166,14 +166,14 @@ export default function NuMapComparison({ childId, onBack }) {
             </div>
 
             {screening.indicatorsFound.map((ind, i) => (
-              <div key={i} style={{ marginBottom: 8, paddingLeft: 8, borderLeft: '3px solid #fb923c' }}>
-                <div style={{ color: '#e2e8f0', fontSize: 12, fontWeight: 600 }}>{ind.indicator.replace(/_/g, ' ')}</div>
-                <div style={{ color: '#94a3b8', fontSize: 11 }}>{ind.recommendation}</div>
-                <div style={{ color: '#64748b', fontSize: 10 }}>Güven: %{Math.round(ind.confidence * 100)}</div>
+              <div key={i} style={{ marginBottom: 12, paddingLeft: 10, borderLeft: '3px solid #fb923c' }}>
+                <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{ind.indicator.replace(/_/g, ' ')}</div>
+                <div style={{ color: '#e2e8f0', fontSize: 12, lineHeight: 1.5 }}>{ind.recommendation}</div>
+                <div style={{ color: '#a8b2d1', fontSize: 11, fontWeight: 600, marginTop: 2 }}>Güven: %{Math.round(ind.confidence * 100)}</div>
               </div>
             ))}
 
-            <p style={{ color: '#64748b', fontSize: 10, fontStyle: 'italic', margin: '8px 0 0' }}>{screening.disclaimer}</p>
+            <p style={{ color: '#a8b2d1', fontSize: 11, fontStyle: 'italic', margin: '12px 0 0', lineHeight: 1.5 }}>{screening.disclaimer}</p>
           </div>
         )}
       </div>
@@ -182,8 +182,8 @@ export default function NuMapComparison({ childId, onBack }) {
 }
 
 const pageStyle = { display: 'flex', flexDirection: 'column', height: '100%', background: '#0f172a', color: '#e2e8f0' };
-const cardStyle = { background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', border: '1px solid #334155', borderRadius: 12, padding: 16, marginBottom: 12 };
-const sectionTitle = { color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 10px' };
-const btnStyle = { background: 'rgba(30,41,59,0.8)', border: '1px solid #334155', borderRadius: 8, color: '#e2e8f0', padding: '6px 12px', cursor: 'pointer', fontSize: 13 };
-const thStyle = { textAlign: 'left', padding: '8px 10px', color: '#94a3b8', fontWeight: 500, fontSize: 11 };
-const tdStyle = { padding: '8px 10px', color: '#e2e8f0', fontSize: 12 };
+const cardStyle = { background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', border: '1px solid #475569', borderRadius: 12, padding: 16, marginBottom: 12 };
+const sectionTitle = { color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 12px' };
+const btnStyle = { background: 'rgba(30,41,59,0.8)', border: '1px solid #475569', borderRadius: 8, color: '#fff', padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 700 };
+const thStyle = { textAlign: 'left', padding: '8px 10px', color: '#cbd5e1', fontWeight: 700, fontSize: 12 };
+const tdStyle = { padding: '8px 10px', color: '#fff', fontSize: 13 };

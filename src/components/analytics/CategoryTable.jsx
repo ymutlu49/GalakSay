@@ -7,7 +7,7 @@ export default function CategoryTable({ categories, onCategoryClick }) {
   // categories: [{ name, label, accuracy, avgRT, avgHint, ltLevel, trend }]
 
   if (!categories || categories.length === 0) {
-    return <div style={{ color: '#64748b', textAlign: 'center', padding: 20 }}>Henüz yeterli veri yok</div>;
+    return <div style={{ color: '#cbd5e1', textAlign: 'center', padding: 20 }}>Henüz yeterli veri yok</div>;
   }
 
   const getAccuracyColor = (acc) => {

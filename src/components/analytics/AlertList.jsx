@@ -10,7 +10,7 @@ const TYPE_STYLES = {
 
 export default function AlertList({ alerts, onDismiss }) {
   if (!alerts || alerts.length === 0) {
-    return <div style={{ color: '#64748b', textAlign: 'center', padding: 20 }}>Bildirim yok</div>;
+    return <div style={{ color: '#cbd5e1', textAlign: 'center', padding: 20 }}>Bildirim yok</div>;
   }
 
   return (
@@ -44,7 +44,7 @@ export default function AlertList({ alerts, onDismiss }) {
               {onDismiss && (
                 <button
                   onClick={() => onDismiss(alert.alertId)}
-                  style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 16, padding: '0 4px' }}
+                  style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', fontSize: 16, padding: '0 4px' }}
                 >
                   ×
                 </button>

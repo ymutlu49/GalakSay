@@ -48,7 +48,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
   if (loading || !data) {
     return (
       <div style={pageStyle}>
-        <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: 100 }}>Yükleniyor...</div>
+        <div style={{ color: '#e2e8f0', textAlign: 'center', marginTop: 100 }}>Yükleniyor...</div>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
         {/* LT düzey ilerleme */}
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>LT Düzeyi</span>
+            <span style={{ color: '#e2e8f0', fontSize: 12 }}>LT Düzeyi</span>
             <span style={{ color: '#22d3ee', fontWeight: 700 }}>L{data.ltLevel} / L{data.ltRange.max}</span>
           </div>
           <div style={{ height: 10, background: '#1e293b', borderRadius: 5, overflow: 'hidden' }}>
@@ -99,9 +99,9 @@ export default function CategoryDetail({ childId, category, onBack }) {
             }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-            <span style={{ color: '#64748b', fontSize: 10 }}>L{data.ltRange.min}</span>
-            <span style={{ color: '#64748b', fontSize: 10 }}>Düzey içi ilerleme: %{data.ltProgress}</span>
-            <span style={{ color: '#64748b', fontSize: 10 }}>L{data.ltRange.max}</span>
+            <span style={{ color: '#cbd5e1', fontSize: 10 }}>L{data.ltRange.min}</span>
+            <span style={{ color: '#cbd5e1', fontSize: 10 }}>Düzey içi ilerleme: %{data.ltProgress}</span>
+            <span style={{ color: '#cbd5e1', fontSize: 10 }}>L{data.ltRange.max}</span>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
               <div key={i} style={{ marginTop: 8, padding: '6px 10px', background: 'rgba(248,113,113,0.08)', borderRadius: 6 }}>
                 <div style={{ color: '#f87171', fontSize: 11, fontWeight: 600 }}>{err.errorType.replace(/_/g, ' ')}</div>
                 {err.examples.slice(0, 1).map((ex, j) => (
-                  <div key={j} style={{ color: '#94a3b8', fontSize: 10 }}>
+                  <div key={j} style={{ color: '#e2e8f0', fontSize: 10 }}>
                     Soru: {JSON.stringify(ex.question)} → Verilen: {ex.given}, Doğru: {ex.correct}
                   </div>
                 ))}
@@ -157,7 +157,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
 function MetricRow({ label, value }) {
   return (
     <div style={{ padding: '6px 0' }}>
-      <div style={{ color: '#64748b', fontSize: 10 }}>{label}</div>
+      <div style={{ color: '#cbd5e1', fontSize: 10 }}>{label}</div>
       <div style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600 }}>{value}</div>
     </div>
   );

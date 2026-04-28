@@ -20,7 +20,7 @@ export default function SummaryCard({ title, value, subtitle, trend, icon, color
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <span style={{ color: '#94a3b8', fontSize: 12, fontWeight: 500 }}>{title}</span>
+        <span style={{ color: '#cbd5e1', fontSize: 12, fontWeight: 500 }}>{title}</span>
         {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
@@ -32,7 +32,7 @@ export default function SummaryCard({ title, value, subtitle, trend, icon, color
         )}
       </div>
       {!trend && subtitle && (
-        <span style={{ color: '#64748b', fontSize: 11, marginTop: 4, display: 'block' }}>{subtitle}</span>
+        <span style={{ color: '#cbd5e1', fontSize: 11, marginTop: 4, display: 'block' }}>{subtitle}</span>
       )}
     </motion.div>
   );
