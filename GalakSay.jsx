@@ -1742,8 +1742,20 @@ const C = {
   uiBlue: "#7c3aed", uiGreen: "#059669",
 };
 
-// Sabit kapsül boyutları — tüm oyunda tutarlı
-const capsuleSize = (count) => count <= 10 ? 30 : count <= 16 ? 22 : 16;
+// Sabit kapsül boyutları — tüm oyunda tutarlı.
+// Viewport-aware: mobilde (≤400px) otomatik küçültür, kapsül kart sınırını taşmasın.
+// Desktop'ta klasik boyutlar; dar viewport'ta hücre genişliği viewport - margin ile sınırlanır.
+const capsuleSize = (count) => {
+  const base = count <= 5 ? 38 : count <= 10 ? 30 : count <= 16 ? 22 : 16;
+  if (typeof window === "undefined") return base;
+  const vw = window.innerWidth;
+  // Kart içi maksimum kapsül alanı: viewport - kart marjı (20) - kart padding (28) - güvenli pay (10)
+  const maxCapsuleArea = Math.max(160, vw - 58);
+  const naturalWidth = count * base;
+  if (naturalWidth <= maxCapsuleArea) return base;
+  // Sığmıyor → küçültme. Min 12px (erişilebilirlik için).
+  return Math.max(12, Math.floor(maxCapsuleArea / count));
+};
 
 
 // SVG Logo — NuMap tarzı mor gezegen, 1-2-3 pullar, orbit halkası
@@ -8796,7 +8808,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         wpMul: q.text || "Problemi dinle ve çarparak çöz!",
         wpDiv: q.text || "Problemi dinle ve bölerek çöz!",
         wpCompare: q.text || "Problemi dinle ve karşılaştır!",
-        numberLine: `Hangi kapsül ${q.target} pullu?`,
+        numberLine: `Hangi kapsülde ${q.target} yıldız taşı var?`,
         nlPlacement: `${q.target} doğruda nerede?`,
         numberLineEstimate: "İşaret hangi sayıyı gösteriyor?",
         lengthGuess: "Gizli kapsülde kaç yıldız taşı var?",
@@ -12261,14 +12273,20 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       case "numberLine": {
         const nlMax = q.maxVal;
         const maxCount = Math.max(...q.rods);
-        const rodSize = capsuleSize(maxCount);
+        const numRods = q.rods.length;
+        // numberLine'da N kapsül yan yana — toplam genişlik viewport'u aşmasın
+        // Hücre boyutu = (vw - 2*kart_marj - (N-1)*gap - safety) / (N * maxCount)
+        const vw = (typeof window !== "undefined" ? window.innerWidth : 800);
+        const availForRods = Math.max(180, vw - 60 - (numRods - 1) * 12);
+        const maxCellSize = Math.floor(availForRods / (numRods * maxCount));
+        const rodSize = Math.max(12, Math.min(capsuleSize(maxCount), maxCellSize));
         const rodLabels = ["①", "②", "③"];
         return (<div style={{ textAlign: "center" }}>
-          <TXT>Hangi kapsül <BIG c="#5b21b6">{q.target}</BIG> pulludur?</TXT>
+          <TXT>Hangi kapsülde <BIG c="#5b21b6">{q.target}</BIG> yıldız taşı var?</TXT>
           <SUB>Uzunluğuna bakarak tahmin et!</SUB>
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-end", justifyContent: "center", padding: "14px 8px" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-end", justifyContent: "center", padding: "14px 4px", maxWidth: "100%", overflow: "hidden" }}>
             {q.rods.map((n, i) => (
-              <div key={i} style={{ textAlign: "center",
+              <div key={i} style={{ textAlign: "center", minWidth: 0,
                 opacity: answered ? (i === q.correctPos ? 1 : 0.3) : 1,
                 transition: "all .4s",
                 transform: answered && i === q.correctPos ? "scale(1.08)" : "none" }}>
@@ -12279,7 +12297,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   color: answered ? (i === q.correctPos ? "#059669" : "#94a3b8") : "#38bdf8" }}>
                   {rodLabels[i]}
                 </div>
-                {answered && <div style={{ fontSize: 11, fontWeight: 700, color: i === q.correctPos ? "#059669" : "#94a3b8" }}>{n} pul</div>}
+                {answered && <div style={{ fontSize: 11, fontWeight: 700, color: i === q.correctPos ? "#059669" : "#94a3b8" }}>{n} yıldız taşı</div>}
               </div>
             ))}
           </div>
