@@ -15342,9 +15342,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                             animation: `fadeUp ${.05 + i * .03}s ease`,
                           }}>
                             {/* Sıra numarası badge */}
-                            <span style={{ position: "absolute", top: 3, left: 3, width: 14, height: 14, borderRadius: "50%",
-                              background: ac !== null ? "#34d399" : isNext ? catClr : "rgba(148,163,184,.3)",
-                              fontSize: 8, fontWeight: 900, color: "#fff",
+                            <span style={{ position: "absolute", top: 3, left: 3, width: 16, height: 16, borderRadius: "50%",
+                              background: ac !== null ? "#34d399" : isNext ? catClr : "rgba(148,163,184,.55)",
+                              fontSize: 9, fontWeight: 900, color: "#fff",
                               display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
                             {/* NuMap rozeti */}
                             {isNumap && <span style={{ position: "absolute", top: 3, right: 3, width: 12, height: 12, borderRadius: "50%", background: "#7c3aed", fontSize: 7, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>N</span>}
@@ -15356,9 +15356,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                             <div style={{ fontSize: 10, fontWeight: 800, color: "#e2e8f0", textAlign: "center", lineHeight: 1.15, minHeight: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.n}</div>
                             {/* İlerleme/skor */}
                             {ac !== null ? (
-                              <span style={{ fontSize: 9, fontWeight: 900, color: ac >= 80 ? "#34d399" : ac >= 60 ? "#fbbf24" : "#94a3b8" }}>%{ac}</span>
+                              <span style={{ fontSize: 10, fontWeight: 900, color: ac >= 80 ? "#34d399" : ac >= 60 ? "#fbbf24" : "#cbd5e1" }}>%{ac}</span>
                             ) : (
-                              <span style={{ fontSize: 9, fontWeight: 700, color: isNext ? catClr : "rgba(255,255,255,.4)" }}>{isNext ? "▶ Sıradaki" : "Yeni"}</span>
+                              <span style={{ fontSize: 10, fontWeight: 800, color: isNext ? catClr : "rgba(255,255,255,.7)" }}>{isNext ? "▶ Sıradaki" : "Yeni"}</span>
                             )}
                           </button>
                         );
