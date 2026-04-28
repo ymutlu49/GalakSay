@@ -15299,8 +15299,76 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     <div style={{ color: "rgba(226,232,240,.65)", fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{cat.desc}</div>
                   </div>
                 </button>
-                {/* Elliptical orbital mode layout */}
+                {/* Compact 3-column grid mode layout (önceki orbital spiral yerine — kalabalığı azaltır) */}
                 {isOpen && (() => {
+                  const mEntries = Object.entries(cat.modes);
+                  const N = mEntries.length;
+                  const playedCount = mEntries.filter(([mId]) => stats.modeStats[mId]).length;
+                  const hasLearn = !cat.subGroups && cat.learnKey && LEARN_CONTENT[cat.learnKey];
+                  const nextIdx = mEntries.findIndex(([mId]) => !stats.modeStats[mId]);
+                  return (
+                  <div style={{ margin: "0 10px 10px", animation: "fadeUp .25s ease", position: "relative" }}>
+                    {/* Üst bar: ilerleme + ENERJİ (öğren) shortcut */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,.08)", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${(playedCount / N) * 100}%`, background: `linear-gradient(90deg, ${catClr}99, ${catClr})`, borderRadius: 3, transition: "width .5s" }} />
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: playedCount === N ? "#34d399" : "rgba(255,255,255,.7)" }}>{playedCount}/{N}</span>
+                      {hasLearn && (
+                        <button onClick={() => { setLearnCategory(cat.learnKey); setLearnStep(0); navigateTo("learn"); }} style={{
+                          padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(245,158,11,.4)",
+                          background: "linear-gradient(135deg, rgba(245,158,11,.2), rgba(245,158,11,.1))",
+                          color: "#fbbf24", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F,
+                          display: "flex", alignItems: "center", gap: 3,
+                        }}>⚡ Şarj</button>
+                      )}
+                    </div>
+                    {/* Mod kartları — 3 sütun grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                      {mEntries.map(([mId, m], i) => {
+                        const ms = stats.modeStats[mId];
+                        const ac = ms ? Math.round((ms.total > 0 ? ms.correct / ms.total : 0) * 100) : null;
+                        const isNumap = numapModes && numapModes.indexOf(mId) >= 0;
+                        const isNext = i === nextIdx;
+                        return (
+                          <button key={mId} onClick={() => { setGameMode(mId); navigateTo("levelSelect"); }} style={{
+                            position: "relative", padding: "10px 6px", borderRadius: 14,
+                            background: isNext ? `linear-gradient(135deg, ${catClr}28, ${catClr}10)` : `${catClr}10`,
+                            border: ac !== null && ac >= 80 ? `1.5px solid #34d39960` : isNext ? `1.5px solid ${catClr}80` : `1px solid ${catClr}25`,
+                            cursor: "pointer", fontFamily: F,
+                            display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                            transition: "transform .15s, box-shadow .15s",
+                            boxShadow: isNext ? `0 2px 12px ${catClr}30` : "none",
+                            animation: `fadeUp ${.05 + i * .03}s ease`,
+                          }}>
+                            {/* Sıra numarası badge */}
+                            <span style={{ position: "absolute", top: 4, left: 4, width: 16, height: 16, borderRadius: "50%",
+                              background: ac !== null ? "#34d399" : isNext ? catClr : "rgba(148,163,184,.3)",
+                              fontSize: 9, fontWeight: 900, color: "#fff",
+                              display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+                            {/* NuMap rozeti */}
+                            {isNumap && <span style={{ position: "absolute", top: 4, right: 4, width: 14, height: 14, borderRadius: "50%", background: "#7c3aed", fontSize: 8, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>N</span>}
+                            {/* Yıldız (≥%90) */}
+                            {ac !== null && ac >= 90 && <span style={{ position: "absolute", top: 4, right: 4, fontSize: 12, filter: "drop-shadow(0 0 3px gold)" }}>⭐</span>}
+                            {/* Mod ikonu */}
+                            <div style={{ fontSize: 24, lineHeight: 1, marginTop: 6 }}>{m.i}</div>
+                            {/* Mod ismi (2 satır) */}
+                            <div style={{ fontSize: 10, fontWeight: 800, color: "#e2e8f0", textAlign: "center", lineHeight: 1.2, minHeight: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.n}</div>
+                            {/* İlerleme/skor */}
+                            {ac !== null ? (
+                              <span style={{ fontSize: 10, fontWeight: 900, color: ac >= 80 ? "#34d399" : ac >= 60 ? "#fbbf24" : "#94a3b8" }}>%{ac}</span>
+                            ) : (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: isNext ? catClr : "rgba(255,255,255,.4)" }}>{isNext ? "▶ Sıradaki" : "Yeni"}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  );
+                })()}
+                {/* === LEGACY ORBITAL — eski spiral kod (etkin değil, kaldırılabilir) === */}
+                {false && isOpen && (() => {
                   const mEntries = Object.entries(cat.modes);
                   const N = mEntries.length;
                   const rx = 115;
