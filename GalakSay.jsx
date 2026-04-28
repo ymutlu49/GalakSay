@@ -15268,7 +15268,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {/* Connection node on orbital path */}
                 <div style={{ position: "absolute", left: "50%", top: 40, width: 12, height: 12, marginLeft: -6, borderRadius: "50%", background: catPlayed > 0 ? `radial-gradient(circle, ${catClr}, ${catClr}88)` : "radial-gradient(circle, rgba(255,255,255,.3), rgba(255,255,255,.1))", boxShadow: catPlayed > 0 ? `0 0 8px ${catClr}80` : "0 0 4px rgba(255,255,255,.2)", zIndex: 3, transition: "all .3s" }} />
                 {/* Category header — orbital planet node */}
-                <button onClick={() => setOpenCats(prev => ({ ...prev, [ck]: !prev[ck] }))} aria-label={`${GALAXY_THEME[ck]?.planet || cat.name} - ${isOpen ? "Kapat" : "Aç"}`} style={{
+                <button onClick={() => setOpenCats(prev => prev[ck] ? {} : { [ck]: true })} aria-label={`${GALAXY_THEME[ck]?.planet || cat.name} - ${isOpen ? "Kapat" : "Aç"}`} style={{
                   width: "100%", display: "flex", alignItems: "center", flexDirection: ci % 2 === 0 ? "row" : "row-reverse",
                   gap: 0, padding: 0, border: "none", background: "transparent",
                   cursor: "pointer", fontFamily: F, textAlign: ci % 2 === 0 ? "left" : "right", position: "relative", zIndex: 1,
