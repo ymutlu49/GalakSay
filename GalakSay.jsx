@@ -16263,7 +16263,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   }}>
                     <GuideCharacter guide={mp.guide} color={mp.color} mood="idle" size={32} showName={false} compact />
                     <div>
-                      <span style={{ fontSize: 12, fontWeight: 900, color: mp.color, letterSpacing: .3 }}>{mp.guide.name}:</span>
+                      {/* Karakter ismini koyu zeminde okunur kıl: mod rengini beyazla %50 karıştır */}
+                      <span style={{ fontSize: 12, fontWeight: 900, color: `color-mix(in srgb, ${mp.color}, white 50%)`, letterSpacing: .3 }}>{mp.guide.name}:</span>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginLeft: 5 }}>{msgs[round % msgs.length]}</span>
                     </div>
                   </div>
