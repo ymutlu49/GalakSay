@@ -2098,7 +2098,7 @@ const LEARN_CONTENT = {
       {
         title: "5'lik Kart",
         text: "5'lik kart 5 kutuluk bir çerçevedir. Pulları kutulara yerleştir. Dolu kutu sayısı kadar pul var! 3 pul koyarsan 2 kutu boş kalır → 5'e 2 eksik.",
-        tts: "Beşlik karta pulları yerleştir. Kaç dolu, kaç boş?",
+        tts: "Beşlik çerçeveye yıldız taşlarını yerleştir. Kaç dolu, kaç boş?",
         visual: "fivesFrameLearn", examples: [2, 3, 5],
         note: "5'lik çerçeve, bakarak tanımayı güçlendirir ve 5'e tamamlama stratejisini somutlaştırır."
       },
@@ -8760,8 +8760,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         chipGuess: "Yıldız taşlarını dikkatlice say, gizlenince hatırla!",
         rodBack: "İyi bak, gizlenince hatırla!",
         subitizing: "İyi bak, kaç tane?",
-        fivesFrame: "Beşlik kartta kaç yıldız taşı var?",
-        tensFrame: "Onluk kartta kaç yıldız taşı var?",
+        fivesFrame: "Beşlik çerçevede kaç yıldız taşı var?",
+        tensFrame: "Onluk çerçevede kaç yıldız taşı var?",
         doubleTensFrame: "İki çerçeveye bak, 10 artı kaç?",
         comparison: `Hangisi daha ${q.askMin ? "az" : "fazla"}?`,
         lessMoreEqual: "Sol taraf sağ tarafa göre nasıl?",
@@ -9829,8 +9829,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           decadeCount: ["Onluk atlama ustası! 🔟", "Onar onar ilerliyorsun! 📊"],
           skipCount: ["Ritmik sayma melodisi çalıyor! 🎵", "Atlayarak saydın, doğru! 🦘"],
           conservation: ["Dizilişe aldanmadın — sayı korunuyor! 🔍", "Sayı korunumu ustası! 🧠"],
-          fivesFrame: ["Beşlik kartı okudun! ✋", "5'lik çerçeve tamam! 🖐️"],
-          tensFrame: ["Onluk kartı doğru okudun! 🔟", "10'luk çerçeve ustası! 📊"],
+          fivesFrame: ["Beşlik çerçeveyi okudun! ✋", "5'lik çerçeve tamam! 🖐️"],
+          tensFrame: ["Onluk çerçeveyi doğru okudun! 🔟", "10'luk çerçeve ustası! 📊"],
           doubleTensFrame: ["Çift onluk — 10 artı kaç? Buldun! 🔟🔟", "20'ye kadar uzmanlaşıyorsun! 💫"],
           estimateCount: ["Tahminin isabetli! 🎯", "Gözlem gücün yükseliyor! 🦸"],
           lessMoreEqual: ["Az-çok-eşit doğru! ⚖️", "Karşılaştırma ustası! 👀"],
@@ -11364,8 +11364,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           }
           return <NumberRod count={q.number} size={rbSize} blank />;
         };
-        const rbDisplayLabel = { rod: "Kapsül", twoColor: "Renkli Kapsül", frame: q.number <= 5 ? "Beşlik Kart" : "Onluk Kart", domino: "Domino", finger: "Parmak", dice: "Zar" }[rbDm] || "Kapsül";
-        const rbLocLabel = { rod: "Kapsülde", twoColor: "Renkli Kapsülde", frame: q.number <= 5 ? "Beşlik Kartta" : "Onluk Kartta", domino: "Dominoda", finger: "Parmakta", dice: "Zarda" }[rbDm] || "Kapsülde";
+        const rbDisplayLabel = { rod: "Kapsül", twoColor: "Renkli Kapsül", frame: q.number <= 5 ? "Beşlik Çerçeve" : "Onluk Çerçeve", domino: "Domino", finger: "Parmak", dice: "Zar" }[rbDm] || "Kapsül";
+        const rbLocLabel = { rod: "Kapsülde", twoColor: "Renkli Kapsülde", frame: q.number <= 5 ? "Beşlik Çerçevede" : "Onluk Çerçevede", domino: "Dominoda", finger: "Parmakta", dice: "Zarda" }[rbDm] || "Kapsülde";
         return (<div style={{ textAlign: "center" }}>
           <TXT>{isHidden ? `${rbLocLabel} kaç yıldız taşı vardı? Hatırla!` : `${rbHintMap[rbDm]}`}</TXT>
           {!isHidden && <SUB>{rbDisplayLabel} birazdan gizlenecek — saydığın sayıyı hatırla!</SUB>}
@@ -11742,11 +11742,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         </div>);
 
       case "fivesFrame":
-        return (<div style={{ textAlign: "center" }}><TXT>Beşlik kartta kaç yıldız taşı var?</TXT><SUB>Dolu kutuları say!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={5} filled={q.number} cols={5} label="Beşlik Kart" chipColor="blue" size={52} /></div>
+        return (<div style={{ textAlign: "center" }}><TXT>Beşlik çerçevede kaç yıldız taşı var?</TXT><SUB>Dolu kutuları say!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={5} filled={q.number} cols={5} label="Beşlik Çerçeve" chipColor="blue" size={52} /></div>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>🔊 {numWord(q.number)} — {5 - q.number === 0 ? "Tam 5!" : `5'e ${5 - q.number} eksik`}</div>}
         </div>);
       case "tensFrame":
-        return (<div style={{ textAlign: "center" }}><TXT>Onluk kartta kaç yıldız taşı var?</TXT><SUB>Üst sıra 5, alt sırayı ekle!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={10} filled={q.number} cols={5} label="Onluk Kart" chipColor="red" size={46} /></div>
+        return (<div style={{ textAlign: "center" }}><TXT>Onluk çerçevede kaç yıldız taşı var?</TXT><SUB>Üst sıra 5, alt sırayı ekle!</SUB><div style={{ display: "flex", justifyContent: "center" }}><Frame total={10} filled={q.number} cols={5} label="Onluk Çerçeve" chipColor="red" size={46} /></div>
           {answered && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>🔊 {numWord(q.number)} {q.number > 5 ? `= 5 + ${q.number - 5}` : q.number === 5 ? "= tam 5" : ""} — {10 - q.number === 0 ? "Tam 10!" : `10'a ${10 - q.number} eksik`}</div>}
           {/* v5.4: Rekenrek alternatif gösterimi — cevaptan sonra sayı yapısını pekiştir */}
           {answered && <div style={{ marginTop: 8, display: "flex", justifyContent: "center", animation: "fadeUp .4s ease .3s both" }}><Rekenrek total={10} filled={q.number} rows={2} /></div>}
@@ -14547,8 +14547,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       })}
       </div>
       {/* v5.9.1: "Bilmiyorum" butonu — tahmin etmeyi önler, diagnostik veri temizler */}
+      {/* Not: TXT promptları henüz i18n değil (sabit Türkçe), o yüzden Bilmiyorum'u da Türkçe sabitliyoruz — karışık dil görünmesin. */}
       {!answered && (
-        <button onClick={handleSkip} aria-label={lang === "ku" ? "Ez nizanim" : lang === "en" ? "I don't know" : "Bilmiyorum"} style={{
+        <button onClick={handleSkip} aria-label="Bilmiyorum" style={{
           display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
           width: "100%", marginTop: 8, padding: "10px 16px", borderRadius: 14,
           background: "rgba(148,163,184,.16)", backdropFilter: "blur(8px)",
@@ -14557,7 +14558,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           transition: "all .2s", opacity: .85,
         }}>
           <span style={{ fontSize: 14 }}>🤔</span>
-          {lang === "ku" ? "Ez nizanim — alîkarî" : lang === "en" ? "I don't know — help me" : "Bilmiyorum — yardım et"}
+          Bilmiyorum — yardım et
         </button>
       )}
     </div>);
@@ -20401,7 +20402,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       ]},
       { cat: "Sanbil (Şimşeron)", color: "#7c3aed", modes: [
         { mode: "Şimşek Bakışı", mat: "Pul düzeni (kartlar)", tip: "Zarara düzeni, domino düzeni gibi pul dizilimleri hazırlayıp çocuğa kısa süre gösterin." },
-        { mode: "Beşli/Onlu Kart", mat: "Beşlik + Onluk kart", tip: "Kartın oyuklarına pul yerleştirilir. 5+n yapısı görsel bellekte kalıcılaşır (ör. 7 = 5 dolu + 2 dolu)." },
+        { mode: "Beşli/Onlu Çerçeve", mat: "Beşlik + Onluk çerçeve", tip: "Çerçevenin oyuklarına yıldız taşı yerleştirilir. 5+n yapısı görsel bellekte kalıcılaşır (ör. 7 = 5 dolu + 2 dolu)." },
       ]},
       { cat: "Karşılaştırma (Terazya)", color: "#059669", modes: [
         { mode: "Büyük/Küçük", mat: "2 kapsül yan yana", tip: "İki kapsülü yan yana koyup hangi kapsüldeki pul sayısının fazla olduğunu görsel olarak karşılaştırın." },
@@ -20518,12 +20519,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               </div>
 
-              {/* Beşlik / Onluk Kartlar */}
+              {/* Beşlik / Onluk Çerçevelar */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#7c3aed,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🔲</div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 900, color: "#a78bfa" }}>Beşlik & Onluk Kartlar (Frames)</div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: "#a78bfa" }}>Beşlik & Onluk Çerçevelar (Frames)</div>
                     <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Yapılandırılmış sanbil (subitizing) destekçisi</div>
                   </div>
                 </div>
@@ -23124,7 +23125,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </>
             )}
 
-            {/* ── Beşlik/Onluk Kart (frame) ── */}
+            {/* ── Beşlik/Onluk Çerçeve (frame) ── */}
             {arMode === "frame" && (
               <div style={{
                 position: "absolute", left: "50%", top: "45%", transform: "translate(-50%, -50%)",
