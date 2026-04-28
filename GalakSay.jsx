@@ -14504,7 +14504,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         if (isHighlighted(opt) && !answered) bg = C.yellow;
         const isPreviewing = previewOpt === opt && !answered;
         return (<button key={i} className={`option-btn answer-option${isCorrectOpt ? " correct-flash" : ""}${isWrongOpt ? " wrong-flash" : ""}`} aria-label={`Seçenek ${typeof opt === "number" ? numWord(opt) || opt : opt}`} onClick={() => { if (!noAnswerYet) { handleOptionTap(opt); }}} disabled={answered || noAnswerYet} style={{
-          padding: "16px 8px", borderRadius: 18, border: isCorrectOpt ? "2px solid rgba(52,211,153,.6)" : isWrongOpt ? "2px solid rgba(248,113,113,.5)" : isPreviewing ? "2.5px solid #fbbf24" : "1.5px solid rgba(255,255,255,.08)",
+          padding: "16px 8px", borderRadius: 18, border: isCorrectOpt ? "2px solid rgba(52,211,153,.6)" : isWrongOpt ? "2px solid rgba(248,113,113,.5)" : isPreviewing ? "2.5px solid #fbbf24" : "1px solid rgba(255,255,255,.12)",
           background: bg,
           cursor: (answered || noAnswerYet) ? "default" : "pointer",
           boxShadow: isCorrectOpt ? "0 0 20px rgba(16,185,129,.35), 0 4px 14px rgba(16,185,129,.25)" : isWrongOpt ? "0 0 12px rgba(239,68,68,.2)" : `0 4px 14px ${bg}40`,
@@ -14531,10 +14531,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         <button onClick={handleSkip} aria-label={lang === "ku" ? "Ez nizanim" : lang === "en" ? "I don't know" : "Bilmiyorum"} style={{
           display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
           width: "100%", marginTop: 8, padding: "10px 16px", borderRadius: 14,
-          background: "rgba(148,163,184,.12)", backdropFilter: "blur(8px)",
-          border: "1px solid rgba(148,163,184,.15)", color: "#94a3b8",
+          background: "rgba(148,163,184,.16)", backdropFilter: "blur(8px)",
+          border: "1px solid rgba(148,163,184,.22)", color: "#cbd5e1",
           fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F,
-          transition: "all .2s", opacity: .7,
+          transition: "all .2s", opacity: .85,
         }}>
           <span style={{ fontSize: 14 }}>🤔</span>
           {lang === "ku" ? "Ez nizanim — alîkarî" : lang === "en" ? "I don't know — help me" : "Bilmiyorum — yardım et"}
@@ -16109,7 +16109,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     width: isPreReader ? 40 : 30, height: isPreReader ? 40 : 30, borderRadius: 8, border: "none",
                     background: "linear-gradient(135deg, rgba(168,85,247,.4), rgba(124,58,237,.3))", color: "#fff", fontSize: isPreReader ? 18 : 14,
                     cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                    backdropFilter: "blur(4px)", animation: "pulse 3s ease infinite",
+                    backdropFilter: "blur(4px)",
                   }}>🗣️</button>
                 )}
                 <button aria-label={soundOn ? "Sesi kapat" : "Sesi aç"} onClick={toggleSound} style={{
