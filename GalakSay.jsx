@@ -12306,7 +12306,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
       // §T4 Rescue Calcularis Transfer: Sayı Doğrusu Yerleştirme Görevi
       case "nlPlacement": {
-        const nlW = 280; // number line width
+        // Viewport-aware width: mobil dar viewport'ta sığar, masaüstünde 280
+        const _vw = (typeof window !== "undefined" ? window.innerWidth : 800);
+        const nlW = Math.max(180, Math.min(280, _vw - 100));
         const nlRange = q.range;
         const posToX = (v) => (v / nlRange) * nlW;
         const tickInterval = nlRange <= 10 ? 1 : nlRange <= 20 ? 5 : nlRange <= 50 ? 10 : 20;
