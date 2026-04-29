@@ -659,9 +659,11 @@ const TextProcessor = {
     .replace(/</g, " küçüktür "),
 
   // Emoji ve özel karakterleri temizle — v5.4: genişletilmiş regex
+  // 2026-04-28: U+2B00-2BFF (Misc Symbols & Arrows: ⬅️⬆️⬇️⬛⭐⭕) ve U+2190-21FF (Arrows: ←→↑↓↔️↕)
+  // eklendi — TTS'in "kalın sol ok" gibi anlamsız okumalarını önler
   cleanEmoji: (text) => text
-    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{2702}-\u{27B0}\u{1F680}-\u{1F6FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{2B55}\u{2934}-\u{2935}\u{3030}\u{303D}\u{25A0}-\u{25FF}]/gu, "")
-    .replace(/[•→←▶►◀↔️📡📋💡⚠️✓✗☀️🌑✨⭐🌟💫🪐🚀🔢🎯✋🖐️🔟➕➖✖️➗⚖️🧩🔄🔍🧠💪🎵🔊🗣️✂️🧪🔮🕵️📈📊📏📐📦🎁🏗️🔨🔭🦎🐱🐉🦉🐙🌊⚡🔶📍🔗🏅🥇🌉🦸]/g, ""),
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{2702}-\u{27B0}\u{1F680}-\u{1F6FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2934}-\u{2935}\u{3030}\u{303D}\u{25A0}-\u{25FF}]/gu, "")
+    .replace(/[•→←▶►◀↔️⬅️➡️⬆️⬇️↕↖↗↘↙📡📋💡⚠️✓✗☀️🌑✨⭐🌟💫🪐🚀🔢🎯✋🖐️🔟➕➖✖️➗⚖️🧩🔄🔍🧠💪🎵🔊🗣️✂️🧪🔮🕵️📈📊📏📐📦🎁🏗️🔨🔭🦎🐱🐉🦉🐙🌊⚡🔶📍🔗🏅🥇🌉🦸]/g, ""),
 
   // Kısaltma ve özel ifadeleri düzelt
   fixAbbreviations: (text) => text
@@ -11505,7 +11507,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </span>
             </div>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic", marginTop: 4 }}>
-              🔊 {numWord(q.num1)} {q.num1 > q.num2 ? ">" : q.num1 < q.num2 ? "<" : "="} {numWord(q.num2)}
+              🔊 {numWord(q.num1)} {q.num1 > q.num2 ? "büyüktür" : q.num1 < q.num2 ? "küçüktür" : "eşittir"} {numWord(q.num2)}
               {si && " — Boyut değil, sayı önemli! 🧠"}
             </div>
           </div>}
@@ -12635,11 +12637,26 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // Sayı doğrusu görselleştirmesi
         const lineNums = [];
         for (let i = Math.max(0, baMin); i <= Math.min(10, baMax); i++) lineNums.push(i);
+        // 2026-04-28: Enerji kapsülü görseli — sayılar sıralı, hedef chip vurgulu
+        // (Triple Coding: chip = somut, sayı doğrusu = ikonik, sayı = sembolik)
+        const baCapMax = Math.min(q.subType === "between" ? q.high : (q.number + (q.subType === "after" ? 1 : 0)), 10);
+        const baCapNumbers = baCapMax > 0 ? Array.from({length: baCapMax}, (_, j) => j + 1) : null;
+        const baCapSize = baCapMax <= 5 ? 38 : baCapMax <= 7 ? 32 : 26;
         return (<div style={{ textAlign: "center" }}>
           <TXT>{q.subType === "before" ? <span><BIG>{q.number}</BIG>'den <strong>önce</strong> ne gelir?</span>
             : q.subType === "after" ? <span><BIG>{q.number}</BIG>'den <strong>sonra</strong> ne gelir?</span>
             : <span><BIG>{q.low}</BIG> ile <BIG>{q.high}</BIG> <strong>arasında</strong> ne var?</span>}</TXT>
           <SUB>{q.subType === "before" ? "Bir önceki sayı = 1 eksik" : q.subType === "after" ? "Bir sonraki sayı = 1 fazla" : "Ortadaki sayıyı bulmak için sırayla say!"}</SUB>
+          {/* Enerji kapsülü — sıralı sayılar */}
+          {baCapNumbers && (
+            <div style={{ marginBottom: 10, display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <NumberRod count={baCapMax} defaultColor="blue" size={baCapSize}
+                greenNumbers={baCapNumbers} />
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", fontStyle: "italic" }}>
+                Enerji kapsülünde {baCapMax} yıldız taşı, her birinin sırası var
+              </div>
+            </div>
+          )}
           {/* Sayı doğrusu */}
           <div style={{ display: "inline-flex", alignItems: "center", gap: 0, padding: "14px 16px",
             borderRadius: 16, background: "rgba(20,184,166,.1)", border: "2px solid rgba(153,246,228,.3)" }}>
