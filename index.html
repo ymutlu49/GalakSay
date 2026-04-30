@@ -10,11 +10,18 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #0b0c2a; }
       ::selection { background: rgba(108,99,255,.35); color: #fff; }
       ::-moz-selection { background: rgba(108,99,255,.35); color: #fff; }
       button, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
       input, textarea { -webkit-tap-highlight-color: transparent; }
+
+      /* ═══ PC / GENİŞ EKRAN: UYGULAMA TELEFON-OLARAK MERKEZLENİR ═══ */
+      /* 2026-04-30: Çocuk uygulaması mobil-öncelikli — geniş ekranda her .page ekranı 768px sütununda merkezlenir */
+      /* SplashScreen ve diğer position:fixed overlay'ler etkilenmez (sadece .page sınıfı hedeflenir) */
+      @media (min-width: 1024px) {
+        .page { max-width: 768px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 80px rgba(0,0,0,.55), 0 0 0 1px rgba(167,139,250,.08); }
+      }
 
       /* ═══ CORE ANIMATIONS ═══ */
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
