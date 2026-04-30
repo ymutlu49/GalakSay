@@ -17614,7 +17614,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             {/* Quick recommendations */}
             <div style={{ ...DS.card, padding: "10px 12px" }}>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>💡 Öneriler</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 900, color: "#c4b5fd", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: 1, textShadow: "0 1px 4px rgba(0,0,0,.4)" }}>💡 Öneriler</h3>
               {weaknesses.length > 0 && (
                 <div style={{ padding: "6px 10px", borderRadius: 8, background: "rgba(30,27,75,.35)", fontSize: 11, color: "#cbd5e1", lineHeight: 1.5, marginBottom: 4 }}>
                   <strong>Pratik:</strong> {weaknesses[0].label} alanında daha fazla pratik yaparak gelişebilirsin.
@@ -17656,7 +17656,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           {devTab === 1 && (<>
             {/* Skill Bars — category colored */}
             <div style={{ ...DS.card, padding: "12px 12px" }}>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>📊 Gezegen Detayları</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 900, color: "#c4b5fd", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: 1, textShadow: "0 1px 4px rgba(0,0,0,.4)" }}>📊 Gezegen Detayları</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                 {skillScores.map(sk => (
                   <div key={sk.key}>
@@ -17683,7 +17683,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Performance Trend */}
             {recentGames.length >= 2 && (
               <div style={{ ...DS.card, padding: "12px 12px" }}>
-                <h3 style={{ fontSize: 11, fontWeight: 800, color: "#4c1d95", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>📈 Performans Trendi</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 900, color: "#c4b5fd", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: 1, textShadow: "0 1px 4px rgba(0,0,0,.4)" }}>📈 Performans Trendi</h3>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <svg width={trendW} height={trendH + 20} viewBox={`0 0 ${trendW} ${trendH + 20}`}>
                     {[0, 25, 50, 75, 100].map(v => (
@@ -18294,9 +18294,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             {/* Student List */}
             <div style={{ ...DS.card, padding: "14px 14px", animation: "fadeUp .4s ease" }}>
-              <h3 style={{ fontSize: 12, fontWeight: 800, color: "#4c1d95", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: .5 }}>👤 Öğrenci Listesi</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 900, color: "#c4b5fd", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: 1, textShadow: "0 1px 4px rgba(0,0,0,.4)" }}>👤 Öğrenci Listesi</h3>
               {studentUsers.length === 0
-                ? <p style={{ color: "#a8b2d1", fontSize: 12, textAlign: "center", padding: 10 }}>Henüz kayıtlı öğrenci yok</p>
+                ? <p style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textAlign: "center", padding: "16px 12px", background: "rgba(15,23,42,.4)", borderRadius: 10, border: "1px dashed rgba(167,139,250,.25)" }}>Henüz kayıtlı öğrenci yok</p>
                 : <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {studentUsers.map((u, i) => {
                       const us = adminUserStats[u.username];
@@ -18331,7 +18331,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Performance Distribution */}
             {studentUsers.length > 0 && (
               <div style={{ ...DS.card, padding: "14px 14px", animation: "fadeUp .6s ease" }}>
-                <h3 style={{ fontSize: 12, fontWeight: 800, color: "#4c1d95", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: .5 }}>📊 Başarı Dağılımı</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 900, color: "#c4b5fd", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: 1, textShadow: "0 1px 4px rgba(0,0,0,.4)" }}>📊 Başarı Dağılımı</h3>
                 {(() => {
                   const groups = [
                     { label: "Mükemmel (%80+)", color: "#059669", bg: "#dcfce7", count: 0 },
@@ -18370,15 +18370,19 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             {/* Quick Actions */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, paddingBottom: 8, animation: "fadeUp .8s ease" }}>
               <button onClick={() => navigateTo("devTrack")} style={{
-                padding: "14px 0", borderRadius: 12, border: "none",
-                background: "rgba(59,130,246,.1)", color: "#6d28d9", fontSize: 12, fontWeight: 700,
-                cursor: "pointer", fontFamily: F, boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-              }}>📊 Gelişim Analizi</button>
+                padding: "16px 0", borderRadius: 14, border: "1.5px solid rgba(167,139,250,.4)",
+                background: "linear-gradient(135deg, rgba(124,58,237,.25), rgba(99,102,241,.18))", color: "#e9d5ff", fontSize: 14, fontWeight: 800,
+                cursor: "pointer", fontFamily: F, boxShadow: "0 4px 14px rgba(124,58,237,.2), inset 0 1px 0 rgba(255,255,255,.08)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                textShadow: "0 1px 4px rgba(0,0,0,.4)",
+              }}>📊 <span>Gelişim Analizi</span></button>
               <button onClick={() => { navigateTo("report"); if (!aiReport) generateAiReport(); }} style={{
-                padding: "14px 0", borderRadius: 12, border: "none",
-                background: "rgba(5,150,105,.08)", color: "#166534", fontSize: 12, fontWeight: 700,
-                cursor: "pointer", fontFamily: F, boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-              }}>🤖 AI Rapor</button>
+                padding: "16px 0", borderRadius: 14, border: "1.5px solid rgba(52,211,153,.4)",
+                background: "linear-gradient(135deg, rgba(5,150,105,.25), rgba(16,185,129,.18))", color: "#a7f3d0", fontSize: 14, fontWeight: 800,
+                cursor: "pointer", fontFamily: F, boxShadow: "0 4px 14px rgba(5,150,105,.2), inset 0 1px 0 rgba(255,255,255,.08)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                textShadow: "0 1px 4px rgba(0,0,0,.4)",
+              }}>🤖 <span>AI Rapor</span></button>
             </div>
           </div>
         </div>
