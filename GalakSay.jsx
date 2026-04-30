@@ -15209,7 +15209,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         <style>{CSS}</style>
         <SpaceDecor variant="modes" />
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto", width: "100%", minHeight: 0 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: typeof window !== "undefined" && window.innerWidth >= 1024 ? 720 : (typeof window !== "undefined" && window.innerWidth >= 768 ? 600 : 480), margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header */}
           <div style={{
             background: "linear-gradient(135deg,#7c3aed,#6d28d9)", padding: "12px 16px 14px",
@@ -21062,7 +21062,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         </div>
         <SpaceDecor variant="ageSelect" />
 
-        <div style={{ maxWidth: 380, margin: "0 auto", width: "100%", padding: "0 24px", textAlign: "center", position: "relative", zIndex: 1 }}>
+        {/* 2026-04-29: PC'de daraltılmış 380px hissini geniş ekrana yaymak için responsive maxWidth */}
+        <div style={{ maxWidth: typeof window !== "undefined" && window.innerWidth >= 1024 ? 560 : (typeof window !== "undefined" && window.innerWidth >= 768 ? 460 : 380), margin: "0 auto", width: "100%", padding: "0 24px", textAlign: "center", position: "relative", zIndex: 1 }}>
 
           {/* Logo + Merhaba — enhanced greeting */}
           <div style={{ marginBottom: 16, animation: "fadeUp .4s ease" }}>
@@ -21399,7 +21400,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           ))}
         </div>
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: typeof window !== "undefined" && window.innerWidth >= 1024 ? 680 : (typeof window !== "undefined" && window.innerWidth >= 768 ? 560 : 440), margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
 
           {/* ── HEADER — Glassmorphism banner ── */}
           <div style={{
