@@ -6819,6 +6819,10 @@ function GalaksayGameInner() {
   const soundRef = useRef(true); // tracks soundOn for callbacks
   const qStartRef = useRef(Date.now()); // speed bonus: question start time
   const ttsLastKeyRef = useRef(null); // TTS tekrar engeli: aynı soru tekrar seslendirilmez
+  // 2026-04-30: Aynı soru kökü (örn "Enerji kapsülünde kaç yıldız taşı var?") tekrar tekrar
+  // okunmasın — kullanıcının "her seferinde aynı şeyi deyip durmasın" geri bildirimi.
+  // Soru metni statik (sayı içermez) ve daha önce okunmuşsa SES atlanır; görsel zaten ekranda.
+  const ttsLastSpokenTextRef = useRef(null);
   const learnSwipeRef = useRef({ x: 0, y: 0, t: 0 }); // swipe navigation for learn screen
   const wrongShakeRef = useRef(null); // word problem: wrong tap shake
   const feedbackEndRef = useRef(null); // scroll to Devam Et button
@@ -8862,19 +8866,32 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       ttsLastKeyRef.current = ttsQKey;
       if ((ttsOn || narrationOn || isPreReader) && (voiceSettings.questionRead || isPreReader)) {
         const mp = getModePlanet(gameMode);
-        TTS.stop();
         const ttsLang = lang === "en" ? "en-US" : "tr-TR";
-        if (narrationOn && mp?.guide) {
-          TTS._scheduleSpeech(() => {
-            const qText = TTS._getQuestionText?.(q);
-            if (qText) narrateWith(true, mp.guide.name, qText, ttsLang);
-          }, 400);
+        // 2026-04-30: Aynı soru metni daha önce okunduysa SES ATLA — "her seferinde aynı şeyi
+        // deyip durmasın" geri bildirimi. Sayma/Subitizing/Karşılaştırma gibi statik prompt'lu
+        // modlarda 10 sorunun 10'unda da aynı cümle okunuyordu. Çocuk ekrandaki yazıyı görüyor,
+        // mod giriş brifingi de okundu — ek seslendirme rahatsız edici. q.ttsText sayı içeriyorsa
+        // (toplama, çıkarma vb.) zaten farklı, normal okur. Soru-tek seferlik okunsun:
+        const currentText = q.ttsText || null;
+        const isFirstQuestion = round === 0;
+        const isSameAsLastSpoken = currentText && currentText === ttsLastSpokenTextRef.current;
+        if (currentText && !isFirstQuestion && isSameAsLastSpoken) {
+          // Zaten okundu, atla — pusula olarak devam et
         } else {
-          TTS._scheduleSpeech(() => TTS.speakQuestion(q, ttsLang), 400);
+          if (currentText) ttsLastSpokenTextRef.current = currentText;
+          TTS.stop();
+          if (narrationOn && mp?.guide) {
+            TTS._scheduleSpeech(() => {
+              const qText = TTS._getQuestionText?.(q);
+              if (qText) narrateWith(true, mp.guide.name, qText, ttsLang);
+            }, 400);
+          } else {
+            TTS._scheduleSpeech(() => TTS.speakQuestion(q, ttsLang), 400);
+          }
         }
       }
     }
-  }, [gameMode, level, sessionErrors, narrationOn]);
+  }, [gameMode, level, sessionErrors, narrationOn, round]);
 
   // ═══ COUNTING ANIMATION — Tonlamalı sayma ═══
   const startCounting = useCallback((total, onComplete) => {
@@ -10434,6 +10451,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       BGM.play(catKey);
     }
     setRound(0); setCorrectCnt(0); setScore(0); setStreak(0); streakRef.current = 0; maxStreakGameRef.current = 0; usedKeys.current = new Set(); lastQKeyRef.current = ""; setNewBadges([]); setNewCard(null);
+    // 2026-04-30: Yeni oyun → TTS tekrarsız sayaç sıfırla (her test başında soru bir kez okunsun)
+    ttsLastKeyRef.current = null;
+    ttsLastSpokenTextRef.current = null;
     // GalakSay Analytics — 2026-03-18 — Modül başlangıcını kaydet
     try { setCurrentModule(gameMode, level); } catch (_) {}
     // Show mission briefing overlay — çocuk "Göreve Hazırım!" butonuna basana kadar bekle
