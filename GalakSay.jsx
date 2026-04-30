@@ -10715,12 +10715,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         if (wpStep === 0) {
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 12 } }, "\uD83D\uDCD6 Problemi Oku"),
+              React.createElement("div", { style: { fontSize: 16, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: 0.3 } }, "📖 Problemi Oku"),
               React.createElement("div", { style: wpCard },
                 React.createElement("div", { style: { textAlign: "center", marginBottom: 4 } }, React.createElement("span", { style: { fontSize: 36 } }, q.icon)),
                 React.createElement("p", { style: { fontSize: 17, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.8, margin: 0, textAlign: "center", wordBreak: "break-word", maxWidth: "100%" } }, wpText),
                 React.createElement("div", { style: { textAlign: "center", marginTop: 8 } },
-                  React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: wpc.accent, opacity: 0.6, background: wpc.accent + "10", padding: "3px 10px", borderRadius: 8 } }, cgiLbl))
+                  React.createElement("span", { style: { fontSize: 12, fontWeight: 800, color: wpc.accent, background: wpc.accent + "25", padding: "4px 12px", borderRadius: 10 } }, cgiLbl))
               ),
               wpBtn("Anlad\u0131m, Devam Et \u2192", function() {
                 sfx("click"); setWpAnlaStep(0); setWpFoundNums([]); setWpStep(1);
@@ -10813,7 +10813,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
               React.createElement("div", { style: { flex: 1 } },
-                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 4 } }, "\uD83D\uDCD6 Problemi Tekrar Oku"),
+                React.createElement("div", { style: { fontSize: 16, fontWeight: 800, color: "#e2e8f0", marginBottom: 8, letterSpacing: 0.3 } }, "📖 Problemi Tekrar Oku"),
                 React.createElement("p", { style: { fontSize: 11, color: "#a8b2d1", fontWeight: 600, margin: "0 auto 10px", maxWidth: 320 } },
                   "Problemi \u00E7\u00F6zmek i\u00E7in bize verilen bilgilere dokun."),
                 React.createElement("div", { style: {
@@ -10893,18 +10893,19 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1 } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, "\uD83C\uDFAF Problemde Bizden Ne \u0130steniyor?"),
-              // Problem metni (küçük, referans için)
-              React.createElement("div", { style: { padding: "10px 14px", borderRadius: 12, background: "rgba(49,46,129,.35)", border: "1px solid rgba(148,163,184,.12)", maxWidth: 340, margin: "0 auto 8px", textAlign: "left" } },
-                React.createElement("div", { style: { fontSize: 12, fontWeight: 500, color: "#a8b2d1", lineHeight: 1.7 } },
-                  React.createElement("span", { style: { fontSize: 16, marginRight: 6 } }, q.icon), wpText)
+              // 2026-04-30 — Punto + kontrast iyileştirmesi (kullanıcı geri bildirimi)
+              React.createElement("div", { style: { fontSize: 15, fontWeight: 800, color: "#e2e8f0", marginBottom: 10, lineHeight: 1.4 } }, "🎯 Problemde Bizden Ne İsteniyor?"),
+              // Problem metni
+              React.createElement("div", { style: { padding: "12px 16px", borderRadius: 14, background: "rgba(49,46,129,.5)", border: "1.5px solid rgba(148,163,184,.25)", maxWidth: 360, margin: "0 auto 10px", textAlign: "left" } },
+                React.createElement("div", { style: { fontSize: 14, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.65 } },
+                  React.createElement("span", { style: { fontSize: 18, marginRight: 6 } }, q.icon), wpText)
               ),
-              // Verilenler kutusu
-              React.createElement("div", { style: { padding: "8px 14px", borderRadius: 12, background: "rgba(5,150,105,.1)", border: "1.5px solid #86efac", maxWidth: 340, margin: "0 auto 10px", textAlign: "left", display: "flex", gap: 8, alignItems: "center" } },
-                React.createElement("span", { style: { fontSize: 18 } }, "\u2705"),
+              // Verilenler kutusu — koyu zeminde net kontrast + büyük font
+              React.createElement("div", { style: { padding: "12px 16px", borderRadius: 14, background: "rgba(15,23,42,.55)", border: "2px solid rgba(134,239,172,.45)", maxWidth: 360, margin: "0 auto 12px", textAlign: "left", display: "flex", gap: 10, alignItems: "center", boxShadow: "0 4px 14px rgba(5,150,105,.15)" } },
+                React.createElement("span", { style: { fontSize: 22 } }, "✅"),
                 React.createElement("div", null,
-                  React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#059669", marginBottom: 2 } }, "Verilenler"),
-                  React.createElement("div", { style: { fontSize: 12, fontWeight: 600, color: "#cbd5e1" } }, verilenA + "  \u2022  " + verilenB))
+                  React.createElement("div", { style: { fontSize: 12, fontWeight: 900, color: "#34d399", marginBottom: 3, letterSpacing: 0.5 } }, "VERİLENLER"),
+                  React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#f1f5f9" } }, verilenA + "  •  " + verilenB))
               ),
               // Seçenekler
               React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8, maxWidth: 340, margin: "0 auto" } },
@@ -10940,8 +10941,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, "\uD83D\uDD0D Problemi \u00E7\u00F6zmek i\u00E7in hangi i\u015Flemi kullanaca\u011F\u0131z?"),
               // Verilen & İstenen özeti
               React.createElement("div", { style: { padding: "8px 14px", borderRadius: 12, background: "rgba(5,150,105,.1)", border: "1.5px solid #86efac", maxWidth: 340, margin: "0 auto 12px", textAlign: "left" } },
-                React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#059669" } }, "\u2705 Verilen: " + verilenA + "  \u2022  " + verilenB),
-                React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#6d28d9", marginTop: 3 } }, "\uD83C\uDFAF \u0130stenen: " + istenenTR)
+                React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: "#86efac" } }, "\u2705 Verilen: " + verilenA + "  \u2022  " + verilenB),
+                React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: "#fbbf24", marginTop: 4 } }, "🎯 Aranan: " + istenenTR)
               ),
               React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, maxWidth: 300, margin: "0 auto" } },
                 ops.map(function(op) {
@@ -11114,7 +11115,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
               React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } },
-                React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 10 } }, "\uD83E\uDDEE \u00C7ubukla Modelle"),
+                React.createElement("div", { style: { fontSize: 16, fontWeight: 800, color: "#e2e8f0", marginBottom: 12, letterSpacing: 0.3 } }, "🧮 Çubukla Modelle"),
                 // Tek temiz kart
                 React.createElement("div", { style: {
                   padding: "20px 16px", borderRadius: 20,
