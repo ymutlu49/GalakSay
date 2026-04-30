@@ -393,12 +393,12 @@ const SFX = (() => {
     // ═══ DOKUNGSAY MATERYAL SES EFEKTLERİ ═══
     // GalakSay Revizyon — 2026-03-18 — Materyal etkileşim sesleri
     chipDrop: () => {
-      // Pul bırakma — metalik tık
+      // Yıldız taşı bırakma — metalik tık
       warm(1200, 0.06, 0.08);
       chime(2400, 0.08, 0.03, 0.02);
     },
     chipPop: () => {
-      // Pul seçme — pop
+      // Yıldız taşı seçme — pop
       boing(800, 1100, 0.08, 0.06);
     },
     merge: () => {
@@ -1716,7 +1716,7 @@ const QR_SYSTEM = {
 };
 
 // ═══ AR DENEYİMİ ALTYAPISI (§5.2) ══════════════════════════════════════════
-// Rapor: Artırılmış Gerçeklik — kamera üzerinde sanal kapsül/pul gösterimi
+// Rapor: Artırılmış Gerçeklik — kamera üzerinde sanal kapsül/yıldız taşı gösterimi
 const AR_MODE = {
   supported: typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia,
   features: [
@@ -1730,7 +1730,7 @@ const AR_MODE = {
 };
 
 const C = {
-  // Pul renkleri — parlak, doygun, canlı
+  // Yıldız taşı renkleri — parlak, doygun, canlı
   blue: "#3b82f6", red: "#dc2626", green: "#059669",
   // §T3 Calcularis Transfer: Basamak değeri renk kodlaması
   pvOnes: "#059669", pvTens: "#3b82f6", pvHunds: "#dc2626", // birler=yeşil, onlar=mavi, yüzler=kırmızı
@@ -1870,7 +1870,7 @@ const getScaffoldLevel = (acc, streak) => {
 };
 const SCAFFOLD_LABELS = ["🛟 Tam Destek", "🔄 Az Destek", "🎯 Bağımsız"];
 // ═══ ÖĞRENME-ÖĞRETME İÇERİĞİ ══════════════════════════════════════════════
-// Her kategori için adım adım yapılandırılmış DokunSay kapsül/pul temelli öğretim
+// Her kategori için adım adım yapılandırılmış DokunSay kapsül/yıldız taşı temelli öğretim
 // Pedagojik yaklaşım: CRA modeli — Somut→Temsili→Soyut geçiş
 const LEARN_CONTENT = {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1939,7 +1939,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "Bir Fazla, Bir Eksik",
-        text: "5 yıldız taşlı enerji kapsülüna bak — her yıldız taşının üstünde sıra numarası var. 5'in bir öncesi 4, bir sonrası 6'dır. Yeşil sayı yıldız taşları hangi sırada olduğunu gösterir. Her sayının bir komşusu vardır!",
+        text: "5 yıldız taşlı enerji kapsülüne bak — her yıldız taşının üstünde sıra numarası var. 5'in bir öncesi 4, bir sonrası 6'dır. Yeşil sayı yıldız taşları hangi sırada olduğunu gösterir. Her sayının bir komşusu vardır!",
         tts: "Beşin bir öncesi dört, bir sonrası altı! Yeşil yıldız taşları sırayı gösterir.",
         visual: "successorPredecessor", rodCount: 5,
         note: "Bir yıldız taşı eklemek veya çıkarmak, toplama ve çıkarma öğrenmenin ilk adımıdır."
@@ -2264,7 +2264,7 @@ const LEARN_CONTENT = {
     steps: [
       {
         title: "Çıkarma Nedir? Ayırma",
-        text: "7 yıldız taşından 3 tanesini çıkar. Kaç yıldız taşıkaldı? 7 − 3 = 4. Çıkarma, bir gruptan bir kısmını ayırmaktır.",
+        text: "7 yıldız taşından 3 tanesini çıkar. Kaç yıldız taşı kaldı? 7 − 3 = 4. Çıkarma, bir gruptan bir kısmını ayırmaktır.",
         tts: "Yedi yıldız taşından üç tanesini çıkar: dört kalır!",
         visual: "subtractionLearn", total: 7, remove: 3,
         note: "Ayırma, en temel çıkarma yöntemidir."
@@ -2617,7 +2617,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "Renk Gruplaması",
-        text: "DokunSay kapsülündeki 5 mavi + kırmızılar düzeni hafızana yardımcı olur. 8 yıldız taşıgördüğünde '5 mavi, 3 kırmızı' diye hemen tanırsın!",
+        text: "DokunSay kapsülündeki 5 mavi + kırmızılar düzeni hafızana yardımcı olur. 8 yıldız taşı gördüğünde '5 mavi, 3 kırmızı' diye hemen tanırsın!",
         tts: "Beş mavi artı üç kırmızı: sekiz! Renk gruplaması hafızanı güçlendirir.",
         visual: "memoryLearn", count: 8,
         note: "Renkleri kullanarak sayıları daha kolay hatırla!"
@@ -2689,7 +2689,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "10 Birlik = 1 Onluk",
-        text: "10 tane birliği bir araya getirince yeni bir birim oluşur: 'onluk'. 10 yıldız taşını bir kapsüldegrupla → artık '10 birlik' yerine '1 onluk' de!",
+        text: "10 tane birliği bir araya getirince yeni bir birim oluşur: 'onluk'. 10 yıldız taşını bir kapsülde grupla → artık '10 birlik' yerine '1 onluk' de!",
         tts: "On birliği grupla ve bir onluk yap! On birlik eşittir bir onluk.",
         visual: "bundleLearn", count: 10,
         note: "10 birlik = 1 onluk. Bu kural sayı sisteminin temelidir."
@@ -5644,7 +5644,7 @@ const MATH_INSIGHTS = {
     wrong: ["Nesneleri say ve doğru rakamla eşle!", "Sayarak miktarı bul, sonra o rakamı seç!", "Her rakam bir miktarı temsil eder — doğru eşleşmeyi bul!"],
   },
   buildNumber: {
-    correct: ["Sayıyı doğru oluşturdun!", "Sayı oluşturmak yapı taşlarıyla inşa etmek gibi!", "Her yıldız taşıyerli yerine — yapıcı düşünce!"],
+    correct: ["Sayıyı doğru oluşturdun!", "Sayı oluşturmak yapı taşlarıyla inşa etmek gibi!", "Her yıldız taşı yerli yerine — yapıcı düşünce!"],
     wrong: ["İstenen sayıya ulaşana kadar ekle!", "Sayıyı parça parça oluştur!", "Kaç tane olduğunu say — hedefe ulaşana kadar devam et!"],
   },
   spaceKitchen: {
@@ -9066,7 +9066,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         sembolik = `${q.a} × ${q.b} = ?`;
       } else if (ct === "multiplyGroupSizeUnknown") {
         somut = `${nw(q.c)} yıldız taşını ${nw(q.a)} eşit gruba paylaştır. Her grupta kaç yıldız taşı var?`;
-        gorsel = `${nw(q.c)} yıldız taşını ${nw(q.a)} kapsüle eşit dağıt. Her kapsüldeki yıldız taşısayısı cevap.`;
+        gorsel = `${nw(q.c)} yıldız taşını ${nw(q.a)} kapsüle eşit dağıt. Her kapsüldeki yıldız taşı sayısı cevap.`;
         sembolik = `${q.c} ÷ ${q.a} = ?`;
       } else if (ct === "multiplyNumGroupsUnknown") {
         somut = `${nw(q.c)} yıldız taşından ${nw(q.b)}'şerli gruplar oluştur. Kaç grup yapabildin?`;
@@ -13198,7 +13198,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <TXT>{q.a} × {q.b} kaç eder?</TXT>
           {!isZeroOne && <SUB>{ttSmaller} grup, her grupta {ttBigger} yıldız taşı</SUB>}
           {isZeroOne && <SUB style={{ fontSize: 11, color: badge?.color || "#94a3b8" }}>{badge?.tip}</SUB>}
-          {/* Pul grupları görseli — 0 stratejisi için boş kutu */}
+          {/* Yıldız taşı grupları görseli — 0 stratejisi için boş kutu */}
           {ttStrat === "zero" ? (
             <div style={{ padding: "16px 24px", borderRadius: 16, background: "rgba(99,102,241,.08)",
               border: "2px dashed #6366f1", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -18643,7 +18643,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           return (<div style={bx}>
             {ci<st.examples.length ? (<>
               {!showing && !ans && (<>
-                <div style={{fontSize:12,fontWeight:800,color:"#7c3aed"}}>Hazır mısın? Pullar kısa süre görünecek!</div>
+                <div style={{fontSize:12,fontWeight:800,color:"#7c3aed"}}>Hazır mısın? Yıldız taşları kısa süre görünecek!</div>
                 <button onClick={() => {tap(100+ci);setTimeout(()=>{setLearnTapped(p=>{const s=new Set(p);s.delete(100+ci);return s;});},1500);}} style={{padding:"14px 32px",borderRadius:14,border:"none",fontFamily:F,background:"linear-gradient(135deg,#7c3aed,#6d28d9)",color:"#fff",fontSize:16,fontWeight:900,cursor:"pointer"}}>Göster! 👁️</button>
               </>)}
               {showing && <div style={{display:"flex",justifyContent:"center",animation:"fadeIn .2s ease"}}><NumberRod count={cur} defaultColor="blue" size={40} showNumber={false} /></div>}
@@ -18895,7 +18895,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         }
 
-        // ── Çarpma: gruplara dokun, yıldız taşıdol ──
+        // ── Çarpma: gruplara dokun, yıldız taşları dolsun ──
         case "multiplyLearn": {
           return (<div style={bx}>
             <div style={{fontSize:11,fontWeight:800,color:"#ea580c"}}>{st.groups} × {st.perGroup} → her gruba dokun!</div>
@@ -19487,7 +19487,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>);
         }
 
-        // ── Onluk Kapsül +Birlik Pul: sayıyı görselleştir ──
+        // ── Onluk Kapsül + Birlik Yıldız Taşı: sayıyı görselleştir ──
         // ── Ritmik Sayma: 10'ar ritmik sayarak yeşil yıldız taşlarıla say ──
         case "rhythmicCountLearn": {
           const step=st.step||10;
@@ -19509,7 +19509,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       <NumberRod key={j} count={10} defaultColor="blue" solid size={8} />
                     ))}
                   </div>
-                  {/* Yeşil yıldız taşıveya placeholder */}
+                  {/* Yeşil yıldız taşı veya placeholder */}
                   {rev
                     ? <GreenChip num={num} size={44} glow countAnim />
                     : <div style={{width:44,height:44,borderRadius:"50%",
@@ -19740,7 +19740,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
         case "buildNumberLearn": {
           return (<div style={bx}>
-            {hint("Kapsüle yıldız taşısürükleyerek sayıyı kur!")}
+            {hint("Kapsüle yıldız taşı sürükleyerek sayıyı kur!")}
             {(st.examples||[{n:6,desc:"6 yıldız taşı"}]).map((ex,i) => {
               const n=typeof ex==="number"?ex:ex.n;
               return <Rod key={i} count={n} size={30} showNum label={`${n} yıldız taşı`} />;
@@ -19961,7 +19961,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           const isSub = st.visual==="subProgressionLearn";
           const isMul = st.visual==="timesTableLearn";
           const stages = [
-            { icon: "👆", label: isAdd?"Sayarak bul":isSub?"Pul çıkar, say":isMul?"Grupları say":"Paylaştır",
+            { icon: "👆", label: isAdd?"Sayarak bul":isSub?"Yıldız taşı çıkar, say":isMul?"Grupları say":"Paylaştır",
               desc: isAdd?"3+4: 1,2,3...4,5,6,7":isSub?"7−3: yıldız taşı çıkar, 4 kaldı":isMul?"3×4: 4,8,12":"12÷3: birer birer dağıt" },
             { icon: "💡", label: "Kısayol kullan",
               desc: isAdd?"Çiftler, 10'a tamamla":isSub?"Geriye say, köprüle":isMul?"Ritmik say, ikile":"Çarpmayı tersine düşün" },
@@ -20348,31 +20348,31 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     // Mod bazlı materyal kullanım rehberi
     const modeGuides = [
       { cat: "Sayma (Sayalon)", color: "#7c3aed", modes: [
-        { mode: "Göktaşı Say", mat: "Kapsül +Mavi yıldız taşı", tip: "Her sayılan nesne için bir yıldız taşıkapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsüldeda sayar." },
-        { mode: "Miktar Eşle", mat: "Kapsül +Pul", tip: "Ekrandaki miktara eşit sayıda yıldız taşıkapsüle dizilir. Birebir eşleme prensibi pekiştirilir." },
-        { mode: "Sıra Sayısı", mat: "Kapsül +Renkli yıldız taşı", tip: "Pullar sırayla dizilerek 'birinci, ikinci...' sıra kavramı somutlaştırılır." },
+        { mode: "Göktaşı Say", mat: "Kapsül + Mavi yıldız taşı", tip: "Her sayılan nesne için bir yıldız taşı kapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsülde de sayar." },
+        { mode: "Miktar Eşle", mat: "Kapsül + Yıldız taşı", tip: "Ekrandaki miktara eşit sayıda yıldız taşı kapsüle dizilir. Birebir eşleme prensibi pekiştirilir." },
+        { mode: "Sıra Sayısı", mat: "Kapsül + Renkli yıldız taşı", tip: "Yıldız taşları sırayla dizilerek 'birinci, ikinci...' sıra kavramı somutlaştırılır." },
       ]},
       { cat: "Sanbil (Şimşeron)", color: "#7c3aed", modes: [
-        { mode: "Şimşek Bakışı", mat: "Pul düzeni (kartlar)", tip: "Zarara düzeni, domino düzeni gibi yıldız taşıdizilimleri hazırlayıp çocuğa kısa süre gösterin." },
+        { mode: "Şimşek Bakışı", mat: "Yıldız taşı düzeni (kartlar)", tip: "Zar düzeni, domino düzeni gibi yıldız taşı dizilimleri hazırlayıp çocuğa kısa süre gösterin." },
         { mode: "Beşli/Onlu Çerçeve", mat: "Beşlik + Onluk çerçeve", tip: "Çerçevenin oyuklarına yıldız taşı yerleştirilir. 5+n yapısı görsel bellekte kalıcılaşır (ör. 7 = 5 dolu + 2 dolu)." },
       ]},
       { cat: "Karşılaştırma (Terazya)", color: "#059669", modes: [
-        { mode: "Büyük/Küçük", mat: "2 kapsül yan yana", tip: "İki kapsülü yan yana koyup hangi kapsüldeki yıldız taşısayısının fazla olduğunu görsel olarak karşılaştırın." },
-        { mode: "Sıraya Diz", mat: "3-5 kapsül", tip: "Farklı miktarda yıldız taşıyerleştirilmiş kapsülleri küçükten büyüğe dizin." },
+        { mode: "Büyük/Küçük", mat: "2 kapsül yan yana", tip: "İki kapsülü yan yana koyup hangi kapsüldeki yıldız taşı sayısının fazla olduğunu görsel olarak karşılaştırın." },
+        { mode: "Sıraya Diz", mat: "3-5 kapsül", tip: "Farklı miktarda yıldız taşı yerleştirilmiş kapsülleri küçükten büyüğe dizin." },
       ]},
       { cat: "Bileşim (Bileşya)", color: "#d97706", modes: [
         { mode: "5'e Tamamla", mat: "Kapsül (ilk 5 oyuk)", tip: "Çubuğun mavi bölümünde n yıldız taşı var, kaç tane daha koyarsan 5 olur? Tamamlama stratejisi." },
         { mode: "10'a Tamamla", mat: "Tam kapsül (10 oyuk)", tip: "Kapsüle n yıldız taşı koy, boş kalan oyuk sayısı 10'un tamamlayıcısıdır." },
-        { mode: "Parça-Bütün", mat: "1 kapsül + 2 renk yıldız taşı", tip: "Bütünü (ör. 8) mavi ve kırmızı yıldız taşlarıa ayırarak farklı parçalama olasılıklarını deneyin." },
+        { mode: "Parça-Bütün", mat: "1 kapsül + 2 renk yıldız taşı", tip: "Bütünü (ör. 8) mavi ve kırmızı yıldız taşlarına ayırarak farklı parçalama olasılıklarını deneyin." },
       ]},
       { cat: "Toplama-Çıkarma (Toplarya)", color: "#f59e0b", modes: [
-        { mode: "Toplama", mat: "2 kapsül + Pul", tip: "Birinci kapsüle a, ikinciye b yıldız taşı koyun. İkinci kapsülden birinciye aktararak toplamı bulun." },
-        { mode: "Çıkarma", mat: "1 kapsül + Pul", tip: "Kapsüle a yıldız taşı koyun, sonra b tanesini çıkarın. Kalan yıldız taşısayısı sonuçtur." },
-        { mode: "Üzerine Say", mat: "Kapsül +Pul", tip: "Büyük sayıdan başlayıp parmakla oyukları göstererek üzerine sayın (ör. 5... 6, 7, 8)." },
+        { mode: "Toplama", mat: "2 kapsül + Yıldız taşı", tip: "Birinci kapsüle a, ikinciye b yıldız taşı koyun. İkinci kapsülden birinciye aktararak toplamı bulun." },
+        { mode: "Çıkarma", mat: "1 kapsül + Yıldız taşı", tip: "Kapsüle a yıldız taşı koyun, sonra b tanesini çıkarın. Kalan yıldız taşı sayısı sonuçtur." },
+        { mode: "Üzerine Say", mat: "Kapsül + Yıldız taşı", tip: "Büyük sayıdan başlayıp parmakla oyukları göstererek üzerine sayın (ör. 5... 6, 7, 8)." },
       ]},
       { cat: "Çarpma-Bölme (Çarpanya)", color: "#9333ea", modes: [
-        { mode: "Tekrarlı Toplama", mat: "Birden fazla kapsül", tip: "3 kapsüle 4'er yıldız taşı koyarak 3×4'ü somutlaştırın. 'Her kapsülde4, toplam kaç?'" },
-        { mode: "Eşit Paylaşım", mat: "Pullar + Küçük kaplar", tip: "12 yıldız taşını 3 kaba eşit dağıtın. Her kapta kaç yıldız taşıkaldığı bölme sonucudur." },
+        { mode: "Tekrarlı Toplama", mat: "Birden fazla kapsül", tip: "3 kapsüle 4'er yıldız taşı koyarak 3×4'ü somutlaştırın. 'Her kapsülde 4, toplam kaç?'" },
+        { mode: "Eşit Paylaşım", mat: "Yıldız taşları + Küçük kaplar", tip: "12 yıldız taşını 3 kaba eşit dağıtın. Her kapta kaç yıldız taşı kaldığı bölme sonucudur." },
         { mode: "Dizi Düzeni", mat: "Satır×sütun yıldız taşı dizilimi", tip: "Yıldız taşlarını ızgara düzeninde dizip satır ve sütun sayılarını çarpma olarak okuyun." },
       ]},
     ];
@@ -20444,13 +20444,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               </div>
 
-              {/* Pullar */}
+              {/* Yıldız Taşları */}
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#059669,#047857)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🔵</div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 900, color: "#34d399" }}>Pullar (Chips)</div>
-                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Çubuğun oyuklarına yerleştirilen yuvarlak parçalar</div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: "#34d399" }}>Yıldız Taşları (Chips)</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Kapsülün oyuklarına yerleştirilen yuvarlak parçalar</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
@@ -20466,7 +20466,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   ))}
                 </div>
                 <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
-                  Pul kapsülün oyuğuna yerleştirildiğinde <strong style={{ color: "#cbd5e1" }}>dokunsal geri bildirim</strong> sağlar.
+                  Yıldız taşı kapsülün oyuğuna yerleştirildiğinde <strong style={{ color: "#cbd5e1" }}>dokunsal geri bildirim</strong> sağlar.
                   Çocuk yıldız taşını tutma, yerleştirme ve çıkarma eylemlerini yaparken bire-bir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
                 </div>
               </div>
@@ -20550,9 +20550,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   Her yörünge, çocuğun gelişimsel basamağına uygun somut etkinlikler önerir.
                 </div>
                 {[
-                  { lt: "Sayma Yörüngesi", desc: "Sözel sayma → Birebir eşlemeli sayma → Kardinal sayma → İleri-geri sayma", mat: "Kapsül +sıralı yıldız taşıyerleştirme" },
-                  { lt: "Sanbil Yörüngesi", desc: "Algısal sanbil (1-4) → Algısal sanbil (5) → Kavramsal sanbil (5+n) → Onluk kart sanbil", mat: "Pul düzenleri, beşlik/onluk kartlar" },
-                  { lt: "Toplama/Çıkarma", desc: "Somut birleştirme → Üzerine sayma → Türetilmiş olgular → Akıcı hesap", mat: "2 kapsül yan yana, yıldız taşıaktarma" },
+                  { lt: "Sayma Yörüngesi", desc: "Sözel sayma → Birebir eşlemeli sayma → Kardinal sayma → İleri-geri sayma", mat: "Kapsül + sıralı yıldız taşı yerleştirme" },
+                  { lt: "Sanbil Yörüngesi", desc: "Algısal sanbil (1-4) → Algısal sanbil (5) → Kavramsal sanbil (5+n) → Onluk kart sanbil", mat: "Yıldız taşı düzenleri, beşlik/onluk kartlar" },
+                  { lt: "Toplama/Çıkarma", desc: "Somut birleştirme → Üzerine sayma → Türetilmiş olgular → Akıcı hesap", mat: "2 kapsül yan yana, yıldız taşı aktarma" },
                   { lt: "Parça-Bütün", desc: "Sezgisel ayrıştırma → Yapılandırılmış ayrıştırma → Esnek ayrıştırma", mat: "1 kapsül + 2 renk yıldız taşı" },
                 ].map(lt => (
                   <div key={lt.lt} style={{ padding: "10px", borderRadius: 10, background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.1)", marginBottom: 6 }}>
@@ -20627,7 +20627,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#fbbf24", marginBottom: 8 }}>👶 Yaş Grubuna Göre Kullanım</div>
                 {[
                   { age: "Okul Öncesi (5-6)", rules: ["Her etkinlikte fiziksel kapsül zorunlu", "Yalnızca 1-5 arası sayılarla başla", "Beşlik kart ağırlıklı", "Serbest keşif zamanı tanı"], color: "#059669" },
-                  { age: "1. Sınıf (6-7)", rules: ["Yeni kavramlarda fiziksel, bilinen kavramlarda dijital", "Onluk kart ve iki kapsül toplama", "Parça-bütün ayrıştırma aktiviteleri", "Üzerine sayma stratejisi için yıldız taşıaktarma"], color: "#7c3aed" },
+                  { age: "1. Sınıf (6-7)", rules: ["Yeni kavramlarda fiziksel, bilinen kavramlarda dijital", "Onluk kart ve iki kapsül toplama", "Parça-bütün ayrıştırma aktiviteleri", "Üzerine sayma stratejisi için yıldız taşı aktarma"], color: "#7c3aed" },
                   { age: "2. Sınıf (7-8)", rules: ["Çarpma için çoklu kapsül dizilimi", "Basamak değeri için onluk-birlik grupla", "Fiziksel materyal zorlandığında devrede", "Zihinsel stratejiler öne çıktığında azaltılabilir"], color: "#8b5cf6" },
                 ].map(g => (
                   <div key={g.age} style={{ padding: "10px", borderRadius: 10, background: `${g.color}08`, border: `1px solid ${g.color}15`, marginBottom: 6 }}>
@@ -23399,7 +23399,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 partWhole: "Bütünü iki parçaya ayır — parça + parça = bütün",
                 count: "Ekrana dokunarak nesneleri say",
                 frame: "Beşlik/onluk kartla sayı gösterimi",
-                match: "Kapsüldeki yıldız taşısayısını tahmin et",
+                match: "Kapsüldeki yıldız taşı sayısını tahmin et",
                 task: "Rastgele matematik görevlerini çöz",
                 measure: "İki noktaya dokunarak mesafe ölç",
                 free: "Ekrana dokunarak renkli yıldız taşları yerleştir",
@@ -23700,7 +23700,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>♿ Erişilebilirlik</div>
               {[
-                { key: "colorBlind", label: "Renk Körü Modu", desc: "Desen tabanlı yıldız taşıayrımı: mavi=çizgili, kırmızı=noktalı", emoji: "🎨" },
+                { key: "colorBlind", label: "Renk Körü Modu", desc: "Desen tabanlı yıldız taşı ayrımı: mavi=çizgili, kırmızı=noktalı", emoji: "🎨" },
                 { key: "largeText", label: "Büyük Yazı", desc: "Tüm ekranı %15 yakınlaştırır (zoom)", emoji: "🔤" },
                 { key: "reducedMotion", label: "Azaltılmış Animasyon", desc: "Tüm animasyonları ve konfetileri kapatır", emoji: "✨" },
                 { key: "highContrast", label: "Yüksek Kontrast", desc: "Renkler ve kenarlıklar daha belirgin hale gelir", emoji: "🔳" },

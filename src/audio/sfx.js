@@ -87,7 +87,7 @@ export const SFX = (() => {
     // Dokunma — hafif, tatli tiklama
     click: () => { warm(1100, 0.08, 0.06); },
 
-    // Secenek secme — yumusak pop
+    // Seçenek seçme — yumuşak pop
     pop: () => { boing(600, 900, 0.12, 0.1); },
 
     // Dogru cevap — neseli ksilofon arpej (Do-Mi-Sol)
@@ -367,6 +367,67 @@ export const SFX = (() => {
       const f = freqs[Math.min(starIndex, 2)];
       warm(f, 0.25, 0.12);
       chime(f * 2, 0.4, 0.05, 0.1);
+    },
+
+    // ═══ DOKUNGSAY MATERYAL SES EFEKTLERI ═══
+    // Yildiz parcasi toplama — kisa parlak cinlama
+    starFragment: () => {
+      chime(1760, 0.15, 0.08);
+      chime(2349, 0.2, 0.06, 0.08);
+      warm(2637, 0.25, 0.05, 0.15);
+    },
+    // Gemi yukseltme — gorkemli fanfar
+    shipUpgrade: () => {
+      [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => warm(f, 0.2, 0.13, i * 0.1));
+      warm(2093, 0.6, 0.15, 0.65);
+      chime(3136, 0.8, 0.04, 0.8);
+      noise(0.1, 0.02);
+    },
+    // Yildiz tasi birakma — metalik tik
+    chipDrop: () => {
+      warm(1200, 0.06, 0.08);
+      chime(2400, 0.08, 0.03, 0.02);
+    },
+    // Yildiz tasi secme — pop
+    chipPop: () => {
+      boing(800, 1100, 0.08, 0.06);
+    },
+    // Kapsul birlesmesi — enerji sarj sesi
+    merge: () => {
+      boing(300, 800, 0.25, 0.08);
+      warm(880, 0.2, 0.06, 0.15);
+      chime(1760, 0.3, 0.04, 0.25);
+    },
+    // Kapsul bolunmesi — kristal kirik
+    split: () => {
+      noise(0.08, 0.04);
+      warm(1200, 0.08, 0.07);
+      warm(800, 0.12, 0.06, 0.05);
+      chime(600, 0.15, 0.04, 0.08);
+    },
+    // Manyetik snap — hafif tik
+    magnetSnap: () => {
+      warm(1400, 0.04, 0.05);
+      chime(2100, 0.06, 0.02, 0.01);
+    },
+    // Materyal birakma — yumusak oturma
+    drop: () => {
+      warm(600, 0.08, 0.06);
+      boing(400, 200, 0.06, 0.03, 0.03);
+    },
+    // Yildiz tasi eslesmesi — parlak cinlama
+    starDrop: () => {
+      warm(1047, 0.12, 0.08);
+      chime(2093, 0.18, 0.06, 0.06);
+      chime(2637, 0.12, 0.03, 0.12);
+    },
+    // 10 yildiz tasi → kapsul donusum — enerji birikimi + patlama
+    pulToKapsul: () => {
+      [523, 587, 659, 784, 880, 988, 1047, 1175, 1319, 1568].forEach((f, i) =>
+        warm(f, 0.08, 0.06 + i * 0.005, i * 0.05)
+      );
+      chime(2093, 0.5, 0.06, 0.55);
+      boing(300, 1200, 0.15, 0.04, 0.5);
     },
   };
 })();
