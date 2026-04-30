@@ -23,14 +23,20 @@ import { STORES, openDB, getAllFromStore } from '../analytics/database.js';
 import { decryptJSON } from './crypto.js';
 
 const DB_NAME = 'galaksay_analytics';
+// 2026-04-30 KVKK düzeltmesi: NuMap verileri (numap_intervention_*, numap_progress_*)
+// bu prefix dışında tutuluyordu — "tüm veriyi sil" çağrıldığında geride kalıyorlardı.
+// Artık iki prefix de tarama+silme kapsamında.
+const LS_PREFIXES = ['galaksay_', 'numap_'];
+// Geriye uyumluluk için tek prefix değişkeni de korundu (yeni kodda LS_PREFIXES kullanın)
 const LS_PREFIX = 'galaksay_';
+const _hasManagedPrefix = (k) => !!k && LS_PREFIXES.some(p => k.startsWith(p));
 
 async function readLocalStorage() {
   const out = {};
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (!key || !key.startsWith(LS_PREFIX)) continue;
+      if (!_hasManagedPrefix(key)) continue;
       const raw = localStorage.getItem(key);
       // Şifreli ise çöz (taşınabilirlik metnini düz olarak ver — kullanıcı kendi verisidir)
       if (raw && raw.startsWith('enc1:')) {
@@ -113,7 +119,7 @@ function clearLocalStorageGalaksayKeys() {
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+      if (_hasManagedPrefix(k)) keys.push(k);
     }
     for (const k of keys) {
       localStorage.removeItem(k);
@@ -130,10 +136,33 @@ function clearSessionStorageGalaksayKeys() {
     const keys = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const k = sessionStorage.key(i);
-      if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+      if (_hasManagedPrefix(k)) keys.push(k);
     }
     for (const k of keys) sessionStorage.removeItem(k);
   } catch {}
+}
+
+// 2026-04-30: Tek bir NuMap müdahale planını + ilerleme verisini sil (KVKK md.7)
+// childCode verilirse sadece o çocuğun verisi; verilmezse tüm numap_* anahtarları silinir.
+/** @param {string} [childCode] @returns {string[]} Silinen anahtarların listesi */
+export function eraseNumapData(childCode) {
+  const removed = [];
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith('numap_')) continue;
+      if (childCode && !k.endsWith('_' + childCode)) continue;
+      keys.push(k);
+    }
+    for (const k of keys) {
+      localStorage.removeItem(k);
+      removed.push(k);
+    }
+  } catch (err) {
+    console.error('[GalakSay] NuMap silme hatası:', err);
+  }
+  return removed;
 }
 
 /** Tüm GalakSay yerel verisini siler (KVKK md.11). @returns {Promise<EraseResult>} */

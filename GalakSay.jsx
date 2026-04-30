@@ -6606,6 +6606,33 @@ function GalaksayGameInner() {
     return profile;
   }, [applyNumapProfile]);
 
+  // 2026-04-30 KVKK düzeltmesi: NuMap planını gerçekten kaldır
+  // — React state'i temizlemekle KALMAZ, localStorage'dan da siler
+  // — childCode verilirse sadece o çocuğun planı; verilmezse aktif planın çocuğu
+  // — Onay isteğe bağlı; UI tarafında confirm() ile sorulması beklenir
+  const removeNumapPlan = useCallback((childCode) => {
+    try {
+      const code = childCode || numapProfile?.child?.code;
+      if (code) {
+        // Belirli bir çocuğun plan + ilerleme verisini sil
+        localStorage.removeItem("numap_intervention_" + code);
+        localStorage.removeItem("numap_progress_" + code);
+      } else {
+        // Çocuk kodu bilinmiyorsa tüm numap_* anahtarlarını süpür
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith("numap_")) keys.push(k);
+        }
+        keys.forEach(k => localStorage.removeItem(k));
+      }
+      setNumapProfile(null);
+      setNumapModes(null);
+      setNumapStartMode(null);
+      setNumapSupport(null);
+    } catch (e) { console.warn("NuMap silme hatası:", e); }
+  }, [numapProfile]);
+
   // AR kamera yönetimi — screen "ar" olduğunda başlat, çıkınca kapat
   useEffect(() => {
     if (screen !== "ar") return;
@@ -15122,6 +15149,15 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   } },
                   { icon: "✏️", label: "Manuel Profil", desc: "Risk ve alan seç", color: "#a855f7", onClick: () => navigateTo("numapManual") },
                   { icon: "📊", label: "İlerleme Raporu", desc: "NuMap karşılaştır", color: "#10b981", onClick: () => navigateTo("numapReport") },
+                  // 2026-04-30 KVKK md.7 — Yüklenen NuMap planını her zaman silme yetkisi
+                  { icon: "🗑", label: "NuMap Sil", desc: numapProfile ? "Aktif planı kaldır" : "Yüklü plan yok", color: "#ef4444", onClick: () => {
+                    if (!numapProfile) { alert("Şu an aktif bir NuMap planı yok."); return; }
+                    const childName = numapProfile?.child?.name || "Aktif çocuk";
+                    if (window.confirm(`${childName} için yüklü NuMap planı + ilerleme verisi kalıcı olarak silinecek (KVKK md.7). Devam edilsin mi?`)) {
+                      removeNumapPlan();
+                      alert("NuMap planı silindi.");
+                    }
+                  } },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 10px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", flexDirection: "column", gap: 5 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{c.icon}</div>
@@ -15249,7 +15285,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div style={{ fontSize: 12, fontWeight: 900, color: "#c4b5fd" }}>NuMap Önerisi Aktif</div>
                 <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(196,181,253,.65)" }}>{numapModes.length} mod önerildi {numapProfile?.child?.name ? ("— " + numapProfile.child.name) : ""}</div>
               </div>
-              <button onClick={() => { setNumapProfile(null); setNumapModes(null); setNumapStartMode(null); }} style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(124,58,237,.3)", background: "rgba(124,58,237,.1)", color: "#a78bfa", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: F }}>✕</button>
+              <button onClick={() => {
+                const childName = numapProfile?.child?.name || "bu çocuğun";
+                if (window.confirm(`${childName} NuMap müdahale planı kalıcı olarak silinecek (rapor + ilerleme verisi). Devam edilsin mi?`)) {
+                  removeNumapPlan();
+                }
+              }} title="NuMap planını kalıcı sil" aria-label="NuMap planını sil" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(124,58,237,.3)", background: "rgba(124,58,237,.1)", color: "#a78bfa", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: F }}>🗑 Sil</button>
             </div>
           )}
 
