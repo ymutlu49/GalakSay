@@ -7199,6 +7199,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const sessionGraceRef = useRef(0);         // yetişkin onaylı ek süre (sn)
   const [sessionWindDown, setSessionWindDown] = useState(false);
   const [sessionGateOpen, setSessionGateOpen] = useState(false);
+  const [hubToolsOpen, setHubToolsOpen] = useState(false); // childHub: Analiz & Takip akordeonu (varsayılan kapalı — iniş oyun-öncelikli)
   const sessionLimitSec = useCallback(() => {
     let raw = NaN;
     try { raw = parseInt(localStorage.getItem("galaksay_session_limit_min") || "", 10); } catch {} // storage engelliyse varsayılana düş
@@ -15654,40 +15655,77 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 ))}
               </div>
             )}
-            {/* Birincil aksiyon — Oyna */}
-            <button onClick={() => navigateTo(ageGroup ? "journey" : "ageSelect")} style={{
-              width: "100%", padding: "16px", borderRadius: 16, border: "1px solid rgba(139,92,246,.25)",
-              background: "linear-gradient(135deg,#4f46e5,#6366f1,#8b5cf6)", color: "#fff",
-              fontSize: 16, fontWeight: 900, cursor: "pointer", position: "relative", overflow: "hidden",
-              boxShadow: "0 6px 24px rgba(99,102,241,.3), inset 0 1px 0 rgba(255,255,255,.15)",
-              fontFamily: F, letterSpacing: .3, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            }}>
-              <span style={{ position: "relative", zIndex: 1 }}>🚀 {playerName ? `${playerName} ile Keşfet` : "Oyuna Başla"}</span>
-            </button>
-            {/* KALDIĞI YERDEN DEVAM — son oynanan mod+seviye (resume) */}
-            {lastPlayed && gmi(lastPlayed.mode) && (
-              <button onClick={() => { setGameMode(lastPlayed.mode); setLevel(lastPlayed.level); navigateTo("levelSelect"); }} style={{
-                width: "100%", padding: "13px", borderRadius: 14, border: "1px solid rgba(52,211,153,.35)",
-                background: "rgba(52,211,153,.14)", color: "#6ee7b7", fontSize: 14.5, fontWeight: 800,
+            {/* ── EYLEM SIRASI (kullanıcı akış kararı 2026-06-12) ──
+                İLK giriş (devam noktası yok): Numap önerisi varsa BİRİNCİL (tanılamadan gelen
+                kişisel başlangıç noktası bir kez net sorulur) → Keşfet ikincil.
+                SONRAKİ girişler: çocuk HER ZAMAN kaldığı yerden devam eder (birincil) →
+                Keşfet ikincil → Numap önerisi pasif küçük bağlantıya iner (tekrar dayatılmaz). */}
+            {(() => {
+              const hubResume = lastPlayed && gmi(lastPlayed.mode);
+              const primaryStyle = {
+                width: "100%", padding: "16px", borderRadius: 16, border: "1px solid rgba(139,92,246,.25)",
+                background: "linear-gradient(135deg,#4f46e5,#6366f1,#8b5cf6)", color: "#fff",
+                fontSize: 16, fontWeight: 900, cursor: "pointer", position: "relative", overflow: "hidden",
+                boxShadow: "0 6px 24px rgba(99,102,241,.3), inset 0 1px 0 rgba(255,255,255,.15)",
+                fontFamily: F, letterSpacing: .3, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              };
+              const secondaryStyle = {
+                width: "100%", padding: "13px", borderRadius: 14, border: "1px solid rgba(148,163,184,.25)",
+                background: "rgba(148,163,184,.08)", color: "#cbd5e1", fontSize: 14.5, fontWeight: 800,
                 cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              }}>
-                ▶ Kaldığın yerden devam: {gmi(lastPlayed.mode)?.i} {gmi(lastPlayed.mode)?.n}
-              </button>
-            )}
-            {/* Numap önerilen başlangıç modu — varsa hızlı giriş (serbest "Oyna" da korunur) */}
-            {numapStartMode && (
-              <button onClick={() => launchFromJourney(numapStartMode)} style={{
-                width: "100%", padding: "12px", borderRadius: 14, border: "1px solid rgba(34,211,238,.3)",
-                background: "rgba(34,211,238,.12)", color: "#67e8f9", fontSize: 14, fontWeight: 800,
-                cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              }}>
-                🎯 Numap önerisiyle başla
-              </button>
-            )}
-            {/* Analiz araçları — yalnız öğretmen/uzman görünümünde (çocuk self-login'de gizli) */}
+              };
+              const goResume = () => { setGameMode(lastPlayed.mode); setLevel(lastPlayed.level); navigateTo("levelSelect"); };
+              const goExplore = () => navigateTo(ageGroup ? "journey" : "ageSelect");
+              if (hubResume) {
+                return (<>
+                  <button onClick={goResume} style={primaryStyle}>
+                    <span style={{ position: "relative", zIndex: 1 }}>▶ Kaldığın yerden devam: {gmi(lastPlayed.mode)?.i} {gmi(lastPlayed.mode)?.n}</span>
+                  </button>
+                  <button onClick={goExplore} style={secondaryStyle}>
+                    🚀 {playerName ? `${playerName} ile Keşfet` : "Serbest Keşfet"}
+                  </button>
+                  {numapStartMode && (
+                    <button onClick={() => launchFromJourney(numapStartMode)} style={{
+                      width: "100%", padding: "8px", borderRadius: 10, border: "none", background: "transparent",
+                      color: "#67e8f9", fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: F, opacity: .75,
+                    }}>
+                      🎯 Numap önerisinden yeniden başla
+                    </button>
+                  )}
+                </>);
+              }
+              // İlk giriş — devam noktası yok
+              return (<>
+                {numapStartMode ? (<>
+                  <button onClick={() => launchFromJourney(numapStartMode)} style={{
+                    ...primaryStyle, background: "linear-gradient(135deg,#0e7490,#0891b2,#22d3ee)",
+                    border: "1px solid rgba(34,211,238,.35)", boxShadow: "0 6px 24px rgba(34,211,238,.25), inset 0 1px 0 rgba(255,255,255,.15)",
+                  }}>
+                    <span style={{ position: "relative", zIndex: 1 }}>🎯 Numap önerisiyle başla</span>
+                  </button>
+                  <button onClick={goExplore} style={secondaryStyle}>
+                    🚀 {playerName ? `${playerName} ile Keşfet` : "Serbest Keşfet"}
+                  </button>
+                </>) : (
+                  <button onClick={goExplore} style={primaryStyle}>
+                    <span style={{ position: "relative", zIndex: 1 }}>🚀 {playerName ? `${playerName} ile Keşfet` : "Oyuna Başla"}</span>
+                  </button>
+                )}
+              </>);
+            })()}
+            {/* Analiz araçları — yalnız öğretmen/uzman görünümünde, VARSAYILAN KAPALI akordeon:
+                iniş ekranı oyun-öncelikli kalır; analiz bir dokunuş arkasında (çocuk self-login'de tamamen gizli) */}
             {!child?.directPlay && (<>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 4 }}>📊 Analiz & Takip</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <button onClick={() => setHubToolsOpen(o => !o)} style={{
+              marginTop: 4, padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(148,163,184,.18)",
+              background: "rgba(30,27,75,.4)", cursor: "pointer", fontFamily: F,
+              display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+            }} aria-expanded={hubToolsOpen}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2 }}>📊 Analiz & Takip</span>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>{hubToolsOpen ? "▲ Gizle" : "▼ Aç"}</span>
+            </button>
+            {hubToolsOpen && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp .25s ease" }}>
               {hubTools.map(c => (
                 <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 14px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{c.icon}</div>
@@ -15698,6 +15736,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </button>
               ))}
             </div>
+            )}
             </>)}
           </div>
         </div>
