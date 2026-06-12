@@ -1,0 +1,360 @@
+// GalakSay — Cihaz-yerel çocuk profilleri (Numap'siz mod).
+//
+// Öğretmen/uzman cihazda çocuk profilleri oluşturur; çocuk kendi profilini
+// seçip 4-haneli PIN ile girer ve oyununa KALDIĞI YERDEN devam eder.
+//
+// Önemli mimari nokta: oyun ilerlemesi zaten ns-namespace'lidir
+// (`ds_*_<ns>`, `dokunsay-user-<ns>`). Bu servis YALNIZ roster'ı tutar
+// (ad/avatar/yaş-grubu/PIN); ns sabit olduğu için oyun kendiliğinden resume eder.
+// Yani profil silinmeden ns korunur → çocuk her girişte kaldığı yerden devam eder.
+
+import { hashPin, verifyPin as verifyHash } from '../utils/crypto.js';
+
+const KEY = 'galaksay_local_children';
+
+// Çocukların seçebileceği avatarlar (uzay teması — oyunun materyalleriyle uyumlu).
+export const LOCAL_AVATARS = ['🚀', '🪐', '⭐', '🌟', '🛸', '☄️', '🌙', '🌍', '👽', '🤖', '🦊', '🐱'];
+
+// Yaş-grubu seçenekleri (GalakSay ageGroup anahtarlarıyla birebir).
+export const AGE_GROUPS = [
+  { key: 'okuloncesi', label: 'Okul Öncesi', hint: '5-6 yaş', icon: '🪐' },
+  { key: 'sinif1', label: '1. Sınıf', hint: '6-7 yaş', icon: '⭐' },
+  { key: 'sinif2', label: '2. Sınıf', hint: '7-8 yaş', icon: '🚀' },
+];
+
+function readAll() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAll(list) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(list));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Kararlı, çakışmasız ns: `local_<artan>`. Silinen kayıtla çakışmaması için
+// mevcut en büyük numaranın bir fazlası alınır (sayaç geri sarmaz).
+function genNs(existing) {
+  const maxNum = existing.reduce((m, c) => {
+    const mt = /^local_(\d+)$/.exec(c.ns || '');
+    return mt ? Math.max(m, +mt[1]) : m;
+  }, 0);
+  return `local_${maxNum + 1}`;
+}
+
+// Yerel çocuklar. ownerId verilirse YALNIZ o kullanıcının (öğretmenin) öğrencileri
+// döner (izolasyon); verilmezse (StudentPicker self-login) tüm cihaz roster'ı döner.
+// ownerId === null → sahipsiz/yönetici-öğrencileri (eski kayıtlar ve admin'in eklediği).
+export function listChildren(ownerId) {
+  let arr = readAll();
+  if (ownerId !== undefined) arr = arr.filter((c) => (c.ownerId || null) === (ownerId || null));
+  return arr.sort(
+    (a, b) =>
+      (b.lastSeenAt || '').localeCompare(a.lastSeenAt || '') ||
+      (a.name || '').localeCompare(b.name || '', 'tr'),
+  );
+}
+
+export function getChild(ns) {
+  return readAll().find((c) => c.ns === ns) || null;
+}
+
+export function childCount() {
+  return readAll().length;
+}
+
+// Yeni yerel çocuk oluştur. pin '' ise PIN'siz (serbest) giriş.
+// ownerId: çocuğu ekleyen yerel kullanıcı (öğretmen) id'si; admin için null.
+export function addChild({ name, avatar, ageGroup, grade, pin, ownerId = null } = {}) {
+  const list = readAll();
+  const ns = genNs(list);
+  const child = {
+    ns,
+    ownerId: ownerId || null,
+    name: (name || '').trim() || 'Öğrenci',
+    avatar: avatar || LOCAL_AVATARS[list.length % LOCAL_AVATARS.length],
+    ageGroup: ageGroup || 'sinif1', // okuloncesi | sinif1 | sinif2
+    grade: grade || '',
+    pin: String(pin || '').trim(), // '' = PIN yok
+    createdAt: new Date().toISOString(),
+    lastSeenAt: '',
+  };
+  list.push(child);
+  writeAll(list);
+  return child;
+}
+
+export function updateChild(ns, patch) {
+  const list = readAll();
+  const i = list.findIndex((c) => c.ns === ns);
+  if (i < 0) return null;
+  list[i] = { ...list[i], ...patch };
+  // pin normalize
+  if (patch && Object.prototype.hasOwnProperty.call(patch, 'pin')) {
+    list[i].pin = String(patch.pin || '').trim();
+  }
+  writeAll(list);
+  return list[i];
+}
+
+/** Profili roster'dan kaldır. wipeProgress=true ise oyun ilerleme verisini de sil. */
+export function removeChild(ns, wipeProgress = false) {
+  writeAll(readAll().filter((c) => c.ns !== ns));
+  if (wipeProgress) wipeChildData(ns);
+}
+
+/** Çocuğun tüm ns-namespace'li oyun verisini sil (geri alınamaz). */
+export function wipeChildData(ns) {
+  try {
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      // ds_*_<ns>, dokunsay-user-<ns>, dokunsay-lb-<ns>, numap_intervention_<ns>
+      if (k.endsWith(`_${ns}`) || k.endsWith(`-${ns}`) || k === `numap_intervention_${ns}`) {
+        toRemove.push(k);
+      }
+    }
+    toRemove.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* depolama engelli */
+  }
+}
+
+/** Son giriş zamanını güncelle (StudentPicker sıralaması için). */
+export function touchChild(ns) {
+  return updateChild(ns, { lastSeenAt: new Date().toISOString() });
+}
+
+export function hasPin(ns) {
+  const c = getChild(ns);
+  return !!(c && c.pin);
+}
+
+/** PIN doğrula (hash'li). Çocuğun PIN'i yoksa her zaman geçerli (serbest giriş). */
+export async function verifyPin(ns, pin) {
+  const c = getChild(ns);
+  if (!c) return false;
+  if (!c.pin) return true;
+  // Geriye uyumluluk: eski düz-metin PIN (önek yok) → düz karşılaştır; yeni PIN'ler hash'li.
+  if (!/^(pbkdf2|sha256|plain):/.test(c.pin)) {
+    const ok = String(pin) === String(c.pin);
+    if (ok) {
+      // Başarılı girişte sessiz yükseltme: düz-metin PIN cihazda bir daha durmasın
+      try { updateChild(ns, { pin: await hashPin(String(pin)) }); } catch { /* yükseltme başarısızsa eski davranış sürer */ }
+    }
+    return ok;
+  }
+  return verifyHash(String(pin), c.pin);
+}
+
+// ── Yönetici (admin) PIN'i ──────────────────────────────────────────────────
+// Yerel yönetim panelini (öğrenci ekle/çıkar, ayarlar) çocuklardan korur.
+// İlk kullanımda yönetici belirler; sonra her girişte doğrulanır. PIN cihazda
+// PBKDF2 ile HASH'lenir (utils/crypto) — düz metin saklanmaz.
+const ADMIN_PIN_KEY = 'galaksay_admin_pin';
+
+export function hasAdminPin() {
+  try {
+    return !!localStorage.getItem(ADMIN_PIN_KEY);
+  } catch {
+    return false;
+  }
+}
+
+export async function setAdminPin(pin) {
+  try {
+    localStorage.setItem(ADMIN_PIN_KEY, await hashPin(String(pin || '').trim()));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function verifyAdminPin(pin) {
+  try {
+    const s = localStorage.getItem(ADMIN_PIN_KEY);
+    if (!s) return false;
+    // Geriye uyumluluk: eski düz-metin PIN (önek yok) → düz karşılaştır.
+    if (!/^(pbkdf2|sha256|plain):/.test(s)) return String(pin) === s;
+    return verifyHash(String(pin), s);
+  } catch {
+    return false;
+  }
+}
+
+export function clearAdminPin() {
+  try {
+    localStorage.removeItem(ADMIN_PIN_KEY);
+  } catch {
+    /* depolama engelli */
+  }
+}
+
+// "Kaldığı yer" özeti — oyunun yazdığı `dokunsay-user-<ns>` kaydından okunur
+// (window.storage = senkron localStorage sarmalayıcı). StudentPicker kartında
+// "devam" ipucu göstermek için; oyun resume'u bundan bağımsız çalışır.
+export function getResumeInfo(ns) {
+  try {
+    const raw = localStorage.getItem(`dokunsay-user-${ns}`);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    const s = d?.stats || {};
+    return {
+      lastPlayed: d?.lastPlayed || null, // { mode, level }
+      totalGames: s.totalGames || 0,
+      stars: s.starFragments || s.totalScore || 0,
+      hasProgress: (s.totalGames || 0) > 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ── Yerel kullanıcılar (Numap'siz öğretmen/uzman hesapları) ──────────────────
+// Yönetici (admin), Numap hesabı OLMAYAN öğretmen/uzmanları kullanıcı olarak
+// tanımlar. Her kullanıcı kullanıcı-adı + şifre ile giriş yapar ve YALNIZ kendi
+// eklediği öğrencileri görür (child.ownerId === user.id izolasyonu). Şifre,
+// cihazda tek-yönlü hash'lenir (utils/crypto hashPin) → düz metin saklanmaz.
+const USERS_KEY = 'galaksay_local_users';
+
+function readUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeUsers(list) {
+  try {
+    localStorage.setItem(USERS_KEY, JSON.stringify(list));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Kararlı, çakışmasız id: `user_<artan>` (silinen kayıtla çakışmasın diye max+1).
+function genUserId(existing) {
+  const maxNum = existing.reduce((m, u) => {
+    const mt = /^user_(\d+)$/.exec(u.id || '');
+    return mt ? Math.max(m, +mt[1]) : m;
+  }, 0);
+  return `user_${maxNum + 1}`;
+}
+
+// Kullanıcı-adı normalleştirme: kenar boşluğu + küçük harf (tr) → eşsizlik/eşleşme.
+function normUsername(u) {
+  return String(u || '').trim().toLocaleLowerCase('tr');
+}
+
+/** Tüm yerel kullanıcılar — en son giren + ada göre sıralı. */
+export function listUsers() {
+  return readUsers().sort(
+    (a, b) =>
+      (b.lastSeenAt || '').localeCompare(a.lastSeenAt || '') ||
+      (a.name || '').localeCompare(b.name || '', 'tr'),
+  );
+}
+
+export function getUser(id) {
+  return readUsers().find((u) => u.id === id) || null;
+}
+
+export function getUserByUsername(username) {
+  const n = normUsername(username);
+  return n ? readUsers().find((u) => u.username === n) || null : null;
+}
+
+export function userCount() {
+  return readUsers().length;
+}
+
+/**
+ * Yeni yerel kullanıcı oluştur (şifre hash'lenir).
+ * @returns {Promise<{ user: object|null, error: string }>}
+ */
+export async function addUser({ username, name, password } = {}) {
+  const n = normUsername(username);
+  if (!n) return { user: null, error: 'Kullanıcı adı gerekli.' };
+  if (String(password || '').length < 4) return { user: null, error: 'Şifre en az 4 karakter olmalı.' };
+  const list = readUsers();
+  if (list.some((u) => u.username === n)) return { user: null, error: 'Bu kullanıcı adı zaten kullanılıyor.' };
+  const user = {
+    id: genUserId(list),
+    username: n,
+    name: (name || '').trim() || n,
+    passwordHash: await hashPin(String(password)),
+    createdAt: new Date().toISOString(),
+    lastSeenAt: '',
+  };
+  list.push(user);
+  writeUsers(list);
+  return { user: { id: user.id, username: user.username, name: user.name }, error: '' };
+}
+
+/**
+ * Kullanıcıyı güncelle. password boş/verilmezse mevcut şifre korunur.
+ * @returns {Promise<{ user: object|null, error: string }>}
+ */
+export async function updateUser(id, { username, name, password } = {}) {
+  const list = readUsers();
+  const i = list.findIndex((u) => u.id === id);
+  if (i < 0) return { user: null, error: 'Kullanıcı bulunamadı.' };
+  const patch = { ...list[i] };
+  if (username !== undefined) {
+    const n = normUsername(username);
+    if (!n) return { user: null, error: 'Kullanıcı adı gerekli.' };
+    if (list.some((u) => u.username === n && u.id !== id)) return { user: null, error: 'Bu kullanıcı adı zaten kullanılıyor.' };
+    patch.username = n;
+  }
+  if (name !== undefined) patch.name = (name || '').trim() || patch.name;
+  if (password) {
+    if (String(password).length < 4) return { user: null, error: 'Şifre en az 4 karakter olmalı.' };
+    patch.passwordHash = await hashPin(String(password));
+  }
+  list[i] = patch;
+  writeUsers(list);
+  return { user: { id: patch.id, username: patch.username, name: patch.name }, error: '' };
+}
+
+/** Kullanıcıyı sil. Öğrencileri cihazda KALIR (yalnız yönetici görebilir). */
+export function removeUser(id) {
+  writeUsers(readUsers().filter((u) => u.id !== id));
+}
+
+/** Son giriş zamanını güncelle (kullanıcı sıralaması için). */
+export function touchUser(id) {
+  const list = readUsers();
+  const i = list.findIndex((u) => u.id === id);
+  if (i < 0) return null;
+  list[i] = { ...list[i], lastSeenAt: new Date().toISOString() };
+  writeUsers(list);
+  return list[i];
+}
+
+/**
+ * Kullanıcı-adı + şifre doğrula. Eşleşirse sade kullanıcı ({id,username,name})
+ * döner (passwordHash sızdırılmaz) + lastSeenAt güncellenir; aksi halde null.
+ * @returns {Promise<{id:string,username:string,name:string}|null>}
+ */
+export async function verifyUser(username, password) {
+  const user = getUserByUsername(username);
+  if (!user) return null;
+  const ok = await verifyHash(String(password || ''), user.passwordHash);
+  if (!ok) return null;
+  touchUser(user.id);
+  return { id: user.id, username: user.username, name: user.name };
+}
