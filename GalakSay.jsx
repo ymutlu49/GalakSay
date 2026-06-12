@@ -3770,6 +3770,9 @@ button,.option-btn,[role="button"]{min-height:44px}
 @keyframes narrativeScroll{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
 @keyframes subtitleGlow{0%,100%{text-shadow:0 1px 6px rgba(167,139,250,.3)}50%{text-shadow:0 1px 12px rgba(167,139,250,.6),0 0 20px rgba(167,139,250,.2)}}
 .large-text{zoom:1.15}
+/* zoom 100dvh sayfayı viewport'tan taşırır (alt çubuk kaybolur) → yükseklik telafisi */
+.page.large-text{height:calc(100vh / 1.15);height:calc(100dvh / 1.15);min-height:calc(100vh / 1.15);min-height:calc(100dvh / 1.15)}
+@media (min-width:1024px){.page.game-screen.large-text{height:calc(100vh / 1.38);height:calc(100dvh / 1.38);min-height:calc(100vh / 1.38);min-height:calc(100dvh / 1.38)}}
 .high-contrast{filter:contrast(1.25) brightness(1.08)}.high-contrast button{outline:1px solid rgba(255,255,255,.2)}
 @keyframes hyperspace{0%{transform:scale(1);opacity:1}20%{transform:scale(1.02)}40%{transform:scale(1) translateY(-2px)}60%{transform:scaleX(1.3) scaleY(0.9);opacity:.8}80%{transform:scaleX(2) scaleY(0.6);opacity:.4}100%{transform:scaleX(3) scaleY(0.3) translateY(-10px);opacity:0}}
 @keyframes hyperspaceIn{0%{transform:scaleX(3) scaleY(0.3);opacity:0}40%{transform:scaleX(1.3) scaleY(0.85);opacity:.7}70%{transform:scaleX(0.95) scaleY(1.02);opacity:1}100%{transform:scale(1);opacity:1}}
@@ -4624,7 +4627,7 @@ const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue", size
   );
 };
 
-const Frame = ({ total, filled = 0, cols = 5, label, chipColor = "blue", size = 50, hidden, highlightEmpty = false }) => {
+const Frame = ({ total, filled = 0, cols = 5, label, chipColor = "blue", size = 50, hidden, highlightEmpty = false, countingSlots }) => {
   const cs = size - 8;
   const altColor = chipColor === "blue" ? "red" : "blue";
   return (
@@ -4647,7 +4650,7 @@ const Frame = ({ total, filled = 0, cols = 5, label, chipColor = "blue", size = 
           }}>
             {hidden ? (
               <div style={{ width: cs, height: cs, borderRadius: "50%", background: "#555", border: "1px solid #444" }} />
-            ) : i < filled ? <Chip color={thisColor} size={cs} /> : highlightEmpty ? (
+            ) : i < filled ? <Chip color={thisColor} size={cs} countAnim={countingSlots?.includes(i)} /> : highlightEmpty ? (
               // 10'a tamamla manipülatifi: boş yuvalar vurgulu (doldurulacak boşluğu göster)
               <div style={{ width: cs, height: cs, borderRadius: "50%",
                 background: "rgba(245,158,11,.14)", border: "2.5px dashed #f59e0b",
@@ -9507,18 +9510,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       if ((ttsOn || narrationOn || isPreReader) && (voiceSettings.questionRead || isPreReader)) {
         const mp = getModePlanet(gameMode);
         const ttsLang = lang === "en" ? "en-US" : "tr-TR";
-        // 2026-04-30: Aynı soru metni daha önce okunduysa SES ATLA — "her seferinde aynı şeyi
-        // deyip durmasın" geri bildirimi. Sayma/Subitizing/Karşılaştırma gibi statik prompt'lu
-        // modlarda 10 sorunun 10'unda da aynı cümle okunuyordu. Çocuk ekrandaki yazıyı görüyor,
-        // mod giriş brifingi de okundu — ek seslendirme rahatsız edici. q.ttsText sayı içeriyorsa
-        // (toplama, çıkarma vb.) zaten farklı, normal okur. Soru-tek seferlik okunsun:
-        const currentText = q.ttsText || null;
-        const isFirstQuestion = round === 0;
-        const isSameAsLastSpoken = currentText && currentText === ttsLastSpokenTextRef.current;
-        if (currentText && !isFirstQuestion && isSameAsLastSpoken) {
-          // Zaten okundu, atla — pusula olarak devam et
-        } else {
-          if (currentText) ttsLastSpokenTextRef.current = currentText;
+        // 2026-06-12 (kullanıcı): OTOMATİK okuma YALNIZ İLK SORUDA — yönergeyi bir kez duy,
+        // sonra "soru metnini söyleyip durmasın". Eski metin-dedup yetersizdi: ttsText'i olmayan
+        // modlar (matching vb.) her soruda yeniden okuyordu, sayılı modlar zaten hep okuyordu.
+        // Sonraki sorularda tekrar dinleme: başlıktaki manuel 🔊 butonu.
+        if (round === 0) {
           TTS.stop();
           if (narrationOn && mp?.guide) {
             TTS._scheduleSpeech(() => {
@@ -9529,6 +9525,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           } else {
             TTS._scheduleSpeech(() => { if (q.ttsText) TTS.speak(q.ttsText, ttsLang); else TTS.speakQuestion(q, ttsLang); }, 400);
           }
+        } else {
+          TTS.stop(); // önceki sorunun yarım kalmış sesi yeni soruya taşmasın
         }
       }
     }
@@ -12690,7 +12688,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
           )}
           <div style={{ display: "flex", justifyContent: "center", transition: "all .4s ease", opacity: (isHidden && !answered) ? 0 : 1, transform: (isHidden && !answered) ? "scale(0.85)" : "scale(1)", filter: (isHidden && !answered) ? "blur(8px)" : "none" }}>
-            <Frame total={5} filled={q.number} cols={5} chipColor="blue" size={52} />{/* label kaldırıldı — kök "Beşlik çerçevede..." zaten söylüyor */}
+            <Frame total={5} filled={q.number} cols={5} chipColor="blue" size={52} countingSlots={countSlots} />{/* label kaldırıldı — kök "Beşlik çerçevede..." zaten söylüyor */}
           </div>
           {isHidden && !answered && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 16, animation: "fadeIn .4s ease" }}>
@@ -12710,7 +12708,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
           )}
           <div style={{ display: "flex", justifyContent: "center", transition: "all .4s ease", opacity: (isHidden && !answered) ? 0 : 1, transform: (isHidden && !answered) ? "scale(0.85)" : "scale(1)", filter: (isHidden && !answered) ? "blur(8px)" : "none" }}>
-            <Frame total={10} filled={q.number} cols={5} chipColor="red" size={46} />{/* label kaldırıldı — kök "Onluk çerçevede..." zaten söylüyor */}
+            <Frame total={10} filled={q.number} cols={5} chipColor="red" size={46} countingSlots={countSlots} />{/* label kaldırıldı — kök "Onluk çerçevede..." zaten söylüyor */}
           </div>
           {isHidden && !answered && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 16, animation: "fadeIn .4s ease" }}>
@@ -13628,13 +13626,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <TXT>{qmPrompts[round % qmPrompts.length]}</TXT>
           <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "18px 22px",
             borderRadius: 18, background: "linear-gradient(135deg,rgba(35,32,82,.88),rgba(24,22,58,.88))", border: "1px solid rgba(148,163,184,.12)" }}>
-            {/* Rastgele düzende yıldız taşları */}
+            {/* Rastgele düzende yıldız taşları — sayım sırasında SES-SENKRON vurgu:
+                sayılan taş büyür+parlar, sayılmışlar hafif büyük kalır (kaçıncıda olduğumuz görünür) */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", maxWidth: q.number > 6 ? 200 : 160 }}>
-              {Array.from({ length: q.number }, (_, i) => (
-                <div key={i} style={{ animation: `fadeIn ${0.1 + i * 0.08}s ease` }}>
-                  <Chip color={subColor(i)} size={qmSize} />
-                </div>
-              ))}
+              {Array.from({ length: q.number }, (_, i) => {
+                const qmCounted = countingIndex >= 0 && i <= countingIndex;
+                const qmCurrent = i === countingIndex;
+                return (
+                  <div key={i} style={{ animation: `fadeIn ${0.1 + i * 0.08}s ease`,
+                    transform: qmCounted ? "scale(1.15)" : "none",
+                    filter: qmCurrent ? "brightness(1.25) drop-shadow(0 0 10px rgba(110,231,183,.85))" : "none",
+                    transition: "transform .18s ease, filter .18s ease" }}>
+                    <Chip color={subColor(i)} size={qmSize} countAnim={qmCounted} />
+                  </div>
+                );
+              })}
             </div>
           </div>
           <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} />
@@ -13877,8 +13883,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 width: "100%", height: "100%", position: "relative" }}>
                 {(q.dots || []).map((dot, i) => (
                   <Chip key={i} color={Math.floor(i / 5) % 2 === 0 ? "blue" : "red"} size={18}
+                    countAnim={countSlots.includes(i)}
                     style={{ position: "absolute", left: `${dot.x}%`, top: `${dot.y}%`,
-                      transform: "translate(-50%,-50%)", animation: `fadeIn ${0.05 + i * 0.04}s ease` }} />
+                      transform: i === countingIndex ? "translate(-50%,-50%) scale(1.35)" : "translate(-50%,-50%)",
+                      filter: i === countingIndex ? "brightness(1.3) drop-shadow(0 0 8px rgba(110,231,183,.9))" : "none",
+                      transition: "transform .15s ease, filter .15s ease",
+                      animation: `fadeIn ${0.05 + i * 0.04}s ease` }} />
                 ))}
               </div>
               {/* Soru işareti overlay */}
@@ -16439,8 +16449,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const canHint = !answered && hintKademe < HintManager.MAX_LEVEL;
     const modeColor = mi?.c || C.uiBlue;
     const streak = streakRef.current;
+    // overflow KASITLI hidden (.page varsayılanı): sayfa-düzeyi kaydırma İpucu/Nesnelerle Göster
+    // çubuğunu ve üst barı ekran dışına itiyordu (scrollIntoView/geçiş animasyonu tetikliyor).
+    // Tek kaydırma bağlamı = kartın kendisi; üst bar + alt yardım çubuğu HER ZAMAN görünür.
     return (
-      <div className={"page game-screen space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, position: "relative", overflow: "auto" }}>
+      <div className={"page game-screen space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, position: "relative" }}>
         <style>{CSS}</style>
         {/* Mission complete flash overlay */}
         {showMissionFlash && (

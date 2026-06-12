@@ -2,10 +2,11 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <title>Galaksay — Sayılar Evrenin Dilidir</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,11 +17,29 @@
       button, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
       input, textarea { -webkit-tap-highlight-color: transparent; }
 
-      /* ═══ PC / GENİŞ EKRAN: UYGULAMA TELEFON-OLARAK MERKEZLENİR ═══ */
-      /* 2026-04-30: Çocuk uygulaması mobil-öncelikli — geniş ekranda her .page ekranı 768px sütununda merkezlenir */
-      /* SplashScreen ve diğer position:fixed overlay'ler etkilenmez (sadece .page sınıfı hedeflenir) */
+      /* ═══ DESKTOP KAPSÜL SİSTEMİ — 3 TIER ═══════════════════════════════════
+         Çocuk uygulaması mobil-öncelikli. Geniş ekranda (≥1024px) içerik bir
+         "kapsül" sütununda merkezlenir; etrafına yayılan glow + box-shadow ile
+         tablet/uygulama hissi verir.
+
+         Kapsül sınıfları (hangi ekran hangi sınıfı kullanır):
+           .page                form/oyun/ayar ekranları (login, game, settings)  → 768px
+           .page.page-medium    liste/dashboard ekranları (ageSelect, levelSelect) → 880px
+           .page.page-wide      rapor/veri ekranları (progress, devTrack, report)  → 1100px
+           .page.page-fluid     full-width tasarımlar — kapsül yok                 → ∞
+
+         Pozisyon: position:fixed olan SplashScreen / overlay'ler etkilenmez. */
       @media (min-width: 1024px) {
         .page { max-width: 768px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 80px rgba(0,0,0,.55), 0 0 0 1px rgba(167,139,250,.08); }
+        .page.page-medium { max-width: 880px !important; }
+        .page.page-wide { max-width: 1100px !important; }
+        .page.page-fluid { max-width: none !important; box-shadow: none !important; }
+
+        /* Oyun ekranı (screen === "game") — desktop'ta tüm içerik %20 büyütülür.
+           KRİTİK: zoom layout'u büyütür ama .page'in 100dvh yüksekliğini KÜÇÜLTMEZ →
+           yükseklik telafi edilmezse ekranın alt %20'si (İpucu / Nesnelerle Göster çubuğu)
+           görünmez kalıyordu. height = 100dvh/zoom ⇒ zoom sonrası görsel yükseklik tam viewport. */
+        .page.game-screen { zoom: 1.20; height: calc(100vh / 1.2); height: calc(100dvh / 1.2); min-height: calc(100vh / 1.2); min-height: calc(100dvh / 1.2); }
       }
 
       /* ═══ CORE ANIMATIONS ═══ */
@@ -1767,6 +1786,67 @@
         padding-bottom: env(safe-area-inset-bottom, 0);
         padding-left: env(safe-area-inset-left, 0);
         padding-right: env(safe-area-inset-right, 0);
+      }
+
+      /* ═══ A11Y — Disleksi-dostu font (Atkinson Hyperlegible) ═══ */
+      body.galaksay-dyslexic-font,
+      body.galaksay-dyslexic-font * {
+        font-family: 'Atkinson Hyperlegible', 'Nunito', system-ui, sans-serif !important;
+        letter-spacing: 0.04em;
+        word-spacing: 0.16em; /* BDA: sözcük-aralığı >= 3.5x harf-aralığı (okuma segmentasyonu) */
+      }
+      body.galaksay-dyslexic-font p,
+      body.galaksay-dyslexic-font li,
+      body.galaksay-dyslexic-font span {
+        line-height: 1.7 !important;
+      }
+
+      /* ═══ A11Y — Büyük metin modu (1.3× ölçek) ═══ */
+      body.galaksay-large-text {
+        font-size: calc(1rem * var(--galaksay-text-scale, 1.3));
+      }
+
+      /* ═══ A11Y — Yüksek kontrast modu ═══ */
+      body.galaksay-high-contrast {
+        --hc-bg: #000;
+        --hc-fg: #fff;
+        --hc-accent: #ffd400;
+        --hc-border: #fff;
+      }
+      body.galaksay-high-contrast button,
+      body.galaksay-high-contrast [role="button"] {
+        outline: 2px solid var(--hc-border) !important;
+        outline-offset: 2px;
+      }
+      body.galaksay-high-contrast :focus-visible {
+        outline: 3px solid var(--hc-accent) !important;
+        outline-offset: 3px !important;
+      }
+
+      /* ═══ A11Y — Azaltılmış hareket: tüm dekoratif animasyonları durdur ═══ */
+      body.galaksay-reduced-motion *,
+      body.galaksay-reduced-motion *::before,
+      body.galaksay-reduced-motion *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      /* Sistem prefers-reduced-motion ile uyumlu */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* ═══ A11Y — Klavye odak görünürlüğü ═══ */
+      :focus-visible {
+        outline: 3px solid #6C63FF;
+        outline-offset: 3px;
+        border-radius: 4px;
       }
     </style>
   </head>
