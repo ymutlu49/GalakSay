@@ -4537,6 +4537,21 @@ const GreenChip = ({ num, size = 44, glow, onClick, style: sx, countAnim }) => {
   );
 };
 
+// 5'Lİ SATIR DÜZENİ (Bündelung): sayılabilir taş grupları HER YERDE tam 5'te kırılır —
+// flexWrap kap genişliğine göre 6+4 gibi keyfî bölüyordu, beş-yapısı görünmez kalıyordu.
+// (Renk 5-bantlamasıyla birlikte: üst satır mavi beşli, ikinci satır kırmızı... çocuk "5 ve 3 fazla" görür.)
+const ChipRows5 = ({ count, color, size, gap = 3, banded = false }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap, alignItems: "center" }}>
+    {Array.from({ length: Math.ceil(count / 5) }, (_, ri) => (
+      <div key={ri} style={{ display: "flex", gap, justifyContent: "center" }}>
+        {Array.from({ length: Math.min(5, count - ri * 5) }, (_, ci) => (
+          <Chip key={ci} color={banded ? subColor(ri * 5 + ci) : color} size={size} />
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
 const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, interactive, countAnim, hidden, blank, greenNumber }) => {
   const cs = size - 8;
   // blank = completely flat wooden back, no circles at all
@@ -7377,12 +7392,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // ═══ MASKOT: Konuşma baloncuğu göster ═══
   // Ön-okur için SESLENDİRİLİR — duygusal destek/yönlendirme hattı en çok okuma bilmeyen
   // 5-6 yaşa lazımken eskiden yalnız yazı basıyordu (FDS hüsran mesajları, wp adım yardımları sağırdı)
-  const showMascot = useCallback((msg, duration = 4000) => {
+  // speakMsg: ön-okur seslendirmesi YALNIZ açıkça istenen (rehberlik/yardım) mesajlarda —
+  // rutin övgü baloncuklarının da okunması "arada çok fazla konuşma" yaratıyordu (kullanıcı).
+  const showMascot = useCallback((msg, duration = 4000, speakMsg = false) => {
     setMascotMsg(msg); setMascotVisible(true);
     clearTimeout(mascotTimer.current);
     mascotTimer.current = setTimeout(() => setMascotVisible(false), duration);
     try {
-      if (isPreReaderRef.current && msg) {
+      if (speakMsg && isPreReaderRef.current && msg) {
         const clean = String(msg).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "").trim();
         if (clean) TTS._scheduleSpeech(() => TTS.speak(clean), 250);
       }
@@ -10674,10 +10691,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       // ~12sn sürer (sıkıcı/akış kesici) → büyük sayıda doğrudan dönüt.
       // subitizing/estimateCount DOĞRUDA sayım YOK: hızlı-tanıma/tahmin becerisi tam da
       // saymadan bilmek — başarılı anında tek tek saymak modun hedefini geri sarar.
-      // (Yanlışta sayım kalır: hata anı = doğrulama anı.)
+      // quantityMatch de doğruda SAYMAZ (kullanıcı: "arada çok fazla konuşma geçiyor" —
+      // her doğruda 1'den 10'a sesli sayım akışı boğuyordu; tanıma zaten başarılı).
+      // (Yanlışta sayım hepsinde kalır: hata anı = doğrulama anı. İpucu Kademe 3 de isteğe bağlı sayar.)
       if (typeof correctAnswer === "number" && correctAnswer <= 10
         && COUNT_ALONG_TYPES.includes(question?.type)
-        && !["subitizing", "estimateCount"].includes(question?.type)) {
+        && !["subitizing", "estimateCount", "quantityMatch"].includes(question?.type)) {
         startCounting(correctAnswer, speakCorrectFeedback);
       } else {
         speakCorrectFeedback();
@@ -10994,12 +11013,12 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // Duygusal destek YALNIZ maskotta — turuncu kutudaki öğretici öğüt (teachTip) KORUNUR
         // (eskiden teachTip duygusal mesajla DEĞİŞTİRİLİYORDU → çocuğun en çok desteğe
         // ihtiyaç duyduğu anda yönlendirici dönüt kayboluyor + aynı metin iki yerde çıkıyordu)
-        showMascot(MASCOT.getRandom(MASCOT.encourageAfterStruggle), 5000);
+        showMascot(MASCOT.getRandom(MASCOT.encourageAfterStruggle), 5000, true);
       }
 
       // ═══ FDS: Frustrasyon seviyesine göre maskot mesajı ═══
       if (fdsMsg && fLevel >= 2) {
-        showMascot(fdsMsg, 6000);
+        showMascot(fdsMsg, 6000, true);
       }
 
       // ═══ FDS: Yüksek frustrasyon → mola veya mod değişikliği öner ═══
@@ -11781,7 +11800,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 istChoices.map(function(ch, ci) {
                   return React.createElement("button", { key: ci, onClick: function() {
                     if (ch === istenenTR) { sfx("correct"); setScore(function(s) { return s + stepPts[1]; }); setWpStep(2); }
-                    else { sfx("wrong"); wpStepErrorsRef.current++; if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Pirsgirêkê dîsa bixwîne — ji te çi tê xwestin?" : "Problemi tekrar oku — senden ne isteniyor?", 4000); }
+                    else { sfx("wrong"); wpStepErrorsRef.current++; if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Pirsgirêkê dîsa bixwîne — ji te çi tê xwestin?" : "Problemi tekrar oku — senden ne isteniyor?", 4000, true); }
                   }, style: {
                     padding: "12px 16px", borderRadius: 14, width: "100%",
                     border: "2px solid " + wpc.brd, background: "rgba(49,46,129,.5)", fontSize: 13, fontWeight: 700,
@@ -11820,7 +11839,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     // (uygulamanın kendi teachTip'i "başlangıcı bulmak için ÇIKAR" öğretiyor — eskiden o seçim hata sayılıyordu)
                     var acceptedOps = (find === "change" || find === "start") ? ["+", "−"] : [wpOp];
                     if (acceptedOps.indexOf(op.sym) !== -1) { sfx("correct"); if (op.sym !== wpOp) showMascot(lang === "ku" ? "Erê — berevajî jî dibe: zêdekirin û kêmkirin birayên hev in!" : "Evet — tersinden de çözülür: toplama ile çıkarma birbirinin kardeşi!", 3500); setScore(function(s) { return s + stepPts[2]; }); setWpBuildPhase(0); setWpBuildA(0); setWpBuildB(0); setWpModelCount(0); setWpStep(3); }
-                    else { sfx("wrong"); wpStepErrorsRef.current++; if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Pirsgirêkê dîsa guhdarî bike — kîjan kiryar pêwîst e?" : "Problemi tekrar dinle — işlemi gösteren kelimeye dikkat et!", 4000); }
+                    else { sfx("wrong"); wpStepErrorsRef.current++; if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Pirsgirêkê dîsa guhdarî bike — kîjan kiryar pêwîst e?" : "Problemi tekrar dinle — işlemi gösteren kelimeye dikkat et!", 4000, true); }
                   }, style: { padding: "14px 8px", borderRadius: 16, border: "2.5px solid " + op.clr + "25", background: op.bg, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, fontFamily: "inherit", transition: "all 0.15s" } },
                     React.createElement("span", { style: { fontSize: 28 } }, op.emoji),
                     React.createElement("span", { style: { fontSize: 15, fontWeight: 800, color: op.clr } }, op.name)
@@ -12080,7 +12099,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   onSubmit: function() {
                       if (wpModelCount === modelAnswer) {
                         sfx("correct"); setScore(function(s) { return s + stepPts[3]; }); setWpBuildPhase(2);
-                      } else { sfx("wrong"); wpStepErrorsRef.current++; setWpModelCount(0); if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Kevirên stêrkan ên şemayê yek bi yek bijmêre!" : "Şemadaki yıldız taşlarını tek tek say!", 4000); }
+                      } else { sfx("wrong"); wpStepErrorsRef.current++; setWpModelCount(0); if (wpStepErrorsRef.current >= 2) showMascot(lang === "ku" ? "Kevirên stêrkan ên şemayê yek bi yek bijmêre!" : "Şemadaki yıldız taşlarını tek tek say!", 4000, true); }
                     },
                 }) : React.createElement("div", null,
                   React.createElement("div", { style: { fontSize: 48, marginBottom: 4 } }, "\uD83C\uDF89"),
@@ -12361,11 +12380,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // Render helper for comparison display types
         const renderCmpItem = (n, color, sz) => {
           if (cDsp === "chips") {
-            return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: n > 10 ? 220 : n > 6 ? 170 : 130 }}>
-                {Array.from({ length: n }, (_, i) => <Chip key={i} color={color} size={n > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />)}
-              </div>
-            );
+            return <ChipRows5 count={n} color={color} size={n > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />;
           }
           if (cDsp === "frame") {
             const fTotal = n <= 5 ? 5 : 10;
@@ -13130,11 +13145,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         const renderOrdItem = (val, sz) => {
           let visual;
           if (ordDsp === "chips") {
-            visual = (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center", maxWidth: val > 10 ? 160 : val > 5 ? 110 : 80 }}>
-                {Array.from({ length: val }, (_, i) => <Chip key={i} color="blue" size={val > 10 ? Math.min(sz, 16) : Math.min(sz, 22)} />)}
-              </div>
-            );
+            visual = <ChipRows5 count={val} color="blue" size={val > 10 ? Math.min(sz, 16) : Math.min(sz, 22)} gap={2} />;
           } else if (ordDsp === "frame") {
             const fTotal = val <= 5 ? 5 : 10;
             visual = <Frame total={fTotal} filled={val} cols={5} chipColor="blue" size={Math.min(sz, 28)} />;
@@ -13660,21 +13671,28 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           <TXT>{qmPrompts[round % qmPrompts.length]}</TXT>
           <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "18px 22px",
             borderRadius: 18, background: "linear-gradient(135deg,rgba(35,32,82,.88),rgba(24,22,58,.88))", border: "1px solid rgba(148,163,184,.12)" }}>
-            {/* Rastgele düzende yıldız taşları — sayım sırasında SES-SENKRON vurgu:
-                sayılan taş büyür+parlar, sayılmışlar hafif büyük kalır (kaçıncıda olduğumuz görünür) */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", maxWidth: q.number > 6 ? 200 : 160 }}>
-              {Array.from({ length: q.number }, (_, i) => {
-                const qmCounted = countingIndex >= 0 && i <= countingIndex;
-                const qmCurrent = i === countingIndex;
-                return (
-                  <div key={i} style={{ animation: `fadeIn ${0.1 + i * 0.08}s ease`,
-                    transform: qmCounted ? "scale(1.15)" : "none",
-                    filter: qmCurrent ? "brightness(1.25) drop-shadow(0 0 10px rgba(110,231,183,.85))" : "none",
-                    transition: "transform .18s ease, filter .18s ease" }}>
-                    <Chip color={subColor(i)} size={qmSize} countAnim={qmCounted} />
-                  </div>
-                );
-              })}
+            {/* Yıldız taşları 5'Lİ SATIRLAR halinde (kullanıcı kararı + Bündelung pedagojisi):
+                renkler zaten 5-bantlı; satır kırılımı da TAM 5'te olur (eski flexWrap kap genişliğine
+                göre 6+4 gibi keyfî bölüyordu — beşli yapı görünmez kalıyordu).
+                Sayım sırasında SES-SENKRON vurgu: sayılan taş büyür+parlar, sayılmışlar büyük kalır. */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+              {Array.from({ length: Math.ceil(q.number / 5) }, (_, ri) => (
+                <div key={ri} style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                  {Array.from({ length: Math.min(5, q.number - ri * 5) }, (_, ci) => {
+                    const i = ri * 5 + ci;
+                    const qmCounted = countingIndex >= 0 && i <= countingIndex;
+                    const qmCurrent = i === countingIndex;
+                    return (
+                      <div key={i} style={{ animation: `fadeIn ${0.1 + i * 0.08}s ease`,
+                        transform: qmCounted ? "scale(1.15)" : "none",
+                        filter: qmCurrent ? "brightness(1.25) drop-shadow(0 0 10px rgba(110,231,183,.85))" : "none",
+                        transition: "transform .18s ease, filter .18s ease" }}>
+                        <Chip color={subColor(i)} size={qmSize} countAnim={qmCounted} />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           </div>
           <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} />
@@ -13692,11 +13710,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // Render helper for each display type
         const renderLmeGroup = (count, displayType, color, sz) => {
           if (displayType === "chips") {
-            return (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: count > 10 ? 180 : count > 5 ? 130 : 100 }}>
-                {Array.from({ length: count }, (_, i) => <Chip key={i} color={color} size={count > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />)}
-              </div>
-            );
+            return <ChipRows5 count={count} color={color} size={count > 10 ? Math.min(sz, 20) : Math.min(sz, 28)} />;
           }
           if (displayType === "frame") {
             const fTotal = count <= 5 ? 5 : 10;
@@ -14791,7 +14805,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       if (answered) return;
                       const dup = rsDiscovered.some(d => (d[0] === pair[0] && d[1] === pair[1]) || (d[0] === pair[1] && d[1] === pair[0]));
                       // Simetrik tekrar (1+5 sonrası 5+1) matematiksel olarak DOĞRU bir kesim — hata sesi YOK, nötr bilgi ver
-                      if (dup) { sfx("click"); showMascot(lang === "ku" ? `${pair[0]}+${pair[1]} û ${pair[1]}+${pair[0]} heman cot in — cotekî NÛ bibîne!` : `${pair[0]}+${pair[1]} ile ${pair[1]}+${pair[0]} aynı ikili — YENİ bir ikili bul!`, 3000); return; }
+                      if (dup) { sfx("click"); showMascot(lang === "ku" ? `${pair[0]}+${pair[1]} û ${pair[1]}+${pair[0]} heman cot in — cotekî NÛ bibîne!` : `${pair[0]}+${pair[1]} ile ${pair[1]}+${pair[0]} aynı ikili — YENİ bir ikili bul!`, 3000, true); return; }
                       setInterSlots(prev => [...(prev || []), pair]); sfx("pop");
                     }}
                     style={{ padding: "7px 9px", borderRadius: 12, border: "1px solid rgba(148,163,184,.25)", background: "rgba(49,46,129,.5)", cursor: "pointer", fontFamily: F, display: "inline-flex", alignItems: "center", gap: 3 }}>
