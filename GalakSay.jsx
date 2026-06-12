@@ -7280,6 +7280,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const learnSwipeRef = useRef({ x: 0, y: 0, t: 0 }); // swipe navigation for learn screen
   const wrongShakeRef = useRef(null); // word problem: wrong tap shake
   const feedbackEndRef = useRef(null); // scroll to Devam Et button
+  // İpucu paneli + Nesnelerle Göster içeriği şıkların ALTINDA açılır — kart doluyken
+  // görünür alan dışında kalıyordu (kullanıcı raporu: "Kademe 2/5 ama içerik yok").
+  // Belirdiklerinde kart-içi kaydırmayla görünüme getirilir (feedback'teki desenle aynı).
+  const hintPanelRef = useRef(null);
+  const tripleCodeRef = useRef(null);
   const [flashDuration, setFlashDuration] = useState(0); // flash timer geri sayim suresi (ms)
 
   // Sound helper — checks mute state
@@ -11209,6 +11214,21 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     }
   }, [feedback]);
 
+  // İpucu paneli belirince/kademe değişince görünüme kaydır — şıkların altında açıldığı
+  // için kart doluyken ekran dışında kalıyordu (çocuk "Kademe 2/5" görüp içeriği göremiyordu).
+  useEffect(() => {
+    if (hintData && hintPanelRef.current) {
+      setTimeout(() => hintPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320); // hintSlideIn .35s bitmeden hemen önce
+    }
+  }, [hintData]);
+
+  // Nesnelerle Göster (TripleCode) açılınca aynı şekilde görünüme kaydır.
+  useEffect(() => {
+    if (showTripleCode && tripleCodeRef.current) {
+      setTimeout(() => tripleCodeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320);
+    }
+  }, [showTripleCode]);
+
   // ═══ GAME FLOW ═══
   const startGame = useCallback(() => {
     sfx("startGame");
@@ -11236,18 +11256,22 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const q = question, gc = () => "blue"; // NumberRod handles two-color split at 5 automatically
     const countSlots = countingIndex >= 0 ? Array.from({ length: countingIndex + 1 }, (_, i) => i) : [];
     // Üçlü Kod sayma göstergesi: rakam + sözcük (+ sesli okuma öncesi çocuklar için)
-    // n=null iken GÖRÜNMEZ ama YER TUTAN kutu: sayım belirince ortalanmış içerik zıplamasın
-    // (margin:auto merkezleme + sonradan beliren blok = tahta yukarı ışınlanıyordu)
-    const CountDisplay = ({ n, mt = 14, sz = 36 }) => (
-      <div aria-hidden={n == null} style={{ marginTop: mt, textAlign: "center", minHeight: Math.round(sz * 1.7),
-        visibility: n == null ? "hidden" : "visible",
-        animation: n != null ? "scaleInBounce .4s cubic-bezier(.34,1.56,.64,1)" : "none" }}>
-        {n != null && <>
-          <div style={{ fontSize: sz, fontWeight: 900, color: C.uiGreen, textShadow: "0 2px 12px rgba(16,185,129,.3)" }}>{n}</div>
-          <div style={{ fontSize: Math.max(12, sz * 0.3), fontWeight: 700, color: "#c4b5fd", fontStyle: "italic", marginTop: -2, animation: "fadeIn .3s ease .15s both" }}>{numWordLang(n, lang)}</div>
-        </>}
-      </div>
-    );
+    // Yer-tutucu YALNIZ sayım sırasında/cevap sonrası: sayım belirip kaybolurken içerik
+    // zıplamasın; ama cevap ÖNCESİ boş ~70px ölü alan da bırakmasın (masaüstünde sorunun
+    // altında anlamsız boşluk görünüyordu — kullanıcı ekran görüntüsü).
+    const CountDisplay = ({ n, mt = 14, sz = 36 }) => {
+      if (n == null && !answered && countingIndex < 0) return null; // cevap öncesi: hiç yer kaplama
+      return (
+        <div aria-hidden={n == null} style={{ marginTop: mt, textAlign: "center", minHeight: Math.round(sz * 1.7),
+          visibility: n == null ? "hidden" : "visible",
+          animation: n != null ? "scaleInBounce .4s cubic-bezier(.34,1.56,.64,1)" : "none" }}>
+          {n != null && <>
+            <div style={{ fontSize: sz, fontWeight: 900, color: C.uiGreen, textShadow: "0 2px 12px rgba(16,185,129,.3)" }}>{n}</div>
+            <div style={{ fontSize: Math.max(12, sz * 0.3), fontWeight: 700, color: "#c4b5fd", fontStyle: "italic", marginTop: -2, animation: "fadeIn .3s ease .15s both" }}>{numWordLang(n, lang)}</div>
+          </>}
+        </div>
+      );
+    };
     const TXT = ({ children }) => <p style={{ color: "#f1f5f9", fontSize: 18, fontWeight: 800, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,.4)", maxWidth: 360, margin: "0 auto 14px", wordBreak: "break-word" }}>{children}</p>;{/* boşluk token'ı: kök→görsel 14px */}
     const BIG = ({ children, c }) => <span style={{ fontSize: 30, fontWeight: 900, color: c || "#60a5fa" }}>{children}</span>;
     // §Scaffolding Fading: Destek metnini kademeli geri çek (Calcularis)
@@ -16953,7 +16977,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
               {/* ═══ Üçlü Kodlama Görselleştirme — options'ın altında, inner scroll içinde ═══ */}
               {showTripleCode && !answered && typeof correctAnswer === "number" && correctAnswer >= 1 && (
-                <div style={{ animation: "hintSlideIn .35s ease", flexShrink: 0 }}>
+                <div ref={tripleCodeRef} style={{ animation: "hintSlideIn .35s ease", flexShrink: 0 }}>
                   <TripleCodingLayer
                     count={correctAnswer}
                     expression={question?.expression || String(correctAnswer)}
@@ -16973,9 +16997,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 </div>
               )}
 
-              {/* ═══ İpucu paneli & animasyon — inner scroll alanında, fixed footer ile çakışmaz ═══ */}
-              <div style={{ flexShrink: 0 }}>{renderHintPanel()}</div>
-              <div style={{ flexShrink: 0 }}>{renderHintAnimation()}</div>
+              {/* ═══ İpucu paneli & animasyon — inner scroll alanında, fixed footer ile çakışmaz.
+                  Tek sarmalayıcı + ref: belirince kart-içi kaydırmayla görünüme getirilir (panel + Kademe 4-5 animasyonu birlikte) ═══ */}
+              <div ref={hintPanelRef} style={{ flexShrink: 0 }}>{renderHintPanel()}{renderHintAnimation()}</div>
 
             {/* ── Feedback — görev bloğunun SON çocuğu (ortalamayı bozmadan büyür) ── */}
             {feedback && !(question && question.type === "wordProblem") && (
