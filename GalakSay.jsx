@@ -2070,7 +2070,7 @@ const LEVELS = {
 // Count-along (cevap sonrası tek tek sayma animasyonu) yapılan modlar — DOĞRU ve YANLIŞ
 // yolunda AYNI liste + AYNI ≤10 tavanı kullanılır (tutarlılık; 11+ sayım ~12sn akış kesici).
 // backwardCount bilinçli dışarıda: geri-sayma modunda 1'den İLERİ saymak modeli bozar.
-const COUNT_ALONG_TYPES = ["counting","chipGuess","rodBack","fivesFrame","tensFrame","doubleTensFrame","lengthGuess","subitizing","quantityMatch","estimateCount"];
+const COUNT_ALONG_TYPES = ["counting","chipGuess","rodBack","fivesFrame","tensFrame","doubleTensFrame","lengthGuess","subitizing","quantityMatch","estimateCount","matching"];
 // §Araştırma: Scaffolding Fading (Calcularis) — görsel desteği kademeli geri çekme
 // Scaffold Level: 0=tam destek, 1=az destek, 2=destek yok
 // %75 doğru hedefi (Number Race: optimal pekiştirme oranı)
@@ -15179,7 +15179,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         { val: 1, label: `${fmRef}'${trDatSuf(fmRef)} Eşit`, icon: "🟰", color: "#eab308" },
         { val: 2, label: `${fmRef}'${trAblSuf(fmRef)} Çok`, icon: "⬆️", color: "#ef4444" },
       ];
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         {fmLabels.map((fm) => {
           let bg = fm.color, opacity = 1;
           if (answered) {
@@ -15214,7 +15214,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         { val: 1, label: "Eşit", icon: "🟰", color: "#eab308" },
         { val: 2, label: "Sol Daha Çok", icon: "⬆️", color: "#ef4444" },
       ];
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         {lmeLabels.map((lm) => {
           let bg = lm.color, opacity = 1;
           if (answered) {
@@ -15242,7 +15242,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         { val: 0, label: lang === "ku" ? "Na, Cuda" : "Hayır, Farklı", icon: "⚡", color: "#ef4444" },
         { val: 1, label: lang === "ku" ? "Erê, Wekhev" : "Evet, Eşit", icon: "✔️", color: "#22c55e" },
       ];
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 0, maxWidth: 420, marginLeft: "auto", marginRight: "auto" }}>
         {cvLabels.map((cv) => {
           let bg = cv.color, opacity = 1;
           if (answered) {
@@ -15266,7 +15266,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
     // ═══ v5.2: SAYIDAKI SAYILAR — Çift seçenek butonları ═══
     if (question.type === "numbersInNumbers") {
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         {question.options.map((pair, idx) => {
           let bg = "#6d28d9", opacity = 1;
           if (answered) {
@@ -15371,6 +15371,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         flexDirection: useVertical ? "column" : undefined,
         gridTemplateColumns: useVertical ? undefined : options.length > 3 ? "repeat(2, minmax(0, 1fr))" : `repeat(${options.length}, minmax(0, 1fr))`,
         gap: 8, marginTop: 10, alignItems: useVertical ? "center" : undefined,
+        maxWidth: 460, marginLeft: "auto", marginRight: "auto",
       }}>
         {options.map((opt, i) => {
           let bg = "rgba(49,46,129,.45)", brd = "1px solid rgba(148,163,184,.18)";
@@ -15392,7 +15393,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <div style={{ transform: `scale(${rodScale})`, transformOrigin: "center", display: "flex", justifyContent: "center", alignItems: "center", minWidth: Math.round(maxOpt * mSize * rodScale + 4), minHeight: Math.round((mSize + 10) * rodScale) }}>
-                <NumberRod count={opt} defaultColor={isCorrectOpt ? "green" : "blue"} size={mSize} />
+                {/* Doğru kapsülün taşları cevap sonrası SES-SENKRON sayılır (tanıma↔sayma bağı).
+                    countSlots renderQ kapsamında — burada (renderOpts) countingIndex state'inden türet. */}
+                <NumberRod count={opt} defaultColor={isCorrectOpt ? "green" : "blue"} size={mSize}
+                  countingSlots={isCorrectOpt && countingIndex >= 0 ? Array.from({ length: countingIndex + 1 }, (_, k) => k) : undefined} />
               </div>
               <span style={{ fontSize: 12, fontWeight: 800, color: isCorrectOpt ? "#6ee7b7" : "#c4b5fd", lineHeight: 1, letterSpacing: .3, transition: "color .3s" }}>{numWordLang(opt, lang)}</span>
             </div>
@@ -15453,7 +15457,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
     // ═══ numberLine: eksik sayı seçenekleri ═══
     if (question.type === "numberLine") {
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginTop: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         {options.map((opt, i) => {
           let bg = C.uiBlue;
           if (answered) { if (opt === correctAnswer) bg = C.correct; else if (opt === userAnswer) bg = C.wrong; else bg = "rgba(30,27,75,.3)"; }
@@ -15481,7 +15485,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       const ordLabels = lang === "ku"
         ? ["","yekem","duyem","sêyem","çarem","pêncem","şeşem","heftem","heştem","nehem","dehem"]
         : ["","birinci","ikinci","üçüncü","dördüncü","beşinci","altıncı","yedinci","sekizinci","dokuzuncu","onuncu"];
-      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginTop: 0 }}>
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10, marginTop: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         {options.map((opt, i) => {
           let bg = C.uiBlue; // (şık taban rengi modlar arası standart — eski yeşil keyfiydi)
           if (answered) { if (opt === correctAnswer) bg = C.correct; else if (opt === userAnswer) bg = C.wrong; else bg = "rgba(30,27,75,.3)"; }
@@ -15503,7 +15507,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     }
 
     // 3-option grid (default) — large & vivid with glassmorphism
-    return (<div style={{ marginTop: 14, maxWidth: "100%" }}>
+    // maxWidth 460: masaüstü kapsülünde (768px × zoom) şıklar ekran boyu dev butonlara dönüşmesin — ortalanmış makul tavan
+    return (<div style={{ marginTop: 14, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`, gap: 10 }}>
       {options.map((opt, i) => {
         if (isEliminated(opt) && !answered) return (
@@ -16476,10 +16481,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         <MiniPlanet color="#7c3aed" size={28} bottom="10%" left="2%" />
         <MiniPlanet color="#f59e0b" size={20} top="38%" right="2%" />
         <Earth size={100} bottom="-8%" right="-5%" opacity={0.2} />
-        {/* Mascot encouragement during game */}
+        {/* Mascot encouragement during game — bottom 12→96: alt yardım çubuğunun (İpucu/Nesnelerle Göster)
+            ÜZERİNE binmesin; baloncuk çubuğun hemen üstünde belirir */}
         {mascotVisible && mascotMsg && (
           <div style={{
-            position: "absolute", bottom: 12, left: 12, right: 12, zIndex: 40,
+            position: "absolute", bottom: 96, left: 12, right: 12, zIndex: 40,
             animation: "mascotFadeIn .3s ease", pointerEvents: "none",
           }}>
             {(() => { const mp = getModePlanet(gameMode); return (
@@ -16492,7 +16498,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           </div>
         )}
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 540, margin: "0 auto", width: "100%", padding: "0", position: "relative", minHeight: 0, height: "100%", overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" }}>
+        {/* overflowY auto→hidden: ara sarmalayıcı KAYMAZ — tek kaydırma bağlamı karttır; aksi halde footer yine itilebilirdi */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 540, margin: "0 auto", width: "100%", padding: "0", position: "relative", minHeight: 0, height: "100%", overflowY: "hidden", overflowX: "hidden" }}>
           {/* ═══ GÖREV BRİFİNG OVERLAY ═══ */}
           {showBriefing && (() => {
             const mStory = getModeStory(gameMode);
