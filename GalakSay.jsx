@@ -11273,7 +11273,16 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         </div>
       );
     };
-    const TXT = ({ children }) => <p style={{ color: "#f1f5f9", fontSize: 18, fontWeight: 800, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,.4)", maxWidth: 360, margin: "0 auto 14px", wordBreak: "break-word" }}>{children}</p>;{/* boşluk token'ı: kök→görsel 14px */}
+    // Statik soru kökü YALNIZ İLK SORUDA görünür (kullanıcı kararı — TTS ile aynı mantık):
+    // bu modlarda kök her soruda birebir aynı görev cümlesi, 10 kez tekrar = gürültü; görsel görevi taşır.
+    // DİKKAT: kökü soruya göre DEĞİŞEN modlar (sayı/yön/faz taşıyan: matching "N taşlı", comparison az/çok,
+    // counterFromN, flash modlarının "İyi bak→Kaç vardı?" faz işaretçisi, patternAB/growingPattern tür/yön) LİSTEYE GİRMEZ.
+    const STATIC_STEM_TYPES = ["counting", "quantityMatch", "lessMoreEqual"];
+    const hideStem = round > 0 && question && STATIC_STEM_TYPES.includes(question.type);
+    // (gizliyken ekran okuyucu için görünmez kopya korunur; boşluk token'ı: kök→görsel 14px)
+    const TXT = ({ children }) => hideStem
+      ? <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>{children}</span>
+      : <p style={{ color: "#f1f5f9", fontSize: 18, fontWeight: 800, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,.4)", maxWidth: 360, margin: "0 auto 14px", wordBreak: "break-word" }}>{children}</p>;
     const BIG = ({ children, c }) => <span style={{ fontSize: 30, fontWeight: 900, color: c || "#60a5fa" }}>{children}</span>;
     // §Scaffolding Fading: Destek metnini kademeli geri çek (Calcularis)
     const scaffoldLvl = round > 2 ? getScaffoldLevel(round > 0 ? Math.round(correctCnt / round * 100) : 0, sessionCorrects) : 0;
