@@ -4678,16 +4678,16 @@ const Frame = ({ total, filled = 0, cols = 5, label, chipColor = "blue", size = 
 // Ana 4-işlem numpad'i ile sözel-problem Adım-3 numpad'i AYNI bileşeni kullanır
 // (eskiden iki farklı düzen/boyut/renk vardı = tutarsız görünüm). Saf sunum: durum yok,
 // ses/sayaç mantığı çağıran taraftadır.
-const NumPadGrid = ({ onDigit, onBack, onSubmit, submitEnabled, backEnabled = true }) => {
+const NumPadGrid = ({ onDigit, onBack, onSubmit, submitEnabled, backEnabled = true, lang = "tr" }) => {
   const keyStyle = { width: 60, height: 52, borderRadius: 14, border: "1px solid rgba(255,255,255,.12)", background: C.uiBlue, color: "#fff", fontSize: 24, fontWeight: 900, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 4px 14px ${C.uiBlue}40`, transition: "transform .1s" };
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 60px)", gap: 8, justifyContent: "center" }}>
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(d => (
         <button key={d} className="answer-option" aria-label={String(d)} onClick={() => onDigit(d)} style={keyStyle}>{d}</button>
       ))}
-      <button aria-label="Sil" onClick={onBack} style={{ ...keyStyle, background: "rgba(148,163,184,.25)", fontSize: 22, opacity: backEnabled ? 1 : .4 }}>⌫</button>
+      <button aria-label={lang === "ku" ? "Jê bibe" : "Sil"} onClick={onBack} style={{ ...keyStyle, background: "rgba(148,163,184,.25)", fontSize: 22, opacity: backEnabled ? 1 : .4 }}>⌫</button>
       <button aria-label="0" onClick={() => onDigit(0)} style={keyStyle}>0</button>
-      <button aria-label="Kontrol Et" onClick={onSubmit} disabled={!submitEnabled} style={{ ...keyStyle, background: submitEnabled ? C.uiGreen : "rgba(16,185,129,.3)", fontSize: 26, cursor: submitEnabled ? "pointer" : "default", opacity: submitEnabled ? 1 : .55 }}>✓</button>
+      <button aria-label={lang === "ku" ? "Kontrol bike" : "Kontrol Et"} onClick={onSubmit} disabled={!submitEnabled} style={{ ...keyStyle, background: submitEnabled ? C.uiGreen : "rgba(16,185,129,.3)", fontSize: 26, cursor: submitEnabled ? "pointer" : "default", opacity: submitEnabled ? 1 : .55 }}>✓</button>
     </div>
   );
 };
@@ -11238,10 +11238,16 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     const q = question, gc = () => "blue"; // NumberRod handles two-color split at 5 automatically
     const countSlots = countingIndex >= 0 ? Array.from({ length: countingIndex + 1 }, (_, i) => i) : [];
     // Üçlü Kod sayma göstergesi: rakam + sözcük (+ sesli okuma öncesi çocuklar için)
-    const CountDisplay = ({ n, mt = 14, sz = 36 }) => n == null ? null : (
-      <div style={{ marginTop: mt, textAlign: "center", animation: "scaleInBounce .4s cubic-bezier(.34,1.56,.64,1)" }}>
-        <div style={{ fontSize: sz, fontWeight: 900, color: C.uiGreen, textShadow: "0 2px 12px rgba(16,185,129,.3)" }}>{n}</div>
-        <div style={{ fontSize: Math.max(12, sz * 0.3), fontWeight: 700, color: "#c4b5fd", fontStyle: "italic", marginTop: -2, animation: "fadeIn .3s ease .15s both" }}>{numWordLang(n, lang)}</div>
+    // n=null iken GÖRÜNMEZ ama YER TUTAN kutu: sayım belirince ortalanmış içerik zıplamasın
+    // (margin:auto merkezleme + sonradan beliren blok = tahta yukarı ışınlanıyordu)
+    const CountDisplay = ({ n, mt = 14, sz = 36 }) => (
+      <div aria-hidden={n == null} style={{ marginTop: mt, textAlign: "center", minHeight: Math.round(sz * 1.7),
+        visibility: n == null ? "hidden" : "visible",
+        animation: n != null ? "scaleInBounce .4s cubic-bezier(.34,1.56,.64,1)" : "none" }}>
+        {n != null && <>
+          <div style={{ fontSize: sz, fontWeight: 900, color: C.uiGreen, textShadow: "0 2px 12px rgba(16,185,129,.3)" }}>{n}</div>
+          <div style={{ fontSize: Math.max(12, sz * 0.3), fontWeight: 700, color: "#c4b5fd", fontStyle: "italic", marginTop: -2, animation: "fadeIn .3s ease .15s both" }}>{numWordLang(n, lang)}</div>
+        </>}
       </div>
     );
     const TXT = ({ children }) => <p style={{ color: "#f1f5f9", fontSize: 18, fontWeight: 800, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,.4)", maxWidth: 360, margin: "0 auto 14px", wordBreak: "break-word" }}>{children}</p>;{/* boşluk token'ı: kök→görsel 14px */}
@@ -11433,11 +11439,22 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // (kayan "+N puan" baloncu\u011Fu kald\u0131r\u0131ld\u0131 \u2014 puan tek yerde: Ad\u0131m-4 \u00F6zeti)
 
         // ── Alt ilerleme kapsülü ──────────────────────────────────────
+        // Adım 2+ için kalıcı 🔊: ön-okur problemi HER adımda yeniden dinleyebilmeli
+        // (adım 0-1'in kendi satır-içi Dinle butonu var; burada tekrar göstermek gürültü)
+        var wpListenBtn = wpStep >= 2 ? React.createElement("button", {
+          onClick: function(e) { if (e && e.stopPropagation) e.stopPropagation(); try { TTS.stop(); TTS.speak(wpText, "tr-TR", 0.8); } catch (_) {} sfx("click"); },
+          "aria-label": lang === "ku" ? "Pirsgirêkê guhdarî bike" : "Problemi dinle",
+          style: { position: "absolute", right: 10, bottom: 12, width: 44, height: 44, borderRadius: "50%",
+            border: "2px solid " + wpc.accent + "70", background: "rgba(30,27,75,.92)",
+            fontSize: 18, cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 2px 10px rgba(0,0,0,.3)" },
+        }, "🔊") : null;
         var wpStepBar = React.createElement("div", { style: {
           position: "sticky", bottom: 0, left: 0, right: 0,
           padding: "22px 8px 14px", zIndex: 10, marginTop: 16,
           background: "linear-gradient(transparent 0%, rgba(30,27,75,.85) 35%)",
         }},
+          wpListenBtn,
           React.createElement("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", gap: 2 } },
             wpStepIcons.map(function(ico, si) {
               var done = si < wpStep; var active = si === wpStep;
@@ -11751,17 +11768,17 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         // ══════════════════════════════════════════════════════════════
         if (wpStep === 2) {
           var ops = [
-            { sym: "+", name: "Toplama", emoji: "\u2795", clr: "#ea580c", bg: "rgba(234,88,12,.1)" },
-            { sym: "\u2212", name: "\u00C7\u0131karma", emoji: "\u2796", clr: "#dc2626", bg: "rgba(239,68,68,.08)" },
-            { sym: "\u00D7", name: "\u00C7arpma", emoji: "\u2716\uFE0F", clr: "#7c3aed", bg: "rgba(124,58,237,.08)" },
-            { sym: "\u00F7", name: "B\u00F6lme", emoji: "\u2797", clr: "#0891b2", bg: "rgba(6,182,212,.08)" },
+            { sym: "+", name: lang === "ku" ? "Z\u00EAdekirin" : "Toplama", emoji: "\u2795", clr: "#ea580c", bg: "rgba(234,88,12,.1)" },
+            { sym: "\u2212", name: lang === "ku" ? "K\u00EAmkirin" : "\u00C7\u0131karma", emoji: "\u2796", clr: "#dc2626", bg: "rgba(239,68,68,.08)" },
+            { sym: "\u00D7", name: lang === "ku" ? "Carkirin" : "\u00C7arpma", emoji: "\u2716\uFE0F", clr: "#7c3aed", bg: "rgba(124,58,237,.08)" },
+            { sym: "\u00F7", name: lang === "ku" ? "Parkirin" : "B\u00F6lme", emoji: "\u2797", clr: "#0891b2", bg: "rgba(6,182,212,.08)" },
           ];
           return React.createElement("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", minHeight: "100%", padding: "0 8px" } },
             React.createElement("div", { style: { flex: 1 } },
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, "\uD83D\uDD0D Problemi \u00E7\u00F6zmek i\u00E7in hangi i\u015Flemi kullanaca\u011F\u0131z?"),
+              React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#a8b2d1", marginBottom: 6 } }, lang === "ku" ? "\uD83D\uDD0D Ji bo \u00E7areserkirin\u00EA k\u00EEjan kiryar p\u00EAw\u00EEst e?" : "\uD83D\uDD0D Problemi \u00E7\u00F6zmek i\u00E7in hangi i\u015Flemi kullanaca\u011F\u0131z?"),
               // Verilen & İstenen özeti
               React.createElement("div", { style: { padding: "8px 14px", borderRadius: 12, background: "rgba(5,150,105,.1)", border: "1.5px solid #86efac", maxWidth: 340, margin: "0 auto 12px", textAlign: "left" } },
-                React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: "#86efac" } }, "\u2705 Verilen: " + verilenA + "  \u2022  " + verilenB),
+                React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: "#86efac" } }, (lang === "ku" ? "\u2705 Day\u00ee: " : "\u2705 Verilen: ") + verilenA + "  \u2022  " + verilenB),
                 React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: "#fbbf24", marginTop: 4 } }, (lang === "ku" ? "🎯 Lêgerîn: " : "🎯 Aranan: ") + istenenTR)
               ),
               React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, maxWidth: 300, margin: "0 auto" } },
@@ -12023,6 +12040,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 // Sayı tuşları
                 // ORTAK NumPadGrid — ana 4-işlem numpad'i ile aynı düzen/boyut/renk (eski 0-9 sarmal satır + Sil/Kontrol ikilisi tutarsızdı)
                 !isCorrectAnswer ? React.createElement(NumPadGrid, {
+                  lang: lang,
                   onDigit: function(digit) { sfx("click"); setWpModelCount(function(p) { var nv = p * 10 + digit; if (nv > 999) nv = digit; return nv; }); },
                   onBack: function() { sfx("click"); setWpModelCount(function(p) { return Math.floor(p / 10); }); },
                   submitEnabled: wpModelCount > 0,
@@ -12113,7 +12131,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   return <NumberRod key={ri} count={rc} defaultColor={gc(q.number)} size={cntSize} countingSlots={rowSlots.length ? rowSlots : undefined} />;
                 })}
               </div>}
-          {countingIndex >= 0 && <CountDisplay n={countingIndex + 1} />}
+          <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} />
         </div>); }
 
       case "chipGuess":
@@ -12127,7 +12145,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             </div>
           )}
           <LooseChips count={q.number} hidden={isHidden} countingSlots={countSlots} />
-          {countingIndex >= 0 && !isHidden && <CountDisplay n={countingIndex + 1} mt={14} sz={36} />}
+          {!isHidden && <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} mt={14} sz={36} />}
         </div>);
 
       case "rodBack":
@@ -12291,7 +12309,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {isHidden ? renderRbBlank() : renderRbDisplay()}
             </div>
           </div>
-          {countingIndex >= 0 && !isHidden && <CountDisplay n={countingIndex + 1} mt={14} sz={36} />}
+          {!isHidden && <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} mt={14} sz={36} />}
         </div>); }
 
       case "matching":
@@ -13035,7 +13053,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               })()}
             </div>
           )}
-          {countingIndex >= 0 && !isHidden && <CountDisplay n={countingIndex + 1} mt={8} sz={32} />}
+          {!isHidden && <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} mt={8} sz={32} />}
         </div>);
       }
 
@@ -13619,7 +13637,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               ))}
             </div>
           </div>
-          {countingIndex >= 0 && <CountDisplay n={countingIndex + 1} />}
+          <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} />
         </div>);
       }
 
@@ -13886,7 +13904,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 : ` — Fark: ${Math.abs(q.number - userAnswer)} ${Math.abs(q.number - userAnswer) <= 2 ? "(çok yakın! 🎯)" : Math.abs(q.number - userAnswer) <= 4 ? "(yaklaştın!)" : ""}`)
               : (lang === "ku" ? " — Tam li cî! 🎯" : " — Tam isabet! 🎯")}
           </div>}
-          {countingIndex >= 0 && !isHidden && <CountDisplay n={countingIndex + 1} mt={12} sz={36} />}
+          {!isHidden && <CountDisplay n={countingIndex >= 0 ? countingIndex + 1 : null} mt={12} sz={36} />}
         </div>);
       }
 
@@ -15095,7 +15113,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                yanlışta doğru cevap 4-5 ayrı yerde tekrarlanıyordu) */}
           {/* Tuş takımı — ORTAK NumPadGrid bileşeni; cevap verilince gizlenir (alan boşalır, geri bildirim sığar) */}
           {!answered && (
-            <NumPadGrid onDigit={npPress} onBack={npBack} onSubmit={npSubmit} submitEnabled={npEntered} backEnabled={numEntry !== ""} />
+            <NumPadGrid lang={lang} onDigit={npPress} onBack={npBack} onSubmit={npSubmit} submitEnabled={npEntered} backEnabled={numEntry !== ""} />
           )}
         </div>
       );
@@ -15159,7 +15177,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             else if (fm.val === userAnswer) bg = C.wrong;
             else { bg = "#bbb"; opacity = .35; }
           }
-          return (<button key={fm.val} className="option-btn answer-option" onClick={() => handleAnswer(fm.val)} disabled={answered} style={{
+          // Ön-okur şık-sesi: metin şıkkı okunamıyor — dokununca etiket seslendirilir (tek dokunuşta cevap, handleOptionTap ile aynı desen)
+          return (<button key={fm.val} className="option-btn answer-option" onClick={() => { if (isPreReader) { try { TTS.stop(); TTS.speak(fm.label); } catch {} } handleAnswer(fm.val); }} disabled={answered} style={{
             padding: "14px 8px", borderRadius: 16, border: "none", background: bg,
             cursor: answered ? "default" : "pointer",
             boxShadow: `0 3px 10px ${bg}40`, transition: "all .2s", opacity,
@@ -15193,7 +15212,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             else if (lm.val === userAnswer) bg = C.wrong;
             else { bg = "#bbb"; opacity = .35; }
           }
-          return (<button key={lm.val} className="option-btn answer-option" onClick={() => handleAnswer(lm.val)} disabled={answered} style={{
+          return (<button key={lm.val} className="option-btn answer-option" onClick={() => { if (isPreReader) { try { TTS.stop(); TTS.speak(lm.label); } catch {} } handleAnswer(lm.val); }} disabled={answered} style={{
             padding: "14px 8px", borderRadius: 16, border: "none", background: bg,
             cursor: answered ? "default" : "pointer",
             boxShadow: `0 3px 10px ${bg}40`, transition: "all .2s", opacity,
@@ -15221,7 +15240,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             else if (cv.val === userAnswer) bg = C.wrong;
             else { bg = "#bbb"; opacity = .35; }
           }
-          return (<button key={cv.val} className="option-btn answer-option" onClick={() => handleAnswer(cv.val)} disabled={answered} style={{
+          return (<button key={cv.val} className="option-btn answer-option" onClick={() => { if (isPreReader) { try { TTS.stop(); TTS.speak(cv.label); } catch {} } handleAnswer(cv.val); }} disabled={answered} style={{
             padding: "12px 8px", borderRadius: 16, border: "none", background: bg,
             cursor: answered ? "default" : "pointer",
             boxShadow: `0 4px 12px ${bg}40`, transition: "all .2s", opacity,
@@ -16179,8 +16198,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
             )}
           </div>
-          {/* Content */}
-          <div style={{ flex: 1, overflow: "auto", padding: "14px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Content (kaydırılabilir) — minHeight:0 ŞART: yoksa flex öğesi içerik boyuna kilitlenir, sabit CTA ekran dışına taşar */}
+          <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "14px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
             {/* ═══ GÖREV BRİFİNG POPUP ═══ */}
             {showMissionPopup && (() => { const mp = getModePlanet(gameMode); if (!mp) return null;
               const modeGamesLocal = stats.modeStats[gameMode]?.games || 0;
@@ -16394,7 +16413,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {lang === "ku" ? "Pirsên li pey hev — rekora xwe bişkîne! Lez nîne, tenê herikbarî." : "Üst üste sorular — kendi rekorunu kır! Acelen yok, sadece akıcılık."}
               </p>
             )}
-            {/* Start */}
+          </div>
+          {/* Start — kaydırma bağlamının DIŞINDA sabit: birincil eylem her ekran boyunda kaydırmasız görünür */}
+          <div style={{ flexShrink: 0, padding: "8px 20px 14px" }}>
             <button onClick={() => {
               if (fluencyMode) {
                 setFluencySession(createFluencySession(gameMode, level));
@@ -16403,7 +16424,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             }} style={{
               width: "100%", padding: "14px 0", borderRadius: 14, border: "none", fontFamily: F,
               background: `linear-gradient(135deg, ${mi?.c || "#059669"}, ${mi?.c || "#059669"}cc)`, color: "#fff",
-              fontSize: 18, fontWeight: 900, cursor: "pointer", animation: "fadeUp .5s ease",
+              fontSize: 18, fontWeight: 900, cursor: "pointer",
               boxShadow: `0 6px 20px ${mi?.c || "#059669"}35, inset 0 1px 0 rgba(255,255,255,.2)`,
             }}>{lang === "ku" ? "Dest Pê Bike!" : "Başla!"} 🚀</button>
           </div>
@@ -16531,11 +16552,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                       </span>
                     </button>
                   </div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,.6)", marginTop: 10, animation: "fadeUp .5s ease .7s both", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                    <div style={{ display: "flex", gap: 3 }}>
-                      {[0,1,2,3,4].map(i => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: mi?.c || "#a78bfa", opacity: .3, animation: `pulse 1.4s ease ${i * .2}s infinite` }} />)}
-                    </div>
-                  </div>
+                  {/* (CTA altındaki 5'li yanıp-sönen nokta dizisi kaldırıldı — adım göstergesi DEĞİLDİ, anlamsız süs + fazladan sonsuz animasyon) */}
                 </div>
               </div>
             );
@@ -16632,7 +16649,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
             </div>
           )}
-          <ParentalGate open={sessionGateOpen} reason="Oturum süresini uzatmak yetişkin onayı gerektirir"
+          <ParentalGate open={sessionGateOpen} lang={lang}
+            reason={lang === "ku" ? "Dirêjkirina dema rûniştinê erêkirina mezinan dixwaze." : "Oturum süresini uzatmak yetişkin onayı gerektirir"}
             onClose={() => setSessionGateOpen(false)}
             onSuccess={() => {
               sessionGraceRef.current += 600; // +10 dk
@@ -17319,31 +17337,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 14, position: "relative" }}>
               {[1,2,3].map(s => (
                 <div key={s} style={{ position: "relative" }}>
-                  {/* Glow circle behind star */}
-                  {s <= stars && (
-                    <div style={{
-                      position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-                      width: 60, height: 60, borderRadius: "50%",
-                      background: `radial-gradient(circle, rgba(251,191,36,.2), transparent 70%)`,
-                      animation: `pulse 2s ease ${s * .3}s infinite`,
-                      pointerEvents: "none",
-                    }} />
-                  )}
+                  {/* (yıldız başına SÜREKLİ pulse-halo + starShine döngüleri kaldırıldı — "ekran başına ≤1 odak animasyonu"
+                      ilkesi; tek-seferlik starReveal + parçacık patlaması kutlamayı zaten taşıyor, statik glow filter kalıcı) */}
                   <span style={{
                     fontSize: 44, display: "block",
                     filter: s <= stars ? "drop-shadow(0 4px 16px rgba(251,191,36,.6))" : "grayscale(1) opacity(.15)",
                     animation: s <= stars ? `starReveal ${.6 + s * .1}s cubic-bezier(.16,1,.3,1) ${s * .35}s both` : "none",
                     transition: "all .3s ease",
                   }}>{s <= stars ? "⭐" : "☆"}</span>
-                  {/* Continuous shine effect on earned stars */}
-                  {s <= stars && (
-                    <div style={{
-                      position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-                      width: 40, height: 40, borderRadius: "50%",
-                      animation: `starShine 2.5s ease ${s * .5 + 1}s infinite`,
-                      pointerEvents: "none",
-                    }} />
-                  )}
                   {/* Particle burst behind each earned star — enhanced with more particles */}
                   {s <= stars && [0,1,2,3,4,5,6,7,8,9,10,11].map(p => (
                     <div key={p} style={{
@@ -23159,13 +23160,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
             {/* Oturum Süresi (dozaj: 3-5 oturum/hafta × 15-20 dk — Calcularis/Number Race standardı) */}
             <div style={{ ...DS.card, padding: "14px 16px" }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 4 }}>⏱️ Oturum Süresi Sınırı</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 4 }}>⏱️ {lang === "ku" ? "Sînorê Dema Rûniştinê" : "Oturum Süresi Sınırı"}</div>
               <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, marginBottom: 10, lineHeight: 1.5 }}>
-                Süre dolunca soru bitiminde nazikçe sonlandırılır (araştırma: kısa-sık oturum en etkilisi).
-                Otomatik = okul öncesi 15 dk, ilkokul 20 dk. Devam yalnız yetişkin onayıyla.
+                {lang === "ku"
+                  ? "Dema diqede, piştî pirsê bi nermî tê girtin. Otomatîk = beriya dibistanê 15 xulek, dibistana seretayî 20 xulek. Domandin tenê bi erêkirina mezinan."
+                  : "Süre dolunca soru bitiminde nazikçe sonlandırılır (araştırma: kısa-sık oturum en etkilisi). Otomatik = okul öncesi 15 dk, ilkokul 20 dk. Devam yalnız yetişkin onayıyla."}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {[{ v: null, l: "Otomatik" }, { v: 10, l: "10 dk" }, { v: 15, l: "15 dk" }, { v: 20, l: "20 dk" }, { v: 25, l: "25 dk" }, { v: 0, l: "Kapalı" }].map(o => (
+                {[{ v: null, l: lang === "ku" ? "Otomatîk" : "Otomatik" }, { v: 10, l: lang === "ku" ? "10 xl" : "10 dk" }, { v: 15, l: lang === "ku" ? "15 xl" : "15 dk" }, { v: 20, l: lang === "ku" ? "20 xl" : "20 dk" }, { v: 25, l: lang === "ku" ? "25 xl" : "25 dk" }, { v: 0, l: lang === "ku" ? "Girtî" : "Kapalı" }].map(o => (
                   <button key={String(o.v)} onClick={() => setSessionLimitPref(o.v)} style={{
                     padding: "7px 14px", borderRadius: 10, cursor: "pointer", fontFamily: F,
                     fontSize: 11.5, fontWeight: 800,

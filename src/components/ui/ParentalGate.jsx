@@ -3,7 +3,7 @@
 // önce ebeveynin yanında olduğunu doğrular. Çocuk dostu uygulama standardı (Apple/Google) gereği
 // hesap işlemi/PII formu yerine yaş-uygun-olmayan bir matematik sorusu sorulur.
 //
-// Tek bir bileşen: <ParentalGate open onSuccess onClose />.
+// Tek bir bileşen: <ParentalGate open onSuccess onClose [lang] />.
 // Sorular iki basamaklı toplama/çıkarma — diskalkuli olan çocuk için "kolayca yapılır" sayılmaz, bu yüzden
 // sayılar 23-89 aralığında ve 1+1 gibi triviallıktan uzak tutulur.
 
@@ -12,6 +12,32 @@ import { Modal } from '../../design-system/components/Modal.jsx';
 import { colors } from '../../design-system/colors.js';
 import { typography } from '../../design-system/typography.js';
 import { dialogButtonStyle } from '../../design-system/presets.js';
+
+// KU çocuk modunda kapıyı gören yetişkin de KU okur — sabit TR yerine dil-bilinçli sözlük.
+const GATE_STR = {
+  tr: {
+    title: 'Ebeveyn / Öğretmen Doğrulaması',
+    helper: 'Bu alan ebeveyn/öğretmen içindir. Devam etmek için soruyu yanıtla.',
+    answer: 'Cevap',
+    cancel: 'Vazgeç',
+    verify: 'Doğrula',
+    attempts: 'Deneme',
+    enterNum: 'Sayı gir',
+    locked: '3 deneme aşıldı, ebeveyn kapısı kilitlendi.',
+    wrong: 'Yanlış. Yeni soru geldi.',
+  },
+  ku: {
+    title: 'Erêkirina Dêûbav / Mamoste',
+    helper: 'Ev beş ji bo dêûbav/mamoste ye. Ji bo bidomînî pirsê bibersivîne.',
+    answer: 'Bersiv',
+    cancel: 'Dev jê berde',
+    verify: 'Erê bike',
+    attempts: 'Hewldan',
+    enterNum: 'Hejmarekê binivîse',
+    locked: '3 hewldan derbas bûn, derî hat girtin.',
+    wrong: 'Şaş e. Pirseke nû hat.',
+  },
+};
 
 function generateProblem() {
   const a = 23 + Math.floor(Math.random() * 67); // 23..89
@@ -22,7 +48,8 @@ function generateProblem() {
   return { x, y, op, answer };
 }
 
-export function ParentalGate({ open, onSuccess, onClose, reason }) {
+export function ParentalGate({ open, onSuccess, onClose, reason, lang = 'tr' }) {
+  const S = GATE_STR[lang] || GATE_STR.tr;
   const [problem, setProblem] = useState(() => generateProblem());
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
@@ -44,7 +71,7 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
     if (lockedOut) return;
     const num = parseInt(input, 10);
     if (Number.isNaN(num)) {
-      setError('Sayı gir');
+      setError(S.enterNum);
       return;
     }
     if (num === problem.answer) {
@@ -53,9 +80,9 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
       const next = attempts + 1;
       setAttempts(next);
       if (next >= 3) {
-        setError('3 deneme aşıldı, ebeveyn kapısı kilitlendi.');
+        setError(S.locked);
       } else {
-        setError('Yanlış. Yeni soru geldi.');
+        setError(S.wrong);
         setProblem(generateProblem());
         setInput('');
       }
@@ -63,13 +90,11 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
   };
 
   const helperText = useMemo(() => {
-    return reason
-      ? `Bu alan ebeveyn/öğretmen içindir. Devam etmek için soruyu yanıtla: ${reason}`
-      : 'Bu alan ebeveyn/öğretmen içindir. Devam etmek için soruyu yanıtla.';
-  }, [reason]);
+    return reason ? `${S.helper} ${reason}` : S.helper;
+  }, [reason, S]);
 
   return (
-    <Modal open={open} onClose={onClose} title="Ebeveyn / Öğretmen Doğrulaması" maxWidth={420}>
+    <Modal open={open} onClose={onClose} title={S.title} maxWidth={420}>
       <p style={{
         color: colors.text.secondary,
         fontSize: 14,
@@ -103,11 +128,11 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
           type="number"
           inputMode="numeric"
           autoFocus
-          aria-label="Cevap"
+          aria-label={S.answer}
           value={input}
           disabled={lockedOut}
           onChange={(e) => { setInput(e.target.value); setError(''); }}
-          placeholder="Cevap"
+          placeholder={S.answer}
           style={{
             padding: '14px 16px',
             borderRadius: 12,
@@ -135,7 +160,7 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
 
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button type="button" onClick={onClose} style={dialogButtonStyle('secondary')}>
-            Vazgeç
+            {S.cancel}
           </button>
           <button
             type="submit"
@@ -149,7 +174,7 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
               }),
             }}
           >
-            Doğrula
+            {S.verify}
           </button>
         </div>
 
@@ -160,7 +185,7 @@ export function ParentalGate({ open, onSuccess, onClose, reason }) {
           margin: 0,
           marginTop: 4,
         }}>
-          Deneme: {attempts} / 3
+          {S.attempts}: {attempts} / 3
         </p>
       </form>
     </Modal>
