@@ -13714,17 +13714,18 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {/* Sol kefe */}
                 <div style={{ width: "46%", display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div style={{ width: 2, height: answered ? (q.group1 > q.group2 ? 22 : q.group1 < q.group2 ? 8 : 14) : 14, background: "linear-gradient(180deg, #a78bfa, #c4b5fd88)", transition: "height .6s cubic-bezier(.34,1.56,.64,1)", borderRadius: 1 }} />
-                  <div style={{ background: "linear-gradient(135deg, rgba(239,68,68,.15), rgba(239,68,68,.06))", border: "2px solid rgba(252,165,165,.3)", borderRadius: "6px 6px 16px 16px", padding: "8px 10px 10px", minWidth: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "0 4px 14px rgba(220,38,38,.1), inset 0 1px 0 rgba(255,255,255,.08)", animation: answered ? "panDrop .5s ease" : "none", transition: "all .5s ease" }}>
-                    <span style={{ fontSize: 9, fontWeight: 800, color: "#fca5a5", letterSpacing: 1, textTransform: "uppercase" }}>{lang === "ku" ? "ÇEP" : "SOL"}</span>
-                    {renderLmeGroup(q.group1, lmeDsp[0], "red", lmeSize1)}
+                  {/* Renk rolü platformla hizalı: SOL/1.grup = MAVİ, SAĞ/2.grup = KIRMIZI (comparison A=mavi B=kırmızı ile aynı) */}
+                  <div style={{ background: "linear-gradient(135deg, rgba(59,130,246,.15), rgba(59,130,246,.06))", border: "2px solid rgba(147,197,253,.3)", borderRadius: "6px 6px 16px 16px", padding: "8px 10px 10px", minWidth: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "0 4px 14px rgba(59,130,246,.1), inset 0 1px 0 rgba(255,255,255,.08)", animation: answered ? "panDrop .5s ease" : "none", transition: "all .5s ease" }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: "#93c5fd", letterSpacing: 1, textTransform: "uppercase" }}>{lang === "ku" ? "ÇEP" : "SOL"}</span>
+                    {renderLmeGroup(q.group1, lmeDsp[0], "blue", lmeSize1)}
                   </div>
                 </div>
                 {/* Sağ kefe */}
                 <div style={{ width: "46%", display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div style={{ width: 2, height: answered ? (q.group2 > q.group1 ? 22 : q.group2 < q.group1 ? 8 : 14) : 14, background: "linear-gradient(180deg, #a78bfa, #c4b5fd88)", transition: "height .6s cubic-bezier(.34,1.56,.64,1)", borderRadius: 1 }} />
-                  <div style={{ background: "linear-gradient(135deg, rgba(59,130,246,.15), rgba(59,130,246,.06))", border: "2px solid rgba(147,197,253,.3)", borderRadius: "6px 6px 16px 16px", padding: "8px 10px 10px", minWidth: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "0 4px 14px rgba(59,130,246,.1), inset 0 1px 0 rgba(255,255,255,.08)", animation: answered ? "panDrop .5s ease .1s both" : "none", transition: "all .5s ease" }}>
-                    <span style={{ fontSize: 9, fontWeight: 800, color: "#3b82f6", letterSpacing: 1, textTransform: "uppercase" }}>{lang === "ku" ? "RAST" : "SAĞ"}</span>
-                    {renderLmeGroup(q.group2, lmeDsp[1], "blue", lmeSize2)}
+                  <div style={{ background: "linear-gradient(135deg, rgba(239,68,68,.15), rgba(239,68,68,.06))", border: "2px solid rgba(252,165,165,.3)", borderRadius: "6px 6px 16px 16px", padding: "8px 10px 10px", minWidth: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "0 4px 14px rgba(220,38,38,.1), inset 0 1px 0 rgba(255,255,255,.08)", animation: answered ? "panDrop .5s ease .1s both" : "none", transition: "all .5s ease" }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: "#fca5a5", letterSpacing: 1, textTransform: "uppercase" }}>{lang === "ku" ? "RAST" : "SAĞ"}</span>
+                    {renderLmeGroup(q.group2, lmeDsp[1], "red", lmeSize2)}
                   </div>
                 </div>
               </div>
@@ -13744,9 +13745,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             <div style={{ display: "flex", justifyContent: "center", gap: 2, alignItems: "center" }}>
               {Array.from({ length: Math.max(q.group1, q.group2) }, (_, i) => (
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, width: 18 }}>
-                  {i < q.group1 ? <Chip color="red" size={10} /> : <div style={{ width: 10, height: 10, borderRadius: "50%", border: "1px dashed #94a3b8" }} />}
+                  {i < q.group1 ? <Chip color="blue" size={10} /> : <div style={{ width: 10, height: 10, borderRadius: "50%", border: "1px dashed #94a3b8" }} />}
                   <div style={{ width: 1, height: 6, background: i < Math.min(q.group1, q.group2) ? "#a5b4fc" : "transparent" }} />
-                  {i < q.group2 ? <Chip color="blue" size={10} /> : <div style={{ width: 10, height: 10, borderRadius: "50%", border: "1px dashed #94a3b8" }} />}
+                  {i < q.group2 ? <Chip color="red" size={10} /> : <div style={{ width: 10, height: 10, borderRadius: "50%", border: "1px dashed #94a3b8" }} />}
                 </div>
               ))}
             </div>
