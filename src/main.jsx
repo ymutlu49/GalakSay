@@ -7,10 +7,25 @@ import { colors } from './design-system/colors.js'
 import { typography } from './design-system/typography.js'
 import { layout } from './design-system/spacing.js'
 import { getResumeInfo } from './hooks/useAutoSave.js'
+import { useAccessibility } from './hooks/useAccessibility.js'
 
 // Lazy loaded screens — code splitting
 const GalaksayGame = lazy(() => import('../GalakSay.jsx'))
-const Onboarding = lazy(() => import('./screens/Onboarding.jsx').then(m => ({ default: m.Onboarding })))
+const TeacherLogin = lazy(() => import('./screens/TeacherLogin.jsx'))
+const ChildSelect = lazy(() => import('./screens/ChildSelect.jsx'))
+const WelcomeScreen = lazy(() => import('./screens/WelcomeScreen.jsx'))
+const StudentPicker = lazy(() => import('./screens/StudentPicker.jsx'))
+
+import { loadConsent, saveConsent } from './utils/consent.js'
+import {
+  getToken,
+  clearToken,
+  readCachedUser,
+  clearCachedUser,
+  me as numapMe,
+  logout as numapLogout,
+  ApiError,
+} from './services/numapApi.js'
 
 // ═══ PROFESYONEL HATA SINIRI ═══════════════════════════════════════════════
 // Çocuk dostu hata mesajları + hata loglama + kurtarma seçenekleri
@@ -81,7 +96,7 @@ class ErrorBoundary extends React.Component {
           </h1>
           <p style={{
             fontSize: 16,
-            color: '#6B7499',
+            color: '#A8B2D1',
             marginBottom: 24,
             maxWidth: 400,
             position: 'relative',
@@ -218,11 +233,15 @@ function ResumePrompt({ onDismiss }) {
   const [entered, setEntered] = useState(false)
 
   useEffect(() => {
-    const resumeInfo = getResumeInfo()
-    if (resumeInfo) {
-      setInfo(resumeInfo)
-      setTimeout(() => setEntered(true), 300)
-    }
+    let cancelled = false
+    Promise.resolve(getResumeInfo()).then(resumeInfo => {
+      if (cancelled) return
+      if (resumeInfo) {
+        setInfo(resumeInfo)
+        setTimeout(() => setEntered(true), 300)
+      }
+    }).catch(() => {})
+    return () => { cancelled = true }
   }, [])
 
   if (!info) return null
@@ -306,22 +325,126 @@ function ResumePrompt({ onDismiss }) {
   )
 }
 
-// ═══ UYGULAMA WRAPPER — SplashScreen + Onboarding + Game + Resume + Offline ═
+// ═══ UYGULAMA WRAPPER — Splash → Numap auth gate → çocuk seçimi → GalakSay ═══
+// Akış: splash → (token doğrulama) → TeacherLogin → ChildSelect → GalaksayGame.
+// Zorunlu öğretmen girişi: yetişkin Numap hesabıyla girer, değerlendirdiği bir
+// çocuğu seçer; oyun o çocuğun namespace'inde (key=ns) ve numapProfile'ıyla açılır.
+// KVKK açık rızası ilk veri-işleyen aksiyona ertelenir (TeacherLogin submit'i
+// `window.galaksayRequireConsent()` Promise'ını await eder).
 function App() {
+  // Erişilebilirlik ayarları — body class'larının her render'da senkron kalmasını garantiler
+  useAccessibility()
+
   const [splashDone, setSplashDone] = useState(false)
-  const [onboardingDone, setOnboardingDone] = useState(() => {
-    try { return localStorage.getItem('galaksay_onboarding_done') === 'true' }
-    catch { return false }
-  })
   const [showResume, setShowResume] = useState(true)
 
-  const handleOnboardingComplete = useCallback((profile) => {
-    setOnboardingDone(true)
+  // ── Numap öğretmen oturumu ──
+  // Token varsa 'loading' (me() ile doğrulanır); yoksa doğrudan giriş ekranı.
+  const [authStatus, setAuthStatus] = useState(() => (getToken() ? 'loading' : 'unauthed'))
+  const [teacher, setTeacher] = useState(null)
+  // Seçili çocuk: { ns, name, grade, ageMonths, numapProfile, childMeta } | null
+  const [selectedChild, setSelectedChild] = useState(null)
+
+  // ── Giriş-yolu (Numap'siz front door) ──
+  // Galaksay artık yalnız Numap'le sınırlı değil: çocuk self-login + yerel yönetim.
+  const [entryView, setEntryView] = useState('welcome') // 'welcome' | 'adultLogin' | 'student'
+  // Yerel (Numap'siz) oturum: null | { kind: 'admin' } | { kind: 'user', user }
+  // admin = cihaz yöneticisi (PIN) — öğrenci + kullanıcı yönetir; user = tanımlı öğretmen/uzman.
+  const [localSession, setLocalSession] = useState(null)
+
+  // KVKK rıza EKRANI kaldırıldı (ürün kararı 2026-06-11: kimlik verisi toplanmıyor,
+  // ad rumuz olabilir). Rıza kaydı otomatik verilir; gizlilik denetimi Ayarlar'daki
+  // anahtarlarda kalır (dataSync oradan kapatılabilir — syncEngine yine ona bakar).
+  useEffect(() => {
+    const existing = loadConsent()
+    if (existing === null) {
+      saveConsent({ essential: true, analytics: true, dataSync: true, auto: true, autoMigrated: true })
+    } else if (!existing.autoMigrated && existing.decision !== 'revoked') {
+      // Eski ekrandan kalan varsayılan-kapalı kayıtları BİR KEZ açığa taşı
+      // (sonrasında Ayarlar'dan kapatma tercihi kalıcıdır — tekrar zorlanmaz).
+      saveConsent({ ...existing, analytics: true, dataSync: true, autoMigrated: true })
+    }
+    const w = /** @type {any} */ (window)
+    w.galaksayRequireConsent = () => Promise.resolve(true) // eski çağıranlar için no-op köprü
+    return () => { delete w.galaksayRequireConsent }
   }, [])
 
-  // Eğer profil yoksa ve onboarding yapılmamışsa, onboarding göster
-  const showOnboarding = splashDone && !onboardingDone
-  const gameReady = splashDone && onboardingDone
+  // Numap soğuk-başlangıç: token varsa /auth/me ile doğrula. Çevrimdışı (ağ hatası +
+  // önbellekli kullanıcı) → oturum korunur; 401/403 → token temizle + giriş ekranı.
+  useEffect(() => {
+    if (!getToken()) return
+    let active = true
+    numapMe()
+      .then(u => { if (active) { setTeacher(u); setAuthStatus('authed') } })
+      .catch(e => {
+        if (!active) return
+        const authFailed = e instanceof ApiError && (e.status === 401 || e.status === 403)
+        const cached = readCachedUser()
+        if (!authFailed && cached) { setTeacher(cached); setAuthStatus('authed') }
+        else {
+          if (authFailed) { clearToken(); clearCachedUser() }
+          setAuthStatus('unauthed')
+        }
+      })
+    return () => { active = false }
+  }, [])
+
+  // Merkezi havuz: açılışta + ağ dönüşünde bekleyen senkron kuyruğunu boşalt
+  // (syncEngine içinde dataSync rızası + token kontrol edilir; rıza yoksa no-op).
+  useEffect(() => {
+    const flush = () => { import('./services/syncEngine.js').then(m => m.flushQueue()).catch(() => {}) }
+    flush()
+    window.addEventListener('online', flush)
+    return () => window.removeEventListener('online', flush)
+  }, [])
+
+  const handleLoginSuccess = useCallback((u) => { setTeacher(u); setAuthStatus('authed') }, [])
+  const handleSelectChild = useCallback((child) => { setSelectedChild(child); setShowResume(true) }, [])
+  // Yerel (Numap'siz) çocuk → oyun child prop'una çevir. directPlay=true: çocuk
+  // self-login (öğretmen panel araçları gizli); false: yerel hub'dan öğretmen başlattı.
+  const handleSelectLocalChild = useCallback((rec, { directPlay = true } = {}) => {
+    if (!rec) return
+    setSelectedChild({
+      ns: rec.ns,
+      name: rec.name,
+      avatar: rec.avatar,
+      grade: rec.grade || '',
+      ageMonths: 0,
+      ageGroup: rec.ageGroup || null,
+      numapProfile: null,
+      childMeta: { name: rec.name, gradeLevel: rec.grade || '' },
+      local: true,
+      directPlay,
+    })
+    setShowResume(true)
+  }, [])
+  const handleSwitchChild = useCallback(() => { setSelectedChild(null) }, [])
+  // Çıkış: Numap oturumu varsa sunucudan da çık; her durumda front door'a (Welcome) dön.
+  const handleLogout = useCallback(async () => {
+    if (authStatus === 'authed') {
+      try { await numapLogout() } catch { /* yine de yerel oturumu temizle */ }
+    }
+    setSelectedChild(null); setTeacher(null); setAuthStatus('unauthed')
+    setLocalSession(null); setEntryView('welcome')
+  }, [authStatus])
+
+  // Oyun-içi menüden çağrılacak köprüler (çıkış / çocuk değiştir).
+  // NOT: `window`'u önce yerel `w`'ye al — aksi halde ardışık iki
+  // `/** @type {any} */(window).x = fn` satırı arasında ASI noktalı virgül
+  // EKLEMEZ ve `fn\n(window)` bir FONKSİYON ÇAĞRISI olarak ayrıştırılır
+  // (handleLogout istemeden tetiklenir → girişten sonra Welcome'a sıçrama).
+  useEffect(() => {
+    const w = /** @type {any} */ (window)
+    w.__galaksayLogout = handleLogout
+    w.__galaksaySwitchChild = handleSwitchChild
+    return () => {
+      delete w.__galaksayLogout
+      delete w.__galaksaySwitchChild
+    }
+  }, [handleLogout, handleSwitchChild])
+
+  // Oyun gerçekten açık mı (resume bildirimi sadece o zaman) — Numap veya yerel çocuk.
+  const inGame = splashDone && !!selectedChild
 
   // Suspense fallback — minimal loading indicator
   const loadingFallback = (
@@ -339,39 +462,105 @@ function App() {
     </div>
   )
 
+  // Splash sonrası gösterilecek ekran: loading → login → çocuk seçimi → oyun.
+  const renderGate = () => {
+    if (authStatus === 'loading') return loadingFallback
+
+    // Oyun çalışıyor (Numap VEYA yerel çocuk) — her şeyin önünde.
+    if (selectedChild) {
+      return (
+        <GalaksayGame
+          key={selectedChild.ns}
+          teacher={teacher}
+          child={selectedChild}
+          numapPlan={selectedChild.numapProfile}
+          onExit={handleLogout}
+          onSwitchChild={handleSwitchChild}
+        />
+      )
+    }
+
+    // Numap öğretmeni giriş yapmış → Numap hub'ı (tanıladığı çocuklar).
+    if (authStatus === 'authed') {
+      return <ChildSelect source="numap" user={teacher} onSelect={handleSelectChild} onLogout={handleLogout} />
+    }
+
+    // Yerel (Numap'siz) hub — yönetici TÜM profilleri + kullanıcıları yönetir;
+    // yerel kullanıcı (öğretmen/uzman) YALNIZ kendi öğrencilerini yönetir + oynatır.
+    if (localSession) {
+      const isAdmin = localSession.kind === 'admin'
+      const identity = isAdmin ? { name: 'Yönetici', isAdmin: true } : localSession.user
+      return (
+        <ChildSelect
+          source="local"
+          user={identity}
+          onSelect={(rec) => handleSelectLocalChild(rec, { directPlay: false })}
+          onLogout={() => { setLocalSession(null); setEntryView('welcome') }}
+        />
+      )
+    }
+
+    // Front door (oturum yok): iki yol — Öğrenci / Öğretmen-Uzman.
+    if (entryView === 'adultLogin') {
+      return (
+        <TeacherLogin
+          onSuccess={handleLoginSuccess}
+          onLocalUser={(u) => setLocalSession({ kind: 'user', user: u })}
+          onLocalAdmin={() => setLocalSession({ kind: 'admin' })}
+          onBack={() => setEntryView('welcome')}
+        />
+      )
+    }
+    if (entryView === 'student') {
+      return (
+        <StudentPicker
+          onPick={(rec) => handleSelectLocalChild(rec, { directPlay: true })}
+          onBack={() => setEntryView('welcome')}
+          onManage={() => setEntryView('adultLogin')}
+        />
+      )
+    }
+    return (
+      <WelcomeScreen
+        onStudent={() => setEntryView('student')}
+        onAdult={() => setEntryView('adultLogin')}
+      />
+    )
+  }
+
   return (
     <>
       {!splashDone && <SplashScreen onComplete={() => setSplashDone(true)} duration={2000} />}
 
-      {showOnboarding && (
-        <Suspense fallback={loadingFallback}>
-          <Onboarding onComplete={handleOnboardingComplete} />
-        </Suspense>
-      )}
-
       <div style={{
-        opacity: gameReady ? 1 : 0,
+        opacity: splashDone ? 1 : 0,
         transition: 'opacity 300ms ease',
         height: '100vh',
-        pointerEvents: gameReady ? 'auto' : 'none',
+        pointerEvents: splashDone ? 'auto' : 'none',
       }}>
         <Suspense fallback={loadingFallback}>
-          <GalaksayGame />
+          {splashDone && renderGate()}
         </Suspense>
       </div>
 
       {/* Çevrimdışı göstergesi — her zaman render */}
       <OfflineIndicator />
 
-      {/* Oturum devam bildirimi — oyun hazır olduğunda göster */}
-      {gameReady && showResume && (
+      {/* Oturum devam bildirimi — oyun açıkken göster */}
+      {inGame && showResume && (
         <ResumePrompt onDismiss={() => setShowResume(false)} />
       )}
     </>
   )
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// HMR-safe: aynı root'u tekrar tekrar yaratma — React 18 uyarısı engellenir.
+const container = document.getElementById('root')
+const w = /** @type {any} */ (window)
+if (!w.__galaksayRoot) {
+  w.__galaksayRoot = ReactDOM.createRoot(container)
+}
+w.__galaksayRoot.render(
   <ErrorBoundary>
     <App />
   </ErrorBoundary>

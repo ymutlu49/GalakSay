@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// PERFORMANS LOGLAMA MODÜLÜ — Yapılandırılmış Veri Kaydı (NuMap Entegrasyonu)
+// PERFORMANS LOGLAMA MODÜLÜ — Yapılandırılmış Veri Kaydı (Numap Entegrasyonu)
 // Her soruda: yanıt süresi, doğruluk, ipucu kademe, temsil tercihi kaydedilir
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -131,7 +131,7 @@ export const PerformanceLogger = {
     };
   },
 
-  // ── Çocuk Profili Özeti (NuMap uyumlu) ────────────────────────────────────
+  // ── Çocuk Profili Özeti (Numap uyumlu) ────────────────────────────────────
   getChildProfile() {
     const all = this.getAll();
     if (all.length === 0) return null;
@@ -206,7 +206,7 @@ export const PerformanceLogger = {
     return sessions;
   },
 
-  // ── NuMap Uyumlu Rapor Çıktısı ───────────────────────────────────────────
+  // ── Numap Uyumlu Rapor Çıktısı ───────────────────────────────────────────
   exportForNuMap() {
     const profile = this.getChildProfile();
     if (!profile) return null;

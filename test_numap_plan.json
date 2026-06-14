@@ -1,0 +1,35 @@
+{
+  "source": "numap",
+  "version": "2.0",
+  "child": {
+    "name": "Test Öğrenci",
+    "code": "TEST001",
+    "age": 7,
+    "grade": 1,
+    "birthDate": "2018-09-15"
+  },
+  "assessment": {
+    "numberSense": { "score": 32, "level": "low" },
+    "arithmetic": { "score": 41, "level": "low" },
+    "workingMemory": { "score": 58, "level": "medium" },
+    "overallRisk": "high"
+  },
+  "priority": [
+    { "area": "numberSense", "modes": ["counting", "subitizing", "fivesFrame", "tensFrame"] },
+    { "area": "arithmetic", "modes": ["addition", "subtraction", "makeFive"] }
+  ],
+  "secondary": [
+    { "area": "workingMemory", "modes": ["comparison", "ordering"] }
+  ],
+  "tests": {
+    "A1_dotComparison": { "raw": 12, "max": 20, "norm": -1.2 },
+    "A2_symbolicComparison": { "raw": 8, "max": 20, "norm": -1.5 },
+    "A5_counting": { "raw": 6, "max": 15, "norm": -1.8 },
+    "A7_addition": { "raw": 4, "max": 10, "norm": -1.4 },
+    "A8_subtraction": { "raw": 3, "max": 10, "norm": -1.6 },
+    "A10_workingMemory": { "raw": 5, "max": 8, "norm": -0.5 }
+  },
+  "recommendation": "Yüksek risk profili tespit edildi. Sayı hissi gelişimi öncelikli. Somut → resimsel → simgesel üçlü kodlama desteğiyle başlangıç seviyesinden başlanması önerilir.",
+  "timestamp": "2026-05-02T10:30:00Z",
+  "generatedBy": "Numap v3.9.4"
+}

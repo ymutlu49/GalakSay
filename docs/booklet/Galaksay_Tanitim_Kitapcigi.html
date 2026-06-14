@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<title>Galaksay — Tanıtım Kitapçığı</title>
+<style>
+  :root{
+    --brand:#4f46e5; --brand2:#7c3aed; --brandL:#eef2ff; --brandB:#c7d2fe;
+    --ink:#1f2937; --sub:#4b5563; --faint:#9ca3af; --line:#e5e7eb; --card:#f9fafb;
+    --green:#15803d; --greenL:#f0fdf4; --amber:#b45309; --amberL:#fffbeb; --gold:#b45309;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @page{size:A4;margin:0}
+  html,body{background:#fff;color:var(--ink);font:13px/1.62 "Segoe UI",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:296mm;padding:16mm 18mm;position:relative;page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+  .page:last-child{page-break-after:auto}
+  h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
+  h2{font-size:23px;font-weight:600;letter-spacing:-.2px}
+  h3{font-size:15px;font-weight:600;color:var(--brand);margin-bottom:4px}
+  p{color:var(--sub)}
+  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--brand2);margin-bottom:6px}
+  .rule{height:1px;background:var(--line);margin:10px 0 14px}
+  .footer{position:absolute;left:18mm;right:18mm;bottom:9mm;display:flex;justify-content:space-between;font-size:9px;color:var(--faint);border-top:1px solid var(--line);padding-top:5px}
+  .shot{border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.10);background:#0b0e2d}
+  .shot img{display:block;width:100%}
+  .cap{font-size:10px;color:var(--faint);margin-top:5px;text-align:center}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .card.brand{background:var(--brandL);border-color:var(--brandB)}
+  .card.amberx{background:var(--amberL);border-color:#fde68a}
+  ul.tick{list-style:none}
+  ul.tick li{padding-left:18px;position:relative;margin-bottom:4.5px;color:var(--sub)}
+  ul.tick li::before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:700}
+  .pill{display:inline-block;background:var(--brandL);border:1px solid var(--brandB);color:var(--brand);font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;margin:0 4px 4px 0}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+  .stat b{display:block;font-family:Georgia,serif;font-size:17px;color:var(--brand)}
+  .stat span{font-size:10px;color:var(--faint)}
+  td,th{font-size:11.5px;padding:5.5px 9px;text-align:left;border-bottom:1px solid var(--line);color:var(--sub)}
+  th{color:var(--ink);font-weight:700;background:var(--card)}
+  table{border-collapse:collapse;width:100%}
+</style>
+</head>
+<body>
+
+<!-- ════════ SAYFA 1 — KAPAK ════════ -->
+<div class="page" style="padding:0">
+  <div style="background:linear-gradient(140deg,#0b0e2d,#1e1b4b 45%,#4f46e5 130%);color:#fff;padding:26mm 18mm 18mm">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:58px;height:58px;border-radius:14px;background:#fff;display:grid;place-items:center">
+        <svg viewBox="0 0 100 100" width="46" height="46" xmlns="http://www.w3.org/2000/svg">
+          <line x1="28" y1="26" x2="72" y2="26" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
+          <line x1="28" y1="26" x2="50" y2="74" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
+          <line x1="72" y1="26" x2="50" y2="74" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
+          <circle cx="28" cy="26" r="20" fill="#4f46e5"/>
+          <circle cx="21" cy="25" r="3" fill="#fff"/><circle cx="28" cy="25" r="3" fill="#fff"/><circle cx="35" cy="25" r="3" fill="#fff"/>
+          <circle cx="72" cy="26" r="20" fill="#6d28d9"/>
+          <text x="72" y="31" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-weight="800" font-size="12" fill="#fff">üç</text>
+          <circle cx="50" cy="74" r="20" fill="#059669"/>
+          <text x="50" y="83" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-weight="800" font-size="24" fill="#fff">3</text>
+        </svg>
+      </div>
+      <div>
+        <div class="serif" style="font-size:34px;font-weight:600;letter-spacing:-.5px">Galak<span style="color:#a78bfa">say</span></div>
+        <div style="font-size:11px;letter-spacing:.26em;opacity:.85">SAYILAR EVRENİN DİLİDİR</div>
+      </div>
+    </div>
+    <div class="serif" style="font-size:30px;line-height:1.22;margin-top:15mm;max-width:152mm">Diskalkuli odaklı, uzay temalı matematik öğrenme ve müdahale oyunu</div>
+    <p style="color:#ddd6fe;margin-top:6mm;max-width:142mm;font-size:13.5px">5–10 yaş çocuklar için: üçlü kodlama modeline dayalı 60+ etkinlik, 8 gezegen, 5 gerçek zorluk seviyesi. Türkçe ve Kürtçe (Kurmancî) sesli destek; telefon, tablet ve bilgisayarda, çevrimdışı da çalışır.</p>
+  </div>
+  <div style="padding:11mm 18mm 0;flex:1;display:flex;flex-direction:column">
+    <div class="shot" style="max-width:158mm;margin:0 auto"><img src="shots/site-landing.png" alt="galaksay.com"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:9mm">
+      <div class="stat"><b>60+ etkinlik</b><span>8 gezegen</span></div>
+      <div class="stat"><b>5 seviye</b><span>gerçek zorluk rampası</span></div>
+      <div class="stat"><b>TR + KU</b><span>iki dilli seslendirme</span></div>
+      <div class="stat"><b>PWA</b><span>çevrimdışı çalışır</span></div>
+    </div>
+    <div style="margin-top:auto;padding-bottom:12mm;text-align:center;font-size:11px;color:var(--faint)">
+      <b style="color:var(--sub)">Tanıtım Kitapçığı · Haziran 2026</b><br/>
+      Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır · galaksay.com
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SAYFA 2 — PEDAGOJİK TEMEL ════════ -->
+<div class="page">
+  <div class="eyebrow">Bilimsel Temel</div>
+  <h2>Oyun gibi görünür, müdahale gibi çalışır</h2>
+  <div class="rule"></div>
+  <p>Galaksay, diskalkuli riski taşıyan çocukların <b>sayı hissini</b> sistematik biçimde inşa eden bir müdahale aracıdır. Her etkinlik, alanyazındaki kanıt temelli ilkelerle kurgulanmıştır; uzay macerası bu pedagojinin çocuk diline çevirisidir.</p>
+  <div class="grid2" style="margin-top:12px">
+    <div class="card brand"><h3>🧩 Üçlü Kodlama Modeli</h3><p style="font-size:12px">Dehaene'in modeli: her sayı <b>somut</b> (nesneler), <b>sözel</b> (sayı adı) ve <b>sembolik</b> (rakam) temsille birbirine bağlanır — logodaki üç gezegen bunu simgeler.</p></div>
+    <div class="card brand"><h3>🪜 Somut → Görsel → Soyut</h3><p style="font-size:12px">CRA sıralaması: manipülatiflerle başlar, görsel modellerden geçer, soyut rakama ulaşır. Temsil yoğunluğu seviyeye göre sadeleşir.</p></div>
+    <div class="card brand"><h3>🎯 Sade ekran ilkesi</h3><p style="font-size:12px">Bilişsel yük araştırmalarına dayalı "daha sade daha iyidir" tasarımı: ekranda tek fikir, az seçenek, tek dikkat vurgusu; metin yalnız okuyabilen çocuklara.</p></div>
+    <div class="card brand"><h3>💬 Anında, yönlendirici dönüt</h3><p style="font-size:12px">Doğruda kısa kutlama + sesli tekrar-sayım; yanlışta doğru cevabın öğretici gösterimi ve tek cümlelik strateji ipucu. Kıyas ve baskı yok.</p></div>
+  </div>
+  <h3 style="margin-top:14px">Çocuğu koruyan tasarım kararları</h3>
+  <ul class="tick" style="font-size:12.5px">
+    <li>İlk deneme kilitli (tanılayıcı doğruluk) — ama <b>ipucu kullanmak puan düşürmez</b>; 5 kademeli ipucu sistemi yardım istemeyi ödüllendirir.</li>
+    <li>Hız baskısı ana akışta yok; akıcılık çalışması ayrı ve isteğe bağlıdır.</li>
+    <li>Yanılgı tespiti: "1 eksik/fazla sayma" gibi tipik hata örüntüleri yakalanır ve çocuk diliyle düzeltilir.</li>
+    <li>Rozet/onay enflasyonu yok — içsel motivasyonu zedeleyen ödül kalabalığı bilinçli olarak budanmıştır.</li>
+    <li>MEB 2024 Maarif Modeli kazanımlarıyla eşlenmiş içerik.</li>
+  </ul>
+  <div class="card amberx" style="margin-top:auto"><b style="color:var(--amber)">Hedef kitle:</b> <span style="font-size:12px">okul öncesi – 4. sınıf (5-10 yaş); diskalkuli riski taşıyan, matematik öğrenme güçlüğü yaşayan ya da temel sayı hissini güçlendirmek istenen tüm çocuklar.</span></div>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>2</span></div>
+</div>
+
+<!-- ════════ SAYFA 3 — EVREN: 8 GEZEGEN ════════ -->
+<div class="page">
+  <div class="eyebrow">İçerik Evreni</div>
+  <h2>8 gezegen, 60+ etkinlik</h2>
+  <div class="rule"></div>
+  <p>Her gezegen bir matematik alanını temsil eder; çocuk yaş grubuna göre kurgulanmış bir <b>yörünge</b> üzerinde duraktan durağa ilerler, görevleri tamamladıkça gezegen kristallerini toplar.</p>
+  <table style="margin-top:10px">
+    <tr><th style="width:24%">Gezegen</th><th style="width:30%">Alan</th><th>Örnek beceriler</th></tr>
+    <tr><td>🌍 <b>Sayalon</b></td><td>Sayma</td><td>Birebir eşleme, ritmik/atlamalı sayma, geri sayma, kardinalite</td></tr>
+    <tr><td>⚡ <b>Şimşeron</b></td><td>Şipşak sayılama</td><td>Bir bakışta miktar, beşli/onlu çerçeve, görsel bellek</td></tr>
+    <tr><td>⚖️ <b>Terazya</b></td><td>Karşılaştırma</td><td>Büyük-küçük, sayı doğrusu, sıralama, tahmin</td></tr>
+    <tr><td>🧱 <b>Bileşya</b></td><td>Sayı bileşimi</td><td>Parça-bütün, 5 ve 10 oluşturma, sayı bağları</td></tr>
+    <tr><td>🏛️ <b>Basamara</b></td><td>Basamak değeri</td><td>Onluk-birlik, sayı kurma, genişletilmiş yazım</td></tr>
+    <tr><td>➕ <b>Toplarya</b></td><td>Toplama-çıkarma</td><td>Sayarak ekleme, onluk geçme, eksik sayı, sözel problemler</td></tr>
+    <tr><td>✖️ <b>Çarpanya</b></td><td>Çarpma-bölme</td><td>Eşit gruplar, dizi modeli, kat kavramı, paylaştırma</td></tr>
+    <tr><td>🧩 <b>Örünya</b></td><td>Örüntü</td><td>AB örüntüleri, büyüyen örüntüler, kural bulma</td></tr>
+  </table>
+  <div class="shot" style="max-width:150mm;margin:10px auto 0"><img src="shots/journey-map.png" alt="Yörünge haritası"></div>
+  <div class="cap">Yörünge haritası — sınıf düzeyine göre duraklar, kristaller ve ilerleme</div>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>3</span></div>
+</div>
+
+<!-- ════════ SAYFA 4 — OYUN DENEYİMİ ════════ -->
+<div class="page">
+  <div class="eyebrow">Oyun Deneyimi</div>
+  <h2>Hikâyeden göreve: çocuğun yolculuğu</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div>
+      <div class="shot"><img src="shots/story-intro.png" alt="Hikâye girişi"></div>
+      <div class="cap">İlk karşılama: kısa, sade hikâye — "Sayılar Galaksisi karanlığa gömülüyor…"</div>
+    </div>
+    <div>
+      <div class="shot"><img src="shots/mode-select.png" alt="Görev listesi"></div>
+      <div class="cap">Gezegen görevleri — her etkinlik bir görev kartı</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:12px">
+    <div>
+      <div class="shot"><img src="shots/game-item.png" alt="Soru ekranı"></div>
+      <div class="cap">Soru ekranı: tek uyarıcı + 3 seçenek — sade, odaklı, sesli</div>
+    </div>
+    <div>
+      <div class="shot"><img src="shots/feedback-correct.png" alt="Dönüt ekranı"></div>
+      <div class="cap">Doğru cevapta kısa kutlama + taşları birlikte sayma (ses-görsel senkron)</div>
+    </div>
+  </div>
+  <ul class="tick" style="font-size:12px;margin-top:10px">
+    <li>Sorular sesli okunur; okul öncesi profillerde tüm akış metinsiz yürütülebilir.</li>
+    <li>Doğru cevapta yıldız taşları <b>tek tek, sesle eş zamanlı</b> sayılır — kardinalite pekişir.</li>
+  </ul>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>4</span></div>
+</div>
+
+<!-- ════════ SAYFA 5 — ADAPTİF ZORLUK ════════ -->
+<div class="page">
+  <div class="eyebrow">Zorluk Sistemi</div>
+  <h2>5 seviye, gerçek zorluk rampası</h2>
+  <div class="rule"></div>
+  <p>Zorluk yalnızca "daha büyük sayı" değildir: her seviye sayı aralığını <b>tabandan ve tavandan</b> ölçekler, çeldiricileri yakınlaştırır, görsel temsili kademeli soyutlaştırır ve flash sürelerini kısaltır.</p>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">
+    <div class="stat"><b>🌱 1</b><span>Başlangıç · 1-5</span></div>
+    <div class="stat"><b>🌿 2</b><span>Kolay · 1-10</span></div>
+    <div class="stat"><b>🌳 3</b><span>Orta · 6-15</span></div>
+    <div class="stat"><b>⭐ 4</b><span>Zor · 11-20</span></div>
+    <div class="stat"><b>👑 5</b><span>Usta · yapısal zorluk</span></div>
+  </div>
+  <ul class="tick" style="font-size:12.5px;margin-top:12px">
+    <li><b>Sınıf kalibrasyonu:</b> 2. sınıf öğrencisi 1. seviyeden değil, sınıfına uygun seviyeden başlar; üst seviyeler %60 başarıyla açılır.</li>
+    <li><b>Numap profili:</b> tarama sonucu riskli alanlarda oyun, uygun başlangıç seviyesini ve somut temsil desteğini otomatik seçer.</li>
+    <li><b>Mikro-adaptasyon:</b> üst üste hatada zorluk bir kademe yumuşar; yüksek performansta alan genişler (%75 optimal başarı hedefi).</li>
+    <li><b>Serpiştirilmiş tekrar:</b> yanlış yapılan sorular aralıklı olarak yeniden sorulur; her 4. soruda kardeş beceriden soru gelir.</li>
+  </ul>
+  <div class="shot" style="max-width:142mm;margin:10px auto 0"><img src="shots/results.png" alt="Sonuç ekranı"></div>
+  <div class="cap">Görev sonucu — yıldızlar, gezegen ilerlemesi ve "Seviye 2'ye Yüksel!" çağrısı</div>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>5</span></div>
+</div>
+
+<!-- ════════ SAYFA 6 — GİRİŞLER & ERİŞİLEBİLİRLİK ════════ -->
+<div class="page">
+  <div class="eyebrow">Kullanım &amp; Erişilebilirlik</div>
+  <h2>Her çocuğa, her cihazda</h2>
+  <div class="rule"></div>
+  <div class="grid2" style="align-items:start">
+    <div>
+      <h3>İki giriş kapısı</h3>
+      <ul class="tick" style="font-size:12.5px">
+        <li><b>Öğrenci girişi:</b> çocuk kendi profilini seçer, PIN'iyle girer, kaldığı yerden devam eder.</li>
+        <li><b>Öğretmen/Uzman girişi:</b> Numap hesabıyla ya da cihazdaki yerel hesapla — Numap'siz okullar için tam yerel mod.</li>
+        <li>Yaş grubu ve hikâye tercihi çocuğa kalıcıdır; her girişte yeniden sorulmaz.</li>
+      </ul>
+      <h3 style="margin-top:12px">Erişilebilirlik</h3>
+      <ul class="tick" style="font-size:12.5px">
+        <li>İki dilli sesli yönerge: <b>Türkçe + Kurmancî</b></li>
+        <li>Disleksi-dostu yazı tipi (Atkinson Hyperlegible)</li>
+        <li>Renk körlüğü modları (desen destekli)</li>
+        <li>Azaltılmış hareket ve sakin mod</li>
+        <li>Büyük dokunma hedefleri (44-64px), klavye desteği</li>
+      </ul>
+      <h3 style="margin-top:12px">Teknik</h3>
+      <ul class="tick" style="font-size:12.5px">
+        <li>Web uygulaması (PWA) — mağaza gerekmez, ana ekrana eklenir</li>
+        <li>Bir kez yüklenince <b>çevrimdışı</b> çalışır</li>
+        <li>Veriler varsayılan olarak cihazda; merkezi senkron öğretmen kontrolünde</li>
+      </ul>
+    </div>
+    <div>
+      <div class="shot"><img src="shots/welcome.png" alt="Giriş ekranı"></div>
+      <div class="cap">Giriş — öğrenci ve öğretmen kapıları + Numap yön levhası</div>
+      <div class="shot" style="margin-top:10px"><img src="shots/age-select.png" alt="Yaş grubu seçimi"></div>
+      <div class="cap">Yaş grubu seçimi — yörünge içeriği ve zorluk buna göre kurulur</div>
+    </div>
+  </div>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>6</span></div>
+</div>
+
+<!-- ════════ SAYFA 7 — ÖĞRETMEN ARAÇLARI ════════ -->
+<div class="page">
+  <div class="eyebrow">Öğretmen &amp; Uzman Tarafı</div>
+  <h2>Sınıfın kontrol paneli</h2>
+  <div class="rule"></div>
+  <div class="grid2">
+    <div>
+      <div class="shot"><img src="shots/teacher-hub.png" alt="Öğretmen ana ekranı"></div>
+      <div class="cap">Öğretmen ana ekranı — öğrenci seç, sınıf ilerlemesi, ayarlar</div>
+    </div>
+    <div>
+      <div class="shot"><img src="shots/child-list.png" alt="Öğrenci listesi"></div>
+      <div class="cap">Öğrenci listesi — arama ve süzgeçlerle (sınıf, okul, tarih)</div>
+    </div>
+  </div>
+  <div class="shot" style="max-width:150mm;margin:12px auto 0"><img src="shots/child-hub.png" alt="Çocuk panosu"></div>
+  <div class="cap">Çocuğa özel pano — Oyna + analiz araçları</div>
+  <ul class="tick" style="font-size:12.5px;margin-top:10px">
+    <li><b>Uzay Haritası &amp; Gelişim Paneli:</b> kategori başarıları, eğilimler, seviye geçişleri</li>
+    <li><b>Bireysel PDF raporu:</b> profesyonel düzen, gerçek Türkçe karakterler, öneri ve yönlendirme bölümleri</li>
+    <li><b>Sınıf Paneli:</b> tüm sınıfın tek bakışta durumu; sınıf raporu ve CSV dışa aktarım</li>
+    <li><b>Numap Karşılaştırma:</b> tarama profili ↔ güncel oyun performansı</li>
+  </ul>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>7</span></div>
+</div>
+
+<!-- ════════ SAYFA 8 — NUMAP DÖNGÜSÜ ════════ -->
+<div class="page">
+  <div class="eyebrow">Tarama → Müdahale → İzleme</div>
+  <h2>Numap ile tam döngü</h2>
+  <div class="rule"></div>
+  <p>Galaksay, kardeş platform <b>Numap</b> (getnumap.com) ile bütünleşiktir: tarama sonucu oyunu kişiselleştirir, oyun verisi taramanın yanına döner. Böylece "müdahaleye yanıt" tek panelde izlenir.</p>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:stretch;margin-top:12px">
+    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">1 · Numap'te tara</b><p style="font-size:11.5px;margin-top:4px">21 alt test, norm temelli risk haritası</p></div>
+    <div style="display:grid;place-items:center;color:var(--brand);font-size:20px">→</div>
+    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">2 · Galaksay'da oyna</b><p style="font-size:11.5px;margin-top:4px">Öğrenciler otomatik listelenir; oyun risk profiline göre başlar</p></div>
+    <div style="display:grid;place-items:center;color:var(--brand);font-size:20px">→</div>
+    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">3 · Numap'te izle</b><p style="font-size:11.5px;margin-top:4px">Oturum, başarı ve kategori ilerlemesi panelde</p></div>
+  </div>
+  <ul class="tick" style="font-size:12.5px;margin-top:12px">
+    <li>Tek öğretmen hesabı — Numap kimliği Galaksay'da geçerli; öğrenci verisi yeniden girilmez.</li>
+    <li>Oyun ilerlemesi (oturum, doğruluk, kategori, seviye geçişleri) merkezi havuza işlenir; çok-cihaz birleşik görünüm.</li>
+    <li>Numap zorunlu değildir: Galaksay yerel hesaplarla tek başına da eksiksiz çalışır.</li>
+  </ul>
+  <div class="card amberx" style="margin-top:auto">
+    <b style="color:var(--amber)">Akademik altyapı:</b> <span style="font-size:12px">madde-düzey olay kaydı, ön-son karşılaştırma ve sınıf istatistikleri araştırma kullanımına uygundur (CSV/PDF).</span>
+  </div>
+  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>8</span></div>
+</div>
+
+<!-- ════════ SAYFA 9 — ARKA KAPAK ════════ -->
+<div class="page" style="padding:0">
+  <div style="flex:1;background:linear-gradient(160deg,#0b0e2d,#1e1b4b 55%,#4f46e5 140%);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 24mm">
+    <div class="serif" style="font-size:30px;line-height:1.25">Keşfe başlamaya<br/>hazır mısınız?</div>
+    <p style="color:#ddd6fe;margin-top:8mm;max-width:132mm;font-size:13.5px">Tarayıcıda açın, ana ekrana ekleyin, oynamaya başlayın — kurulum yok, mağaza yok. Öğretmenseniz Numap hesabınızla girin; öğrencileriniz sizi bekliyor.</p>
+    <div style="margin-top:12mm;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:#fff;color:#4f46e5;font-weight:700;border-radius:999px;padding:9px 22px;font-size:14px">🚀 galaksay.com</div>
+      <div style="border:1.5px solid rgba(255,255,255,.55);border-radius:999px;padding:9px 22px;font-size:14px">🔬 getnumap.com — tarama platformu</div>
+    </div>
+    <div style="margin-top:16mm;border-top:1px solid rgba(255,255,255,.25);padding-top:6mm;font-size:11px;color:#c7d2fe">
+      <b style="color:#fff">Galaksay</b> — Sayılar evrenin dilidir<br/>
+      Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır · © 2026 Galaksay<br/>
+      Bu kitapçıktaki ekran görüntülerindeki tüm öğrenci ve kullanıcı adları kurgusaldır (demo verisi).
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

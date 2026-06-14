@@ -1,10 +1,11 @@
 import React from 'react';
 import { C } from '../../theme/colors.js';
-import { CB_COLORS } from '../../systems/accessibility.js';
+import { CB_COLORS, isColorBlindActive } from '../../systems/accessibility.js';
 
 export const Chip = ({ color = "blue", size = 44, number = null, glow, countAnim, hidden, style: sx, cb: cbProp }) => {
-  // Auto-detect color blind mode if not explicitly passed
-  const cb = cbProp !== undefined ? cbProp : (() => { try { const a = JSON.parse(localStorage.getItem("ds_a11y_global") || "{}"); return a.colorBlind || false; } catch { return false; } })();
+  // Renk körü modu: açıkça verilmemişse global ayardan (body class) oku.
+  // (Eski kod hiç yazılmayan `ds_a11y_global` anahtarını okuyordu → CB deseni hiç açılmazdı.)
+  const cb = cbProp !== undefined ? cbProp : isColorBlindActive();
   const clr = cb && (color === "red") ? CB_COLORS.red : C[color] || color;
   const isDark = ["blue","red","purple","pink","teal","green","orange"].includes(color);
   const borderClr = color === "blue" ? "#1e40af" : color === "red" ? (cb ? "#7c2d12" : "#991b1b") : color === "green" ? "#14532d" : `${clr}99`;

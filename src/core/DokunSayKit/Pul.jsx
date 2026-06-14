@@ -1,6 +1,7 @@
 // GalakSay Revizyon — 2026-03-18 — Geliştirilmiş sayma animasyonu, halka efekti
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDokunSayDrag, FIZIK, ANIM_PRESETS, vibrate, playSound } from './MateryalFizik.js';
+import { isColorBlindActive } from '../../systems/accessibility.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // YILDIZ TAŞI — DokunSay Birim Yıldız Taşlarının Dijital Karşılığı
@@ -66,8 +67,11 @@ export const Pul = ({
     return () => clearTimeout(t);
   }, [animate, countIndex]);
 
+  // Renk körü modu: prop açıkça verilmemişse global ayardan (body class) oku → mavi-kırmızı
+  // nokta ayrımı için desen + güvenli renk devreye girer. Mod KAPALIYKEN false → görünüm değişmez.
+  const cbActive = colorBlind || isColorBlindActive();
   // Renk seçimi
-  const renkObj = colorBlind
+  const renkObj = cbActive
     ? (CB_RENKLERI[renkProp] || PUL_RENKLERI[renkProp] || PUL_RENKLERI.blue)
     : (PUL_RENKLERI[renkProp] || PUL_RENKLERI.blue);
 
@@ -179,14 +183,14 @@ export const Pul = ({
       )}
 
       {/* Renk körlüğü desen overlay */}
-      {colorBlind && !hidden && renkObj.pattern === 'stripes' && (
+      {cbActive && !hidden && renkObj.pattern === 'stripes' && (
         <div style={{
           position: 'absolute', inset: 0, borderRadius: '50%', opacity: 0.25,
           background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.8) 2px, rgba(255,255,255,0.8) 4px)',
           pointerEvents: 'none',
         }} />
       )}
-      {colorBlind && !hidden && renkObj.pattern === 'dots' && (
+      {cbActive && !hidden && renkObj.pattern === 'dots' && (
         <div style={{
           position: 'absolute', inset: 0, borderRadius: '50%', opacity: 0.3,
           background: `radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)`,
@@ -221,8 +225,8 @@ export const Pul = ({
           bottom: 2, right: 2,
           width: size * 0.22, height: size * 0.22,
           borderRadius: '50%',
-          background: '#10B981',
-          border: '1.5px solid #059669',
+          background: '#059669',
+          border: '1.5px solid #047857',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: size * 0.12, color: '#FFF', fontWeight: 900,
           boxShadow: '0 1px 3px rgba(0,0,0,0.3)',

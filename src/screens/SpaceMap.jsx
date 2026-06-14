@@ -225,7 +225,8 @@ export default function SpaceMap({ childId, onBack }) {
                 fontFamily: typography.fontFamily.display,
                 /* opacity sabit: gezegen silik olsa bile etiket okunsun */
                 textAlign: 'center',
-                maxWidth: 100,
+                maxWidth: 'min(100px, 24vw)',
+                wordBreak: 'break-word',
                 textShadow: '0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.7)',
                 marginTop: 2,
               }}>
@@ -264,7 +265,9 @@ export default function SpaceMap({ childId, onBack }) {
               borderTop: `2px solid ${PLANET_CONFIGS[selectedPlanet.name]?.color || colors.surface.divider}`,
               borderRadius: `${layout.borderRadius.lg}px ${layout.borderRadius.lg}px 0 0`,
               padding: spacing[5],
-              maxHeight: '45%',
+              maxHeight: '70%',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
               zIndex: 10,
               boxShadow: layout.shadow.lg,
             }}

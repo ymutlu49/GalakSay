@@ -1,7 +1,9 @@
-// GalakSay Pro — 2026-03-19 — Erişilebilirlik React hook'u (colorBlind body class eklendi)
-// Tüm erişilebilirlik ayarlarını merkezi olarak yönetir
+// @ts-check
+// GalakSay Pro — Erişilebilirlik React hook'u (a11y settings merkezi yönetimi).
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getTextScale, getTouchScale, prefersReducedMotion } from '../systems/accessibility.js';
+
+/** @typedef {import('../types').A11ySettings} A11ySettings */
 
 const STORAGE_PREFIX = 'galaksay_';
 const KEYS = {
@@ -10,6 +12,7 @@ const KEYS = {
   reducedMotion: 'reduced_motion',
   colorBlind: 'color_blind',
   calmMode: 'calm_mode',
+  dyslexicFont: 'dyslexic_font',
 };
 
 function loadSetting(key, defaultValue) {
@@ -47,6 +50,7 @@ export function useAccessibility() {
     reducedMotion: loadSetting(KEYS.reducedMotion, false),
     colorBlind: loadSetting(KEYS.colorBlind, 'off'),
     calmMode: loadSetting(KEYS.calmMode, false),
+    dyslexicFont: loadSetting(KEYS.dyslexicFont, false),
   }));
 
   // Sistem prefers-reduced-motion takibi
@@ -90,12 +94,13 @@ export function useAccessibility() {
     document.body.classList.toggle('galaksay-large-text', settings.largeText);
     document.body.classList.toggle('galaksay-high-contrast', settings.highContrast);
     document.body.classList.toggle('galaksay-reduced-motion', shouldReduceMotion);
+    document.body.classList.toggle('galaksay-dyslexic-font', settings.dyslexicFont);
 
     // Renk körlüğü modu — eski sınıfları kaldır, aktifi ekle
     ['protanopia', 'deuteranopia', 'tritanopia'].forEach(mode => {
       document.body.classList.toggle(`galaksay-colorblind-${mode}`, settings.colorBlind === mode);
     });
-  }, [textScale, touchScale, shouldReduceMotion, settings.largeText, settings.highContrast, settings.colorBlind]);
+  }, [textScale, touchScale, shouldReduceMotion, settings.largeText, settings.highContrast, settings.colorBlind, settings.dyslexicFont]);
 
   return useMemo(() => ({
     settings,

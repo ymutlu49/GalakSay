@@ -15,7 +15,7 @@ const CATEGORY_LABELS = {
 
 export default function RadarChartComponent({ data, comparisonData, title, height = 350 }) {
   // data: { sayma: 85, subitizing: 72, ... } (0-100 arası)
-  // comparisonData: (opsiyonel) NuMap başlangıç verisi
+  // comparisonData: (opsiyonel) Numap başlangıç verisi
 
   const chartData = Object.keys(CATEGORY_LABELS).map(key => ({
     category: CATEGORY_LABELS[key],
@@ -33,7 +33,7 @@ export default function RadarChartComponent({ data, comparisonData, title, heigh
           <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
           <Radar name="Güncel" dataKey="current" stroke="#22d3ee" fill="#22d3ee" fillOpacity={0.25} strokeWidth={2} />
           {comparisonData && (
-            <Radar name="NuMap Başlangıç" dataKey="baseline" stroke="#a78bfa" fill="#a78bfa" fillOpacity={0.15} strokeWidth={2} strokeDasharray="5 5" />
+            <Radar name="Numap Başlangıç" dataKey="baseline" stroke="#a78bfa" fill="#a78bfa" fillOpacity={0.15} strokeWidth={2} strokeDasharray="5 5" />
           )}
           <Tooltip
             contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#e2e8f0' }}

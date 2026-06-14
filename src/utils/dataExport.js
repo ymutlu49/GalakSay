@@ -23,7 +23,7 @@ import { STORES, openDB, getAllFromStore } from '../analytics/database.js';
 import { decryptJSON } from './crypto.js';
 
 const DB_NAME = 'galaksay_analytics';
-// 2026-04-30 KVKK düzeltmesi: NuMap verileri (numap_intervention_*, numap_progress_*)
+// 2026-04-30 KVKK düzeltmesi: Numap verileri (numap_intervention_*, numap_progress_*)
 // bu prefix dışında tutuluyordu — "tüm veriyi sil" çağrıldığında geride kalıyorlardı.
 // Artık iki prefix de tarama+silme kapsamında.
 const LS_PREFIXES = ['galaksay_', 'numap_'];
@@ -39,7 +39,7 @@ async function readLocalStorage() {
       if (!_hasManagedPrefix(key)) continue;
       const raw = localStorage.getItem(key);
       // Şifreli ise çöz (taşınabilirlik metnini düz olarak ver — kullanıcı kendi verisidir)
-      if (raw && raw.startsWith('enc1:')) {
+      if (raw && (raw.startsWith('enc1:') || raw.startsWith('enc2:'))) {
         out[key] = await decryptJSON(raw);
       } else {
         try { out[key] = JSON.parse(raw); } catch { out[key] = raw; }
@@ -142,7 +142,7 @@ function clearSessionStorageGalaksayKeys() {
   } catch {}
 }
 
-// 2026-04-30: Tek bir NuMap müdahale planını + ilerleme verisini sil (KVKK md.7)
+// 2026-04-30: Tek bir Numap müdahale planını + ilerleme verisini sil (KVKK md.7)
 // childCode verilirse sadece o çocuğun verisi; verilmezse tüm numap_* anahtarları silinir.
 /** @param {string} [childCode] @returns {string[]} Silinen anahtarların listesi */
 export function eraseNumapData(childCode) {
@@ -160,7 +160,7 @@ export function eraseNumapData(childCode) {
       removed.push(k);
     }
   } catch (err) {
-    console.error('[GalakSay] NuMap silme hatası:', err);
+    console.error('[GalakSay] Numap silme hatası:', err);
   }
   return removed;
 }

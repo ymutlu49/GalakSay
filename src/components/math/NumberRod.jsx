@@ -13,11 +13,11 @@ export const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue
   // Sabit kapsül boyutu: size verilmişse onu kullan, yoksa capsuleSize() ile hesapla
   const effectiveSize = size || capsuleSize(count);
 
-  // Üst konteynere sığma: maxWidth + otomatik küçülme
+  // v5.9.1: Üst konteynere sığma — overflow:hidden yerine flex-shrink ile doğal küçülme
   const wrapStyle = {
     display: "inline-flex", flexDirection: "column", alignItems: "center",
-    maxWidth: "min(100%, 90vw)", // Üst konteynere ve ekrana sığ
-    overflow: "hidden",
+    maxWidth: "min(100%, 90vw)",
+    overflow: "visible", // Taşma durumunda kırpmak yerine flex-shrink ile küçült
   };
 
   // Blank = single solid block, no cell boundaries visible
@@ -29,7 +29,7 @@ export const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue
           width: totalW, height: effectiveSize + 10, borderRadius: 12, overflow: "hidden",
           background: "linear-gradient(180deg,#a8a29e 0%,#78716c 40%,#57534e 100%)",
           boxShadow: "0 5px 20px rgba(0,0,0,.3)", border: "3px solid #57534e",
-          maxWidth: "100%",
+          maxWidth: "100%", boxSizing: "border-box",
         }} />
       </div>
     );
@@ -41,7 +41,7 @@ export const NumberRod = ({ count, filledSlots, chipColors, defaultColor = "blue
         display: "flex", borderRadius: 14, overflow: "hidden",
         boxShadow: `0 6px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.15)`,
         border: `3.5px solid ${hidden ? "#57534e" : C.rodDark}`,
-        maxWidth: "100%", // Üst konteynere sığ
+        maxWidth: "100%", boxSizing: "border-box",
       }}>
         {Array(count).fill(0).map((_, i) => (
           <RodCell key={i} filled={filled[i]} chipColor={colors[i]} size={effectiveSize}

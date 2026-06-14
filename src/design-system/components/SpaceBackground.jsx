@@ -1,29 +1,8 @@
-// GalakSay Pro — 2026-03-19 — Uzay arka plan animasyonları (parallax katmanları + geliştirilmiş meteorlar)
-// prefers-reduced-motion desteği + pil dostu tasarım
+// GalakSay Pro — Uzay arka plan animasyonları (parallax + meteorlar)
+// Hem sistem prefers-reduced-motion hem uygulama ayarı (galaksay_reduced_motion) izlenir.
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { colors } from '../colors.js';
-
-// ═══ PARALLAX KATMANLARI ═══════════════════════════════════════════════════
-// Katman 1 (en arka): Büyük nebula/bulut, çok yavaş hareket
-// Katman 2 (orta): Küçük yıldızlar, orta hız
-// Katman 3 (ön): İnce toz parçacıkları, hızlı hareket
-
-// Sistem reduced-motion tercihini kontrol et
-function useSystemReducedMotion() {
-  const [reduced, setReduced] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
-  });
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    if (!mq) return;
-    const handler = (e) => setReduced(e.matches);
-    mq.addEventListener?.('change', handler);
-    return () => mq.removeEventListener?.('change', handler);
-  }, []);
-  return reduced;
-}
+import { useReducedMotion } from '../../hooks/useReducedMotion.js';
 
 // Performanslı yıldız alanı — CSS-only, GPU-accelerated
 export const SpaceBackground = React.memo(function SpaceBackground({
@@ -34,8 +13,8 @@ export const SpaceBackground = React.memo(function SpaceBackground({
   simplified = false, // etkinlik ekranında basitleştirilmiş
   style: sx,
 }) {
-  const systemReducedMotion = useSystemReducedMotion();
-  const reduceMotion = simplified || systemReducedMotion;
+  const reducedPref = useReducedMotion();
+  const reduceMotion = simplified || reducedPref;
 
   // Parallax pozisyonu (cihaz eğimi veya mouse)
   const [parallax, setParallax] = useState({ x: 0, y: 0 });

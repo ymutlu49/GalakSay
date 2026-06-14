@@ -1,3 +1,11 @@
 node_modules/
 dist/
+cf-deploy/
 .claude/
+
+# Ortam/sır dosyaları — repoya ASLA girmemeli (.env.example izlenir)
+.env
+.env.local
+.env.*.local
+.dev.vars
+.wrangler/

@@ -131,7 +131,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
               <div key={i} style={{ marginTop: 8, padding: '6px 10px', background: 'rgba(248,113,113,0.08)', borderRadius: 6 }}>
                 <div style={{ color: '#f87171', fontSize: 11, fontWeight: 600 }}>{err.errorType.replace(/_/g, ' ')}</div>
                 {err.examples.slice(0, 1).map((ex, j) => (
-                  <div key={j} style={{ color: '#e2e8f0', fontSize: 10 }}>
+                  <div key={j} style={{ color: '#e2e8f0', fontSize: 10, overflowWrap: 'anywhere' }}>
                     Soru: {JSON.stringify(ex.question)} → Verilen: {ex.given}, Doğru: {ex.correct}
                   </div>
                 ))}

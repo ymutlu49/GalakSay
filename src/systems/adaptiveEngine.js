@@ -3,9 +3,9 @@ import { NumapProfile } from "./numapProfile.js";
 
 export const AdaptiveEngine = {
   // Her mod için performansı değerlendir → önerilen seviye döndür
-  // numapProfile parametresi opsiyonel — varsa NuMap kalibrasyonu da dikkate alınır
+  // numapProfile parametresi opsiyonel — varsa Numap kalibrasyonu da dikkate alınır
   suggestLevel: (modeStats, currentLevel, numapProfileData = null) => {
-    // NuMap profili varsa ve oyun verisi azsa, NuMap kalibrasyonu kullan
+    // Numap profili varsa ve oyun verisi azsa, Numap kalibrasyonu kullan
     if (numapProfileData && (!modeStats || modeStats.played < 2)) {
       return NumapProfile.calibrateDifficulty(numapProfileData, modeStats, currentLevel);
     }
@@ -19,7 +19,7 @@ export const AdaptiveEngine = {
     return currentLevel;
   },
   // Soru içi mikro-adaptasyon: üst üste hata → daha kolay seçenek oluştur
-  // NuMap yüksek riskli çocuklar için eşik daha düşük
+  // Numap yüksek riskli çocuklar için eşik daha düşük
   shouldSimplify: (sessionErrors, numapRisk = null) => {
     const threshold = numapRisk === "high" ? 1 : 2;
     return sessionErrors >= threshold;

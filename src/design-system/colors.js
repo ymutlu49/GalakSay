@@ -24,7 +24,7 @@ export const colors = {
   text: {
     primary:   '#FFFFFF',
     secondary: '#A8B2D1',
-    tertiary:  '#6B7499',
+    tertiary:  '#8B95B8',   // önceden #6B7499 (4.1:1, AA altı) → #8B95B8 (~6.3:1, WCAG AA ✓)
     disabled:  '#3D4470',
     inverse:   '#0B0E2D',
   },
@@ -32,6 +32,7 @@ export const colors = {
   accent: {
     // C objesinden import: ana oyunla aynı marka rengi (#7c3aed royal purple)
     primary:   C.brandPurple,        // önceden #6C63FF (slate-blue) → markayla uyumsuzdu
+    primaryLight: '#A78BFA',         // koyu zeminde METİN için: primary (#7c3aed) text olarak 3.3:1 (AA altı), bu ~6.9:1
     secondary: C.correct,            // önceden #00D4AA (turkuaz) → C.correct (#059669) ile hizalı
     tertiary:  '#FF6B6B',
     gold:      '#FFD93D',
@@ -73,6 +74,9 @@ export const colors = {
   // ── GRADIENT'LER ──────────────────────────────────────────
   gradient: {
     background:  'linear-gradient(180deg, #0B0E2D 0%, #141852 50%, #1E2470 100%)',
+    // Çocuğa dönük giriş ekranları (Welcome/StudentPicker): oyunun yeni "alacakaranlık" zeminiyle uyumlu,
+    // sıcak nebula ışımalı canlı ton. Öğretmen ekranları koyu-profesyonel `background`ı kullanmaya devam eder.
+    backgroundKids: 'radial-gradient(120% 80% at 85% 8%, rgba(251,113,133,.14), transparent 55%), radial-gradient(110% 75% at 10% 90%, rgba(251,146,60,.13), transparent 55%), linear-gradient(180deg, #312e81 0%, #4338ca 55%, #3b3a9d 100%)',
     card:        'linear-gradient(135deg, #1A1F5E 0%, #222878 100%)',
     accent:      `linear-gradient(135deg, ${C.brandPurple} 0%, #A78BFA 100%)`,
     success:     `linear-gradient(135deg, ${C.correct} 0%, ${C.brandGreen} 100%)`,

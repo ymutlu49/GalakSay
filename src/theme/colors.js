@@ -38,8 +38,8 @@ export const C = {
   yellow: "#eab308", orange: "#ea580c", purple: "#7c3aed", teal: "#0d9488", pink: "#db2777",
   correct: "#059669", wrong: "#f97316", // Brand: Doğru=yeşil, yanlış=turuncu
   rodGold: "#f59e0b", rodDark: "#78350f", rodLight: "#fde047", slotDark: "#0a0a0a",
-  // NUMAP Marka Renkleri — Mor Palette
+  // Numap Marka Renkleri — Mor Palette
   brandPurple: "#7c3aed", brandGreen: "#34d399", brandDark: "#2e1065",
-  // UI buton renkleri — NUMAP mor teması
+  // UI buton renkleri — Numap mor teması
   uiBlue: "#7c3aed", uiGreen: "#059669",
 };

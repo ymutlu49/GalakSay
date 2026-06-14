@@ -12,6 +12,17 @@ export const A11Y_DEFAULTS = {
 export const CB_COLORS = { blue: "#93c5fd", red: "#b45309" }; // Açık mavi/Turuncu-kahve (deuteranopia safe)
 export const CB_PATTERNS = { blue: "stripe", red: "dots" };
 
+// Renk körü modu AKTİF mi? — TEK doğruluk kaynağı useAccessibility'nin body class'ı
+// (galaksay-colorblind-{protanopia|deuteranopia|tritanopia}); 'off' → hiçbir class → false.
+// Pul/Chip/EnerjiKapsulu bunu okur → mavi-kırmızı nokta ayrımının renk-körü DESENİ ayara
+// bağlanır. (Önceki kod ölü `ds_a11y_global` anahtarını okuyordu → desen hiç etkinleşmiyordu.)
+// Mod KAPALIYKEN false döner → varsayılan görünüm hiç değişmez (zarar yok).
+export function isColorBlindActive() {
+  try {
+    return typeof document !== 'undefined' && /\bgalaksay-colorblind-/.test(document.body.className);
+  } catch { return false; }
+}
+
 // §Subitizing: 5'erli gruplarla renk değişimi — bir bakışta miktar algılama
 // 1-5: mavi, 6-10: kırmızı, 11-15: mavi, 16-20: kırmızı...
 export const subColor = (i, a = "blue", b = "red") => Math.floor(i / 5) % 2 === 0 ? a : b;

@@ -1,6 +1,7 @@
 // GalakSay Revizyon — 2026-03-18 — Geliştirilmiş animasyonlar, parçacık efektleri
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useDokunSayDrag, useLongPress, FIZIK, ANIM_PRESETS, vibrate, playSound } from './MateryalFizik.js';
+import { isColorBlindActive } from '../../systems/accessibility.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ENERJİ KAPSÜLÜ — DokunSay Enerji Kapsüllerinin Dijital Karşılığı
@@ -140,6 +141,8 @@ export const EnerjiKapsulu = ({
   const val = Math.max(1, Math.min(10, Math.round(deger || 1)));
   const renk = KAPSUL_RENKLERI[val];
   const cbDesen = CB_DESENLERI[val];
+  // Renk körü: prop ya da global ayar (body class) — kapsül deseni ayara bağlanır (kırık fix).
+  const cbActive = colorBlind || isColorBlindActive();
 
   // Birim boyutu hesapla
   const unitSize = useMemo(() => {
@@ -270,7 +273,7 @@ export const EnerjiKapsulu = ({
   };
 
   return (
-    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', maxWidth: 'min(100%, 90vw)', overflow: 'hidden' }}>
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', maxWidth: 'min(100%, 90vw)', overflow: 'visible', boxSizing: 'border-box' }}>
       <div
         {...(draggable ? bindDrag : {})}
         {...(splittable ? longPressBinds : {})}
@@ -361,7 +364,7 @@ export const EnerjiKapsulu = ({
         })}
 
         {/* Renk körlüğü desen overlay */}
-        {colorBlind && cbDesen !== 'none' && (
+        {cbActive && cbDesen !== 'none' && (
           <svg style={{
             position: 'absolute', inset: 0, width: '100%', height: '100%',
             pointerEvents: 'none', borderRadius: 14,

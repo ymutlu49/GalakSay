@@ -28,3 +28,9 @@ export function saveConsent(consent) {
     }));
   } catch {}
 }
+
+/** Merkezi senkron rızası açık mı? syncEngine bunu kontrol eder — rıza yoksa
+ *  çocuk oyun verisi sunucuya ASLA gönderilmez (varsayılan kapalı). */
+export function isDataSyncEnabled() {
+  return loadConsent()?.dataSync === true;
+}

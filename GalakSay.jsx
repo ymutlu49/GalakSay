@@ -10689,14 +10689,14 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       // D5: On correct, also flash the correct answer visually.
       // Yalnız ≤10: birebir tekrar-sayım küçük sayıda pekiştirir; 11+ tek tek saymak
       // ~12sn sürer (sıkıcı/akış kesici) → büyük sayıda doğrudan dönüt.
-      // subitizing/estimateCount DOĞRUDA sayım YOK: hızlı-tanıma/tahmin becerisi tam da
-      // saymadan bilmek — başarılı anında tek tek saymak modun hedefini geri sarar.
-      // quantityMatch de doğruda SAYMAZ (kullanıcı: "arada çok fazla konuşma geçiyor" —
-      // her doğruda 1'den 10'a sesli sayım akışı boğuyordu; tanıma zaten başarılı).
-      // (Yanlışta sayım hepsinde kalır: hata anı = doğrulama anı. İpucu Kademe 3 de isteğe bağlı sayar.)
+      // DOĞRUDA sesli sayım YALNIZ sayma-öğretimi modlarında: counting (ders = saymanın kendisi)
+      // ve matching (doğru kapsülün kısa teyidi — tanıma↔sayma bağı). Tanıma/hafıza/flaş/tahmin
+      // modlarında (subitizing, quantityMatch, fivesFrame, tensFrame, chipGuess, rodBack,
+      // estimateCount, lengthGuess) doğru cevap = beceri zaten gösterildi; her doğruda 1'den N'e
+      // sesli sayım "arada çok fazla konuşma" yaratıyordu (kullanıcı) ve hızlı-tanıma hedefini geri sarıyordu.
+      // (Yanlışta sayım HEPSİNDE kalır: hata anı = doğrulama anı. İpucu Kademe 3 de isteğe bağlı sayar.)
       if (typeof correctAnswer === "number" && correctAnswer <= 10
-        && COUNT_ALONG_TYPES.includes(question?.type)
-        && !["subitizing", "estimateCount", "quantityMatch"].includes(question?.type)) {
+        && ["counting", "matching"].includes(question?.type)) {
         startCounting(correctAnswer, speakCorrectFeedback);
       } else {
         speakCorrectFeedback();
@@ -14179,10 +14179,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 <div key={gi} style={{ padding: "6px 8px", borderRadius: 10, background: "rgba(35,32,82,.7)",
                   border: "1.5px solid #fca5a5", display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center",
                   maxWidth: ttPerGroup > 5 ? 90 : 70, minWidth: 40 }}>
+                  {/* grup içi de 5'te kırılır: 7 = 5+2 görünür */}
                   {answered
-                    ? Array.from({ length: ttPerGroup }, (_, ci) => (
-                      <Chip key={ci} color={subColor(ci)} size={ttChipSz} />
-                    ))
+                    ? <ChipRows5 count={ttPerGroup} size={ttChipSz} gap={3} banded />
                     : <span style={{ fontSize: ttChipSz + 4, fontWeight: 900, color: "#cbd5e1", lineHeight: 1 }}>?</span>}
                   <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a8b2d1", marginTop: 2 }}>{ttPerGroup}</div>
                 </div>
@@ -14215,11 +14214,11 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
             ? <><BIG>{q.total}</BIG>'î li <BIG>{q.groups}</BIG> komên wekhev parve bike — di her komê de çend heb?</>
             : <><BIG>{q.total}</BIG> yıldız taşını <BIG>{q.groups}</BIG> gruba eşit paylaştır. Her gruba kaç tane düşer?</>}</TXT>
           <SUB>{q.total} ÷ {q.groups} = ?</SUB>
-          {/* Toplam yıldız taşları — subitizing renkli */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", padding: "12px 8px",
+          {/* Toplam yıldız taşları — 5'li satırlar (Bündelung): dağıtılacak yığın sayılabilir kalır */}
+          <div style={{ display: "inline-block", padding: "12px 14px",
             borderRadius: 16, background: "rgba(35,32,82,.7)", border: "2px solid rgba(103,232,249,.35)",
-            maxWidth: 280, margin: "0 auto" }}>
-            {Array.from({ length: q.total }, (_, i) => <Chip key={i} color={subColor(i)} size={esSz} />)}
+            margin: "0 auto" }}>
+            <ChipRows5 count={q.total} size={esSz} banded />
           </div>
           {/* Boş grup kutuları */}
           <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
@@ -14228,7 +14227,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 background: answered ? "rgba(6,182,212,.08)" : "rgba(20,184,166,.08)", display: "flex", flexWrap: "wrap", gap: 2,
                 alignItems: "center", justifyContent: "center" }}>
                 {answered
-                  ? Array.from({ length: esPerG }, (_, ci) => <Chip key={ci} color={subColor(ci)} size={Math.min(esSz, 18)} />)
+                  ? <ChipRows5 count={esPerG} size={Math.min(esSz, 18)} gap={2} banded />
                   : <span style={{ fontSize: 16, fontWeight: 900, color: "#a78bfa" }}>?</span>
                 }
               </div>
@@ -14256,10 +14255,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               borderRadius: 16, background: "rgba(124,58,237,.1)", border: "2px solid rgba(167,139,250,.3)" }}>
               {Array.from({ length: q.groups }, (_, gi) => (
                 <div key={gi} style={{ padding: "6px 8px", borderRadius: 10, background: "rgba(35,32,82,.7)", border: "1.5px dashed #a78bfa",
-                  display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", maxWidth: q.perGroup > 5 ? 80 : 60 }}>
-                  {Array.from({ length: q.perGroup }, (_, ci) => (
-                    <Chip key={ci} color={subColor(ci)} size={gcSz} />
-                  ))}
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                  <ChipRows5 count={q.perGroup} size={gcSz} gap={2} banded />
                   <div style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#a78bfa" }}>{q.perGroup}</div>
                 </div>
               ))}
@@ -23447,7 +23444,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 61 mod, 8 öğrenme yörüngesi, Clements & Sarama [LT]² entegrasyonu<br/>
                 Öğrenme yörüngesi haritalaması (18 yörünge × 61 mod)<br/>
                 11 AR modu, diskalkuli tarama, 5 erişilebilirlik seçeneği<br/>
-                Frustrasyon algılama, ekran süresi, kaygı takibi, büyüme zihniyeti
+                Frustrasyon algılama, ekran süresi, kaygı takibi, büyüme zihniyeti<br/>
+                <span style={{ opacity: .75 }}>Her Çocuk Matematik Öğrenebilir platformunun bir parçası</span>
               </div>
             </div>
             </>)}

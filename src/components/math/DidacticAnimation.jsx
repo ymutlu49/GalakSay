@@ -164,7 +164,7 @@ const FrameFillAnimation = ({ frameSize = 10, filled, adding = 0, remainder = 0,
           display: "flex", gap: 4, alignItems: "center", padding: "0 8px",
           animation: "hintSlideIn .3s ease",
         }}>
-          <span style={{ fontSize: 16, color: "#6366f1", fontWeight: 800 }}>+</span>
+          <span style={{ fontSize: 16, color: "#818cf8", fontWeight: 800 }}>+</span>
           {Array.from({ length: remainder }, (_, i) => (
             <Chip key={i} color="green" size={32} />
           ))}

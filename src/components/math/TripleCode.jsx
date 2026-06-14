@@ -50,7 +50,7 @@ export const TripleCode = ({ n, size = "md", preReader = false, showFinger = fal
           <span style={{ fontSize: s.word, fontWeight: 800, color: "#fff" }}>{word}</span>
         </button>
       ) : (
-        <span style={{ fontSize: s.word, fontWeight: 800, color: "#7c3aed", fontStyle: "italic", flexShrink: 0 }}>{word}</span>
+        <span style={{ fontSize: s.word, fontWeight: 800, color: "#a78bfa", fontStyle: "italic", flexShrink: 0 }}>{word}</span>
       )}
       {showFinger && FINGER[n] && <span style={{ fontSize: s.num * 0.7, flexShrink: 0 }}>{FINGER[n]}</span>}
     </div>

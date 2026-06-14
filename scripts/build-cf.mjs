@@ -1,0 +1,71 @@
+// Galaksay — Cloudflare Pages derleme scripti (galaksay.com)
+//
+// Çıktı yapısı (cf-deploy/):
+//   /                 → tanıtım (landing) sayfası  (site/index.html)
+//   /oyna/            → uygulama (vite build, base=/oyna/)
+//   /manifest.webmanifest, /sw.js, /icons/*  → PWA kök varlıkları
+//
+// Her Çocuk Matematik Öğrenebilir umbrella (hercocukmatematikogrenebilir.com, /galaksay/ alt yolu) FTP deploy'unu ETKİLEMEZ: o build varsayılan
+// `npm run build` (base=/galaksay/) ile üretilir; bu script ayrı env kullanır.
+//
+// Çalıştır:  npm run build:cf
+import { execSync } from 'node:child_process';
+import { rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, copyFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve, join } from 'node:path';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const out = join(root, 'cf-deploy');
+const site = join(root, 'site');
+
+// Elle özyinelemeli kopya — Node 25'te fs.cpSync bu makinede native crash
+// (0xC0000409) veriyor; dirent tabanlı kopya güvenli.
+function copyDir(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const e of readdirSync(src, { withFileTypes: true })) {
+    const s = join(src, e.name);
+    const d = join(dest, e.name);
+    if (e.isDirectory()) copyDir(s, d);
+    else copyFileSync(s, d);
+  }
+}
+
+if (!existsSync(join(site, 'index.html'))) {
+  console.error('[hata] site/index.html bulunamadı.');
+  process.exit(1);
+}
+
+console.log('1/4  cf-deploy/ temizleniyor…');
+rmSync(out, { recursive: true, force: true });
+mkdirSync(out, { recursive: true });
+
+console.log('2/4  Uygulama derleniyor (base=/oyna/, PWA=1) → cf-deploy/oyna');
+// vite'ı PATH'e bağımlı olmadan çağır (npm dışı `node` çalıştırması da çalışsın).
+const viteEntry = join(root, 'node_modules', 'vite', 'bin', 'vite.js');
+execSync(`node "${viteEntry}" build --outDir cf-deploy/oyna --emptyOutDir`, {
+  cwd: root,
+  stdio: 'inherit',
+  env: { ...process.env, VITE_BASE: '/oyna/', VITE_PWA: '1' },
+});
+
+console.log('3/4  Tanıtım sayfası + PWA varlıkları köke kopyalanıyor (site/*)');
+copyDir(site, out);
+
+console.log('4/4  Cloudflare yapılandırması (_redirects, _headers)');
+// /oyna/ SPA fallback (derin link güvenliği) — uygulama URL yönlendirmesi
+// kullanmasa da zararsız ve ileriye dönük güvenli.
+writeFileSync(join(out, '_redirects'), '/oyna/* /oyna/index.html 200\n');
+// SW her zaman taze; manifest doğru MIME.
+writeFileSync(
+  join(out, '_headers'),
+  [
+    '/sw.js',
+    '  Cache-Control: public, max-age=0, must-revalidate',
+    '',
+    '/manifest.webmanifest',
+    '  Content-Type: application/manifest+json',
+    '',
+  ].join('\n')
+);
+
+console.log('\n✓ cf-deploy/ hazır. Deploy:  npx wrangler pages deploy cf-deploy --project-name galaksay');

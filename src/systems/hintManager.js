@@ -104,6 +104,75 @@ const GUIDING_QUESTIONS = {
   spaceBalance:  ["İki tarafı eşitle!", "Toplam eşit olmalı!"],
 };
 
+// ── Kürtçe (Kurmancî) yönlendirici sorular — GUIDING_QUESTIONS ile aynı anahtarlar ──
+// Terminoloji (project_ku_i18n): kevirên stêrkan, bijmêre, kom, dehek/yekek, zêdekirin/kêmkirin/carkirin/parkirin, nimûne/navik/rêgez.
+const GUIDING_QUESTIONS_KU = {
+  counting:      ["Ji destpêkê bijmêrî digihî çend?", "Destê xwe li her tiştî carekê bide — çend heb?"],
+  quantityMatch: ["Çend tişt hene? Bi reqemê re hev bike!", "Bi tiliya xwe nîşan bide — çend heb?"],
+  buildNumber:   ["Çend kevirên stêrkan lazim in?", "Ji bo çêkirina hejmarê divê çend tişt deynî?"],
+  backwardCount: ["Ji dawiyê ber bi destpêkê bijmêre!", "Hejmara berê çi ye?"],
+  counterFromN:  ["Ji vê hejmarê bidomîne — ya pêş çi ye?", "Li cîranên hejmarê bifikire!"],
+  decadeCount:   ["Bala xwe bide derbasa dehekan! Hejmara pêş çi ye?", "Piştî 9 çi tê?"],
+  skipCount:     ["Bi çendan bi çendan bazdidî?", "Bazdana pêş li ku dikeve?"],
+  ordinalCount:  ["Bi rêz bijmêre — çendemîn?", "Yekem, duyem... paşê?"],
+  conservation:  ["Tiştan bijmêre — eger rêzkirin biguhere hejmar diguhere?"],
+  matching:      ["Reqemê bibîne — çend tişt hene?", "Tiştan bijmêre, bi reqemê rast re hev bike!"],
+  subitizing:    ["Bi lez binêre — te çend heb dît?", "Bê jimartin texmîn bike!"],
+  fivesFrame:    ["Di karta pêncan de çend qutî tijî ne?", "Qutiyên vala bijmêre, ji 5'an kêm bike!"],
+  tensFrame:     ["Di çarçoveya dehan de çend tijî ne?", "Valahî alîkariya te dikin!"],
+  doubleTensFrame:["Çarçoveya yekem tijî ye? Çend heb hildigire?", "10 û çend?"],
+  chipGuess:     ["Yên ku te dîtin bîne bîra xwe — çend heb bûn?", "Li koman bifikire!"],
+  rodBack:       ["Te çi dît? Bîne bîra xwe!", "Di bîra xwe de bihêle — çend heb bûn?"],
+  estimateCount: ["Li koma referansê binêre — çend kom hene?", "Bi qasî çend heb?"],
+  comparison:    ["Kîjan zêdetir e?", "Herduyan li tenişta hev deyne — kîjan dirêjtir e?"],
+  lessMoreEqual: ["Kîjan kêmtir e? Kîjan zêdetir e?", "Wekhev e, an cuda ye?"],
+  ordering:      ["Ya herî biçûk kîjan e?", "Ji biçûk bo mezin rêz bike!"],
+  beforeAfter:   ["Cîranên vê hejmarê kî ne?", "Berî û piştî çi tê?"],
+  fiveMore:      ["Nêzîkî 5'an e, an dûr e?", "Ji 5'an mezintir e an biçûktir?"],
+  numberLineEstimate: ["Li xeta hejmarî li ku dikeve?", "Nîvê wê li ku ye?"],
+  nlPlacement:   ["Ev hejmar aîdê ku ye?", "Nêzîkî çepê an rastê ye?"],
+  numberLine:    ["Cih çi nîşan dide?", "Em li xeta hejmarî li ku ne?"],
+  lengthGuess:   ["Dirêjahî çiqas e?", "Li gorî referansê texmîn bike!"],
+  makeFive:      ["Ji bo çêkirina 5'an çend heb din lazim in?", "Li destê xwe binêre — çend tilî hatine tewandin?"],
+  makeTen:       ["Ji bo temamkirina 10'an çi kêm e?", "Du destên te = 10 tilî!"],
+  partWhole:     ["Tu vê hejmarê çawa li du perçeyan vediqetînî?", "Ji giştiyê perçeya naskirî derxe!"],
+  numbersInNumbers:["Ev hejmar li kîjan perçeyan tê veqetandin?", "Bi çend awayên cuda dikarî binivîsî?"],
+  spaceKitchen:  ["Ji bo çêkirina hejmara armanc kîjan perçe lazim in?"],
+  rodSplit:      ["Tu dikarî darikê ji ku ve bibirî?", "Bi çend awayên cuda dikarî veqetînî?"],
+  composeNumber: ["Çend dehek hene?", "Dehek + yekek = ?"],
+  expandForm:    ["Di vê hejmarê de çend dehek, çend yekek?", "Hejmarê veke: dehek + yekek!"],
+  bundleTens:    ["10 heban bîne cem hev!", "Tu dikarî çend komên 10'an çêkî?"],
+  placeValue:    ["Reqemê çep çi nirxî nîşan dide?", "Mertebeya dehan çi dibêje?"],
+  addChips:      ["Du koman yek bike — bi giştî çend?", "Hemûyan bijmêre!"],
+  countOnAdd:    ["Ji hejmara mezin dest pê bikî û bijmêrî?", "Ya mezin bibîne, lê zêde bike!"],
+  addition:      ["Zêdekirin = yekkirin! Çend dibe?", "Stratejiya temamkirina 10'an biceribîne!"],
+  subtraction:   ["Kêmkirin = veqetandin! Çend dimîne?", "Ber bi paş bijmêre!"],
+  removeChips:   ["Tu çend heb derdixî? Çend dimîne?", "Derxe û mayî bijmêre!"],
+  difference:    ["Ferqa di navbera du koman de çend e?", "Hev bike — çend zêde dimîne?"],
+  inversePractice:["Zêdekirin û kêmkirin berevajiyê hev in!", "Kiryara ku dizanî berevajî bike!"],
+  wpAdd:         ["Di pirsgirêkê de çi tê yekkirin?", "Bi giştî çend dibe?"],
+  wpSub:         ["Di pirsgirêkê de çi tê veqetandin?", "Çend heb tê derxistin?"],
+  wpCompare:     ["Ferqa di navbera herduyan de çi ye?", "Kîjan zêdetir e û çiqas?"],
+  repeatAdd:     ["Çend kom hene? Di her komê de çend heb?", "Hemûyan kom bike!"],
+  multiplyVisual:["Çend kom? Di her komê de çend?", "Hejmara koman × ya di komê de = giştî!"],
+  arrayDots:     ["Çend rêz? Di her rêzê de çend?", "Rêzik × stûn!"],
+  timesTable:    ["Tabloya carkirinê bîne bîra xwe!", "Bi rîtim bijmêre!"],
+  katConcept:    ["Çend carî?", "Çend caran dubare dibe?"],
+  wpMul:         ["Komên wekhev çend caran?", "Di her carê de çend heb?"],
+  equalShare:    ["Wekhev parve bike — her kes çend distîne?", "Yek bi yek parve bike!"],
+  groupCount:    ["Bi çendan bi çendan kom dikî?", "Çend kom çêdibin?"],
+  halfDouble:    ["Nîvê wê çend e? Ducarê wê çend e?", "÷2 an ×2!"],
+  divisionBasic: ["Li carkirinê bifikire — berevajiyê wê çi ye?", "Li ser çendan tê parkirin?"],
+  mulDivInverse: ["Carkirin û parkirin berevajiyê hev in!", "Kiryara ku dizanî berevajî bike!"],
+  wpDiv:         ["Gava wekhev parve bike her kes çend distîne?", "Giştî ÷ hejmara kesan!"],
+  patternAB:     ["Beşa dubarebûyî kîjan e?", "Di nimûneyê de navika qalibê bibîne!"],
+  growingPattern:["Di her gavê de çend zêde dibe?", "Rêgezê bibîne!"],
+  patternTranslate:["Heman nimûne, tiştên cuda!", "Navikê bibîne, veguherîne!"],
+  trueFalse:     ["Her du alî wekhev in?", "Terazî di hevsengiyê de ye?"],
+  missingNumber: ["Hejmara winda divê çi be?", "Hevkêşeyê wekhev bike!"],
+  spaceBalance:  ["Her du aliyan wekhev bike!", "Divê giştî wekhev be!"],
+};
+
 // ── Kategori Bazlı Görsel Vurgulama Talimatları (Kademe 2) ──────────────────
 // highlight türleri: "blink" | "frame" | "arrow" | "enlarge" | "colorGroup"
 const VISUAL_HIGHLIGHTS = {
@@ -202,23 +271,24 @@ const PARTIAL_ANIMATIONS = {
 // ── HintManager Ana Objesi ───────────────────────────────────────────────────
 export const HintManager = {
   // Mevcut ipucu kademesini al (her soru için 1'den başlar)
-  getHint(mode, level, question, correctAnswer) {
+  getHint(mode, level, question, correctAnswer, lang) {
     const q = question || {};
     const ca = correctAnswer;
 
     switch (level) {
-      case 1: return this._getGuidingQuestion(mode);
+      case 1: return this._getGuidingQuestion(mode, lang);
       case 2: return this._getVisualHighlight(mode);
       case 3: return this._getPartialAnimation(mode, q, ca);
       case 4: return this._getFullAnimation(mode, q, ca);
       case 5: return this._getConcreteExperience(mode, q, ca);
-      default: return this._getGuidingQuestion(mode);
+      default: return this._getGuidingQuestion(mode, lang);
     }
   },
 
   // Kademe 1: Yönlendirici Soru
-  _getGuidingQuestion(mode) {
-    const pool = GUIDING_QUESTIONS[mode] || GUIDING_QUESTIONS.counting;
+  _getGuidingQuestion(mode, lang) {
+    const src = lang === "ku" ? GUIDING_QUESTIONS_KU : GUIDING_QUESTIONS;
+    const pool = src[mode] || src.counting;
     const text = pool[Math.floor(Math.random() * pool.length)];
     return {
       level: 1,

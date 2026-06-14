@@ -1,9 +1,9 @@
-// ═══ NUMAP PROFİL MODÜLÜ — Bireyselleştirilmiş Oyun Deneyimi ══════════════
-// NuMap (numap.diskalkuli.com) raporuna göre GalakSay'ı kişiselleştirme
+// ═══ Numap PROFİL MODÜLÜ — Bireyselleştirilmiş Oyun Deneyimi ══════════════
+// Numap (getnumap.com) raporuna göre GalakSay'ı kişiselleştirme
 // Rapor verileri: sayı hissi, aritmetik, çalışma belleği, risk düzeyi
 
 // ═══ RAPOR ŞEMASI ══════════════════════════════════════════════════════════
-// NuMap raporundan beklenen veri yapısı
+// Numap raporundan beklenen veri yapısı
 export const NUMAP_SCHEMA = {
   source: "numap",
   child: { name: "", code: "", age: 0, grade: 0 },
@@ -26,7 +26,7 @@ export const RISK_LEVEL_MAP = {
 };
 
 // ═══ ALAN → MOD HARİTALAMASI ═══════════════════════════════════════════
-// NuMap değerlendirme alanlarına göre önerilen GalakSay modları
+// Numap değerlendirme alanlarına göre önerilen GalakSay modları
 export const AREA_MODE_MAP = {
   numberSense: [
     "counting", "subitizing", "fivesFrame", "tensFrame", "doubleTensFrame",
@@ -80,7 +80,7 @@ export const SUPPORT_LEVELS = {
 
 // ═══ ANA PROFİL MOTORU ═══════════════════════════════════════════════════
 export const NumapProfile = {
-  // NuMap rapor verisini doğrula ve normalize et
+  // Numap rapor verisini doğrula ve normalize et
   // v2.0 formatı: source="numap", assessment bridge + per-test priority/secondary
   validate: (data) => {
     if (!data) return null;
@@ -88,7 +88,7 @@ export const NumapProfile = {
       const parsed = typeof data === "string" ? JSON.parse(data) : data;
       // Kabul kriterleri: source="numap" veya assessment objesi var
       if (parsed.source !== "numap" && !parsed.assessment) return null;
-      // v2.0 format: NUMAP planından gelen assessment bridge
+      // v2.0 format: Numap planından gelen assessment bridge
       const assessment = parsed.assessment ? {
         numberSense: parsed.assessment.numberSense || { score: 50, level: "medium" },
         arithmetic: parsed.assessment.arithmetic || { score: 50, level: "medium" },
@@ -180,22 +180,22 @@ export const NumapProfile = {
     return [...modes];
   },
 
-  // Adaptif zorluk kalibrasyonu — NuMap profili ile oyun performansını birleştir
+  // Adaptif zorluk kalibrasyonu — Numap profili ile oyun performansını birleştir
   calibrateDifficulty: (profile, modeStats, currentLevel) => {
     if (!profile?.assessment) return currentLevel;
     const risk = profile.assessment.overallRisk || "medium";
 
-    // Oyun içi performans varsa, NuMap'ten bağımsız adapte et
+    // Oyun içi performans varsa, Numap'ten bağımsız adapte et
     if (modeStats && modeStats.played >= 3) {
       const recentAcc = modeStats.recentAcc || 0;
-      if (recentAcc >= 85 && currentLevel < 7) return currentLevel + 1;
+      if (recentAcc >= 85 && currentLevel < 5) return currentLevel + 1; // 5 seviye (eski 7 kalıntısı düzeltildi)
       if (recentAcc < 40 && currentLevel > 1) return currentLevel - 1;
       return currentLevel;
     }
 
-    // Oyun verisi az ise NuMap risk düzeyine göre kalibre et
+    // Oyun verisi az ise Numap risk düzeyine göre kalibre et
     if (risk === "high" && currentLevel > 2) return Math.max(1, currentLevel - 1);
-    if (risk === "low" && currentLevel < 4) return Math.min(7, currentLevel + 1);
+    if (risk === "low" && currentLevel < 4) return Math.min(5, currentLevel + 1); // 5 seviye tavanı
     return currentLevel;
   },
 
@@ -216,10 +216,10 @@ export const NumapProfile = {
       });
       existing.updatedAt = new Date().toISOString();
       localStorage.setItem(key, JSON.stringify(existing));
-    } catch (e) { console.warn("NuMap session record error:", e); }
+    } catch (e) { console.warn("Numap session record error:", e); }
   },
 
-  // İlerleme raporu üret — NuMap profili ile karşılaştır
+  // İlerleme raporu üret — Numap profili ile karşılaştır
   generateReport: (profile) => {
     if (!profile?.child?.code) return null;
     try {

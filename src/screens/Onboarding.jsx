@@ -101,7 +101,7 @@ function StepWelcome({ onNext, onSkip }) {
         margin: 0,
         fontFamily: typography.fontFamily.display,
       }}>
-        Ben <strong style={{ color: colors.accent.primary }}>Galak</strong>, senin uzay rehberin! Birlikte matematik galaksisini keşfedeceğiz.
+        Ben <strong style={{ color: colors.accent.primaryLight }}>Galak</strong>, senin uzay rehberin! Birlikte matematik galaksisini keşfedeceğiz.
       </p>
       <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 280 }}>
         <Button variant="primary" size="xl" full glow onClick={onNext}>
@@ -288,7 +288,7 @@ function StepProfile({ name, setName, avatar, setAvatar, grade, setGrade, onNext
   );
 }
 
-// ═══ ADIM 3 — NuMap BAĞLANTISI ═════════════════════════════════════════════
+// ═══ ADIM 3 — Numap BAĞLANTISI ═════════════════════════════════════════════
 function StepNuMap({ onConnect, onSkip }) {
   return (
     <div style={{
@@ -303,7 +303,7 @@ function StepNuMap({ onConnect, onSkip }) {
     }}>
       <div style={{ fontSize: 64 }}>{'\uD83D\uDDFA\uFE0F'}</div>
       <h2 style={{ fontSize: 24, fontWeight: 900, color: colors.text.primary, margin: 0, textAlign: 'center' }}>
-        NuMap Testi Yaptın mı?
+        Numap Testi Yaptın mı?
       </h2>
       <p style={{
         fontSize: 16,
@@ -313,7 +313,7 @@ function StepNuMap({ onConnect, onSkip }) {
         lineHeight: 1.5,
         margin: 0,
       }}>
-        NuMap profilini bağlayarak sana özel bir öğrenme yolculuğu oluşturabiliriz.
+        Numap profilini bağlayarak sana özel bir öğrenme yolculuğu oluşturabiliriz.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 280, marginTop: 8 }}>
         <Button variant="primary" size="lg" full onClick={onConnect}>
@@ -692,7 +692,7 @@ export function Onboarding({ onComplete }) {
       onNext={handleProfileNext}
     />,
     <StepNuMap key="numap"
-      onConnect={() => setStep(3)} // TODO: NuMap bağlantı akışı
+      onConnect={() => setStep(3)} // TODO: Numap bağlantı akışı
       onSkip={() => setStep(3)}
     />,
     <StepHowToPlay key="howto" onNext={handleComplete} />,

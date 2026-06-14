@@ -5,15 +5,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '../design-system/components/Button.jsx';
-import { Modal } from '../design-system/components/Modal.jsx';
-import { ParentalGate } from '../components/ui/ParentalGate.jsx';
 import { colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
 import { saveConsent } from '../utils/consent.js';
 
 export { CONSENT_KEY, loadConsent, saveConsent } from '../utils/consent.js';
 
-const PRIVACY_TEXT = `GalakSay, çocuğunuzun matematik öğrenme deneyimini kişiselleştirmek için aşağıdaki verileri yalnızca cihaz üzerinde işler. Veriler sunucuya gönderilmez, üçüncü taraflarla paylaşılmaz.
+const PRIVACY_TEXT = `GalakSay, çocuğunuzun matematik öğrenme deneyimini kişiselleştirmek için aşağıdaki verileri işler. Varsayılan olarak veriler yalnızca cihazda kalır; sunucuya gönderilmez, üçüncü taraflarla paylaşılmaz. Yalnızca aşağıdaki "merkezi senkron" rızasını işaretlerseniz, performans verisi öğretmenin Numap hesabına bağlı güvenli sunucuya (getnumap.com) aktarılır.
 
 İşlenen veriler:
 • Profil bilgileri: ad (rumuz olarak kullanılabilir), avatar, sınıf düzeyi.
@@ -29,42 +27,47 @@ Haklarınız (KVKK md.11):
 • Verileri kalıcı olarak silme (Ayarlar → Gizlilik).
 • Açık rızayı geri çekme.
 
-Veri sorumlusu: GalakSay yerel uygulama. Bu sürümde uzaktan veri toplama yapılmaz.`;
+Öğretmen girişi:
+• Öğretmen/uzman Numap hesabıyla giriş yapar; bu sırada öğretmenin kimlik bilgileri (e-posta, şifre) Numap (getnumap.com) sunucusuna iletilir.
+
+Merkezi senkron (opsiyonel — siz işaretlemezseniz KAPALIDIR):
+• İşaretlerseniz çocuğun oyun performans verisi (doğru/yanlış cevaplar, süreler, ilerleme, demografik bilgiler) getnumap.com sunucusuna güvenli aktarılır.
+• Amaç: kurumsal/sınıf raporlaması, cihazlar arası birleştirme ve akademik analiz.
+• İstediğiniz zaman Ayarlar → Gizlilik'ten kapatabilir ve sunucudaki veriyi sildirebilirsiniz.
+• İşaretlemezseniz çocuğun verileri yalnızca cihazda kalır.
+
+Veri sorumlusu: GalakSay yerel uygulama (çocuk verisi) + öğretmen hesabı doğrulaması ve (yalnız rıza verilirse) merkezi senkron için Numap.`;
 
 export function ConsentScreen({ onAccept, onDecline }) {
   const [readMore, setReadMore] = useState(false);
   const [agreeDataProcessing, setAgreeDataProcessing] = useState(false);
-  const [agreeAnalytics, setAgreeAnalytics] = useState(false);
-  const [gateOpen, setGateOpen] = useState(false);
-  const [pendingDecision, setPendingDecision] = useState(null);
+  const [agreeAnalytics, setAgreeAnalytics] = useState(true);
+  // Merkezi senkron — Numap akışında varsayılan AÇIK (rıza ekranı Numap girişinde gösterilir;
+  // veri öğretmenin kendi Numap hesabına gider → kurumsal raporlama). Görünür + opt-out edilebilir.
+  const [agreeDataSync, setAgreeDataSync] = useState(true);
 
   useEffect(() => {
     setReadMore(false);
   }, []);
 
-  const requireAdult = (decision) => {
-    setPendingDecision(decision);
-    setGateOpen(true);
+  const accept = () => {
+    saveConsent({
+      dataProcessing: agreeDataProcessing,
+      analytics: agreeAnalytics,
+      dataSync: agreeDataSync,
+      decision: 'accept',
+    });
+    onAccept?.({ analytics: agreeAnalytics, dataSync: agreeDataSync });
   };
 
-  const finalizeDecision = () => {
-    setGateOpen(false);
-    if (pendingDecision === 'accept') {
-      saveConsent({
-        dataProcessing: agreeDataProcessing,
-        analytics: agreeAnalytics,
-        decision: 'accept',
-      });
-      onAccept?.({ analytics: agreeAnalytics });
-    } else if (pendingDecision === 'decline') {
-      saveConsent({
-        dataProcessing: false,
-        analytics: false,
-        decision: 'decline',
-      });
-      onDecline?.();
-    }
-    setPendingDecision(null);
+  const decline = () => {
+    saveConsent({
+      dataProcessing: false,
+      analytics: false,
+      dataSync: false,
+      decision: 'decline',
+    });
+    onDecline?.();
   };
 
   return (
@@ -137,7 +140,7 @@ export function ConsentScreen({ onAccept, onDecline }) {
             margin: '8px auto 20px',
             background: 'transparent',
             border: 'none',
-            color: colors.accent.primary,
+            color: colors.accent.primaryLight,
             fontSize: 13,
             fontWeight: 700,
             cursor: 'pointer',
@@ -158,6 +161,11 @@ export function ConsentScreen({ onAccept, onDecline }) {
           onChange={setAgreeAnalytics}
           label="Detaylı performans analizinin (hata türü, tepki süresi, ipucu kullanımı) kaydedilmesine rıza veriyorum (öneri kalitesini artırır, opsiyoneldir)."
         />
+        <ConsentCheckbox
+          checked={agreeDataSync}
+          onChange={setAgreeDataSync}
+          label="Merkezi senkron: çocuğun oyun performans verisinin getnumap.com sunucusuna güvenli aktarılmasına — kurumsal raporlama, cihazlar arası birleştirme ve akademik analiz için — rıza veriyorum (opsiyonel; istediğiniz zaman Ayarlar'dan kapatabilirsiniz)."
+        />
 
         <div style={{
           marginTop: 24,
@@ -170,7 +178,7 @@ export function ConsentScreen({ onAccept, onDecline }) {
             size="lg"
             full
             disabled={!agreeDataProcessing}
-            onClick={() => requireAdult('accept')}
+            onClick={accept}
           >
             Açık rıza veriyorum
           </Button>
@@ -178,7 +186,8 @@ export function ConsentScreen({ onAccept, onDecline }) {
             variant="secondary"
             size="md"
             full
-            onClick={() => requireAdult('decline')}
+            onClick={decline}
+            style={{ height: 'auto', minHeight: 44, paddingTop: 8, paddingBottom: 8, whiteSpace: 'normal', lineHeight: 1.25 }}
           >
             Rızasız devam et (analitik kapalı)
           </Button>
@@ -191,17 +200,10 @@ export function ConsentScreen({ onAccept, onDecline }) {
           textAlign: 'center',
           lineHeight: 1.5,
         }}>
-          Devam ettiğinizde ebeveyn doğrulaması yapılır. Rızanızı dilediğiniz zaman Ayarlar
-          → Gizlilik bölümünden geri çekebilir, verilerinizi indirebilir veya silebilirsiniz.
+          Rızanızı dilediğiniz zaman Ayarlar → Gizlilik bölümünden geri çekebilir,
+          verilerinizi indirebilir veya silebilirsiniz.
         </p>
       </div>
-
-      <ParentalGate
-        open={gateOpen}
-        onSuccess={finalizeDecision}
-        onClose={() => { setGateOpen(false); setPendingDecision(null); }}
-        reason="Çocuğunuzun verisi işlenecek."
-      />
     </div>
   );
 }

@@ -17,6 +17,8 @@ export interface Profile {
 export interface Consent {
   dataProcessing: boolean;
   analytics: boolean;
+  /** Merkezi senkron: çocuk oyun verisinin getnumap.com'a aktarılmasına rıza (opt-in, varsayılan kapalı). */
+  dataSync?: boolean;
   decision: 'accept' | 'decline' | 'revoked';
   grantedAt?: string;
   version?: number;

@@ -1,9 +1,13 @@
-// GalakSay Analytics — 2026-03-18 — Ana uygulama ile analitik sistem arasındaki köprü
+// @ts-check
+// GalakSay Analytics — Ana uygulama ile analitik sistem arasındaki köprü
 // Bu modül mevcut GalakSay.jsx'e minimal müdahale ile analitik sistemi entegre eder.
 
 import { startSession, endSession, trackEvent, setChildId, flushEvents, createTimer } from './EventCollector.js';
 import { onSessionEnd } from './SummaryScheduler.js';
 import { openDB, saveChildProfile } from './database.js';
+import { classifyAnswer } from '../utils/errorClassifier.js';
+
+/** @typedef {import('../types').Question} Question */
 
 // Mod → kategori eşleme tablosu (mevcut oyun modlarını 8 LT kategorisine eşler)
 const MODE_TO_CATEGORY = {
@@ -85,6 +89,13 @@ async function initAnalytics(childId, metadata = {}) {
         nuMapProfileId: metadata.nuMapProfileId || null,
         nuMapRiskLevel: metadata.nuMapRiskLevel || null,
         nuMapAssessmentDate: metadata.nuMapAssessmentDate || null,
+        // Akademik demografik + ön-son kategori ölçeği (Faz 0 — CSV/PDF/karşılaştırma).
+        gender: metadata.gender || null,
+        school: metadata.school || null,
+        city: metadata.city || null,
+        district: metadata.district || null,
+        ageMonths: metadata.ageMonths || null,
+        nuMapCategoryScores: metadata.nuMapCategoryScores || null,
       });
     }
 
@@ -135,6 +146,13 @@ async function finishGameSession(childId, additionalSummary = {}) {
       console.error('[GalakSay Analytics] Özet hesaplama hatası:', err);
     }
   }
+
+  // Merkezi havuz senkronu (yalnız dataSync rızası varsa) — lazy + ateş-unut,
+  // oyunu bloklamaz; rıza/token yoksa syncEngine içinde no-op'a düşer.
+  if (childId) {
+    console.log('[GalakSay sync] finishGameSession bitti → syncChild tetik', childId);
+    import('../services/syncEngine.js').then((m) => m.syncChild(childId)).catch((e) => console.log('[GalakSay sync] syncEngine import HATA', e));
+  }
 }
 
 // ── Soru İzleme ──────────────────────────
@@ -156,6 +174,17 @@ function onQuestionPresented(gameMode, question, level, difficulty) {
   });
 }
 
+/**
+ * Bir soru cevabı geldiğinde çağrılır. Doğru/yanlışın yanı sıra pedagojik
+ * hata sınıfı (off_by_one, magnitude, vb.) da event olarak kaydedilir.
+ * @param {string} gameMode
+ * @param {boolean} isCorrect
+ * @param {number|string} givenAnswer
+ * @param {number} correctAnswer
+ * @param {number} [hintLevel]
+ * @param {string} [representation]
+ * @param {Question} [question]
+ */
 function onQuestionAnswered(gameMode, isCorrect, givenAnswer, correctAnswer, hintLevel, representation, question) {
   _questionsAttempted++;
   if (isCorrect) _questionsCorrect++;
@@ -163,6 +192,15 @@ function onQuestionAnswered(gameMode, isCorrect, givenAnswer, correctAnswer, hin
   const responseTime_ms = _questionTimer ? _questionTimer.elapsed() : 0;
   const category = MODE_TO_CATEGORY[gameMode] || _currentCategory;
   const rep = REP_MAP[representation] || representation || 'sembolik';
+
+  // Pedagojik hata sınıflandırması — rapor kalitesi için
+  const classification = classifyAnswer({
+    givenAnswer,
+    correctAnswer,
+    responseTimeMs: responseTime_ms,
+    question,
+    gameMode,
+  });
 
   trackEvent('question_answered', {
     givenAnswer,
@@ -175,6 +213,9 @@ function onQuestionAnswered(gameMode, isCorrect, givenAnswer, correctAnswer, hin
     targetAnswer: correctAnswer,
     category,
     questionContent: question ? { type: question.type, num1: question.num1, num2: question.num2 } : {},
+    errorType: classification.errorType,
+    errorSeverity: classification.severity,
+    errorEvidence: classification.evidence,
   }, {
     category,
     moduleId: _currentModuleId,

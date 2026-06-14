@@ -31,9 +31,9 @@ export const CATEGORIES = {
   // ── KAT2: SANBİL — Subitizing Trajectory (12 düzey) ──────────────────────
   // ltLevel sırası: Perceptual(5-6) → Conceptual(8) → Büyük Koleksiyon Tahmini(9)
   level2: { name: "⚡ Şimşeron", desc: "Bir bakışta gör, şimşek hızında!", learnKey: "level7", modes: {
-    fivesFrame:    { n: "Beşli Radar!",    i: "5️⃣", d: "5'lik çerçevedeki taşları bir bakışta say",  c: "#4f46e5" },
+    fivesFrame:    { n: "Beşli Radar!",    i: "5️⃣", d: "5'lik çerçevenin yapısıyla miktarı hızlı tanı",  c: "#4f46e5" },
     subitizing:    { n: "Işık Hızı!",      i: "⚡", d: "Saymadan bir bakışta kaç tane olduğunu söyle", c: "#7c3aed" },
-    tensFrame:     { n: "Onlu Radar!",     i: "🔟", d: "10'luk çerçevedeki taşları bir bakışta say", c: "#7c3aed" },
+    tensFrame:     { n: "Onlu Radar!",     i: "🔟", d: "10'luk çerçeve yapısıyla (5+5) miktarı tanı", c: "#7c3aed" },
     chipGuess:     { n: "Uzay Hafızası!",  i: "👀", d: "Yıldız taşlarına bak, sayısını hatırla",     c: "#7c3aed" },
     rodBack:       { n: "Hafıza Şimşeği!", i: "🔄", d: "Bir an gör, sonra ne olduğunu hatırla",      c: "#b45309" },
     doubleTensFrame:{ n: "Çift Onlu Radar!",i: "🔟🔟",d: "Çift 10'luk çerçevede 11-20 arası say",     c: "#6d28d9" },
@@ -60,7 +60,7 @@ export const CATEGORIES = {
     makeFive:         { n: "5 Yıldız Taşı Topla!",  i: "✋", d: "5 yapmak için kaç yıldız taşı daha lazım?", c: "#6d28d9" },
     partWhole:        { n: "Parça-Bütün Puzzle!", i: "🧩", d: "Bütünü tamamlamak için eksik parçayı bul", c: _C.purple },
     makeTen:          { n: "10 Yıldız Taşı Topla!", i: "🎯", d: "10 yapmak için kaç yıldız taşı daha lazım?", c: "#059669" },
-    numbersInNumbers: { n: "Sayı Galaksisi!",   i: "🔢", d: "Bir sayıyı kaç farklı şekilde parçalara ayırabilirsin?", c: "#6d28d9" },
+    numbersInNumbers: { n: "Sayı Galaksisi!",   i: "🔢", d: "Bir sayıyı oluşturan ikiliyi bul", c: "#6d28d9" },
     spaceKitchen:     { n: "Uzay Mutfağı!",     i: "🧪", d: "Çubukları seç, hedef sayıyı oluştur — birden fazla yol var!", c: "#b45309" },
     rodSplit:         { n: "İkili Görev!",       i: "✂️", d: "Çubuğu kes, sayıyı bölmenin tüm yollarını bul!", c: "#7c2d12" },
   }},
@@ -119,8 +119,123 @@ export const CATEGORIES = {
   }},
 };
 
-/** Mod ID'sinden bilgi nesnesini döndüren lookup. */
+// ═══ KÜRTÇE (KURMANCÎ) ÇEVİRİLER ═════════════════════════════════════════
+// Referans: FerMat — Ferhenga Matematikê, Prof. Dr. Yılmaz MUTLU
+// _cats: kategori ad/açıklama | diğer anahtarlar: mod-id → { n: ad, d: açıklama }
+const CAT_KU = {
+  _cats: {
+    level1: { name: "🌍 Jimaron",   desc: "Gerstêrka jimartinê keşf bike!" },
+    level2: { name: "⚡ Birûskon",  desc: "Bi yek nêrînê bibîne, bi leza birûskê!" },
+    level3: { name: "⚖️ Mêzînya",   desc: "Gerstêrka hevsengî û rêzê" },
+    level4: { name: "🧱 Pêkhatya",  desc: "Girêdanên jimaran keşf bike!" },
+    level8: { name: "🏛️ Merteba",   desc: "Perestgeha dehekan keşf bike!" },
+    level5: { name: "🌗 Kombûnya",  desc: "Gerîngeha zêdekirin û kêmkirinê" },
+    level6: { name: "✖️ Carcarya",  desc: "Galaksiya carkirin û parkirinê" },
+    level7: { name: "🧩 Nimûneya",  desc: "Rêza veşartî ya nimûneyan" },
+  },
+  // KAT1 — Jimartin
+  matching:      { n: "Stêrkan Hev Bike!",     d: "Reqemê bi jimara rast a kevirên stêrkan re hev bike" },
+  quantityMatch: { n: "Meteoran Hev Bike!",    d: "Meteoran bijmêre, bi reqemê rast re hev bike" },
+  counting:      { n: "Meteoran Bijmêre!",     d: "Yek bi yek bijmêre û giştiyê bibîne" },
+  buildNumber:   { n: "Kevirên Stêrkan Rêz Bike!", d: "Bi qasî jimara tê gotin kevirên stêrkan bi cî bike" },
+  ordinalCount:  { n: "Keşfa Rêzê!",           d: "Çendemîn e? Yekem, duyem, sêyem..." },
+  backwardCount: { n: "Jimartina Paşve!",      d: "Ji 20'î ber bi paş ve bijmêre: 20, 19, 18..." },
+  counterFromN:  { n: "Ji Jimarê Bijmêre!",   d: "Ji her jimarê ber bi pêş an paş ve bijmêre" },
+  decadeCount:   { n: "Derbasa Dehekan!",      d: "Ji 29'î bo 30'î, ji 39'î bo 40'î bijmêre" },
+  skipCount:     { n: "Rîtma Galaktîk!",       d: "Bi 2, 5, 10'an bi rîtim bijmêre" },
+  conservation:  { n: "Xapandin e?",           d: "Eger cihê kevirên stêrkan biguhere, jimar wek xwe dimîne?" },
+  // KAT2 — Birûsk (Subitizing)
+  fivesFrame:    { n: "Radara Pêncan!",        d: "Bi avahiya çarçoveya 5'an mîqdarê zû nas bike" },
+  subitizing:    { n: "Leza Ronahiyê!",        d: "Bê jimartin, bi yek nêrînê bêje çend heb in" },
+  tensFrame:     { n: "Radara Dehan!",         d: "Bi avahiya çarçoveya 10'an (5+5) mîqdarê nas bike" },
+  chipGuess:     { n: "Bîra Fezayê!",          d: "Li kevirên stêrkan binêre, jimara wan bi bîr bîne" },
+  rodBack:       { n: "Birûska Bîrê!",         d: "Bo kêliyekê bibîne, paşê bi bîr bîne çi bû" },
+  doubleTensFrame:{ n: "Radara Cot-Dehan!",    d: "Di çarçoveya cot 10'an de ji 11 heta 20 bijmêre" },
+  estimateCount: { n: "Texmîna Galaktîk!",     d: "Li şûna jimartinê, texmîn bike çend heb in" },
+  // KAT3 — Mêzîn (Berhevkirin/Rêzkirin)
+  lessMoreEqual: { n: "Mêzîna Kozmîk!",        d: "Di kîjan komê de bêtir kevirên stêrkan hene?" },
+  beforeAfter:   { n: "Cîranê Gerîngehê!",     d: "Cîranê berê û paşê yê jimarekê bibîne" },
+  comparison:    { n: "Dûeloya Gerstêrkan!",   d: "Kîjan jimar mezintir e? Berhev bike." },
+  fiveMore:      { n: "Skala 5 Stêrkan!",      d: "Li gorî 5 an 10'î nêzîk e an dûr e?" },
+  ordering:      { n: "Gerîngehê Rêz Bike!",   d: "Jimaran ji biçûk bo mezin rêz bike" },
+  numberLineEstimate: { n: "Cihê Galaktîk!",   d: "Li ser xeta jimarî kîjan jimarê nîşan dide?" },
+  nlPlacement:   { n: "Li Gerîngehê Bi Cî Bike!", d: "Jimara hatî dayîn li xeta jimarî cihê rast deyne" },
+  numberLine:    { n: "Kapsula Winda!",        d: "Li ser xeta jimarî kapsula winda bibîne" },
+  lengthGuess:   { n: "Nebula Veşartî!",       d: "Li gorî dirêjahiya darikê jimara wê texmîn bike" },
+  // KAT4 — Pêkanîn (Composing)
+  makeFive:         { n: "5 Kevirên Stêrkan Berhev Bike!", d: "Ji bo 5'an çend kevirên stêrkan din lazim in?" },
+  partWhole:        { n: "Pazila Perçe-Giştî!",  d: "Ji bo temamkirina giştiyê perçeya kêm bibîne" },
+  makeTen:          { n: "10 Kevirên Stêrkan Berhev Bike!", d: "Ji bo 10'an çend kevirên stêrkan din lazim in?" },
+  numbersInNumbers: { n: "Galaksiya Jimaran!",  d: "Cota ku jimarekê çêdike bibîne" },
+  spaceKitchen:     { n: "Metbexa Fezayê!",      d: "Darikan hilbijêre, jimara armanc çêbike — gelek rê hene!" },
+  rodSplit:         { n: "Peywira Cot!",         d: "Darikê kêm bike, hemû rêyên parkirina jimarê bibîne!" },
+  // KAT5 (level8) — Mertebe (Basamak Değeri)
+  composeNumber: { n: "Gerstêrk Çêbike!",      d: "Dehekan û yekekan bigihîne, jimar çêbike" },
+  expandForm:    { n: "Vekirina Galaktîk!",    d: "Jimarê wek dehek û yekek binivîse: 34 = 30 + 4" },
+  bundleTens:    { n: "Nebula Dehekan!",       d: "10 yekekan bigihîne hev — dehekê çêbike!" },
+  placeValue:    { n: "Qatê Keşf Bike!",       d: "Reqemek li gorî mertebeya xwe çi diyar dike?" },
+  // KAT6 (level5) — Zêdekirin û Kêmkirin
+  addChips:      { n: "Kevirên Stêrkan Yek Bike!", d: "Du koman yek bike, giştî çend dibe?" },
+  countOnAdd:    { n: "Ji Mezin Bijmêre!",     d: "Ji jimara mezin dest pê bike, bi qasî ya biçûk lê zêde bike" },
+  addition:      { n: "Hêzê Yek Bike!",        d: "Stratejiyên zêdekirinê: cot, bo 10'î temam bike" },
+  wpAdd:         { n: "Pirsgirêka Zêdekirinê",    d: "Pirsgirêka çîrokî: kom yek dibin, giştiyê bibîne" },
+  removeChips:   { n: "Kevirên Stêrkan Veqetîne!", d: "Ji komekê veqetîne, çend dimîne?" },
+  difference:    { n: "Dûrahiyê Bipîve!",      d: "Ferqa di navbera du jimaran de bibîne" },
+  subtraction:   { n: "Enerjiyê Veqetîne!",    d: "Stratejiyên kêmkirinê: paşve bijmêre, ji zêdekirinê bifikire" },
+  inversePractice:{ n: "Berevajî Bifikire!",   d: "Zêdekirin û kêmkirin berevajiyê hev in" },
+  wpSub:         { n: "Pirsgirêka Kêmkirinê",   d: "Pirsgirêka çîrokî: vediqete, çend dimîne?" },
+  wpCompare:     { n: "Pirsgirêka Berhevkirinê", d: "Pirsgirêka çîrokî: di kîjanê de çend zêde/kêm e?" },
+  // KAT7 (level6) — Carkirin û Parkirin
+  repeatAdd:     { n: "Dubarekirina Galaktîk!", d: "Heman jimarê car bi car zêde bike — ev carkirin e!" },
+  multiplyVisual:{ n: "Hêza Carkirinê!",       d: "Kevirên stêrkan ên di komên wekhev de car bike" },
+  arrayDots:     { n: "Rêza Stêrkan!",         d: "Kevirên stêrkan ên di rêz û stûnan de bijmêre" },
+  timesTable:    { n: "Hostayê Stratejiyê!",   d: "Kurterêyên tabloya carkirinê: cot, ×5, ×9" },
+  katConcept:    { n: "Çend Car?",             d: "3 carê 5'î çend e? — têgeha 'car' fêr bibe" },
+  wpMul:         { n: "Pirsgirêka Carkirinê",  d: "Pirsgirêka çîrokî: komên wekhev, giştî çend?" },
+  equalShare:    { n: "Parvekirina Galaktîk!", d: "Kevirên stêrkan bi wekhevî parve bike" },
+  groupCount:    { n: "Filoyê Kom Bike!",      d: "Bi mezinahiya wekhev çend kom çêdikî?" },
+  halfDouble:    { n: "Nîvkirin-Ducarkirin!",  d: "Bo nîvê par bike (÷2), an ducar bike (×2)" },
+  divisionBasic: { n: "Hostayê Parkirinê!",  d: "Kurterêyên parkirinê: li ser 1'î, li ser xwe" },
+  mulDivInverse: { n: "Girêdana Berevajî!",    d: "Carkirin û parkirin berevajiyê hev in" },
+  wpDiv:         { n: "Pirsgirêka Parkirinê", d: "Pirsgirêka çîrokî: parvekirin û komkirin" },
+  // KAT8 (level7) — Nimûne (Örüntü)
+  patternAB:        { n: "Nimûneya Galaktîk!", d: "Nimûneya dubareker temam bike — ya pêş çi ye?" },
+  growingPattern:   { n: "Nimûneya Mezinbûyî!", d: "Rêza jimarên zêdebûyî an kêmbûyî bidomîne" },
+  patternTranslate: { n: "Wergêrê Nimûneyê!",  d: "Heman nimûneyê bi şêweyên cuda nîşan bide" },
+  trueFalse:        { n: "Detektîfê Hevkêşeyê!", d: "Wekhevî rast e an çewt e? — tu biryar bide" },
+  missingNumber:    { n: "Stêrka Winda!",      d: "Jimara winda ya di hevkêşeyê de bibîne" },
+  spaceBalance:     { n: "Mêzîna Fezayê!",     d: "Herdu aliyan wekhev bike — mêzîn hevseng bibe" },
+};
+
+// Aktif dil — render başında setCatLang(lang) ile ayarlanır (tek-dil global).
+let _catLang = "tr";
+let _kuCatsCache = null;
+export const setCatLang = (lang) => { if (lang !== _catLang) { _catLang = lang; _kuCatsCache = null; } };
+
+/** Mod ID'sinden bilgi nesnesini döndüren lookup (aktif dile göre yerelleştirilmiş). */
 export const gmi = (id) => {
-  for (const cat of Object.values(CATEGORIES)) if (cat.modes[id]) return cat.modes[id];
+  for (const cat of Object.values(CATEGORIES)) if (cat.modes[id]) {
+    const m = cat.modes[id];
+    if (_catLang === "ku" && CAT_KU[id]) return { ...m, n: CAT_KU[id].n, d: CAT_KU[id].d };
+    return m;
+  }
   return null;
+};
+
+/** Kategorileri aktif dile göre döndürür (menü/harita render'ı bunu kullanır). */
+export const getCategories = () => {
+  if (_catLang !== "ku") return CATEGORIES;
+  if (_kuCatsCache) return _kuCatsCache;
+  const out = {};
+  for (const [ck, cat] of Object.entries(CATEGORIES)) {
+    const cm = CAT_KU._cats[ck] || {};
+    const modes = {};
+    for (const [mid, m] of Object.entries(cat.modes)) {
+      const k = CAT_KU[mid];
+      modes[mid] = k ? { ...m, n: k.n, d: k.d } : m;
+    }
+    out[ck] = { ...cat, name: cm.name || cat.name, desc: cm.desc || cat.desc, modes };
+  }
+  _kuCatsCache = out;
+  return out;
 };

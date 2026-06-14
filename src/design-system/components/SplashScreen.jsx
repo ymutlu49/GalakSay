@@ -115,45 +115,28 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
         pointerEvents: 'none',
       }} />
 
-      {/* Logo — scale 0.8→1 giriş animasyonu */}
-      <div style={{
-        transform: phase >= 0 ? 'scale(1)' : 'scale(0.8)',
-        opacity: phase >= 0 ? 1 : 0,
-        transition: 'all 500ms ease-out',
-        filter: 'drop-shadow(0 0 30px rgba(108,99,255,.3))',
-      }}>
-        <GalaksayLogo height={80} dark />
-      </div>
-
-      {/* Subtitle — "Matematik Öğrenme Oyunu" */}
-      <div style={{
-        marginTop: 16,
-        color: colors.text.secondary,
-        fontSize: 16,
-        fontWeight: 600,
-        fontFamily: typography.fontFamily.display,
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-        opacity: phase >= 1 ? 0.8 : 0,
-        transform: phase >= 1 ? 'translateY(0)' : 'translateY(8px)',
-        transition: 'all 400ms ease-out 100ms',
-      }}>
-        Matematik Öğrenme Oyunu
-      </div>
-
-      {/* Tagline */}
-      <div style={{
-        marginTop: 8,
-        color: colors.text.tertiary,
-        fontSize: 13,
-        fontWeight: 500,
-        fontFamily: typography.fontFamily.display,
-        fontStyle: 'italic',
-        opacity: phase >= 1 ? 0.5 : 0,
-        transform: phase >= 1 ? 'translateY(0)' : 'translateY(6px)',
-        transition: 'all 400ms ease-out 200ms',
-      }}>
-        Sayılar Evrenin Dilidir
+      {/* Logo — büyütülmüş + responsive (mobilde taşmaz), ortalı, arkasında yumuşak hale.
+          "Matematik Öğrenme Oyunu" tanımlayıcısı KALDIRILDI; logo zaten markayı + sloganı taşıyor. */}
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        {/* Merkezi yumuşak hale — logoyu öne çıkarır, derinlik verir */}
+        <div style={{
+          position: 'absolute',
+          width: 'min(80vw, 460px)',
+          height: 260,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse at center, rgba(124,58,237,.26), rgba(99,102,241,.11) 45%, transparent 72%)',
+          filter: 'blur(24px)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'relative',
+          transform: phase >= 0 ? 'scale(1)' : 'scale(0.85)',
+          opacity: phase >= 0 ? 1 : 0,
+          transition: 'all 600ms cubic-bezier(.16,1,.3,1)',
+          filter: 'drop-shadow(0 6px 32px rgba(108,99,255,.4))',
+        }}>
+          <GalaksayLogo width="min(90vw, 450px)" tight dark />
+        </div>
       </div>
 
       {/* Loading progress bar — ince, zarif */}
@@ -178,7 +161,7 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
         }} />
       </div>
 
-      {/* Credits — Diskalkuli Derneği + Prof. Dr. Yılmaz Mutlu */}
+      {/* Credits — Prof. Dr. Yılmaz Mutlu */}
       <div style={{
         position: 'absolute',
         bottom: 40,
@@ -193,14 +176,6 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
           color: colors.text.tertiary,
           fontSize: 12,
           fontWeight: 600,
-          fontFamily: typography.fontFamily.display,
-        }}>
-          Diskalkuli Derneği
-        </div>
-        <div style={{
-          color: colors.text.disabled,
-          fontSize: 10,
-          fontWeight: 500,
           fontFamily: typography.fontFamily.display,
         }}>
           Prof. Dr. Yılmaz Mutlu

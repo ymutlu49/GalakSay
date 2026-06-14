@@ -97,7 +97,7 @@ export const WORD_PROBLEM_TEMPLATES = {
       icon: "🏀", theme: "oyun", obj: "top" },
     { text: (a,_,c,n,nw) => `Çiftlikte toplam ${nw(c)} hayvan var. Bunların ${nw(a)} tanesi inek, geri kalanı koyun. Kaç koyun var?`,
       icon: "🐄", theme: "hayvan", obj: "koyun" },
-    { text: (a,_,c,n,nw) => `${n[0]} toplam ${nw(c)} çıkartma biriktirmiş. Bunların ${nw(a)} tanesi yıldız, kalanları kalp şeklinde. Kaç kalp çıkartma var?`,
+    { text: (a,_,c,n,nw) => `${n[0]} toplam ${nw(c)} çıkartma biriktirmiş. Bunların ${nw(a)} tanesi yıldız, geri kalanı kalp şeklinde. Kaç kalp çıkartma var?`,
       icon: "💖", theme: "oyun", obj: "çıkartma" },
   ],
 
@@ -105,24 +105,34 @@ export const WORD_PROBLEM_TEMPLATES = {
   // 4. KARŞILAŞTIRMA (COMPARE) — İki çokluk arasındaki ilişki
   // ═══════════════════════════════════════════════════════════════════════════
   compareDiffUnknown: [
-    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} kalemi, ${trG(n[1])} ise ${nw(b)} kalemi var. ${trG(n[0])} kalemi kaç tane daha fazla?`,
+    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} kalemi, ${trG(n[1])} ise ${nw(b)} kalemi var. ${n[0]} kaç kalem daha fazla?`,
       icon: "✏️", theme: "okul", obj: "kalem" },
     { text: (a,b,_,n,nw) => `Birinci sınıfta ${nw(a)}, ikinci sınıfta ${nw(b)} öğrenci var. Birinci sınıfta kaç öğrenci daha fazla?`,
       icon: "🏫", theme: "okul", obj: "öğrenci" },
     { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} sayfa, ${n[1]} ise ${nw(b)} sayfa okumuş. ${n[0]} kaç sayfa daha fazla okumuş?`,
       icon: "📖", theme: "okul", obj: "sayfa" },
+    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} elması, ${trG(n[1])} ise ${nw(b)} elması var. Aradaki fark kaç?`,
+      icon: "🍎", theme: "meyve", obj: "elma" },
+    { text: (a,b,_,n,nw) => `Kırmızı kutuda ${nw(a)}, mavi kutuda ${nw(b)} top var. Kırmızı kutuda kaç top daha fazla?`,
+      icon: "📦", theme: "oyun", obj: "top" },
   ],
   compareQuantityUnknown: [
-    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} bilyesi var. ${trG(n[1])} bilyesi ondan ${nw(b)} tane daha fazla. ${trG(n[1])} kaç bilyesi var?`,
+    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} bilyesi var. ${trG(n[1])} ondan ${nw(b)} tane daha fazla bilyesi var. ${trG(n[1])} kaç bilyesi var?`,
       icon: "🔮", theme: "oyun", obj: "bilye" },
-    { text: (a,b,_,n,nw) => `Kırmızı kutuda ${nw(a)} top var. Mavi kutuda ise bundan ${nw(b)} top daha az var. Mavi kutuda kaç top var?`,
+    { text: (a,b,_,n,nw) => `Kırmızı kutuda ${nw(a)} top var. Mavi kutuda ise bundan ${nw(b)} top daha fazla var. Mavi kutuda kaç top var?`,
       icon: "📦", theme: "oyun", obj: "top" },
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} kart toplamış. ${n[1]} ondan ${nw(b)} tane daha fazla toplamış. ${trG(n[1])} kaç kartı var?`,
+      icon: "🃏", theme: "oyun", obj: "kart" },
+    { text: (a,b,_,n,nw) => `Bahçede ${nw(a)} gül açmış. Komşu bahçede bundan ${nw(b)} tane daha çok gül var. Komşu bahçede kaç gül var?`,
+      icon: "🌹", theme: "bahçe", obj: "gül" },
   ],
   compareReferentUnknown: [
     { text: (_,b,c,n,nw) => `${trG(n[0])} ${nw(c)} çıkartması var. Bu, ${trK(n[1])} ${nw(b)} tane daha fazla. ${trG(n[1])} kaç çıkartması var?`,
       icon: "⭐", theme: "oyun", obj: "çıkartma" },
     { text: (_,b,c,n,nw) => `Büyük ağaçta ${nw(c)} elma var. Bu, küçük ağaçtakinden ${nw(b)} tane daha fazla. Küçük ağaçta kaç elma var?`,
       icon: "🍎", theme: "meyve", obj: "elma" },
+    { text: (_,b,c,n,nw) => `${n[0]} ${nw(c)} gol atmış. Bu, ${trK(n[1])} ${nw(b)} gol daha fazla. ${n[1]} kaç gol atmış?`,
+      icon: "⚽", theme: "spor", obj: "gol" },
   ],
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -141,12 +151,16 @@ export const WORD_PROBLEM_TEMPLATES = {
       icon: "🍬", theme: "yiyecek", obj: "şeker" },
     { text: (a,_,c,n,nw) => `${n[0]} ${nw(c)} fotoğrafı ${nw(a)} albüme eşit olarak dağıttı. Her albümde kaç fotoğraf var?`,
       icon: "📷", theme: "okul", obj: "fotoğraf" },
+    { text: (a,_,c,n,nw) => `${capFirst(nw(c))} kalem ${nw(a)} kalemliğe eşit olarak dağıtıldı. Her kalemlikte kaç kalem var?`,
+      icon: "✏️", theme: "okul", obj: "kalem" },
   ],
   multiplyNumGroupsUnknown: [
     { text: (_,b,c,n,nw) => `${trG(n[0])} ${nw(c)} bilyesi var. Her torbaya ${nw(b)} tane koyarsa kaç torba doldurur?`,
       icon: "🔮", theme: "oyun", obj: "bilye" },
     { text: (_,b,c,n,nw) => `Fırında ${nw(c)} ekmek pişti. Her rafa ${nw(b)} tane yerleştiriliyor. Kaç raf gerekir?`,
       icon: "🍞", theme: "yiyecek", obj: "ekmek" },
+    { text: (_,b,c,n,nw) => `${capFirst(nw(c))} çiçek var. Her vazoya ${numDist(b)} tane konulacak. Kaç vazo gerekir?`,
+      icon: "🌸", theme: "bahçe", obj: "çiçek" },
   ],
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -179,75 +193,8 @@ export const CGI_TYPE_INFO = {
   multCompareProductUnknown:{op: "×",find: "product",diff: 2, sinif: [3],     kod: "MAT.3.2.6" },
 };
 
-// ─── Sözel Problem Üretici ──────────────────────────────────────────────────
-// gameLevel → problem zorluk eşlemesi
-export function generateWordProblem(level, maxNum, allowedOps = ["+","−"]) {
-  const maxDiff = level <= 2 ? 1 : level <= 4 ? 2 : 3;
-  const R = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
-
-  // Uygun problem türlerini filtrele
-  const eligible = Object.entries(CGI_TYPE_INFO).filter(([_, info]) => {
-    if (info.diff > maxDiff) return false;
-    if (!allowedOps.includes(info.op)) return false;
-    return true;
-  });
-  if (eligible.length === 0) return null;
-
-  const [cgiType, info] = WP_pick(eligible);
-  const templates = WORD_PROBLEM_TEMPLATES[cgiType];
-  if (!templates || templates.length === 0) return null;
-  const tpl = WP_pick(templates);
-  const names = WP_pair();
-
-  // Sayı üretimi — işleme göre
-  let a, b, c, answer, equation;
-  if (info.op === "+" || info.op === "−") {
-    if (info.find === "result" || info.find === "whole" || info.find === "bigger" || info.find === "diff") {
-      a = R(2, Math.min(maxNum, 12)); b = R(1, Math.min(a - 1, maxNum - a, 8));
-      if (info.op === "+") { c = a + b; answer = c; equation = `${a} + ${b} = ${c}`; }
-      else { c = a - b; answer = c; equation = `${a} − ${b} = ${c}`; }
-    } else if (info.find === "change" || info.find === "part") {
-      c = R(4, Math.min(maxNum, 15)); a = R(1, c - 1); b = c - a;
-      answer = b; equation = info.op === "+" ? `${a} + ? = ${c}` : `${c} − ? = ${a}`;
-    } else if (info.find === "start" || info.find === "smaller") {
-      c = R(4, Math.min(maxNum, 15)); b = R(1, c - 1); a = c - b;
-      answer = a; equation = info.op === "+" ? `? + ${b} = ${c}` : `? − ${b} = ${a}`;
-    }
-  } else if (info.op === "×" || info.op === "÷") {
-    const groups = R(2, Math.min(5, Math.floor(maxNum/2)));
-    const perGroup = R(2, Math.min(5, Math.floor(maxNum/groups)));
-    const total = groups * perGroup;
-    a = groups; b = perGroup; c = total;
-    if (info.find === "product") { answer = total; equation = `${groups} × ${perGroup} = ${total}`; }
-    else if (info.find === "size") { answer = perGroup; equation = `${total} ÷ ${groups} = ${perGroup}`; }
-    else { answer = groups; equation = `${total} ÷ ${perGroup} = ${groups}`; }
-  }
-
-  // 3 seçenek üret
-  const opts = [answer];
-  const near = [answer+1, answer-1, answer+2, answer-2, answer+3].filter(x => x > 0 && x !== answer && x <= maxNum + 5);
-  while (opts.length < 3 && near.length > 0) {
-    const pick = near.splice(Math.floor(Math.random()*near.length), 1)[0];
-    if (!opts.includes(pick)) opts.push(pick);
-  }
-  while (opts.length < 3) opts.push(answer + opts.length + 1);
-  opts.sort(() => Math.random() - 0.5);
-
-  return {
-    type: "wordProblem",
-    cgiType,
-    cgiInfo: info,
-    text: tpl.text(a, b, c, names, numWord),
-    icon: tpl.icon,
-    theme: tpl.theme,
-    obj: tpl.obj,
-    a, b, c,
-    answer,
-    equation,
-    names,
-    options: opts,
-  };
-}
+// (TR generateWordProblem bu dosyadan KALDIRILDI - uygulama GalakSay.jsx icindeki yerel surumu kullaniyor;
+//  buradaki kopya import edilmiyordu ve mulCap/allowedCgiTypes acisindan bayatlamisti.)
 
 // ─── Problem Türü Açıklamaları ────────────────────
 export const CGI_LABELS_TR = {
@@ -267,3 +214,194 @@ export const CGI_LABELS_TR = {
   multiplyNumGroupsUnknown:"Ölçme Bölmesi — Grup Sayısı Bilinmiyor",
   multCompareProductUnknown:"Çarpımsal Karşılaştırma — Çarpım Bilinmiyor",
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// KÜRTÇE SÖZEL PROBLEM ETİKETLERİ
+// Referans: Ferhenga Matematikê — KIRARÎ bölümü
+// Terminoloji: zêdekirin (toplama), kemkirin (çıkarma), carkirin (çarpma), parkirin (bölme)
+// ═══════════════════════════════════════════════════════════════════════════
+export const CGI_LABELS_KU = {
+  joinResultUnknown:      "Yekbûn — Encam Nediyar",
+  joinChangeUnknown:      "Yekbûn — Guhêztin Nediyar",
+  joinStartUnknown:       "Yekbûn — Destpêk Nediyar",
+  separateResultUnknown:  "Veqetandin — Encam Nediyar",
+  separateChangeUnknown:  "Veqetandin — Guhêztin Nediyar",
+  separateStartUnknown:   "Veqetandin — Destpêk Nediyar",
+  ppwWholeUnknown:        "Parçe-Giştî — Giştî Nediyar",
+  ppwPartUnknown:         "Parçe-Giştî — Parçe Nediyar",
+  compareDiffUnknown:     "Berhevkirin — Ferq Nediyar",
+  compareQuantityUnknown: "Berhevkirin — Çendînî Nediyar",
+  compareReferentUnknown: "Berhevkirin — Referans Nediyar",
+  multiplyProductUnknown: "Komên Wekhev — Carandok Nediyar",
+  multiplyGroupSizeUnknown:"Parkirina Wekhev — Mezinahiya Komê Nediyar",
+  multiplyNumGroupsUnknown:"Pîvandina Parkirinê — Jimara Koman Nediyar",
+  multCompareProductUnknown:"Berhevkirina Carkirinê — Carandok Nediyar",
+};
+
+// ═══ KÜRTÇE SÖZEL PROBLEM ŞABLONLARI ═══════════════════════════════════
+// Kürtçe çocuk isimleri ve bağlamları
+import { numWordKu, WP_NAMES_KU, WP_pairKu } from './numWords.js';
+const _wpPickKu = arr => arr[Math.floor(Math.random() * arr.length)];
+
+export const WORD_PROBLEM_TEMPLATES_KU = {
+  joinResultUnknown: [
+    { text: (a,b,_,n,nw) => `Di selika ${n[0]} de ${nw(a)} sêv hebûn. Wî/wê ji darê ${nw(b)} sêvên din jî çinin. Niha di selika wî/wê de çend sêv hene?`,
+      icon: "🍎", theme: "fêkî", obj: "sêv" },
+    { text: (a,b,_,n,nw) => `Di baxçê de ${nw(a)} gulên sor vekirîbûn. ${n[0]} ${nw(b)} gulên din jî çandin. Niha di baxçê de çend gul hene?`,
+      icon: "🌷", theme: "baxçe", obj: "gul" },
+    { text: (a,b,_,n,nw) => `Di otobusê de ${nw(a)} rêwî hebûn. Ji rawestgehê ${nw(b)} kesên din jî siwar bûn. Niha di otobusê de çend rêwî hene?`,
+      icon: "🚌", theme: "veguheztin", obj: "rêwî" },
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} kevirên stêrkan yên wî/wê hebûn. ${n[1]} ${nw(b)} hên din jî diyarî kirin. Niha çend kevirên stêrkan yên wî/wê hene?`,
+      icon: "⭐", theme: "lîstik", obj: "kevirê stêrkan" },
+    { text: (a,b,_,n,nw) => `Li golê ${nw(a)} ordek avjenî dikirin. ${nw(b)} ordekên din jî hatin. Niha li golê çend ordek hene?`,
+      icon: "🦆", theme: "ajal", obj: "ordek" },
+  ],
+  joinChangeUnknown: [
+    { text: (a,_,c,n,nw) => `${n[0]} ${nw(a)} qelemên wî/wê hebûn. ${n[1]} çend qelemên din jî dan wî/wê. Dema jimartine ${nw(c)} qelem bûn. ${n[1]} çend qelem dabûn?`,
+      icon: "✏️", theme: "dibistan", obj: "qelem" },
+    { text: (a,_,c,n,nw) => `Li parkê ${nw(a)} zarok dilîstin. Zarokên din jî tevlî bûn û ${nw(c)} zarok bûn. Çend zarokên din hatibûn?`,
+      icon: "🏃", theme: "park", obj: "zarok" },
+  ],
+  joinStartUnknown: [
+    { text: (_,b,c,n,nw) => `${n[0]} çend gûzan hebûn. ${n[1]} ${nw(b)} gûzên din jî dan wî/wê û giştî ${nw(c)} bûn. Di destpêkê de çend gûzên wî/wê hebûn?`,
+      icon: "🥜", theme: "xwarin", obj: "gûz" },
+    { text: (_,b,c,n,nw) => `Li ser darê çend çivîk rûniştibûn. Paşê ${nw(b)} çivîkên din jî hatin û giştî ${nw(c)} bûn. Di destpêkê de li ser darê çend çivîk hebûn?`,
+      icon: "🐦", theme: "ajal", obj: "çivîk" },
+  ],
+  separateResultUnknown: [
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} balonên wî/wê hebûn. Ji wan ${nw(b)} heb teqiyan. Çend balon man?`,
+      icon: "🎈", theme: "şahî", obj: "balon" },
+    { text: (a,b,_,n,nw) => `Li ser masê ${nw(a)} parçeyên kekê hebûn. Zarokan ${nw(b)} parçe xwarin. Li ser masê çend parçe man?`,
+      icon: "🍰", theme: "xwarin", obj: "kek" },
+    { text: (a,b,_,n,nw) => `Di polê de ${nw(a)} xwendekar hebûn. Di bêhnvedanê de ${nw(b)} xwendekar derketin baxçê. Di polê de çend xwendekar man?`,
+      icon: "🏫", theme: "dibistan", obj: "xwendekar" },
+  ],
+  separateChangeUnknown: [
+    { text: (a,_,c,n,nw) => `${n[0]} ${nw(a)} gûzên wî/wê hebûn. Hin ji wan xwar. Niha ${nw(c)} gûz mane. Çend gûz xwaribûn?`,
+      icon: "🥜", theme: "xwarin", obj: "gûz" },
+  ],
+  separateStartUnknown: [
+    { text: (_,b,c,n,nw) => `${n[0]} çend şêraniyên wî/wê hebûn. ${nw(b)} heb dan ${n[1]}. Niha ${nw(c)} şêranî mane. Di destpêkê de çend şêranî hebûn?`,
+      icon: "🍬", theme: "xwarin", obj: "şêranî" },
+  ],
+  ppwWholeUnknown: [
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} sêvên sor û ${nw(b)} sêvên kesk hene. Giştî çend sêv hene?`,
+      icon: "🍎", theme: "fêkî", obj: "sêv" },
+    { text: (a,b,_,n,nw) => `Di qutiyê de ${nw(a)} qelemên şîn û ${nw(b)} qelemên sor hene. Giştî çend qelem hene?`,
+      icon: "✏️", theme: "dibistan", obj: "qelem" },
+  ],
+  ppwPartUnknown: [
+    { text: (a,_,c,n,nw) => `${n[0]} giştî ${nw(c)} topên wî/wê hene. ${nw(a)} heb kesk in. Çend heb ne kesk in?`,
+      icon: "⚽", theme: "lîstik", obj: "top" },
+  ],
+  compareDiffUnknown: [
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} pirtûk xwendine. ${n[1]} ${nw(b)} pirtûk xwendine. ${n[0]} çend pirtûkên zêdetir xwendine?`,
+      icon: "📚", theme: "dibistan", obj: "pirtûk" },
+  ],
+  compareQuantityUnknown: [
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} fîgurên wî/wê hene. ${n[1]} ${nw(b)} hên zêdetir hene. ${n[1]} çend fîgurên wî/wê hene?`,
+      icon: "🧸", theme: "lîstik", obj: "fîgur" },
+  ],
+  compareReferentUnknown: [
+    { text: (_,b,c,n,nw) => `${n[0]} ${nw(c)} kevirên stêrkan yên wî/wê hene. Ew ji yên ${n[1]} ${nw(b)} heb zêdetir e. ${n[1]} çend kevirên stêrkan yên wî/wê hene?`,
+      icon: "⭐", theme: "lîstik", obj: "kevirê stêrkan" },
+  ],
+  multiplyProductUnknown: [
+    { text: (a,b,_,n,nw) => `${nw(a)} teşt hene û di her teştê de ${nw(b)} kurabiye hene. Giştî çend kurabiye hene?`,
+      icon: "🍪", theme: "xwarin", obj: "kurabiye" },
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} pakêt hene. Di her pakêtê de ${nw(b)} şêranî hene. Giştî çend şêranî hene?`,
+      icon: "🍬", theme: "xwarin", obj: "şêranî" },
+  ],
+  multiplyGroupSizeUnknown: [
+    { text: (a,b,_,n,nw) => `${nw(a*b)} şêranî hene û li ${nw(a)} zarokan wekhev tên parkirin. Her zarokê çend şêranî digire?`,
+      icon: "🍬", theme: "xwarin", obj: "şêranî" },
+  ],
+  multiplyNumGroupsUnknown: [
+    { text: (a,b,_,n,nw) => `${nw(a*b)} sêv hene. Di her selkê de ${nw(b)} sêv hene. Çend selik hene?`,
+      icon: "🍎", theme: "fêkî", obj: "sêv" },
+  ],
+  multCompareProductUnknown: [
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(b)} kevirên stêrkan yên wî/wê hene. ${n[1]} ${nw(a)} carê zêdetir hene. ${n[1]} çend kevirên stêrkan yên wî/wê hene?`,
+      icon: "⭐", theme: "lîstik", obj: "kevirê stêrkan" },
+  ],
+};
+
+// ═══ KÜRTÇE SÖZEL PROBLEM ÜRETİCİSİ ═══════════════════════════════════
+export function generateWordProblemKu(level, maxNum, allowedOps = ["+","−"], allowedCgiTypes = null) {
+  const maxDiff = level <= 2 ? 1 : level <= 4 ? 2 : 3;
+  const R = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+
+  const eligible = Object.entries(CGI_TYPE_INFO).filter(([type, info]) => {
+    if (!allowedOps.includes(info.op)) return false;
+    if (allowedCgiTypes) return allowedCgiTypes.includes(type);
+    if (info.diff > maxDiff) return false;
+    return true;
+  });
+  if (eligible.length === 0) return null;
+
+  const [cgiType, info] = _wpPickKu(eligible);
+  const templates = WORD_PROBLEM_TEMPLATES_KU[cgiType];
+  if (!templates || templates.length === 0) return null;
+  const tpl = _wpPickKu(templates);
+  const names = WP_pairKu();
+
+  let a, b, c, answer, equation;
+  if (info.op === "+" || info.op === "−") {
+    if (info.find === "result" || info.find === "whole" || info.find === "bigger" || info.find === "diff") {
+      a = R(2, Math.min(maxNum, 12)); b = R(1, Math.max(1, Math.min(a - 1, maxNum - a, 8)));
+      if (info.op === "+") { c = a + b; answer = c; equation = `${a} + ${b} = ${c}`; }
+      else { c = a - b; answer = c; equation = `${a} − ${b} = ${c}`; }
+    } else if (info.find === "change") {
+      // op+ joinChange: a vardı, ? eklendi, c oldu (a<c) | op− separateChange: a vardı (başlangıç), ? çıktı, c kaldı (a>c)
+      if (info.op === "+") { c = R(4, Math.min(maxNum, 15)); a = R(1, c - 1); b = c - a; answer = b; equation = `${a} + ? = ${c}`; }
+      else { a = R(4, Math.min(maxNum, 15)); c = R(1, a - 1); b = a - c; answer = b; equation = `${a} − ? = ${c}`; }
+    } else if (info.find === "part") {
+      // ppwPart (op−): c bütün, a bilinen parça, ?=diğer parça (c>a)
+      c = R(4, Math.min(maxNum, 15)); a = R(1, c - 1); b = c - a;
+      answer = b; equation = `${c} − ? = ${a}`;
+    } else if (info.find === "start") {
+      // op+ joinStart: ? vardı, b eklendi, c oldu | op− separateStart: ? vardı, b çıktı, c kaldı → başlangıç = c+b
+      if (info.op === "+") { c = R(4, Math.min(maxNum, 15)); b = R(1, c - 1); a = c - b; answer = a; equation = `? + ${b} = ${c}`; }
+      else { c = R(2, Math.max(2, Math.min(maxNum - 1, 12))); b = R(1, Math.max(1, Math.min(maxNum - c, 8))); a = c + b; answer = a; equation = `? − ${b} = ${c}`; }
+    } else if (info.find === "smaller") {
+      // compareReferent (op−): n0'da c var, n1'den b fazla → n1 = c−b
+      c = R(4, Math.min(maxNum, 15)); b = R(1, c - 1); a = c - b;
+      answer = a; equation = `${c} − ${b} = ?`;
+    }
+  } else if (info.op === "×" || info.op === "÷") {
+    const mulCap = [3, 4, 5, 5, 6][Math.max(0, Math.min(4, level - 1))]; // TR inline üreticiyle (GalakSay lp dizisi) eşit zorluk — KU eskiden L3+'ta sistematik kolaydı
+    const groups = R(2, Math.max(2, Math.min(mulCap, Math.floor(maxNum/2))));
+    const perGroup = R(2, Math.max(2, Math.min(mulCap, Math.floor(maxNum/groups))));
+    const total = groups * perGroup;
+    a = groups; b = perGroup; c = total;
+    if (info.find === "product") { answer = total; equation = `${groups} × ${perGroup} = ${total}`; }
+    else if (info.find === "size") { answer = perGroup; equation = `${total} ÷ ${groups} = ${perGroup}`; }
+    else { answer = groups; equation = `${total} ÷ ${perGroup} = ${groups}`; }
+  }
+
+  const numOpts = level >= 3 ? 4 : 3;
+  const opts = [answer];
+  const distractors = [answer+1, answer-1, answer+2, answer-2, answer+3, answer-3].filter(x => x > 0 && x !== answer && x <= maxNum + 10);
+  while (opts.length < numOpts && distractors.length > 0) {
+    const pick = distractors.splice(Math.floor(Math.random()*distractors.length), 1)[0];
+    if (!opts.includes(pick)) opts.push(pick);
+  }
+  while (opts.length < numOpts) opts.push(answer + opts.length + 1);
+  // Fisher-Yates shuffle
+  for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+
+  return {
+    type: "wordProblem",
+    cgiType,
+    cgiInfo: info,
+    text: tpl.text(a, b, c, names, numWordKu),
+    icon: tpl.icon,
+    theme: tpl.theme,
+    obj: tpl.obj,
+    a, b, c,
+    answer,
+    equation,
+    names,
+    options: opts,
+  };
+}

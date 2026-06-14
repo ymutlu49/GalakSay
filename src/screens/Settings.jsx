@@ -1,4 +1,4 @@
-// GalakSay Pro — 2026-03-20 — Profesyonel ayarlar ekranı (onay animasyonu + erişilebilirlik + PIN dialog)
+// GalakSay Pro — Profesyonel ayarlar ekranı (a11y + KVKK veri yönetimi + parental gate)
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
@@ -6,6 +6,11 @@ import { spacing, layout } from '../design-system/spacing.js';
 import { Toggle } from '../design-system/components/Toggle.jsx';
 import { Button } from '../design-system/components/Button.jsx';
 import { Modal } from '../design-system/components/Modal.jsx';
+import { ParentalGate } from '../components/ui/ParentalGate.jsx';
+import { exportAllData, eraseAllData } from '../utils/dataExport.js';
+import { hashPin, verifyPin } from '../utils/crypto.js';
+import { loadConsent, saveConsent } from '../utils/consent.js';
+import { dialogButtonStyle, statusBox } from '../design-system/presets.js';
 
 // ═══ AYAR BÖLÜMÜ BİLEŞENİ ══════════════════════════════════════════════════
 function Section({ icon, title, children }) {
@@ -26,8 +31,8 @@ function Section({ icon, title, children }) {
       </div>
       <div style={{
         borderRadius: layout.borderRadius.lg,
-        background: 'rgba(30,27,75,.45)',
-        border: '1px solid rgba(148,163,184,.08)',
+        background: 'rgba(58,55,135,.4)',
+        border: '1px solid rgba(167,139,250,.15)',
         overflow: 'hidden',
       }}>
         {children}
@@ -129,7 +134,7 @@ function SettingLink({ label, value, onClick, last = false }) {
         {value && (
           <span style={{ fontSize: 13, color: colors.text.tertiary }}>{value}</span>
         )}
-        <span style={{ color: colors.text.disabled, fontSize: 14 }}>{'\u203A'}</span>
+        <span style={{ color: colors.text.tertiary, fontSize: 14 }}>{'\u203A'}</span>
       </div>
     </div>
   );
@@ -227,8 +232,11 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
           setTimeout(() => inputRefs[0].current?.focus(), 100);
         } else {
           if (full === confirmPin) {
-            try { localStorage.setItem('galaksay_dashboard_pin', full); } catch {}
-            onSuccess?.();
+            // PIN'i hash'leyerek sakla — düz metin değil
+            hashPin(full).then(h => {
+              try { localStorage.setItem('galaksay_dashboard_pin', h); } catch {}
+              onSuccess?.();
+            });
           } else {
             setError('PIN eşleşmedi, tekrar dene');
             setPin(['', '', '', '']);
@@ -239,13 +247,15 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
       } else {
         let savedPin;
         try { savedPin = localStorage.getItem('galaksay_dashboard_pin'); } catch {}
-        if (full === savedPin) {
-          onSuccess?.();
-        } else {
-          setError('Yanlış PIN');
-          setPin(['', '', '', '']);
-          setTimeout(() => inputRefs[0].current?.focus(), 100);
-        }
+        verifyPin(full, savedPin).then(ok => {
+          if (ok) {
+            onSuccess?.();
+          } else {
+            setError('Yanlış PIN');
+            setPin(['', '', '', '']);
+            setTimeout(() => inputRefs[0].current?.focus(), 100);
+          }
+        });
       }
     }
   };
@@ -347,9 +357,73 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
   const [highContrast, setHighContrast] = useState(() => load('high_contrast', false));
   const [reducedMotion, setReducedMotion] = useState(() => load('reduced_motion', false));
   const [colorBlindMode, setColorBlindMode] = useState(() => load('color_blind', 'off'));
+  const [dyslexicFont, setDyslexicFont] = useState(() => load('dyslexic_font', false));
 
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [pinMode, setPinMode] = useState('verify'); // 'verify' | 'setup'
+
+  // KVKK / Gizlilik
+  const [parentalGateOpen, setParentalGateOpen] = useState(false);
+  const [pendingPrivacyAction, setPendingPrivacyAction] = useState(null); // 'export' | 'erase' | 'revoke'
+  const [confirmEraseOpen, setConfirmEraseOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [consentSnapshot, setConsentSnapshot] = useState(() => loadConsent());
+
+  const requestPrivacyAction = useCallback((action) => {
+    setPendingPrivacyAction(action);
+    setParentalGateOpen(true);
+  }, []);
+
+  // Merkezi senkron rızasını aç/kapat (çocuk oyun verisinin getnumap.com'a aktarımı).
+  const toggleDataSync = useCallback(() => {
+    const cur = loadConsent() || { dataProcessing: true, analytics: false, decision: 'accept' };
+    const next = !cur.dataSync;
+    saveConsent({ ...cur, dataSync: next });
+    setConsentSnapshot(loadConsent());
+    setStatusMessage(next
+      ? 'Merkezi senkron açıldı — sonraki oturumlar getnumap.com sunucusuna aktarılacak.'
+      : 'Merkezi senkron kapatıldı — veriler yalnızca cihazda kalır.');
+  }, []);
+
+  const handlePrivacyConfirmed = useCallback(async () => {
+    setParentalGateOpen(false);
+    const action = pendingPrivacyAction;
+    setPendingPrivacyAction(null);
+    if (!action) return;
+
+    if (action === 'export') {
+      setBusy(true);
+      setStatusMessage('Veri dışa aktarılıyor…');
+      try {
+        await exportAllData();
+        setStatusMessage('Veri dosyası indirildi.');
+      } catch {
+        setStatusMessage('Dışa aktarma başarısız.');
+      }
+      setBusy(false);
+    } else if (action === 'erase') {
+      setConfirmEraseOpen(true);
+    } else if (action === 'revoke') {
+      saveConsent({ dataProcessing: false, analytics: false, decision: 'revoked' });
+      setConsentSnapshot(loadConsent());
+      setStatusMessage('Açık rıza geri çekildi.');
+    }
+  }, [pendingPrivacyAction]);
+
+  const handleEraseConfirmed = useCallback(async () => {
+    setConfirmEraseOpen(false);
+    setBusy(true);
+    setStatusMessage('Tüm veri siliniyor…');
+    try {
+      await eraseAllData();
+      setStatusMessage('Veri silindi. Uygulama yeniden başlatılıyor.');
+      setTimeout(() => window.location.reload(), 1200);
+    } catch {
+      setStatusMessage('Silme başarısız oldu.');
+      setBusy(false);
+    }
+  }, []);
 
   // PIN korumalı dashboard erişimi
   const handleDashboardAccess = useCallback(() => {
@@ -463,6 +537,12 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
           <SettingRow label="Büyük metin" description="Tüm yazıları %130 büyütür" checked={largeText} onChange={toggle(setLargeText, 'large_text')} />
           <SettingRow label="Yüksek kontrast" checked={highContrast} onChange={toggle(setHighContrast, 'high_contrast')} />
           <SettingRow label="Azaltılmış hareket" description="Dekoratif animasyonları kapatır" checked={reducedMotion} onChange={toggle(setReducedMotion, 'reduced_motion')} />
+          <SettingRow
+            label="Disleksi-dostu font"
+            description="Atkinson Hyperlegible — harf karışmalarını azaltır"
+            checked={dyslexicFont}
+            onChange={toggle(setDyslexicFont, 'dyslexic_font')}
+          />
           <SettingSegment
             label="Renk körlüğü modu"
             options={[
@@ -480,8 +560,46 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
         {/* Profil */}
         <Section icon={'\uD83D\uDC64'} title="Profil">
           <SettingLink label="Profil düzenle" onClick={() => {}} />
-          <SettingLink label="NuMap bağlantısı" onClick={() => {}} />
-          <SettingLink label="Veriyi dışa aktar" onClick={() => {}} last />
+          <SettingLink label="Numap bağlantısı" onClick={() => {}} last />
+        </Section>
+
+        {/* Önerilen Çalışma Süresi (Dosage) */}
+        <Section icon={'⏱️'} title="Önerilen Çalışma Süresi">
+          <div style={{ padding: '14px 16px', fontSize: 13, lineHeight: 1.6, color: colors.text.secondary, fontFamily: typography.fontFamily.display }}>
+            Diskalkuli müdahalesinde araştırmaya dayalı genel öneri:
+            {' '}<strong style={{ color: colors.text.primary }}>haftada 3 oturum × 15-20 dakika</strong>
+            {' '}(toplam 45-60 dk/hafta), en az
+            {' '}<strong style={{ color: colors.text.primary }}>8-12 hafta</strong> sürdürmek anlamlı kazanç için tipik aralıktır
+            {' '}(Dowker, 2018; Käser et al., 2013).
+            <div style={{ marginTop: 8, fontSize: 12, color: colors.text.tertiary }}>
+              Bu öneri yaş, başlangıç düzeyi ve dikkat süresine göre uzman tarafından kişiselleştirilmelidir.
+            </div>
+          </div>
+        </Section>
+
+        {/* Gizlilik & Veri Yönetimi (KVKK md.11) */}
+        <Section icon={'🔒'} title="Gizlilik ve Veri">
+          <div style={{ padding: '12px 16px', fontSize: 12, color: colors.text.tertiary, lineHeight: 1.5, fontFamily: typography.fontFamily.display }}>
+            Açık rıza:
+            <strong style={{
+              color: consentSnapshot?.decision === 'accept' ? colors.feedback.success : colors.accent.tertiary,
+              marginLeft: 4,
+            }}>
+              {consentSnapshot?.decision === 'accept' ? 'Verildi' : consentSnapshot?.decision === 'revoked' ? 'Geri çekildi' : 'Verilmedi'}
+            </strong>
+            {consentSnapshot?.grantedAt && (
+              <span style={{ marginLeft: 8 }}>· {new Date(consentSnapshot.grantedAt).toLocaleDateString('tr-TR')}</span>
+            )}
+          </div>
+          <SettingLink label={`Merkezi senkron (sunucuya aktarım): ${consentSnapshot?.dataSync ? '🟢 Açık' : '⚪ Kapalı'}`} onClick={toggleDataSync} />
+          <SettingLink label="Verileri dışa aktar (JSON)" onClick={() => requestPrivacyAction('export')} />
+          <SettingLink label="Açık rızayı geri çek" onClick={() => requestPrivacyAction('revoke')} />
+          <SettingLink label="Tüm veriyi sil" onClick={() => requestPrivacyAction('erase')} last />
+          {statusMessage && (
+            <div role="status" aria-live="polite" style={statusBox}>
+              {busy ? '⏳ ' : '✓ '}{statusMessage}
+            </div>
+          )}
         </Section>
 
         {/* Ebeveyn/Öğretmen Erişimi */}
@@ -497,6 +615,39 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
           mode={pinMode}
         />
 
+        {/* Gizlilik işlemleri için Ebeveyn Kapısı */}
+        <ParentalGate
+          open={parentalGateOpen}
+          onClose={() => { setParentalGateOpen(false); setPendingPrivacyAction(null); }}
+          onSuccess={handlePrivacyConfirmed}
+          reason={
+            pendingPrivacyAction === 'export' ? 'Verileriniz indirilecek.' :
+            pendingPrivacyAction === 'erase' ? 'Tüm veriler kalıcı olarak silinecek.' :
+            pendingPrivacyAction === 'revoke' ? 'Açık rıza geri çekilecek.' :
+            null
+          }
+        />
+
+        {/* Tehlikeli işlem için ek onay */}
+        <Modal
+          open={confirmEraseOpen}
+          onClose={() => setConfirmEraseOpen(false)}
+          title="Tüm veriyi silmek üzeresiniz"
+          maxWidth={420}
+        >
+          <p style={{ color: colors.text.secondary, fontSize: 14, lineHeight: 1.6, margin: '0 0 16px' }}>
+            Bu işlem profili, oturum geçmişini, ilerlemeyi ve tarama sonuçlarını <strong style={{ color: colors.text.primary }}>kalıcı olarak siler</strong>. Geri alınamaz. Devam etmeden önce verilerinizi dışa aktarmayı düşünebilirsiniz.
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={() => setConfirmEraseOpen(false)} style={dialogButtonStyle('secondary')}>
+              Vazgeç
+            </button>
+            <button type="button" onClick={handleEraseConfirmed} style={dialogButtonStyle('danger')}>
+              Evet, sil
+            </button>
+          </div>
+        </Modal>
+
         {/* Hakkında */}
         <Section icon={'\u2139\uFE0F'} title="Hakkında">
           <SettingLink label="Versiyon" value={version} />
@@ -507,10 +658,10 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
             padding: '10px 16px',
             borderTop: `1px solid ${colors.surface.divider}`,
             fontSize: 12,
-            color: colors.text.disabled,
+            color: colors.text.tertiary,
             textAlign: 'center',
           }}>
-            © Diskalkuli Derneği — MEB 2024 Türkiye Yüzyılı Maarif Modeli Uyumlu
+            © Galaksay — MEB 2024 Türkiye Yüzyılı Maarif Modeli Uyumlu
           </div>
         </Section>
 

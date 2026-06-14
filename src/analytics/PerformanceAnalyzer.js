@@ -49,7 +49,7 @@ function linearRegression(values) {
     ssTot += (values[i] - yMean) ** 2;
   }
   const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot;
-  return { slope, confidence: Math.abs(r2) };
+  return { slope, confidence: Math.max(0, r2) };
 }
 
 // ── DOĞRULUK METRİKLERİ ──────────────────────

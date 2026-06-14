@@ -1,12 +1,12 @@
-// GalakSay Pro — 2026-03-20 — Reduced motion hook
-// Hem sistem tercihi hem uygulama ayarını birleştirir
+// @ts-check
+// GalakSay Pro — Reduced motion hook (sistem tercihi + uygulama ayarı birleşimi).
 
 import { useState, useEffect } from 'react';
 
 /**
- * useReducedMotion — Animasyon azaltma durumunu döndürür.
- * Hem prefers-reduced-motion media query, hem galaksay_reduced_motion ayarını kontrol eder.
- * Herhangi biri aktifse true döner.
+ * Animasyon azaltma durumunu döndürür.
+ * Hem `prefers-reduced-motion` hem `galaksay_reduced_motion` ayarı kontrol edilir.
+ * @returns {boolean}
  */
 export function useReducedMotion() {
   const [reduced, setReduced] = useState(() => {

@@ -77,7 +77,7 @@ function TopBar({
           <span style={{
             fontSize: 12,
             fontWeight: 800,
-            color: colors.accent.primary,
+            color: colors.accent.primaryLight,
             background: `${colors.accent.primary}15`,
             padding: '2px 8px',
             borderRadius: 6,

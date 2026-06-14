@@ -1,5 +1,5 @@
-// GalakSay Pro — 2026-03-19 — Öğretmen/Ebeveyn Dashboard Ana Ekranı (DS entegrasyonu)
-import React, { useEffect, useState, useCallback } from 'react';
+// GalakSay Pro — Öğretmen/Ebeveyn Dashboard. Recharts lazy yüklenir (~536 KB initial bundle azaltma).
+import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { getFullPerformanceProfile, CATEGORIES } from '../analytics/PerformanceAnalyzer.js';
 import { getCurrentLTLevels, getLearningMap } from '../analytics/LTProgressEngine.js';
@@ -8,13 +8,29 @@ import { getStrengthWeaknessProfile, CATEGORY_LABELS } from '../analytics/Streng
 import { generateRecommendations } from '../analytics/RecommendationEngine.js';
 import { getAlertsByChild, markAlertRead, getSessionsByChild, getChildProfile } from '../analytics/database.js';
 import { getDailySummaries } from '../analytics/database.js';
-import { generatePDFReport } from '../analytics/PDFReportGenerator.js';
 import SummaryCard from '../components/analytics/SummaryCard.jsx';
 import CategoryTable from '../components/analytics/CategoryTable.jsx';
-import TrendLineChart from '../components/analytics/TrendLineChart.jsx';
-import RadarChartComponent from '../components/analytics/RadarChart.jsx';
 import AlertList from '../components/analytics/AlertList.jsx';
 import CategoryDetail from './CategoryDetail.jsx';
+
+// Recharts ağırdır (~536 KB) — yalnızca grafik render edileceğinde indirilsin.
+const TrendLineChart = lazy(() => import('../components/analytics/TrendLineChart.jsx'));
+const RadarChartComponent = lazy(() => import('../components/analytics/RadarChart.jsx'));
+// PDF üreteci html2canvas+jsPDF içerir (~584 KB) — kullanıcı düğmeye basana kadar yüklenmesin.
+const generatePDFReportLazy = () => import('../analytics/PDFReportGenerator.js').then(m => m.generatePDFReport);
+
+// Suspense fallback — chart yüklenirken küçük bir placeholder
+function ChartLoader({ height = 300 }) {
+  return (
+    <div style={{
+      width: '100%', height,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: '#a8b2d1', fontSize: 13, opacity: 0.6,
+    }}>
+      Grafik yükleniyor…
+    </div>
+  );
+}
 import { colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
 import { spacing, layout } from '../design-system/spacing.js';
@@ -22,7 +38,7 @@ import { Button } from '../design-system/components/Button.jsx';
 import { Card } from '../design-system/components/Card.jsx';
 import { Skeleton } from '../design-system/components/Skeleton.jsx';
 
-const VIEWS = { OVERVIEW: 'overview', CATEGORY: 'category', NUMAP: 'numap' };
+const VIEWS = { OVERVIEW: 'overview', CATEGORY: 'category', Numap: 'numap' };
 
 export default function Dashboard({ childId, onBack }) {
   const [view, setView] = useState(VIEWS.OVERVIEW);
@@ -132,7 +148,7 @@ export default function Dashboard({ childId, onBack }) {
   const totalTimeMs = sessions.reduce((s, x) => s + (x.durationMs || 0), 0);
   const avgSessionMin = totalSessions > 0 ? Math.round(totalTimeMs / totalSessions / 60000) : 0;
   const lastSessionDate = sessions.length > 0
-    ? new Date(sessions.sort((a, b) => new Date(b.startTime) - new Date(a.startTime))[0].startTime)
+    ? new Date([...sessions].sort((a, b) => new Date(b.startTime) - new Date(a.startTime))[0].startTime)
     : null;
   const daysAgo = lastSessionDate ? Math.round((Date.now() - lastSessionDate.getTime()) / 86400000) : null;
 
@@ -168,6 +184,7 @@ export default function Dashboard({ childId, onBack }) {
           onClick={async () => {
             setPdfGenerating(true);
             try {
+              const generatePDFReport = await generatePDFReportLazy();
               await generatePDFReport(childId);
             } catch (err) {
               console.error('PDF generation error:', err);
@@ -183,14 +200,14 @@ export default function Dashboard({ childId, onBack }) {
         {/* Çocuk kimlik kartı */}
         <div style={cardStyle}>
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: colors.gradient.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: colors.gradient.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
               👨‍🚀
             </div>
-            <div>
+            <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
               <div style={{ color: colors.text.primary, fontWeight: typography.fontWeight.bold, fontSize: 15, fontFamily: typography.fontFamily.display }}>{childInfo?.name || 'Uzay Kâşifi'}</div>
               <div style={{ color: colors.text.secondary, fontSize: typography.fontSize.xs }}>
                 {childInfo?.gradeLevel ? `${childInfo.gradeLevel}. sınıf` : ''}
-                {childInfo?.nuMapRiskLevel ? ` | NuMap Risk: ${childInfo.nuMapRiskLevel}` : ''}
+                {childInfo?.nuMapRiskLevel ? ` | Numap Risk: ${childInfo.nuMapRiskLevel}` : ''}
                 {risk ? ` → Güncel: ${risk.overallRisk}` : ''}
               </div>
               <div style={{ color: colors.text.tertiary, fontSize: 11, marginTop: 2 }}>
@@ -207,7 +224,7 @@ export default function Dashboard({ childId, onBack }) {
           <SummaryCard
             title="Doğruluk"
             value={`%${Math.round((profile?.overallAccuracy || 0) * 100)}`}
-            trend="up"
+            trend={(profile?.overallAccuracy || 0) >= 0.6 ? 'up' : (profile?.overallAccuracy || 0) >= 0.4 ? 'stable' : 'down'}
             icon="🎯"
             color={colors.accent.secondary}
           />
@@ -221,7 +238,7 @@ export default function Dashboard({ childId, onBack }) {
           <SummaryCard
             title="Risk"
             value={`Düzey ${risk?.overallRisk || '?'}`}
-            trend={risk?.overallRisk <= 3 ? 'down' : 'up'}
+            trend={risk?.overallRisk <= 3 ? 'up' : 'down'}
             subtitle={risk?.overallRisk <= 3 ? 'iyi' : 'dikkat'}
             icon="🛡️"
             color={risk?.overallRisk <= 3 ? colors.feedback.success : colors.accent.tertiary}
@@ -251,18 +268,22 @@ export default function Dashboard({ childId, onBack }) {
 
         {/* Radar grafik */}
         <div style={{ ...cardStyle, marginBottom: spacing[4] }}>
-          <RadarChartComponent data={radarData} title="Performans Profili" />
+          <Suspense fallback={<ChartLoader height={350} />}>
+            <RadarChartComponent data={radarData} title="Performans Profili" />
+          </Suspense>
         </div>
 
         {/* Trend grafik */}
         {trendData.length > 1 && (
           <div style={{ ...cardStyle, marginBottom: spacing[4] }}>
-            <TrendLineChart
-              data={trendData}
-              lines={CATEGORIES.filter(c => trendData.some(d => d[c] != null)).map(c => ({ key: c, label: CATEGORY_LABELS[c] }))}
-              title="Doğruluk Trendi (Son 30 Gün)"
-              xKey="date"
-            />
+            <Suspense fallback={<ChartLoader height={300} />}>
+              <TrendLineChart
+                data={trendData}
+                lines={CATEGORIES.filter(c => trendData.some(d => d[c] != null)).map(c => ({ key: c, label: CATEGORY_LABELS[c] }))}
+                title="Doğruluk Trendi (Son 30 Gün)"
+                xKey="date"
+              />
+            </Suspense>
           </div>
         )}
 

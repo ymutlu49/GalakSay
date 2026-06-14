@@ -1,0 +1,48 @@
+{
+  "source": "numap",
+  "version": "1.0",
+  "child": {
+    "name": "Test Çocuk Ahmet",
+    "code": "TEST_AHMET_001",
+    "age": 7,
+    "grade": 1
+  },
+  "assessment": {
+    "numberSense": {
+      "score": 38,
+      "level": "low"
+    },
+    "arithmetic": {
+      "score": 28,
+      "level": "low"
+    },
+    "workingMemory": {
+      "score": 62,
+      "level": "medium"
+    },
+    "overallRisk": "high"
+  },
+  "priority": [
+    {
+      "area": "arithmetic",
+      "modes": ["addChips", "removeChips", "makeFive", "addition"]
+    },
+    {
+      "area": "numberSense",
+      "modes": ["counting", "subitizing", "fivesFrame"]
+    }
+  ],
+  "secondary": [
+    {
+      "area": "workingMemory",
+      "modes": ["comparison", "beforeAfter"]
+    }
+  ],
+  "strengths": ["workingMemory"],
+  "weeklyPlan": [
+    { "week": 1, "focus": "Sayma temeli", "modes": ["counting", "subitizing"] },
+    { "week": 2, "focus": "5 yapısı", "modes": ["fivesFrame", "makeFive"] },
+    { "week": 3, "focus": "Toplama girişi", "modes": ["addChips", "addition"] }
+  ],
+  "timestamp": "2026-04-30T12:00:00Z"
+}

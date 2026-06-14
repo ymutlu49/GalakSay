@@ -4,7 +4,7 @@ import { CATEGORIES, getOverallAccuracy, getCategoryAccuracy, getAvgHintLevel, g
 import { getCurrentLTLevels, getProgressVelocity } from './LTProgressEngine.js';
 import { getChildProfile } from './database.js';
 
-// NuMap risk düzeyleri: 1 (çok düşük) – 6 (çok yüksek)
+// Numap risk düzeyleri: 1 (çok düşük) – 6 (çok yüksek)
 
 async function calculateRiskLevel(childId) {
   const overallAcc = await getOverallAccuracy(childId);
@@ -89,7 +89,7 @@ function computeOverallRisk(accuracy, hintLevel, categoryRisks) {
   return Math.round((avgCatRisk * 0.6 + metricRisk * 0.4));
 }
 
-// NuMap başlangıç profili ile karşılaştırma
+// Numap başlangıç profili ile karşılaştırma
 async function compareWithNuMapBaseline(childId) {
   const profile = await getChildProfile(childId);
   if (!profile || !profile.nuMapRiskLevel) {
