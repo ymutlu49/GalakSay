@@ -24,8 +24,29 @@ import {
   clearCachedUser,
   me as numapMe,
   logout as numapLogout,
+  ssoExchange as numapSsoExchange,
   ApiError,
 } from './services/numapApi.js'
+
+// ── NuMap SSO: ?sso=<bilet> ile gelen tek-oturum bileti ──
+// NuMap (getnumap.com) geçiş menüsünden Galaksay'a kısa-ömürlü bir bilet ekler; burada
+// okunur, doğrulanır ve URL'den temizlenir → öğretmen tekrar giriş yapmaz.
+function readSsoTicketFromUrl() {
+  try {
+    return new URLSearchParams(window.location.search).get('sso') || null
+  } catch {
+    return null
+  }
+}
+function stripSsoParam() {
+  try {
+    const url = new URL(window.location.href)
+    url.searchParams.delete('sso')
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash)
+  } catch {
+    /* tarihçe yazılamadı — kritik değil */
+  }
+}
 
 // ═══ PROFESYONEL HATA SINIRI ═══════════════════════════════════════════════
 // Çocuk dostu hata mesajları + hata loglama + kurtarma seçenekleri
@@ -338,9 +359,14 @@ function App() {
   const [splashDone, setSplashDone] = useState(false)
   const [showResume, setShowResume] = useState(true)
 
+  // ── NuMap SSO bileti (yalnız ilk render'da bir kez okunur) ──
+  // URL'de ?sso=<bilet> varsa otomatik giriş denenecek; ekran 'loading'le başlar
+  // (giriş ekranı bir an görünüp kaybolmasın diye).
+  const [ssoTicket] = useState(() => readSsoTicketFromUrl())
+
   // ── Numap öğretmen oturumu ──
-  // Token varsa 'loading' (me() ile doğrulanır); yoksa doğrudan giriş ekranı.
-  const [authStatus, setAuthStatus] = useState(() => (getToken() ? 'loading' : 'unauthed'))
+  // SSO bileti veya token varsa 'loading' (doğrulanır); yoksa doğrudan giriş ekranı.
+  const [authStatus, setAuthStatus] = useState(() => (ssoTicket || getToken() ? 'loading' : 'unauthed'))
   const [teacher, setTeacher] = useState(null)
   // Seçili çocuk: { ns, name, grade, ageMonths, numapProfile, childMeta } | null
   const [selectedChild, setSelectedChild] = useState(null)
@@ -369,9 +395,30 @@ function App() {
     return () => { delete w.galaksayRequireConsent }
   }, [])
 
+  // NuMap SSO: URL'de bilet varsa NuMap'a doğrulatıp otomatik giriş yap. Başarılı →
+  // token + kullanıcı saklanır, oturum açılır. Başarısız (geçersiz/expired bilet) →
+  // mevcut token varsa aşağıdaki me() devralır, yoksa giriş ekranı. Her durumda
+  // bilet URL'den temizlenir (tarayıcı geçmişi/paylaşımla sızmasın).
+  useEffect(() => {
+    if (!ssoTicket) return
+    let active = true
+    numapSsoExchange(ssoTicket)
+      .then(u => { if (active) { setTeacher(u); setAuthStatus('authed') } })
+      .catch(() => {
+        if (!active) return
+        // SSO başarısız → mevcut token yoksa giriş ekranına düş (token varsa me() halleder).
+        if (!getToken()) setAuthStatus('unauthed')
+      })
+      .finally(() => { stripSsoParam() })
+    return () => { active = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Numap soğuk-başlangıç: token varsa /auth/me ile doğrula. Çevrimdışı (ağ hatası +
   // önbellekli kullanıcı) → oturum korunur; 401/403 → token temizle + giriş ekranı.
+  // NOT: SSO bileti varsa bunu ATLA — yukarıdaki SSO efekti oturumu kurar (yarış önlenir).
   useEffect(() => {
+    if (ssoTicket) return
     if (!getToken()) return
     let active = true
     numapMe()

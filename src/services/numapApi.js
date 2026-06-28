@@ -104,6 +104,20 @@ export async function login(email, password) {
   return user;
 }
 
+/**
+ * SSO bilet değişimi: NuMap'ten ?sso=<bilet> ile devredilen kısa-ömürlü bileti
+ * NuMap'a doğrulatır; geçerliyse 30 günlük token + kullanıcı saklanır ve kullanıcı
+ * döner. Böylece öğretmen Galaksay'da TEKRAR giriş yapmadan otomatik oturum açar.
+ * Geçersiz/expired bilet → ApiError (401).
+ */
+export async function ssoExchange(ticket) {
+  const r = await request('POST', '/auth/sso/exchange', { ticket });
+  setToken(r.token);
+  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null };
+  cacheUser(user);
+  return user;
+}
+
 /** Mevcut token'ı doğrular; güncel kullanıcıyı döner ve önbelleği tazeler. 401 → ApiError. */
 export async function me() {
   const r = await request('GET', '/auth/me');
@@ -147,6 +161,7 @@ export async function postGameProgress(batch) {
 
 export default {
   login,
+  ssoExchange,
   me,
   logout,
   getSessions,
