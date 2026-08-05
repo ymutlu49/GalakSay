@@ -189,24 +189,28 @@
       /* ── Hero ── */
       .hero { text-align: center; padding: 48px 0 28px; }
       .hero h1 {
-        font-size: clamp(30px, 6vw, 54px);
+        font-size: clamp(2.15rem, 1.4rem + 3.2vw, 3.6rem);
         font-weight: 900;
-        line-height: 1.12;
+        line-height: 1.04;
         letter-spacing: -0.5px;
-        margin-bottom: 16px;
+        margin-bottom: 1.2rem;
       }
+      /* ABMATO hero stili — düz mor vurgu + altında fosforlu şerit (altın); satır-kaymasına dayanıklı */
       .hero h1 .grad {
-        background: linear-gradient(100deg, #a78bfa, #6366f1 40%, #34d399);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #a78bfa;
+        background-image: linear-gradient(transparent 60%, rgba(255, 217, 61, .30) 60%, rgba(255, 217, 61, .30) 92%, transparent 92%);
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+        padding: 0 .06em;
+        border-radius: 4px;
       }
       .hero p.lead {
-        font-size: clamp(16px, 2.4vw, 20px);
+        font-size: clamp(1.06rem, 1rem + .5vw, 1.3rem);
         color: var(--muted);
         max-width: 640px;
         margin: 0 auto 30px;
         font-weight: 600;
+        line-height: 1.6;
       }
       .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
       .btn {
@@ -326,7 +330,80 @@
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
       }
+      /* HÇMÖ giriş yuvası — nav içi, marka renkli (mor/camgöbeği) */
+      .hcmo-auth{display:inline-flex;align-items:center;gap:4px}
+      .hcmo-auth:empty{display:none}
+      .hcmo-auth a{display:inline-flex;align-items:center;gap:5px;font-weight:800;font-size:14px;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:background .18s,color .18s;color:#c7d2fe;background:rgba(124,58,237,.18);border:1px solid rgba(167,139,250,.4)}
+      .hcmo-auth a:hover{background:rgba(124,58,237,.32);color:#fff}
+      .hcmo-auth a#hcmo-stu{color:#a5f3fc;background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.38)}
+      .hcmo-auth a#hcmo-stu:hover{background:rgba(34,211,238,.26);color:#fff}
+      .hcmo-auth>span{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px;color:#e8eafd}
+      .hcmo-auth .nm{color:#c7d2fe}
+      .hcmo-auth #hcmo-out{cursor:pointer;border:0;border-radius:999px;background:linear-gradient(135deg,var(--purple),var(--indigo));color:#fff;font-weight:800;font-size:13px;padding:7px 13px}
+      .hcmo-auth #hcmo-out:hover{filter:brightness(1.08)}
+      @media (max-width:820px){.hcmo-auth{display:none}}
     </style>
+    <!-- HÇMÖ ortak erişilebilirlik + giriş (chip — içeriği engellemez) -->
+    <script>window.HCMO_GATE_BRAND="Galaksay";window.HCMO_GATE_SUB="Uzay Temalı Matematik Oyunu";window.HCMO_GATE_ACCENT="#7c3aed";window.HCMO_GATE_MODE="chip"</script>
+    <script src="https://hercocukmatematikogrenebilir.com/sso/hcmo-a11y.js?v=2"></script>
+    <script src="https://hercocukmatematikogrenebilir.com/sso/hcmo-gate.js?v=2"></script>
+
+    <!-- Yapılandırılmış veri: uygulama + geliştirici (SEO / AI görünürlüğü) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://galaksay.com/#app",
+          "name": "GalakSay",
+          "alternateName": "Galaksay — Matematik Öğrenme Oyunu",
+          "url": "https://galaksay.com/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Web",
+          "inLanguage": ["tr", "ku"],
+          "isAccessibleForFree": true,
+          "description": "Diskalkuli riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış matematik öğrenme ve müdahale oyunu. Öğrenme yörüngeleri temelli 60+ etkinlik; NuMap tarama platformuyla entegre.",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "author": { "@id": "https://hercocukmatematikogrenebilir.com/yilmaz-mutlu/#person" },
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Her Çocuk Matematik Öğrenebilir",
+            "url": "https://hercocukmatematikogrenebilir.com/"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://hercocukmatematikogrenebilir.com/yilmaz-mutlu/#person",
+          "name": "Yılmaz Mutlu",
+          "honorificPrefix": "Prof. Dr.",
+          "url": "https://hercocukmatematikogrenebilir.com/yilmaz-mutlu/",
+          "jobTitle": "Profesör, Matematik Eğitimi",
+          "worksFor": {
+            "@type": "CollegeOrUniversity",
+            "name": "Muş Alparslan Üniversitesi",
+            "department": "Eğitim Fakültesi"
+          },
+          "knowsAbout": [
+            "diskalkuli (matematik öğrenme güçlüğü)",
+            "matematik kaygısı",
+            "eğitsel sinirbilim",
+            "matematiksel biliş"
+          ],
+          "sameAs": [
+            "https://scholar.google.com/citations?user=lYPwcn4AAAAJ",
+            "https://orcid.org/0000-0002-4265-856X",
+            "https://www.researchgate.net/profile/Yilmaz-Mutlu-2",
+            "https://alparslan.academia.edu/YMutlu",
+            "https://pbs.alparslan.edu.tr/kisi.php?pers_id=488"
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div class="stars" aria-hidden="true"></div>
@@ -412,6 +489,7 @@
           <a class="nav-link" href="#ozellikler">Özellikler</a>
           <a class="nav-link" href="#uclu-kod">Üçlü Kod</a>
           <a class="nav-link" href="#yukle">Yükle</a>
+          <span id="hcmoAuth" class="hcmo-auth"></span>
           <a class="nav-cta" href="/oyna/">Başla</a>
         </nav>
       </div>
@@ -533,7 +611,7 @@
     </main>
 
     <footer>
-      <div class="org">Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır.</div>
+      <div class="org"><a href="https://hercocukmatematikogrenebilir.com/yilmaz-mutlu/" rel="author" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(196,181,253,.45)">Prof. Dr. Yılmaz Mutlu</a> tarafından tasarlanmıştır.</div>
       <div style="margin-top:10px;line-height:1.8">
         <strong style="color:var(--text);font-weight:800">Her Çocuk Matematik Öğrenebilir</strong> platformunun bir parçası<br>
         <a href="https://hercocukmatematikogrenebilir.com" style="color:#c4b5fd;text-decoration:none;font-weight:700">hercocukmatematikogrenebilir.com</a>

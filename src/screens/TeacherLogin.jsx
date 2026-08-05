@@ -74,10 +74,23 @@ const errorBoxStyle = {
   marginBottom: 16,
 };
 
+// Tek-tık NuMap girişi (sso_return çıkış bacağı): getnumap.com köküne tam dönüş
+// URL'iyle gider; orada oturum AÇIKSA numap-out.js kısa-ömürlü bilet üretip
+// ?sso=<bilet> ile buraya geri yollar (main.jsx bileti tüketir → sıfır şifre).
+// Oturum yoksa NuMap giriş sayfası açılır — öğretmen orada girip aynı yoldan döner.
+// NOT: allowlist (numap-out.js HOSTS) galaksay.com'u içerir; localhost'ta düğme
+// yalnız NuMap'i açar (geri sıçrama üretimde çalışır).
+function goNumapSso() {
+  try {
+    window.location.href = 'https://getnumap.com/?sso_return=' + encodeURIComponent(window.location.href);
+  } catch { /* yönlendirilemedi */ }
+}
+
 export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onBack }) {
   const [tab, setTab] = useState('numap'); // 'numap' | 'local'
 
   // ── Numap ──
+  const [showPwForm, setShowPwForm] = useState(false); // e-posta+şifre formu (ikincil, katlı)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -251,53 +264,68 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
 
         {tab === 'numap' ? (
           <>
-            <div style={{ marginBottom: 16 }}>
-              <label htmlFor="teacher-email" style={labelStyle}>E-posta</label>
-              <input
-                id="teacher-email"
-                type="email"
-                inputMode="email"
-                autoComplete="username"
-                autoCapitalize="none"
-                spellCheck={false}
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={onNumapKey}
-                placeholder="ornek@okul.edu.tr"
-                style={inputStyle}
-              />
-            </div>
-            <div style={{ marginBottom: 20 }}>
-              <label htmlFor="teacher-password" style={labelStyle}>Şifre</label>
-              <PasswordInput
-                id="teacher-password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={onNumapKey}
-                placeholder="••••••••"
-                style={inputStyle}
-              />
-            </div>
-            {error && (
-              <div role="alert" style={{ background: colors.feedback.errorGlow, border: `1px solid ${colors.feedback.error}`, color: colors.text.primary, borderRadius: layout.borderRadius.md, padding: '10px 14px', fontSize: 14, fontWeight: 600, fontFamily: F, marginBottom: 16 }}>
-                {error}
-              </div>
-            )}
-            <Button variant="primary" size="lg" full loading={loading} onClick={handleNumap}>
-              Giriş Yap
+            {/* Birincil yol: tek-tık SSO — NuMap'te oturum açıksa şifre YENİDEN yazılmaz */}
+            <Button variant="primary" size="lg" full onClick={goNumapSso}>
+              🚀 NuMap ile giriş yap
             </Button>
-            {/* Ölü uç bırakma (NN/g): şifre sıfırlama Numap platformunda — net yol göster */}
-            <a
-              href="https://getnumap.com"
-              target="_blank"
-              rel="noreferrer"
-              style={{ ...linkBtnStyle, textDecoration: 'none' }}
-            >
-              Şifremi unuttum — getnumap.com'da sıfırla ↗
-            </a>
-            <p style={{ margin: '6px 0 0', fontSize: 12, lineHeight: 1.5, color: colors.text.tertiary, fontFamily: F, textAlign: 'center' }}>
+            <p style={{ margin: '8px 0 0', fontSize: 12.5, lineHeight: 1.5, color: colors.text.secondary, fontFamily: F, textAlign: 'center' }}>
+              NuMap'te oturumunuz açıksa tek dokunuşla girersiniz; değilse önce
+              NuMap girişi açılır, ardından otomatik buraya dönersiniz.
+            </p>
+            <button type="button" onClick={() => setShowPwForm((v) => !v)} style={linkBtnStyle}>
+              {showPwForm ? 'E-posta formunu gizle ▲' : 'E-posta ve şifreyle gir ▼'}
+            </button>
+            {showPwForm && (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <label htmlFor="teacher-email" style={labelStyle}>E-posta</label>
+                  <input
+                    id="teacher-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={onNumapKey}
+                    placeholder="ornek@okul.edu.tr"
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ marginBottom: 20 }}>
+                  <label htmlFor="teacher-password" style={labelStyle}>Şifre</label>
+                  <PasswordInput
+                    id="teacher-password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={onNumapKey}
+                    placeholder="••••••••"
+                    style={inputStyle}
+                  />
+                </div>
+                {error && (
+                  <div role="alert" style={{ background: colors.feedback.errorGlow, border: `1px solid ${colors.feedback.error}`, color: colors.text.primary, borderRadius: layout.borderRadius.md, padding: '10px 14px', fontSize: 14, fontWeight: 600, fontFamily: F, marginBottom: 16 }}>
+                    {error}
+                  </div>
+                )}
+                <Button variant="secondary" size="lg" full loading={loading} onClick={handleNumap}>
+                  Giriş Yap
+                </Button>
+                {/* Ölü uç bırakma (NN/g): şifre sıfırlama Numap platformunda — net yol göster */}
+                <a
+                  href="https://getnumap.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ ...linkBtnStyle, textDecoration: 'none' }}
+                >
+                  Şifremi unuttum — getnumap.com'da sıfırla ↗
+                </a>
+              </>
+            )}
+            <p style={{ margin: '10px 0 0', fontSize: 12, lineHeight: 1.5, color: colors.text.tertiary, fontFamily: F, textAlign: 'center' }}>
               Numap hesabınız yoksa getnumap.com'da ücretsiz oluşturabilir ya da
               "Yerel Hesap" sekmesiyle bu cihazda internetsiz çalışabilirsiniz.
             </p>

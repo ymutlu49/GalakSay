@@ -130,7 +130,7 @@ function isoTs(t) {
  *   anonymous=true → ham childKey + ad + doğum tarihi çıkarılır, pseudoId kalır.
  * @returns {Promise<{events:number, sessions:number, daily:number, children:number}>}
  */
-export async function exportAcademicCSV({ childId = null, anonymous = false } = {}) {
+export async function exportAcademicCSV({ childId = null, childIds = null, anonymous = false } = {}) {
   const [events, sessions, daily, profiles] = await Promise.all([
     getAllFromStore('game_events'),
     getAllFromStore('game_sessions'),
@@ -138,7 +138,11 @@ export async function exportAcademicCSV({ childId = null, anonymous = false } = 
     getAllFromStore('child_profiles'),
   ]);
 
-  const keep = (cid) => !childId || cid === childId;
+  // childIds (roster kapsamı) verilirse YALNIZ o çocuklar paketlenir — cihazdaki tüm
+  // child_profiles'ı dökmek paylaşılan cihazda başka kullanıcının öğrencilerini
+  // sızdırıyordu (2026-08-05). childId (tek çocuk) eski davranışıyla korunur.
+  const idSet = Array.isArray(childIds) ? new Set(childIds) : null;
+  const keep = (cid) => (childId ? cid === childId : idSet ? idSet.has(cid) : true);
   const fEvents = events.filter((e) => keep(e.childId) && e.eventType === 'question_answered');
   const fSessions = sessions.filter((s) => keep(s.childId));
   const fDaily = daily.filter((d) => keep(d.childId));

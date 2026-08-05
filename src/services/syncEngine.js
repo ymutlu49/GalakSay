@@ -10,7 +10,7 @@
 // alınır, sonra (açılış / online) otomatik gönderilir.
 
 import { isDataSyncEnabled } from '../utils/consent.js';
-import { postGameProgress, getToken } from './numapApi.js';
+import { postGameProgress, getToken, ApiError } from './numapApi.js';
 import {
   getSessionsByChild,
   getEventsByChildAndType,
@@ -141,7 +141,15 @@ export async function syncChild(ns) {
     return { sent: total };
   } catch (e) {
     dbg('HATA ✗', String(e?.message || e));
-    enqueue(ns); // ağ/sunucu hatası → sonra tekrar dene (idempotent)
+    // Hata ayrımı (2026-08-05): 401/403 = oturum dolmuş → kuyruğu KORU (sonraki
+    // girişte flushQueue gönderir); diğer 4xx = kalıcı istemci hatası (ör. şema
+    // uyumsuzluğu) → kuyruğa ALMA (sonsuz yeniden deneme döngüsü olmasın);
+    // ağ/5xx → kuyruğa al, sonra tekrar dene (idempotent).
+    if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 403) {
+      dequeue(ns);
+      return { error: String(e?.message || e), permanent: true };
+    }
+    enqueue(ns);
     return { error: String(e?.message || e) };
   }
 }

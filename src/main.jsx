@@ -1,5 +1,5 @@
-// GalakSay Pro — 2026-03-19 — Uygulama giriş noktası + SplashScreen + ErrorBoundary + Onboarding + SessionResume + OfflineIndicator
-// Lazy loading: Onboarding ve Game ayrı chunk'larda yüklenir
+// GalakSay Pro — Uygulama giriş noktası + SplashScreen + ErrorBoundary + SessionResume + OfflineIndicator
+// Lazy loading: ekranlar ve Game ayrı chunk'larda yüklenir
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { SplashScreen } from './design-system/components/SplashScreen.jsx'
@@ -397,8 +397,10 @@ function App() {
 
   // NuMap SSO: URL'de bilet varsa NuMap'a doğrulatıp otomatik giriş yap. Başarılı →
   // token + kullanıcı saklanır, oturum açılır. Başarısız (geçersiz/expired bilet) →
-  // mevcut token varsa aşağıdaki me() devralır, yoksa giriş ekranı. Her durumda
-  // bilet URL'den temizlenir (tarayıcı geçmişi/paylaşımla sızmasın).
+  // mevcut token BURADA doğrulanır (aşağıdaki me() efekti ssoTicket varken atlanır —
+  // 2026-08-05 düzeltmesi: eski kod bu durumda authStatus'u 'loading'de bırakıyor,
+  // süresi dolmuş biletle gelen öğretmen sonsuz "Yükleniyor" ekranında kalıyordu).
+  // Her durumda bilet URL'den temizlenir (tarayıcı geçmişi/paylaşımla sızmasın).
   useEffect(() => {
     if (!ssoTicket) return
     let active = true
@@ -406,8 +408,20 @@ function App() {
       .then(u => { if (active) { setTeacher(u); setAuthStatus('authed') } })
       .catch(() => {
         if (!active) return
-        // SSO başarısız → mevcut token yoksa giriş ekranına düş (token varsa me() halleder).
-        if (!getToken()) setAuthStatus('unauthed')
+        if (!getToken()) { setAuthStatus('unauthed'); return }
+        // Bilet geçersiz ama eski token var → me() ile doğrula (me() efektiyle aynı mantık).
+        numapMe()
+          .then(u => { if (active) { setTeacher(u); setAuthStatus('authed') } })
+          .catch(e => {
+            if (!active) return
+            const authFailed = e instanceof ApiError && (e.status === 401 || e.status === 403)
+            const cached = readCachedUser()
+            if (!authFailed && cached) { setTeacher(cached); setAuthStatus('authed') }
+            else {
+              if (authFailed) { clearToken(); clearCachedUser() }
+              setAuthStatus('unauthed')
+            }
+          })
       })
       .finally(() => { stripSsoParam() })
     return () => { active = false }
@@ -444,6 +458,9 @@ function App() {
     window.addEventListener('online', flush)
     return () => window.removeEventListener('online', flush)
   }, [])
+
+  // HÇMÖ: portaldan çocuk-SSO ile (#hcmo_student=) gelinmişse push kimliğini yakala (bir kez).
+  useEffect(() => { import('./services/portalBridge.js').then(m => m.capturePortalStudent()).catch(() => {}) }, [])
 
   const handleLoginSuccess = useCallback((u) => { setTeacher(u); setAuthStatus('authed') }, [])
   const handleSelectChild = useCallback((child) => { setSelectedChild(child); setShowResume(true) }, [])

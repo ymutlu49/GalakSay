@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MODE_STORIES, getModeStory, setStoryLang, SPACE_EVENTS, getRandomSpaceEvent, CAPTAINS_LOG, ALIEN_ARTIFACTS, suggestNextArtifact, MISSION_ARC, TRANSITION_MESSAGES, CREW_DIALOGUES, PLANET_LORE, DAILY_MOTIVATION, getDailyMotivation, PLANET_WELCOME_SCENES, SHIP_UPGRADES, MATH_INSIGHT_EXTRAS, MISSION_COMPLETION_CELEBRATIONS, MATH_WONDER_FACTS, ACHIEVEMENT_CELEBRATIONS, SPACE_EVENT_DIALOGUES, CONTEXTUAL_LOG_NOTES, getStrategyReflection, PLANET_TRANSITION_STORIES } from "./src/data/modeStories.js";
 import { NumapProfile, RISK_LEVEL_MAP, SUPPORT_LEVELS } from "./src/systems/numapProfile.js";
 import { HintManager, HINT_LEVELS } from "./src/systems/hintManager.js";
-import { PerformanceLogger, createQuestionLog } from "./src/systems/performanceLogger.js";
 import { createFluencySession, recordFluencyAnswer, adjustFluencyDifficulty, getFluencySummary, getStreakReward, PersonalRecords, getTimerColor } from "./src/systems/fluencyEngine.js";
 import { MODE_ANIM_MAP, ANIM_DEFAULTS, getAnimSpeed } from "./src/systems/animationTemplates.js";
 import { TripleCodingLayer, ConcreteLayer, VisualLayer, SymbolicLayer, getVisualModelForMode } from "./src/components/math/TripleCodingLayer.jsx";
@@ -6901,11 +6900,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
   // ═══ AUTH & ADVANCED FEATURES ═══
   const [currentUser, setCurrentUser] = useState(child ? { username: child.ns, role: "student", displayName: child.name } : null); // {username, role, displayName}
-  const [authMode, setAuthMode] = useState("login"); // "login" | "register"
-  const [showPw, setShowPw] = useState(false); // şifre görünürlük toggle
-  const [authError, setAuthError] = useState("");
-  const [authFields, setAuthFields] = useState({ username: "y.mutlu@alparslan.edu.tr", password: "dokunsay2025", displayName: "", role: "student" });
-  const [rememberMe, setRememberMe] = useState(true);
+  const [showPw, setShowPw] = useState(false); // şifre görünürlük toggle (admin panelindeki yeni-kullanıcı alanı)
   const [aiReport, setAiReport] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [adminTab, setAdminTab] = useState("users");
@@ -7087,11 +7082,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         if (lvl) setLevel(parseInt(lvl, 10) || 1);
         setNumapProfile({ source: "deeplink", modes: modes ? modes.split(",") : [], start: start, level: lvl });
       }
-      // localStorage'dan Numap plan kontrol
-      const keys = Object.keys(localStorage).filter(k => k.startsWith("numap_intervention_"));
-      if (keys.length > 0) {
-        const latest = keys.sort().pop();
-        const plan = SafeStorage.getJSON(latest);
+      // localStorage'dan Numap plan kontrol — YALNIZ aktif çocuğun (child.ns) anahtarı.
+      // (2026-08-05: eski kod TÜM numap_intervention_* anahtarlarını tarayıp alfabetik
+      // sonuncuyu uyguluyordu → paylaşılan cihazda BAŞKA çocuğun planı yükleniyordu.)
+      if (child?.ns) {
+        const plan = SafeStorage.getJSON("numap_intervention_" + child.ns);
         if (plan) {
           const validated = NumapProfile.validate(plan);
           if (validated) {
@@ -7122,7 +7117,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const validated = NumapProfile.validate(plan);
       if (validated) {
         applyNumapProfile(validated);
-        const childKey = validated.child?.code || "imported";
+        // Anahtar AKTİF ÇOCUĞUN ns'i — plan dosyasındaki child.code değil (2026-08-05:
+        // code-anahtarlı yazım, mount okumasının başka çocuğa plan uygulamasına yol açıyordu).
+        const childKey = child?.ns || validated.child?.code || "imported";
         SafeStorage.set("numap_intervention_" + childKey, JSON.stringify(validated));
         return true;
       }
@@ -7136,20 +7133,22 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       if (plan.priority?.length > 0 && plan.priority[0].modes?.[0]) {
         setNumapStartMode(plan.priority[0].modes[0]);
       }
-      const childKey = plan.child?.code || "imported";
+      const childKey = child?.ns || plan.child?.code || "imported";
       SafeStorage.set("numap_intervention_" + childKey, JSON.stringify(plan));
       return true;
     } catch (e) { console.warn("Numap plan import error:", e); return false; }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [child]);
 
   // Manuel Numap profil oluşturma fonksiyonu
   const createManualProfile = useCallback(({ name, risk, weakAreas, strongAreas }) => {
     const profile = NumapProfile.createManual({ name, risk, weakAreas, strongAreas });
     applyNumapProfile(profile);
-    const childKey = profile.child?.code || "manual";
+    const childKey = child?.ns || profile.child?.code || "manual";
     SafeStorage.set("numap_intervention_" + childKey, JSON.stringify(profile));
     return profile;
-  }, [applyNumapProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applyNumapProfile, child]);
 
   // 2026-04-30 KVKK düzeltmesi: Numap planını gerçekten kaldır
   // — React state'i temizlemekle KALMAZ, localStorage'dan da siler
@@ -7157,17 +7156,19 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // — Onay isteğe bağlı; UI tarafında confirm() ile sorulması beklenir
   const removeNumapPlan = useCallback((childCode) => {
     try {
-      const code = childCode || numapProfile?.child?.code;
+      const code = childCode || numapProfile?.child?.code || child?.ns;
       if (code) {
         // Belirli bir çocuğun plan + ilerleme verisini sil
         localStorage.removeItem("numap_intervention_" + code);
         localStorage.removeItem("numap_progress_" + code);
       } else {
-        // Çocuk kodu bilinmiyorsa tüm numap_* anahtarlarını süpür
+        // Çocuk kodu bilinmiyorsa YALNIZ plan/ilerleme aileleri süpürülür.
+        // (2026-08-05: eski kod tüm "numap_*"ı siliyordu — öğretmenin oturum
+        // token'ı [numap_token/numap_user] ve çocuk listesi önbelleği de gidiyordu.)
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (k && k.startsWith("numap_")) keys.push(k);
+          if (k && (k.startsWith("numap_intervention_") || k.startsWith("numap_progress_"))) keys.push(k);
         }
         keys.forEach(k => localStorage.removeItem(k));
       }
@@ -7547,115 +7548,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [child]);
 
-  // Giriş sonrası akıllı yönlendirme + giriş serisi
-  const postLoginNav = (role) => {
-    // GalakSay Analytics — 2026-03-18 — Oturum başlat
-    try {
-      const cid = currentUser?.username || playerName || 'default_child';
-      initAnalytics(cid, { name: playerName || currentUser?.displayName });
-      beginGameSession(cid, { nuMapProfileId: null });
-    } catch (_) {}
-    // Giriş serisi kontrolü
-    const lastLogin = safeStorage.get("galaksay_last_login");
-    const streakResult = QuestSystem.getLoginStreak(lastLogin);
-    if (streakResult.isNewDay) {
-      setLoginStreakInfo(streakResult);
-      // XP ödülü ver
-      setStats(prev => {
-        const xpReward = streakResult.reward + (streakResult.milestone?.bonus || 0);
-        return { ...prev, xp: (prev?.xp || 0) + xpReward };
-      });
-      // Banner'ı göster
-      setShowLoginStreakBanner(true);
-      setTimeout(() => setShowLoginStreakBanner(false), streakResult.milestone ? 4500 : 3000);
-      if (streakResult.streak >= 7) sfx("streak7");
-      else if (streakResult.streak >= 5) sfx("streak5");
-      else if (streakResult.streak >= 3) sfx("streak3");
-      else if (streakResult.streak >= 1) sfx("correct");
-    }
-    if (role === "admin" || role === "teacher" || role === "parent") {
-      navigateTo("menu", "page-zoom");
-    } else {
-      navigateTo("ageSelect", "page-zoom");
-    }
-  };
-
-  const handleLogin = async () => {
-    setAuthError("");
-    const { username, password } = authFields;
-    if (!username.trim() || !password.trim()) { setAuthError("Kullanıcı adı ve şifre gerekli"); return; }
-    // KVKK: kişisel veri işlenecek — önce ebeveyn açık rızası
-    try { if (window.galaksayRequireConsent && (await window.galaksayRequireConsent()) === false) return; } catch {}
-    const uname = username.trim().toLowerCase();
-    // Sabit yönetici hesabı
-    const ADMIN = { username: "y.mutlu@alparslan.edu.tr", password: "dokunsay2025", displayName: "Prof. Dr. Yılmaz MUTLU", role: "admin" };
-    if (uname === ADMIN.username && password === ADMIN.password) {
-      const user = { username: ADMIN.username, role: ADMIN.role, displayName: ADMIN.displayName };
-      setCurrentUser(user);
-      setPlayerName(ADMIN.displayName);
-      await loadUserStats(ADMIN.username);
-      if (rememberMe) {
-        try { await window.storage?.set("dokunsay-session", JSON.stringify(user)); await window.storage?.set("dokunsay-remember", JSON.stringify({ username: ADMIN.username, password: ADMIN.password })); } catch {}
-      } else {
-        try { await window.storage?.set("dokunsay-session", JSON.stringify(user)); } catch {}
-      }
-      postLoginNav(ADMIN.role, ADMIN.username);
-      loadAdaptiveData(ADMIN.username);
-      setAuthFields({ username: "", password: "", displayName: "", role: "student" });
-      return;
-    }
-    // Normal kullanıcı girişi
-    try {
-      let r = null;
-      try { r = await window.storage?.get(`dokunsay-auth-${uname}`); } catch {}
-      if (!r?.value) { setAuthError("Kullanıcı bulunamadı"); return; }
-      const user = JSON.parse(r.value);
-      if (user.password !== password) { setAuthError("Şifre hatalı"); return; }
-      const u = { username: user.username, role: user.role, displayName: user.displayName };
-      setCurrentUser(u);
-      setPlayerName(user.displayName);
-      await loadUserStats(user.username);
-      try {
-        await window.storage?.set("dokunsay-session", JSON.stringify(u));
-        if (rememberMe) await window.storage?.set("dokunsay-remember", JSON.stringify({ username: uname, password }));
-        else try { await window.storage?.delete("dokunsay-remember"); } catch {}
-      } catch {}
-      postLoginNav(user.role, user.username);
-      loadAdaptiveData(user.username);
-      setAuthFields({ username: "", password: "", displayName: "", role: "student" });
-    } catch { setAuthError("Giriş yapılırken hata oluştu"); }
-  };
-
-  const handleRegister = async () => {
-    setAuthError("");
-    const { username, password, displayName, role } = authFields;
-    if (!username.trim() || !password.trim() || !displayName.trim()) { setAuthError("Tüm alanlar gerekli"); return; }
-    if (password.length < 4) { setAuthError("Şifre en az 4 karakter olmalı"); return; }
-    // KVKK: kişisel veri işlenecek — önce ebeveyn açık rızası
-    try { if (window.galaksayRequireConsent && (await window.galaksayRequireConsent()) === false) return; } catch {}
-    try {
-      let exists = false;
-      try { const existing = await window.storage?.get(`dokunsay-auth-${username.trim().toLowerCase()}`); if (existing?.value) exists = true; } catch {}
-      if (exists) { setAuthError("Bu kullanıcı adı zaten alınmış"); return; }
-      const user = { username: username.trim().toLowerCase(), password, displayName: displayName.trim(), role, createdAt: new Date().toISOString() };
-      await window.storage?.set(`dokunsay-auth-${user.username}`, JSON.stringify(user));
-      // Add to users list
-      let users = [];
-      try { const ul = await window.storage?.get("dokunsay-users"); if (ul?.value) users = JSON.parse(ul.value); } catch {}
-      users.push({ username: user.username, displayName: user.displayName, role: user.role, createdAt: user.createdAt });
-      await window.storage?.set("dokunsay-users", JSON.stringify(users));
-      setCurrentUser({ username: user.username, role: user.role, displayName: user.displayName });
-      setPlayerName(user.displayName);
-      try {
-        await window.storage?.set("dokunsay-session", JSON.stringify({ username: user.username, role: user.role, displayName: user.displayName }));
-        if (rememberMe) await window.storage?.set("dokunsay-remember", JSON.stringify({ username: user.username, password }));
-      } catch {}
-      postLoginNav(user.role, user.username);
-      loadAdaptiveData(user.username);
-      showMascot(MASCOT.getRandom(MASCOT.greetings), 5000);
-      setAuthFields({ username: "", password: "", displayName: "", role: "student" });
-    } catch { setAuthError("Kayıt sırasında hata oluştu"); }
-  };
+  // (postLoginNav + handleLogin/handleRegister kaldırıldı — 2026-08-05: kimlik main.jsx gate'inde
+  // kurulur, oyun her zaman child prop'uyla açılır; bundle'a gömülü yönetici
+  // kimliği içeren erişilemez eski giriş/kayıt akışı güvenlik gereği silindi.)
 
   // Admin: add user
   const adminAddUser = async () => {
@@ -7706,24 +7601,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     setCurrentUser(null);
     setPlayerName("");
     setStats({ totalGames: 0, totalScore: 0, totalCorrect: 0, totalQ: 0, modeStats: {}, recent: [] });
-    navigateTo("login", "page-fade");
-    try {
-      window.storage?.delete("dokunsay-session");
-      // Hatırlanan bilgileri yükle (çıkışta silme — sadece session siler, remember kalır)
-      (async () => {
-        try {
-          const rem = await window.storage?.get("dokunsay-remember");
-          if (rem?.value) {
-            const creds = JSON.parse(rem.value);
-            setAuthFields(p => ({ ...p, username: creds.username, password: creds.password }));
-            setRememberMe(true);
-          } else {
-            setAuthFields({ username: "", password: "", displayName: "", role: "student" });
-            setRememberMe(false);
-          }
-        } catch {}
-      })();
-    } catch {}
+    navigateTo("childHub", "page-fade"); // "login" ekranı kaldırıldı — render dalı yoktu (boş ekran)
+    try { window.storage?.delete("dokunsay-session"); } catch {}
   };
 
   const loadAdminData = async () => {
@@ -7828,55 +7707,29 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
-    // Browser back button: popstate dinleyici
+    // Browser back button: popstate dinleyici.
+    // 2026-08-05: "login"/"menu"/"ageSelect" uç hedefleri childHub'a çevrildi — kimlik
+    // main.jsx gate'inde kurulduğundan oyun hep child prop'uyla açılır; eski uçlar
+    // render dalı olmayan "login"e düşüp boş ekranda kilitleniyordu.
     const backMap = { game: "modeSelect", results: "modeSelect", modeSelect: "journey", levelSelect: "modeSelect",
-      settings: "menu", materialGuide: "settings", collection: "settings",
-      learn: "modeSelect", admin: "menu", teacherDash: "menu", devTrack: "menu",
-      progress: "menu", achievements: "journey", report: "menu", journey: "ageSelect", ageSelect: "login", menu: "login" };
+      settings: "childHub", materialGuide: "settings", collection: "settings",
+      learn: "modeSelect", admin: "childHub", teacherDash: "childHub", devTrack: "childHub",
+      progress: "childHub", achievements: "journey", report: "childHub", journey: "childHub",
+      dashboard: "childHub", spaceMap: "childHub", nuMapReport: "childHub",
+      ageSelect: "childHub", menu: "childHub" };
     const onPopState = () => {
       setScreen(prev => {
-        if (prev === "login") { window.history.pushState({}, "", ""); return prev; } // login'den çıkma
+        if (prev === "childHub") { window.history.pushState({}, "", ""); return prev; } // panodan geri çıkma
         if (prev === "game") { /* oyun sırasında geri: onay iste - basitçe geri al */ }
-        const target = backMap[prev] || "menu";
+        const target = backMap[prev] || "childHub";
         return target;
       });
       setPageAnim("page-fade");
     };
     window.addEventListener("popstate", onPopState);
-    window.history.replaceState({ screen: "login" }, "", ""); // başlangıç durumu
-    (async () => {
-      // Numap/yerel çocuk akışı: kimlik child prop'undan gelir (main.jsx boot effect
-      // currentUser'ı child'tan kurar). Eski "dokunsay-session" geri-yüklemesi bu
-      // kimliği EZMEMELİ — yoksa seçilen çocuk yerine son misafir/oturum açılır
-      // (ageSelect + "Misafir" hatası). child prop varsa eski oturumu atla.
-      if (child) return;
-      try {
-        const session = await window.storage?.get("dokunsay-session");
-        if (session?.value) {
-          const u = JSON.parse(session.value);
-          setCurrentUser(u);
-          setPlayerName(u.displayName);
-          await loadUserStats(u.username);
-          loadAdaptiveData(u.username);
-          // Akıllı yönlendirme: admin/teacher/parent → menu, student → ageSelect/journey
-          const r = u.role || "student";
-          if (r === "admin" || r === "teacher" || r === "parent") {
-            setScreen("menu");
-          } else {
-            // ageGroup henüz yüklenmemiş olabilir ama state'den okuyoruz
-            setScreen("ageSelect"); // ageGroup varsa journey useEffect ile yönlendirecek
-          }
-          return;
-        }
-        // Hatırlanan giriş bilgilerini yükle
-        const rem = await window.storage?.get("dokunsay-remember");
-        if (rem?.value) {
-          const creds = JSON.parse(rem.value);
-          setAuthFields(p => ({ ...p, username: creds.username, password: creds.password }));
-          setRememberMe(true);
-        }
-      } catch {}
-    })();
+    window.history.replaceState({ screen: "childHub" }, "", ""); // başlangıç durumu
+    // (Eski "dokunsay-session"/"dokunsay-remember" geri-yüklemesi kaldırıldı — kimlik
+    // her zaman child prop'undan gelir; kayıtlı düz-metin kimlik yükleme akışı silindi.)
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
@@ -8097,6 +7950,24 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
           // Konum sızıntısını kapat: büyük/küçük çifti rastgele yerleştir (eskiden cevap hep A=fazla/B=az konumundaydı → çocuk sayıya bakmadan çözebiliyordu)
           const [cmpA, cmpB] = Math.random() < 0.5 ? [n1, n2] : [n2, n1];
           q={type:"comparison",num1:cmpA,num2:cmpB,askMin,numDistance:dist,sizeIllusion,cmpDisplay}; ans=askMin ? Math.min(cmpA,cmpB) : Math.max(cmpA,cmpB); opts=[cmpA,cmpB]; break;
+        }
+        // ═══ KESİRYA (frac): Kesir Düellosu — karşılaştırma akışını kesir görseliyle yeniden kullanır ═══
+        case "fracCompare": {
+          const fcPick = (arr) => arr[R(0, arr.length - 1)];
+          let fa1, fb1, fa2, fb2, fv1, fv2, fGuard = 0;
+          do {
+            if (level <= 2) {
+              if (Math.random() < 0.5) { fa1 = 1; fa2 = 1; fb1 = fcPick([2,3,4]); fb2 = fcPick([2,3,4]); } // birim kesir 1/b
+              else { fb1 = fcPick([2,3,4,5]); fb2 = fb1; fa1 = R(1, fb1 - 1); fa2 = R(1, fb1 - 1); }        // aynı payda
+            } else {
+              fb1 = fcPick([2,3,4,5,6,8]); fb2 = fcPick([2,3,4,5,6,8]); fa1 = R(1, fb1 - 1); fa2 = R(1, fb2 - 1);
+            }
+            fv1 = fa1 / fb1; fv2 = fa2 / fb2; fGuard++;
+          } while (Math.abs(fv1 - fv2) < 1e-6 && fGuard < 40);
+          const fcAskMin = level >= 3 && Math.random() < 0.4;
+          const fcBigger = fv1 > fv2 ? 0 : 1;
+          q = { type: "fracCompare", f1: { a: fa1, b: fb1 }, f2: { a: fa2, b: fb2 }, askMin: fcAskMin };
+          ans = fcAskMin ? (1 - fcBigger) : fcBigger; opts = [0, 1]; break;
         }
         // K1: 5 ve altı subitizing aralığı — hafıza/tahmin görevi için minimum 6
         case "chipGuess": {
@@ -10222,12 +10093,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       if (fresh.length > 0) setNewBadges(fresh);
       // Persist
       try { const uKey = currentUser?.username || "guest"; window.storage?.set(`dokunsay-user-${uKey}`, JSON.stringify({ stats: newStats, name: playerName, lastPlayed: { mode, level }, roundsPerGame })); if (currentUser) window.storage?.set("dokunsay-session", JSON.stringify(currentUser)); } catch {}
-      // Numap ilerleme takibi — profil varsa tüm oturumları kaydet
-      if (numapProfile) {
-        try {
-          NumapProfile.recordSession(numapProfile, { mode, level, correct: fc, total: roundsPerGame, acc, avgTime: null });
-        } catch {}
-      }
+      // (NumapProfile.recordSession kaldırıldı — 2026-08-05: numap_progress_* localStorage
+      // paraleli hiçbir yerden okunmuyordu; tek gerçek kaynak AnalyticsBridge/IndexedDB.)
       // Leaderboard update (shared)
       try {
         const title = getTitle(newStats.totalScore);
@@ -10650,14 +10517,10 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       else { sfx("correct"); }
       const mathInsight = getMathInsight(qt === "wordProblem" ? gameMode : (qt || gameMode), true, question, correctAnswer); // wp içgörüleri (MATH_INSIGHTS.wpAdd...) köprüyle canlandı
       setFeedback({ ok: true, msg, pts, speedBonus, streakBonus, mathInsight });
-      // v6.0: Performans loglama
+      // Performans kaydı — tek yol AnalyticsBridge (ns-bazlı IndexedDB).
+      // (PerformanceLogger paraleli 2026-08-05'te kaldırıldı: ns'siz global logdu.)
       try {
         const responseTimeMs = Date.now() - (questionStartTimeRef.current || Date.now());
-        PerformanceLogger.logQuestion(createQuestionLog({
-          mode: gameMode, questionType: qt, level, correct: true,
-          responseTimeMs, hintLevel: hintKademe, representationUsed: showTripleCode ? "concrete" : "symbolic",
-          streak: newStreak, ltLevel: null, numbers: question ? { num1: question.num1, num2: question.num2, answer: correctAnswer } : null,
-        }));
         // GalakSay Analytics — 2026-03-18 — Doğru cevap kaydı
         onQuestionAnswered(gameMode, true, answer, correctAnswer, hintKademe, showTripleCode ? "somut" : "sembolik", question);
         // Akıcılık modu: oturum güncelle
@@ -11094,15 +10957,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       // (wrongExplanation + yanlış-yol mathInsight kaldırıldı — hiçbir yerde render edilmiyordu;
       //  banner mathInsight'ı yalnız feedback.ok'ta gösterir. modeWrongInsight teachTip fallback'i olarak yukarıda kullanılıyor.)
       setFeedback({ ok: false, msg: fullMsg, needNext: true, correctAnswer, misconception });
-      // v6.0: Performans loglama (yanlış cevap)
+      // Performans kaydı — tek yol AnalyticsBridge (ns-bazlı IndexedDB).
       try {
         const responseTimeMs = Date.now() - (questionStartTimeRef.current || Date.now());
-        PerformanceLogger.logQuestion(createQuestionLog({
-          mode: gameMode, questionType: q.type, level, correct: false,
-          responseTimeMs, hintLevel: hintKademe, representationUsed: showTripleCode ? "concrete" : "symbolic",
-          streak: newStreak, misconceptionType: misconception?.type || null,
-          numbers: question ? { num1: question.num1, num2: question.num2, answer: correctAnswer } : null,
-        }));
         // GalakSay Analytics — 2026-03-18 — Yanlış cevap kaydı
         onQuestionAnswered(gameMode, false, answer, correctAnswer, hintKademe, showTripleCode ? "somut" : "sembolik", question);
         if (fluencyMode && fluencySession) {
@@ -12366,6 +12223,29 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       case "matching":
         return (<div style={{ textAlign: "center" }}><TXT>{lang === "ku" ? <>Kapsula bi <BIG c={C.uiGreen}>{q.number}</BIG> kevirên stêrkan bibîne!</> : <><BIG c={C.uiGreen}>{q.number}</BIG> yıldız taşlı kapsülü bul</>}</TXT></div>);
 
+      case "fracCompare": {
+        const fcBar = (f, label, accent) => {
+          const W = Math.min(252, f.b * 30), cw = W / f.b;
+          return (<div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: accent }}>{label}</span>
+            <svg width={W} height={44} role="img" aria-label={`${f.a} bölü ${f.b}`} style={{ display: "block" }}>
+              {Array.from({ length: f.b }, (_, i) => (
+                <rect key={i} x={i * cw + 1.5} y={1.5} width={cw - 3} height={41} rx={4}
+                  fill={i < f.a ? accent : "rgba(148,163,184,.14)"} stroke={accent} strokeWidth={1.5} />
+              ))}
+            </svg>
+            <span style={{ fontSize: 22, fontWeight: 900, color: "#e2e8f0" }}>{f.a}/{f.b}</span>
+          </div>);
+        };
+        return (<div style={{ textAlign: "center" }}>
+          <TXT>{lang === "ku" ? <>Kîjan kesr <strong>{q.askMin ? "biçûktir" : "mezintir"}</strong> e?</> : <>Hangi kesir daha <strong>{q.askMin ? "küçük" : "büyük"}</strong>?</>}</TXT>
+          <div style={{ display: "inline-flex", gap: 28, flexWrap: "wrap", justifyContent: "center", padding: "16px 22px",
+            borderRadius: 18, background: "linear-gradient(135deg,rgba(35,32,82,.88),rgba(24,22,58,.88))", border: "1px solid rgba(148,163,184,.12)" }}>
+            {fcBar(q.f1, "A", "#3b82f6")}
+            {fcBar(q.f2, "B", "#ef4444")}
+          </div>
+        </div>);
+      }
       case "comparison": {
         const compMax = Math.max(q.num1, q.num2);
         const compSize = compMax > 16 ? 14 : compMax > 14 ? 16 : compMax > 12 ? 18 : compMax > 10 ? 22 : compMax > 8 ? 26 : compMax > 6 ? 32 : compMax > 4 ? 38 : 44;
@@ -15247,6 +15127,32 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       </div>);
     }
 
+    // ═══ KESİRYA: Kesir Düellosu — A/B kesir butonları ═══
+    if (question.type === "fracCompare") {
+      const fcBtns = [
+        { val: 0, label: `A · ${question.f1.a}/${question.f1.b}`, color: "#3b82f6" },
+        { val: 1, label: `B · ${question.f2.a}/${question.f2.b}`, color: "#ef4444" },
+      ];
+      return (<div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 0, maxWidth: 380, marginLeft: "auto", marginRight: "auto" }}>
+        {fcBtns.map((fc) => {
+          let bg = fc.color, opacity = 1;
+          if (answered) {
+            if (fc.val === correctAnswer) bg = C.correct;
+            else if (fc.val === userAnswer) bg = C.wrong;
+            else { bg = "#bbb"; opacity = .35; }
+          }
+          return (<button key={fc.val} className="option-btn answer-option" onClick={() => { if (isPreReader) { try { TTS.stop(); TTS.speak(fc.label); } catch {} } handleAnswer(fc.val); }} disabled={answered} style={{
+            padding: "16px 8px", borderRadius: 16, border: "none", background: bg,
+            cursor: answered ? "default" : "pointer", boxShadow: `0 3px 10px ${bg}40`, transition: "all .2s", opacity,
+            animation: answered && fc.val === correctAnswer ? "none" : answered && fc.val === userAnswer && fc.val !== correctAnswer ? "shake .5s" : "none",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+          }}>
+            <span style={{ fontSize: 22, fontWeight: 900, color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,.25)" }}>{fc.label}</span>
+          </button>);
+        })}
+      </div>);
+    }
+
     // ═══ FAZ1: Az-Çok-Eşit butonları ═══
     if (question.type === "lessMoreEqual") {
       // Soru "Sol taraf sağ tarafa göre nasıl?" — butonlar da AÇIK ÖZNE (sol): göreli↔mutlak karışıklığı önlenir, val eşlemesi (0=sol az, 2=sol çok) DEĞİŞMEZ
@@ -16050,13 +15956,13 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   if (screen === "modeSelect") {
     const beginnerModes = ["counting", "quantityMatch", "fivesFrame", "matching"];
     const isNew = stats.totalGames < 3;
-    const catColors = { level1: "#6366f1", level2: "#7c3aed", level3: "#10b981", level4: "#f59e0b", level8: "#ef4444", level5: "#3b82f6", level6: "#8b5cf6", level7: "#14b8a6" };
+    const catColors = { level1: "#6366f1", level2: "#7c3aed", level3: "#10b981", level4: "#f59e0b", level8: "#ef4444", level5: "#3b82f6", level6: "#8b5cf6", level7: "#14b8a6", level9: "#059669" };
     const catGradients = {
       level1: ["#6366f1", "#818cf8"], level2: ["#7c3aed", "#a78bfa"], level3: ["#10b981", "#34d399"],
       level4: ["#f59e0b", "#fbbf24"], level8: ["#ef4444", "#f87171"], level5: ["#3b82f6", "#60a5fa"],
-      level6: ["#8b5cf6", "#a78bfa"], level7: ["#14b8a6", "#2dd4bf"],
+      level6: ["#8b5cf6", "#a78bfa"], level7: ["#14b8a6", "#2dd4bf"], level9: ["#059669", "#34d399"],
     };
-    const catEmojis = { level1: "🔢", level2: "⚡", level3: "⚖️", level4: "🧱", level8: "🏛️", level5: "➕", level6: "✖️", level7: "🧩" };
+    const catEmojis = { level1: "🔢", level2: "⚡", level3: "⚖️", level4: "🧱", level8: "🏛️", level5: "➕", level6: "✖️", level7: "🧩", level9: "🍕" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
         <style>{CSS}</style>
@@ -17090,7 +16996,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                     catKey === "level5" ? "addition" :
                     catKey === "level6" ? "multiplication" :
                     catKey === "level7" ? "pattern" :
-                    catKey === "level8" ? "placeValue" : "counting"
+                    catKey === "level8" ? "placeValue" :
+                    catKey === "level9" ? "comparison" : "counting"
                   ] || mathInsights.counting;
                   const insight = insightPool[round % insightPool.length];
                   const msg = feedback.ok
@@ -18415,6 +18322,8 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                   desc: "Tekrarlı toplama → gruplama → dizi modeli → strateji → kat kavramı → ters ilişki → sözel problem" },
                 level7: { realName: "Örüntü ve Cebirsel Düşünme", mebAlan: "Sayılar ve Nicelikler / Cebirsel Düşünme", trajectory: "Patterning", icon: "🧩", color: "#6366f1",
                   desc: "Tekrar eden örüntü → büyüyen desen → desen çevirme → eşitlik ilkeleri → bilinmeyen bulma" },
+                level9: { realName: "Kesirler", mebAlan: "Sayılar ve Nicelikler", trajectory: "Fractions", icon: "🍕", color: "#059669",
+                  desc: "Eş paylaşım → birim kesir → kesir tanıma → kesir karşılaştırma/sıralama" },
               };
               return (<>
                 <div style={{ fontSize: 11, color: "#a8b2d1", lineHeight: 1.4, padding: "0 0 4px" }}>
@@ -18424,7 +18333,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {/* Overall coverage summary — compact */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
                   {[{ l: "MEB Kazanım", v: [...new Set(Object.keys(MEB_KAZANIM).filter(m => stats.modeStats[m]).map(m => MEB_KAZANIM[m].kod))].length, t: [...new Set(Object.values(MEB_KAZANIM).map(m => m.kod))].length, c: "#059669" },
-                    { l: "LT Yörüngesi", v: [...new Set(Object.keys(LT_TRAJECTORIES).filter(m => stats.modeStats[m]).map(m => LT_TRAJECTORIES[m].trajectory))].length, t: 7, c: "#7c3aed" },
+                    { l: "LT Yörüngesi", v: [...new Set(Object.keys(LT_TRAJECTORIES).filter(m => stats.modeStats[m]).map(m => LT_TRAJECTORIES[m].trajectory))].length, t: 8, c: "#7c3aed" },
                     { l: "Sınıf Düzeyi", v: [...new Set(Object.keys(MEB_KAZANIM).filter(m => stats.modeStats[m]).map(m => MEB_KAZANIM[m].sinif))].length, t: [...new Set(Object.values(MEB_KAZANIM).map(m => m.sinif))].length, c: "#ea580c" },
                   ].map(s => (
                     <div key={s.l} style={{ textAlign: "center", padding: "8px 4px", borderRadius: 10, background: `${s.c}10`, border: `1px solid ${s.c}15` }}>

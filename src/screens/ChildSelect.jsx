@@ -115,19 +115,25 @@ function distinctChildren(sessions) {
   return [...byKey.values()].sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
 }
 
+// Kimliksiz (user.id yok) önbellek YAZILMAZ/OKUNMAZ — eski 'unknown' ortak anahtarı
+// iki öğretmenli cihazda çapraz liste sızdırıyordu (2026-08-05).
 function cacheKey(userId) {
-  return `numap_children_cache_${userId || 'unknown'}`;
+  return userId ? `numap_children_cache_${userId}` : null;
 }
 function writeCache(userId, distinct) {
+  const key = cacheKey(userId);
+  if (!key) return;
   try {
-    localStorage.setItem(cacheKey(userId), JSON.stringify(distinct.map((d) => d.session)));
+    localStorage.setItem(key, JSON.stringify(distinct.map((d) => d.session)));
   } catch {
     /* depolama engelli */
   }
 }
 function readCache(userId) {
+  const key = cacheKey(userId);
+  if (!key) return null;
   try {
-    const raw = localStorage.getItem(cacheKey(userId));
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -295,6 +301,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
       <ClassPanel
         roster={children}
         teacher={user}
+        source={source}
         onBack={() => setView('home')}
         onSelectChild={handleSelect}
         onLogout={onLogout}
@@ -554,7 +561,9 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             <EmptyState
               icon="🧒"
               title="Henüz değerlendirilen çocuk yok"
-              description="Önce Numap'te bir tarama tamamlayın; çocuk burada otomatik görünecek."
+              description="Numap'te bir tarama tamamlayın; çocuk burada otomatik görünecek. Taramasız oynatmak için çıkışta 'Yerel Hesap'la girip öğrenci ekleyebilirsiniz."
+              actionLabel="Numap'te tarama başlat ↗"
+              onAction={() => window.open('https://getnumap.com', '_blank', 'noopener')}
             />
           )
         ) : filtered.length === 0 ? (

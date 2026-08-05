@@ -7,4 +7,3 @@ export { A11Y_DEFAULTS, CB_COLORS, CB_PATTERNS, subColor, subColorHex } from './
 export { HintManager, HINT_LEVELS } from './hintManager.js';
 export { ANIM_DEFAULTS, getAnimSpeed, MODE_ANIM_MAP, CATEGORY_VISUAL_MODELS } from './animationTemplates.js';
 export { createFluencySession, recordFluencyAnswer, adjustFluencyDifficulty, getFluencySummary, getStreakReward, PersonalRecords, getTimerColor } from './fluencyEngine.js';
-export { PerformanceLogger, createQuestionLog } from './performanceLogger.js';

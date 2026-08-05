@@ -135,6 +135,18 @@ export async function logout() {
   }
   clearToken();
   clearCachedUser();
+  // Paylaşılan okul cihazı (KVKK): çıkışta öğretmenin öğrenci listesi önbelleği de
+  // silinir — tarama özetleri (ad, sınıf, okul) sonraki kullanıcıya kalmasın.
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('numap_children_cache_')) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* depolama engelli */
+  }
 }
 
 // --- Oturumlar (öğretmenin değerlendirdiği çocuklar) ---

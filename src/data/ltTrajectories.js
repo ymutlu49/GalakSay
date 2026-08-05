@@ -88,4 +88,7 @@ export const LT_TRAJECTORIES = {
   // ── NUMBER CONSERVATION (Sayı Korunumu — Counting yörüngesi) ─────────────
   conservation:  { trajectory: "Counting",             level: "Number Conserver",                          ltLevel: 18,     ageRange: "7",   desc: "Dizilim değişse de sayının korunduğunu bilir" },
   matching:      { trajectory: "Counting",             level: "Corresponder",                              ltLevel: 4,      ageRange: "3-4", desc: "Rakam-miktar eşleme (bire-bir)" },
+
+  // ── FRACTIONS (Kesirler — 11 düzey) ──────────────────────────────────────
+  fracCompare:   { trajectory: "Fractions",            level: "Fraction Comparer → Fraction/Whole Orderer", ltLevel: [8,11], ageRange: "7-9", desc: "İki kesri görsel temsille (bar) karşılaştırır/sıralar" },
 };

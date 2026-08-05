@@ -117,6 +117,12 @@ export const CATEGORIES = {
     missingNumber:    { n: "Kayıp Yıldız!",  i: "❓", d: "Eşitlikteki kayıp sayıyı bul",               c: _C.pink },
     spaceBalance:     { n: "Uzay Terazisi!",  i: "⚖️", d: "İki tarafı eşitle — terazi dengelensin",   c: "#0891b2" },
   }},
+
+  // ── KAT9: KESİRLER — Fractions Trajectory (11 düzey) ──────────────────────
+  // ltLevel: Eş-Parçalayıcı(2) → Birim Kesir(4) → Kesir Tanıyıcı(5) → Karşılaştırıcı/Sıralayıcı(8-11)
+  level9: { name: "🍕 Kesirya", desc: "Eş paylaşım ve kesir gezegeni", modes: {
+    fracCompare: { n: "Kesir Düellosu!", i: "🍕", d: "Hangi kesir daha büyük? Görselle karşılaştır", c: "#059669" },
+  }},
 };
 
 // ═══ KÜRTÇE (KURMANCÎ) ÇEVİRİLER ═════════════════════════════════════════
@@ -132,6 +138,7 @@ const CAT_KU = {
     level5: { name: "🌗 Kombûnya",  desc: "Gerîngeha zêdekirin û kêmkirinê" },
     level6: { name: "✖️ Carcarya",  desc: "Galaksiya carkirin û parkirinê" },
     level7: { name: "🧩 Nimûneya",  desc: "Rêza veşartî ya nimûneyan" },
+    level9: { name: "🍕 Kesirya",   desc: "Gerstêrka parvekirin û kesran" },
   },
   // KAT1 — Jimartin
   matching:      { n: "Stêrkan Hev Bike!",     d: "Reqemê bi jimara rast a kevirên stêrkan re hev bike" },
@@ -205,6 +212,8 @@ const CAT_KU = {
   trueFalse:        { n: "Detektîfê Hevkêşeyê!", d: "Wekhevî rast e an çewt e? — tu biryar bide" },
   missingNumber:    { n: "Stêrka Winda!",      d: "Jimara winda ya di hevkêşeyê de bibîne" },
   spaceBalance:     { n: "Mêzîna Fezayê!",     d: "Herdu aliyan wekhev bike — mêzîn hevseng bibe" },
+  // KAT9 (level9) — Kesir
+  fracCompare:      { n: "Dûeloya Kesran!",    d: "Kîjan kesr mezintir e? Bi dîtbarî berhev bike" },
 };
 
 // Aktif dil — render başında setCatLang(lang) ile ayarlanır (tek-dil global).

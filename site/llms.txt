@@ -1,0 +1,23 @@
+# GalakSay
+
+> GalakSay (galaksay.com), diskalkuli (matematik öğrenme güçlüğü) riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış bir matematik öğrenme ve müdahale oyunudur. Clements & Sarama öğrenme yörüngeleri temelli 60+ etkinlik içerir; Türkçe ve Kürtçe (Kurmancî) dillerinde sunulur; NuMap tarama platformuyla entegredir. Web tabanlıdır (PWA), telefon, tablet ve bilgisayarda çevrimdışı da çalışır ve ücretsizdir.
+
+## Geliştirici
+
+- GalakSay, Prof. Dr. Yılmaz Mutlu (Muş Alparslan Üniversitesi Eğitim Fakültesi, Matematik Eğitimi) tarafından tasarlanmış ve geliştirilmiştir.
+- Araştırma alanları: diskalkuli (matematik öğrenme güçlüğü), matematik kaygısı, eğitsel sinirbilim, matematiksel biliş.
+- Kanonik akademik profil: https://hercocukmatematikogrenebilir.com/yilmaz-mutlu/
+- Google Scholar: https://scholar.google.com/citations?user=lYPwcn4AAAAJ
+- ORCID: https://orcid.org/0000-0002-4265-856X
+
+## Sayfalar
+
+- [Ana sayfa](https://galaksay.com/): Oyunun tanıtımı, özellikler ve kurulum rehberi
+- [Oyna](https://galaksay.com/oyna/): Oyunun kendisi (web uygulaması)
+
+## Kardeş siteler (Her Çocuk Matematik Öğrenebilir ailesi)
+
+- [Her Çocuk Matematik Öğrenebilir](https://hercocukmatematikogrenebilir.com/): Ana platform — diskalkuli bilgi kaynağı ve tüm araçların merkezi
+- [NuMap](https://getnumap.com/): Diskalkuli tarama ve değerlendirme platformu
+- [DokunSay](https://dokunsay.com/): Dokunsal/manipülatif matematik öğretim araçları
+- [ABMATO](https://abmato.com/): Matematik etkinlikleri ve ev destek içerikleri

@@ -136,8 +136,7 @@ function styleBlocks(code) {
 
 const lineAt = (code, idx) => code.slice(0, idx).split('\n').length;
 const FILES = ['GalakSay.jsx', 'src/components/math/TripleCode.jsx',
-  'src/design-system/components/ActivityLayout.jsx', 'src/screens/ConsentScreen.jsx',
-  'src/screens/Onboarding.jsx'];
+  'src/design-system/components/ActivityLayout.jsx'];
 
 let totalChanges = 0;
 for (const relPath of FILES) {

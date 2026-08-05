@@ -64,7 +64,7 @@ function bandColor(acc) {
 
 const font = typography.fontFamily.display;
 
-export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild, onLogout }) {
+export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild, onLogout, source = 'numap' }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null); // ns | null
@@ -135,18 +135,18 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
     setExpanded((cur) => (cur === ns ? null : ns));
   }, []);
 
-  // Akademik CSV paketi (tüm roster, lazy import). anonymous → ham kimlik çıkarılır.
+  // Akademik CSV paketi (YALNIZ paneldeki roster, lazy import). anonymous → ham kimlik çıkarılır.
   const handleExportCSV = useCallback(async (anonymous) => {
     setExporting(anonymous ? 'csv-anon' : 'csv');
     try {
       const { exportAcademicCSV } = await import('../utils/csvExport.js');
-      await exportAcademicCSV({ anonymous });
+      await exportAcademicCSV({ anonymous, childIds: (roster || []).map((c) => c.ns).filter(Boolean) });
     } catch (e) {
       console.error('[ClassPanel] CSV export hatası:', e);
     } finally {
       setExporting(null);
     }
-  }, []);
+  }, [roster]);
 
   // Sınıf-geneli profesyonel PDF rapor (ön-son etki dahil, lazy import).
   const handleClassPDF = useCallback(async () => {
@@ -259,7 +259,9 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
           <EmptyState
             icon="🧒"
             title="Henüz çocuk yok"
-            description="Önce Numap'te bir tarama tamamlayın; çocuk burada görünecek."
+            description={source === 'local'
+              ? 'Ana sayfadan "Yeni Öğrenci" ile profil ekleyin; oynadıkça ilerleme burada görünecek.'
+              : 'Numap\'te bir tarama tamamlayın; çocuk burada görünecek.'}
             actionLabel="← Geri dön"
             onAction={onBack}
           />

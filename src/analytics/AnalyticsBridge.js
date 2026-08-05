@@ -153,6 +153,22 @@ async function finishGameSession(childId, additionalSummary = {}) {
     console.log('[GalakSay sync] finishGameSession bitti → syncChild tetik', childId);
     import('../services/syncEngine.js').then((m) => m.syncChild(childId)).catch((e) => console.log('[GalakSay sync] syncEngine import HATA', e));
   }
+
+  // HÇMÖ portal köprüsü: çocuk portaldan (bireysel plan) geldiyse oturum özetini app_results'a
+  // push et (lazy + ateş-unut; portal kimliği yoksa portalBridge içinde sessiz no-op).
+  // childId geçirilir → portal kimliği ilk oynayan çocuğa bağlanır, başka çocuğun
+  // oturumu portala YAZILMAZ (çapraz-çocuk sızıntısı düzeltmesi 2026-08-05).
+  {
+    const acc = _questionsAttempted ? Math.round((_questionsCorrect / _questionsAttempted) * 100) : null;
+    import('../services/portalBridge.js').then((m) => m.pushProgress({
+      modes: Array.from(_categoriesVisited),
+      questionsAttempted: _questionsAttempted,
+      questionsCorrect: _questionsCorrect,
+      accuracy: acc,
+      durationMs: duration_ms,
+      sessionId,
+    }, childId)).catch(() => {});
+  }
 }
 
 // ── Soru İzleme ──────────────────────────

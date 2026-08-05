@@ -2,8 +2,8 @@
 // GalakSay Pro — KVKK rıza durumu için hafif depolama yardımcısı.
 
 /** @typedef {import('../types').Consent} Consent */
-// ConsentScreen.jsx (lazy yüklenir) bunu içeri import eder; main.jsx ve Settings.jsx ise
-// ekran kodunu çekmeden ufak helper'ı doğrudan kullanır → split chunk korunur.
+// main.jsx (rıza kaydını otomatik verir) ve Settings.jsx (anahtarlar) kullanır.
+// (Ayrı rıza EKRANI 2026-06-11 ürün kararıyla kaldırıldı; dosyası 2026-08-05'te silindi.)
 
 export const CONSENT_KEY = 'galaksay_consent_v1';
 
