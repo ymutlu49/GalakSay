@@ -16,7 +16,7 @@ import { typography } from '../design-system/typography.js';
 import { layout } from '../design-system/spacing.js';
 import { getSessions } from '../services/numapApi.js';
 import { summarizeSession, sessionToNumapProfile, sessionToChildMeta, makeNamespace } from '../systems/numapAdapter.js';
-import { listChildren, AGE_GROUPS } from '../services/localProfiles.js';
+import { listChildren, AGE_GROUPS, upsertNumapChildren, listNumapChildren } from '../services/localProfiles.js';
 import ClassPanel from './ClassPanel.jsx';
 import ChildForm from './ChildForm.jsx';
 import UserManager from './UserManager.jsx';
@@ -115,28 +115,25 @@ function distinctChildren(sessions) {
   return [...byKey.values()].sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
 }
 
-// Kimliksiz (user.id yok) önbellek YAZILMAZ/OKUNMAZ — eski 'unknown' ortak anahtarı
-// iki öğretmenli cihazda çapraz liste sızdırıyordu (2026-08-05).
-function cacheKey(userId) {
-  return userId ? `numap_children_cache_${userId}` : null;
-}
-function writeCache(userId, distinct) {
-  const key = cacheKey(userId);
-  if (!key) return;
+// FAZ A (2026-08-05): Numap çocukları artık roster'da yaşar (localProfiles
+// upsertNumapChildren/listNumapChildren) — ayrı numap_children_cache_* önbelleği
+// ÖLDÜ. Aşağıdaki iki yardımcı yalnız ESKİ cache'i bir defalık roster'a taşımak
+// için kaldı (okunur → upsert → anahtar silinir); birkaç sürüm sonra kaldırılabilir.
+function readLegacyCache(userId) {
+  if (!userId) return null;
   try {
-    localStorage.setItem(key, JSON.stringify(distinct.map((d) => d.session)));
-  } catch {
-    /* depolama engelli */
-  }
-}
-function readCache(userId) {
-  const key = cacheKey(userId);
-  if (!key) return null;
-  try {
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(`numap_children_cache_${userId}`);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
+  }
+}
+function clearLegacyCache(userId) {
+  if (!userId) return;
+  try {
+    localStorage.removeItem(`numap_children_cache_${userId}`);
+  } catch {
+    /* depolama engelli */
   }
 }
 
@@ -192,13 +189,28 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         const d = distinctChildren(sessions);
         setChildren(d);
         setOffline(false);
-        writeCache(user?.id, d);
+        // FAZ A: liste roster'a upsert edilir (ns korunur); eski cache YALNIZ
+        // roster kalıcı yazılmışsa silinir (kota düşmesinde çevrimdışı yedek yanmasın).
+        if (user?.id && upsertNumapChildren(user.id, d)) {
+          clearLegacyCache(user.id);
+        }
       })
       .catch(() => {
         if (!active) return;
-        const cached = readCache(user?.id);
-        if (cached) {
-          setChildren(distinctChildren(cached));
+        // Çevrimdışı/sunucu hatası → roster'dan oku; roster boşsa ESKİ cache'i
+        // bir defalık taşı (kırılmasız geçiş: ilk Faz-A açılışı çevrimdışıysa bile
+        // önceki oturumun listesi kaybolmaz).
+        let list = user?.id ? listNumapChildren(user.id) : [];
+        if (!list.length && user?.id) {
+          const legacy = readLegacyCache(user.id);
+          if (Array.isArray(legacy) && legacy.length) {
+            list = distinctChildren(legacy);
+            // Tek seferlik yedek ancak roster'a KALICI taşındıysa yakılır.
+            if (upsertNumapChildren(user.id, list)) clearLegacyCache(user.id);
+          }
+        }
+        if (list.length) {
+          setChildren(list);
           setOffline(true);
         } else {
           setError('Öğrenci listesi alınamadı — internet bağlantınızı kontrol edin.');
@@ -269,15 +281,19 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         onSelect?.(item);
         return;
       }
-      const session = item.session;
-      const ns = makeNamespace(session);
+      const session = item.session || null;
+      // ns kaynağı ÖNCE roster kaydı (FAZ A: kayıt zaten ns taşır) — session
+      // payload'ı depolamadan düşmüş olsa bile çocuğun kimliği/ilerlemesi korunur.
+      const ns = item.ns || makeNamespace(session);
       onSelect?.({
         ns,
         name: item.name,
         grade: item.grade,
         ageMonths: item.ageMonths,
-        numapProfile: sessionToNumapProfile(session, ns),
-        childMeta: sessionToChildMeta(session),
+        // session yoksa profil nötr varsayılanlarla kurulur (degraded ama güvenli);
+        // çevrimiçi ilk yenilemede payload roster'a geri yazılır.
+        numapProfile: session ? sessionToNumapProfile(session, ns) : null,
+        childMeta: session ? sessionToChildMeta(session) : { name: item.name || null, gradeLevel: item.grade || null },
       });
     },
     [onSelect, source],

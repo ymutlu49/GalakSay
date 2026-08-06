@@ -418,7 +418,12 @@ function App() {
             const cached = readCachedUser()
             if (!authFailed && cached) { setTeacher(cached); setAuthStatus('authed') }
             else {
-              if (authFailed) { clearToken(); clearCachedUser() }
+              if (authFailed) {
+              clearToken(); clearCachedUser()
+              // KVKK: token sunucuda ölmüş → kullanıcı bir daha "çıkış" tetikleyemez;
+              // roster'daki numap PII'sini burada süpür (yeniden girişte geri gelir).
+              import('./services/localProfiles.js').then(m => m.removeNumapChildren(null)).catch(() => {})
+            }
               setAuthStatus('unauthed')
             }
           })
@@ -487,6 +492,16 @@ function App() {
   const handleLogout = useCallback(async () => {
     if (authStatus === 'authed') {
       try { await numapLogout() } catch { /* yine de yerel oturumu temizle */ }
+      // FAZ A + KVKK: numap-kaynaklı TÜM roster kayıtları (ad/okul/şehir + oturum
+      // payload'ları) cihazdan silinir — eski numap_children_cache_* süpürgesinin
+      // wholesale semantiğiyle birebir: herhangi bir öğretmenin çıkışı, çıkışsız
+      // ayrılmış önceki öğretmenin kalıntısını da temizler (veri yeniden çekilebilir).
+      // Oyun İLERLEMESİ ns-anahtarlıdır ve silinmez — sonraki girişte upsert aynı
+      // ns'i kurunca kaldığı yerden devam eder.
+      try {
+        const m = await import('./services/localProfiles.js')
+        m.removeNumapChildren(null)
+      } catch { /* temizlik başarısızsa oturum kapatma yine tamamlanır */ }
     }
     setSelectedChild(null); setTeacher(null); setAuthStatus('unauthed')
     setLocalSession(null); setEntryView('welcome')

@@ -54,8 +54,11 @@ function genNs(existing) {
 // Yerel çocuklar. ownerId verilirse YALNIZ o kullanıcının (öğretmenin) öğrencileri
 // döner (izolasyon); verilmezse (StudentPicker self-login) tüm cihaz roster'ı döner.
 // ownerId === null → sahipsiz/yönetici-öğrencileri (eski kayıtlar ve admin'in eklediği).
+// FAZ A (2026-08-05): Numap-kaynaklı roster kayıtları (source==='numap') yerel
+// yüzeylerde GÖRÜNMEZ — StudentPicker/yerel hub davranışı değişmez; Numap listesi
+// için listNumapChildren kullanılır. (Birleşik liste UI'ı Faz B'nin işi.)
 export function listChildren(ownerId) {
-  let arr = readAll();
+  let arr = readAll().filter((c) => c.source !== 'numap');
   if (ownerId !== undefined) arr = arr.filter((c) => (c.ownerId || null) === (ownerId || null));
   return arr.sort(
     (a, b) =>
@@ -69,7 +72,7 @@ export function getChild(ns) {
 }
 
 export function childCount() {
-  return readAll().length;
+  return readAll().filter((c) => c.source !== 'numap').length;
 }
 
 // Yeni yerel çocuk oluştur. pin '' ise PIN'siz (serbest) giriş.
@@ -115,12 +118,18 @@ export function removeChild(ns, wipeProgress = false) {
 /** Çocuğun tüm ns-namespace'li oyun verisini sil (geri alınamaz). */
 export function wipeChildData(ns) {
   try {
+    // Sonek çakışma koruması (Faz A): başka bir çocuğun ns'i hedef ns ile BİTİYORSA
+    // (ör. numap_<key>_local_3 ↔ local_3) onun anahtarları yanlışlıkla silinmesin.
+    const others = readAll()
+      .map((c) => c.ns)
+      .filter((x) => x && x !== ns && x.endsWith(ns));
+    const conflict = (k) => others.some((x) => k.endsWith(`_${x}`) || k.endsWith(`-${x}`));
     const toRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k) continue;
       // ds_*_<ns>, dokunsay-user-<ns>, dokunsay-lb-<ns>, numap_intervention_<ns>
-      if (k.endsWith(`_${ns}`) || k.endsWith(`-${ns}`) || k === `numap_intervention_${ns}`) {
+      if ((k.endsWith(`_${ns}`) || k.endsWith(`-${ns}`) || k === `numap_intervention_${ns}`) && !conflict(k)) {
         toRemove.push(k);
       }
     }
@@ -137,13 +146,17 @@ export function touchChild(ns) {
 
 export function hasPin(ns) {
   const c = getChild(ns);
+  if (c && c.source === 'numap') return false; // numap kaydında pin kavramı yok
   return !!(c && c.pin);
 }
 
-/** PIN doğrula (hash'li). Çocuğun PIN'i yoksa her zaman geçerli (serbest giriş). */
+/** PIN doğrula (hash'li). Çocuğun PIN'i yoksa her zaman geçerli (serbest giriş).
+ *  Numap-kaynaklı kayıt: DAİMA reddet — pin alanı olmadığından "serbest giriş"
+ *  sayılmasın (bugün bu yola çağrı yok; Faz B öncesi korkuluk). */
 export async function verifyPin(ns, pin) {
   const c = getChild(ns);
   if (!c) return false;
+  if (c.source === 'numap') return false;
   if (!c.pin) return true;
   // Geriye uyumluluk: eski düz-metin PIN (önek yok) → düz karşılaştır; yeni PIN'ler hash'li.
   if (!/^(pbkdf2|sha256|plain):/.test(c.pin)) {
@@ -155,6 +168,144 @@ export async function verifyPin(ns, pin) {
     return ok;
   }
   return verifyHash(String(pin), c.pin);
+}
+
+// ── Numap-kaynaklı roster kayıtları (FAZ A — birleşik roster temeli) ─────────
+// Numap öğretmeninin tanıladığı çocuklar da AYNI roster'da yaşar: kayıt
+// source:'numap' + numapOwnerId (öğretmen id) ile etiketlenir, ns=numap_<studentKey>
+// AYNEN korunur (ilerleme verisi ns'e kilitli — asla değişmez). Ağır oturum
+// payload'ı (madde yanıtları) roster listesini şişirmesin diye çocuk-başına ayrı
+// anahtarda tutulur: galaksay_numap_session_<ns>. Bu yapı eski
+// numap_children_cache_<userId> önbelleğinin yerini alır (çevrimdışı liste
+// roster'dan gelir). KVKK: öğretmen çıkışında kayıtlar removeNumapChildren ile
+// silinir; oyun ilerlemesi (ds_*_<ns>, IndexedDB) YERİNDE kalır — sonraki
+// girişte upsert aynı ns'i kurunca kaldığı yerden devam eder.
+
+const NUMAP_SESSION_KEY = (ns) => `galaksay_numap_session_${ns}`;
+
+function readSessionPayload(ns) {
+  try {
+    const raw = localStorage.getItem(NUMAP_SESSION_KEY(ns));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Numap listesini roster'a UPSERT eder (o öğretmenin kayıtları için otoriter:
+ * listede olmayan eski kayıtları budar — eski cache'in wholesale-değiştirme
+ * semantiğiyle birebir). Yerel (source!=='numap') kayıtlara ve DİĞER öğretmenin
+ * kayıtlarına DOKUNMAZ: kayıtlar (ns, numapOwnerId) çifti başına tutulur — aynı
+ * çocuğu (deterministik studentKey → aynı ns) iki öğretmen de görüyorsa iki ayrı
+ * kayıt yaşar; ns-paylaşımlı payload anahtarı ancak HİÇBİR kayıt kalmayınca silinir.
+ * Yazım sırası: ÖNCE roster (writeAll), payload'lar ancak roster kalıcıysa —
+ * kota düşmesinde ortada sahipsiz (roster'sız) PII payload'ı kalmaz.
+ * @param {string} userId  Numap öğretmen id'si (zorunlu; yoksa no-op)
+ * @param {Array}  items   distinctChildren çıktısı: {ns, studentKey, name, ageMonths,
+ *                         grade, savedAt, sessionId, status, school, city, district,
+ *                         gender, assessmentDate, birthDate, session}
+ * @returns {boolean} roster kalıcı olarak yazıldıysa true — çağıran, eski cache'i
+ *                    ancak true dönünce silmelidir.
+ */
+export function upsertNumapChildren(userId, items) {
+  if (!userId || !Array.isArray(items)) return false;
+  const list = readAll();
+  const keep = new Set(items.map((i) => i.ns).filter(Boolean));
+  const now = new Date().toISOString();
+
+  // Bu öğretmenin listeden düşen eski numap kayıtlarını buda (payload'a henüz dokunma).
+  const droppedNs = [];
+  const pruned = list.filter((c) => {
+    const mine = c.source === 'numap' && (c.numapOwnerId || null) === userId;
+    if (mine && !keep.has(c.ns)) { droppedNs.push(c.ns); return false; }
+    return true;
+  });
+
+  for (const it of items) {
+    if (!it?.ns) continue;
+    const rec = {
+      ns: it.ns,
+      source: 'numap',
+      numapOwnerId: userId,
+      numapStudentKey: it.studentKey || null,
+      numapSessionId: it.sessionId || null,
+      name: it.name || 'İsimsiz',
+      ageMonths: it.ageMonths || 0,
+      grade: it.grade || '',
+      school: it.school || '',
+      city: it.city || '',
+      district: it.district || '',
+      gender: it.gender || '',
+      assessmentDate: it.assessmentDate || '',
+      birthDate: it.birthDate || '',
+      savedAt: it.savedAt || '',
+      status: it.status || 'completed',
+      updatedAt: now,
+    };
+    const i = pruned.findIndex(
+      (c) => c.ns === it.ns && c.source === 'numap' && (c.numapOwnerId || null) === userId,
+    );
+    if (i >= 0) pruned[i] = { ...pruned[i], ...rec };
+    else pruned.push({ ...rec, createdAt: now });
+  }
+
+  if (!writeAll(pruned)) return false; // roster yazılamadı → payload/temizlik YOK
+
+  // Roster kalıcı — budanan çocukların payload'ı yalnız başka sahip kalmadıysa gider.
+  const stillRef = (ns) => pruned.some((c) => c.source === 'numap' && c.ns === ns);
+  for (const ns of droppedNs) {
+    if (!stillRef(ns)) {
+      try { localStorage.removeItem(NUMAP_SESSION_KEY(ns)); } catch { /* yok say */ }
+    }
+  }
+  for (const it of items) {
+    if (it?.ns && it.session) {
+      try { localStorage.setItem(NUMAP_SESSION_KEY(it.ns), JSON.stringify(it.session)); } catch { /* depolama dolu → payload'sız devam (liste yine çalışır; seçim session=null'a toleranslı) */ }
+    }
+  }
+  return true;
+}
+
+/**
+ * Öğretmenin numap-kaynaklı çocukları — ChildSelect liste biçiminde (session
+ * payload'ı iliştirilmiş; depolama payload'ı düşürmüşse session=null döner,
+ * seçimde numapProfile nötr varsayılanlarla kurulur). savedAt'e göre yeni→eski.
+ */
+export function listNumapChildren(userId) {
+  if (!userId) return [];
+  return readAll()
+    .filter((c) => c.source === 'numap' && (c.numapOwnerId || null) === userId)
+    .map((c) => ({ ...c, session: readSessionPayload(c.ns) }))
+    .sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
+}
+
+/**
+ * Numap-kaynaklı kayıtları sil (KVKK — öğretmen çıkışı). userId verilirse yalnız
+ * o öğretmeninkiler; null/undefined → TÜM numap kayıtları (kimlik bilinmiyorsa
+ * temiz bırakmak yeniden-çekmekten iyidir). Oyun ilerlemesi SİLİNMEZ.
+ * Payload temizliği KALICI duruma göre yapılır: silme sonrası roster'da referansı
+ * kalmayan TÜM galaksay_numap_session_* anahtarları süpürülür — kota yarışlarından
+ * artakalan sahipsiz payload'lar da (orphan) böylece garantili gider.
+ */
+export function removeNumapChildren(userId) {
+  const list = readAll();
+  const rest = list.filter(
+    (c) => !(c.source === 'numap' && (userId == null || (c.numapOwnerId || null) === userId)),
+  );
+  if (rest.length !== list.length) writeAll(rest);
+  try {
+    // Gerçek kalıcı durumdan oku (writeAll düştüyse yanlışlıkla referanslı payload silinmesin).
+    const ref = new Set(readAll().filter((c) => c.source === 'numap').map((c) => c.ns));
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('galaksay_numap_session_') && !ref.has(k.slice('galaksay_numap_session_'.length))) {
+        toRemove.push(k);
+      }
+    }
+    toRemove.forEach((k) => localStorage.removeItem(k));
+  } catch { /* depolama engelli */ }
 }
 
 // ── Yönetici (admin) PIN'i ──────────────────────────────────────────────────

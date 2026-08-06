@@ -4,7 +4,7 @@
 
 import { startSession, endSession, trackEvent, setChildId, flushEvents, createTimer } from './EventCollector.js';
 import { onSessionEnd } from './SummaryScheduler.js';
-import { openDB, saveChildProfile } from './database.js';
+import { openDB, saveChildProfile, getChildProfile } from './database.js';
 import { classifyAnswer } from '../utils/errorClassifier.js';
 
 /** @typedef {import('../types').Question} Question */
@@ -79,23 +79,32 @@ async function initAnalytics(childId, metadata = {}) {
     await openDB();
     setChildId(childId || 'default_child');
 
-    // Çocuk profili oluştur/güncelle
+    // Çocuk profili oluştur/güncelle — MEVCUT kayıtla BİRLEŞTİREREK: saveChildProfile
+    // tam putRecord'dur; eksik/boş gelen alanların daha önce yazılmış NuMap taban
+    // çizgisini (nuMapRiskLevel/nuMapCategoryScores/demografi) ezmemesi gerekir.
+    // (Faz A degraded yolu: çevrimdışı + payload'sız seçimde childMeta yalnız
+    // ad/sınıf taşır — baseline korunur, çevrimiçi seçimde tazelenir.)
     if (childId) {
+      let existing = null;
+      try { existing = await getChildProfile(childId); } catch { /* ilk kayıt */ }
+      const pick = (val, old) => (val === undefined || val === null || val === '' ? (old ?? null) : val);
+      const e = existing || {};
       await saveChildProfile({
+        ...e,
         childId,
-        name: metadata.name || null,
-        birthDate: metadata.birthDate || null,
-        gradeLevel: metadata.gradeLevel || null,
-        nuMapProfileId: metadata.nuMapProfileId || null,
-        nuMapRiskLevel: metadata.nuMapRiskLevel || null,
-        nuMapAssessmentDate: metadata.nuMapAssessmentDate || null,
+        name: pick(metadata.name, e.name),
+        birthDate: pick(metadata.birthDate, e.birthDate),
+        gradeLevel: pick(metadata.gradeLevel, e.gradeLevel),
+        nuMapProfileId: pick(metadata.nuMapProfileId, e.nuMapProfileId),
+        nuMapRiskLevel: pick(metadata.nuMapRiskLevel, e.nuMapRiskLevel),
+        nuMapAssessmentDate: pick(metadata.nuMapAssessmentDate, e.nuMapAssessmentDate),
         // Akademik demografik + ön-son kategori ölçeği (Faz 0 — CSV/PDF/karşılaştırma).
-        gender: metadata.gender || null,
-        school: metadata.school || null,
-        city: metadata.city || null,
-        district: metadata.district || null,
-        ageMonths: metadata.ageMonths || null,
-        nuMapCategoryScores: metadata.nuMapCategoryScores || null,
+        gender: pick(metadata.gender, e.gender),
+        school: pick(metadata.school, e.school),
+        city: pick(metadata.city, e.city),
+        district: pick(metadata.district, e.district),
+        ageMonths: pick(metadata.ageMonths, e.ageMonths),
+        nuMapCategoryScores: pick(metadata.nuMapCategoryScores, e.nuMapCategoryScores),
       });
     }
 
