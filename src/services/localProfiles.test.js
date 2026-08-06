@@ -187,4 +187,18 @@ describe('localProfiles — numap roster (Faz A)', () => {
     await expect(verifyPin('numap_a', '')).resolves.toBe(false);
     await expect(verifyPin('numap_a', '1234')).resolves.toBe(false);
   });
+
+  // ── Faz B: Numap öğretmeninin eklediği yerel profiller ("numap:<id>" sahipliği) ──
+
+  it('numap:<id> sahipli yerel profil: sahibine görünür, yönetici listesine sızmaz, StudentPicker\'da yaşar', () => {
+    const mine = addChild({ name: 'Elle Eklenen', ownerId: 'numap:u1' });
+    addChild({ name: 'Yönetici Çocuğu', ownerId: null });
+    expect(listChildren('numap:u1').map((c) => c.ns)).toEqual([mine.ns]); // öğretmenin tek listesi
+    expect(listChildren(null).map((c) => c.name)).toEqual(['Yönetici Çocuğu']); // yerel yönetici görünümü
+    expect(listChildren().map((c) => c.name).sort()).toEqual(['Elle Eklenen', 'Yönetici Çocuğu']); // çocuk self-login (tümü)
+    // Numap roster temizliği (çıkış) elle eklenen YEREL profile dokunmaz
+    upsertNumapChildren('u1', [item('a')]);
+    removeNumapChildren(null);
+    expect(listChildren('numap:u1')).toHaveLength(1);
+  });
 });

@@ -199,10 +199,13 @@ export async function exportAcademicCSV({ childId = null, childIds = null, anony
   }));
 
   // child_meta.csv — demografik + baseline (anonimde ad/doğum tarihi çıkar; demografik değişkenler kalır)
-  const cHeaders = ['childKey', 'pseudoId', 'name', 'birthDate', 'gradeLevel', 'gender', 'school',
+  // FAZ B: 'source' kolonu — karışık rosterda Numap-tanılı (baseline'lı) çocuklar ile
+  // elle eklenen yerel profiller araştırmacı için ayrışsın (ns önekinden türetilir).
+  const cHeaders = ['childKey', 'pseudoId', 'source', 'name', 'birthDate', 'gradeLevel', 'gender', 'school',
     'city', 'district', 'ageMonths', 'nuMapRiskLevel', 'nuMapAssessmentDate'];
   const cRows = fProfiles.map((p) => ({
     childKey: key(p.childId), pseudoId: pseudo[p.childId] || '',
+    source: (p.childId || '').startsWith('numap_') ? 'numap' : 'local',
     name: anonymous ? '' : p.name, birthDate: anonymous ? '' : p.birthDate,
     gradeLevel: p.gradeLevel, gender: p.gender, school: p.school, city: p.city, district: p.district,
     ageMonths: p.ageMonths, nuMapRiskLevel: p.nuMapRiskLevel, nuMapAssessmentDate: p.nuMapAssessmentDate,
@@ -235,6 +238,8 @@ function readme(anonymous, childId) {
     '  sessions.csv      Her satır bir oyun oturumu.',
     '  daily_summary.csv Her satır bir çocuk×gün×kategori (boylamsal).',
     '  child_meta.csv    Her satır bir çocuk (demografik + Numap baseline risk).',
+    "                    'source' kolonu: numap = tarama baseline'lı; local = elle eklenen",
+    '                    profil (baseline alanları boş gelir — analizde ayırınız).',
     '',
     'Anahtar: pseudoId tüm dosyalarda çocuğu eşleştirir (anonim modda ham kimlik yok).',
     'Bu veri yalnız bu cihazda oynanan oturumları içerir (merkezi havuz değil).',

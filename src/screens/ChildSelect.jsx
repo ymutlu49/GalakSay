@@ -6,7 +6,7 @@
 // → oturum numapProfile'a çevrilip (numapAdapter) onSelect ile oyuna geçer.
 // Çevrimdışı: son başarılı liste localStorage cache'inden gösterilir.
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { SpaceBackground } from '../design-system/components/SpaceBackground.jsx';
 import { Button } from '../design-system/components/Button.jsx';
 import { Card } from '../design-system/components/Card.jsx';
@@ -159,36 +159,51 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
   // Yerel kimlik: admin (isAdmin) tüm sahipsiz öğrencilerini + kullanıcı yönetimini görür;
   // yerel kullanıcı (öğretmen) yalnız kendi öğrencilerini (ownerId === user.id) görür.
   const isAdmin = isLocal && !!user?.isAdmin;
-  const ownerId = isLocal ? (user?.id || null) : undefined;
+  // FAZ B: Numap öğretmeni de yerel profil ekleyebilir — sahiplik "numap:<id>" ile
+  // etiketlenir (yerel kullanıcı id'leriyle çakışmaz; RBAC: yalnız kendi eklediklerini görür).
+  const ownerId = isLocal ? (user?.id || null) : user?.id ? `numap:${user.id}` : null;
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
+  const [numapDown, setNumapDown] = useState(false); // Numap listesi alınamadı, yalnız yerel gösteriliyor
   const [error, setError] = useState('');
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [showMore, setShowMore] = useState(false);
   const [view, setView] = useState('home'); // 'home' (hub) | 'list' | 'classPanel' | 'settings' | 'childForm'
   const [formChild, setFormChild] = useState(null); // childForm: düzenlenen yerel çocuk (null=yeni)
+  // Örtüşen load çağrılarında (🔄 + form-kaydet + Tekrar dene) SON istek kazanır —
+  // closure-bazlı iptal yalnız useEffect cleanup'ında çalışıyordu; geç dönen bayat
+  // istek listeyi/rozeti ezebiliyordu (Faz B doğrulama bulgusu).
+  const reqSeq = useRef(0);
 
   const load = useCallback(() => {
     // Yerel mod: localProfiles roster'ından oku (ağ yok, senkron). Sahibe göre süz
     // (admin → sahipsiz/kendi; yerel kullanıcı → yalnız user.id'li öğrenciler).
     if (source === 'local') {
-      const list = listChildren(user?.id || null).map((c) => ({ ...c, savedAt: c.lastSeenAt || c.createdAt }));
+      const list = listChildren(user?.id || null).map((c) => ({ ...c, source: 'local', savedAt: c.lastSeenAt || c.createdAt }));
       setChildren(list);
       setLoading(false);
       setOffline(false);
       setError('');
       return () => {};
     }
-    let active = true;
+    // FAZ B (tek liste): Numap öğretmeninin listesi = Numap tarama çocukları
+    // (kaynak rozeti 🛰️) + kendi eklediği yerel profiller (rozet 🏠, çevrimdışı
+    // ekleme/oynatma her zaman mümkün — "Numap zorunlu değildir" vaadi tek listede).
+    const myLocal = () =>
+      user?.id
+        ? listChildren(`numap:${user.id}`).map((c) => ({ ...c, source: 'local', savedAt: c.lastSeenAt || c.createdAt }))
+        : [];
+    const my = ++reqSeq.current; // son çağrı kazanır
     setLoading(true);
     setError('');
     getSessions()
       .then((sessions) => {
-        if (!active) return;
-        const d = distinctChildren(sessions);
-        setChildren(d);
+        if (reqSeq.current !== my) return;
+        const d = distinctChildren(sessions).map((c) => ({ ...c, source: 'numap' }));
+        setChildren([...d, ...myLocal()]);
         setOffline(false);
+        setNumapDown(false);
         // FAZ A: liste roster'a upsert edilir (ns korunur); eski cache YALNIZ
         // roster kalıcı yazılmışsa silinir (kota düşmesinde çevrimdışı yedek yanmasın).
         if (user?.id && upsertNumapChildren(user.id, d)) {
@@ -196,7 +211,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         }
       })
       .catch(() => {
-        if (!active) return;
+        if (reqSeq.current !== my) return;
         // Çevrimdışı/sunucu hatası → roster'dan oku; roster boşsa ESKİ cache'i
         // bir defalık taşı (kırılmasız geçiş: ilk Faz-A açılışı çevrimdışıysa bile
         // önceki oturumun listesi kaybolmaz).
@@ -209,26 +224,36 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             if (upsertNumapChildren(user.id, list)) clearLegacyCache(user.id);
           }
         }
-        if (list.length) {
-          setChildren(list);
-          setOffline(true);
+        const merged = [...list.map((c) => ({ ...c, source: 'numap' })), ...myLocal()];
+        if (merged.length) {
+          setChildren(merged);
+          // Bayat-liste rozeti yalnız Numap listesi varken; Numap listesi HİÇ yoksa
+          // (yalnız yerel profiller) sessiz düşme yerine bilgi şeridi göster.
+          setOffline(list.length > 0);
+          setNumapDown(list.length === 0);
         } else {
-          setError('Öğrenci listesi alınamadı — internet bağlantınızı kontrol edin.');
+          setError('Öğrenci listesi alınamadı. İnternet olmadan da sağ üstteki "➕ Yeni Öğrenci" ile profil ekleyip oynatabilirsiniz.');
         }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (reqSeq.current === my) setLoading(false);
       });
-    return () => {
-      active = false;
-    };
   }, [user, source]);
 
-  useEffect(() => load(), [load]);
+  useEffect(() => {
+    load();
+    return () => { reqSeq.current++; }; // unmount → uçuştaki istekler bayatlar
+  }, [load]);
 
   // Yerel çocuk ekle/düzenle sonrası roster'ı tazele + listeye dön.
   const onFormSave = useCallback(() => { load(); setView('list'); }, [load]);
-  const openAddChild = useCallback(() => { setFormChild(null); setView('childForm'); }, []);
+  // Korkuluk: numap modunda user.id yoksa (bozuk önbellek ucu) ekleme açılmaz —
+  // ownerId null'a düşüp çocuğun yönetici havuzuna yazılması/kaybolması önlenir.
+  const openAddChild = useCallback(() => {
+    if (!isLocal && !user?.id) return;
+    setFormChild(null);
+    setView('childForm');
+  }, [isLocal, user]);
   const openEditChild = useCallback((rec) => { setFormChild(rec); setView('childForm'); }, []);
 
   const setF = (k, v) => setFilters((f) => ({ ...f, [k]: v }));
@@ -281,6 +306,24 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         onSelect?.(item);
         return;
       }
+      // FAZ B: Numap modundaki YEREL kayıt (öğretmenin eklediği profil) — main.jsx
+      // handleSelectLocalChild ile birebir aynı oyun-prop şekline çevrilir
+      // (numapProfile yok; öğretmen başlattı → directPlay=false, panel araçları açık).
+      if (item.source === 'local') {
+        onSelect?.({
+          ns: item.ns,
+          name: item.name,
+          avatar: item.avatar,
+          grade: item.grade || '',
+          ageMonths: 0,
+          ageGroup: item.ageGroup || null,
+          numapProfile: null,
+          childMeta: { name: item.name, gradeLevel: item.grade || '' },
+          local: true,
+          directPlay: false,
+        });
+        return;
+      }
       const session = item.session || null;
       // ns kaynağı ÖNCE roster kaydı (FAZ A: kayıt zaten ns taşır) — session
       // payload'ı depolamadan düşmüş olsa bile çocuğun kimliği/ilerlemesi korunur.
@@ -299,7 +342,8 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
     [onSelect, source],
   );
 
-  const showFilters = !loading && !error && children.length > 1 && !isLocal;
+  // Yenilemede (children doluyken) panel/liste yerinde kalır — yalnız İLK yüklemede gizli.
+  const showFilters = !error && children.length > 1 && !isLocal;
 
   // Yerel çocuk ekle/düzenle formu — yeni çocuk geçerli kullanıcının sahipliğiyle etiketlenir.
   if (view === 'childForm') {
@@ -392,8 +436,10 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                 onClick={() => setView('list')}
               />
               )}
-              <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? 'repeat(2, 1fr)' : isLocal ? 'repeat(3, 1fr)' : '1fr 1fr', gap: 12 }}>
-                {isLocal && <HubCard vertical icon="➕" title="Yeni Öğrenci" desc="Profil ekle" onClick={openAddChild} />}
+              {/* FAZ B: "Yeni Öğrenci" artık Numap modunda da var — taramasız çocuk
+                  eklemek için yerel hesaba geçmek gerekmiyor (tek liste). */}
+              <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: 12 }}>
+                <HubCard vertical icon="➕" title="Yeni Öğrenci" desc="Profil ekle" onClick={openAddChild} />
                 <HubCard vertical icon="📊" title="Sınıf İlerlemesi" desc="Gelişimi izle" onClick={() => setView('classPanel')} />
                 {isAdmin && <HubCard vertical icon="👥" title="Kullanıcılar" desc="Öğretmen/uzman ekle" onClick={() => setView('users')} />}
                 <HubCard vertical icon="⚙️" title="Ayarlar" desc="Erişim · veri · dil" onClick={() => setView('settings')} />
@@ -423,7 +469,14 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         <div style={{ marginBottom: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
             <Button variant="ghost" size="sm" onClick={() => setView('home')}>← Ana Sayfa</Button>
-            {isLocal && <Button variant="primary" size="sm" onClick={openAddChild}>➕ Yeni Öğrenci</Button>}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {!isLocal && (
+                <Button variant="ghost" size="sm" onClick={load} disabled={loading}>
+                  🔄 Numap'ten güncelle
+                </Button>
+              )}
+              <Button variant="primary" size="sm" onClick={openAddChild}>➕ Yeni Öğrenci</Button>
+            </div>
           </div>
           <h1
             style={{
@@ -437,7 +490,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             {isLocal ? 'Öğrenciler' : 'Hangi çocukla çalışacaksınız?'}
           </h1>
           <p style={{ fontSize: 14, color: colors.text.secondary, fontFamily: typography.fontFamily.display, margin: 0 }}>
-            {isLocal ? 'Bir öğrenciye dokun, oyunu başlat • ✏️ ile düzenle' : `${user?.name ? `${user.name} • ` : ''}Numap değerlendirmeleriniz`}
+            {isLocal ? 'Bir öğrenciye dokun, oyunu başlat • ✏️ ile düzenle' : `${user?.name ? `${user.name} • ` : ''}🛰️ Numap taramalarınız + 🏠 eklediğiniz profiller tek listede`}
           </p>
         </div>
 
@@ -457,6 +510,26 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             }}
           >
             ⚠️ Çevrimdışısınız — en son alınan liste gösteriliyor.
+          </div>
+        )}
+
+        {/* Numap listesi hiç alınamadıysa (yalnız yerel profiller görünüyorken) sessiz düşme yerine bilgi ver */}
+        {numapDown && !offline && (
+          <div
+            role="status"
+            style={{
+              background: 'rgba(124,58,237,.12)',
+              border: '1px solid rgba(124,58,237,.4)',
+              color: colors.text.secondary,
+              borderRadius: layout.borderRadius.md,
+              padding: '8px 14px',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: typography.fontFamily.display,
+              marginBottom: 16,
+            }}
+          >
+            🛰️ Numap listesi alınamadı — şimdilik yalnız cihazdaki profiller gösteriliyor. Bağlantı gelince "🔄 Numap'ten güncelle"ye dokunun.
           </div>
         )}
 
@@ -558,7 +631,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         )}
 
         {/* ── İçerik ── */}
-        {loading ? (
+        {loading && children.length === 0 ? (
           <div style={{ textAlign: 'center', color: colors.text.secondary, fontFamily: typography.fontFamily.display, padding: 48 }}>
             Yükleniyor…
           </div>
@@ -574,13 +647,22 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
               onAction={openAddChild}
             />
           ) : (
-            <EmptyState
-              icon="🧒"
-              title="Henüz değerlendirilen çocuk yok"
-              description="Numap'te bir tarama tamamlayın; çocuk burada otomatik görünecek. Taramasız oynatmak için çıkışta 'Yerel Hesap'la girip öğrenci ekleyebilirsiniz."
-              actionLabel="Numap'te tarama başlat ↗"
-              onAction={() => window.open('https://getnumap.com', '_blank', 'noopener')}
-            />
+            // FAZ B: iki eşit yol — taramasız da başlanabilir (yerel profil bu
+            // listede yaşar), tarama sonrası çocuk otomatik eklenir. Çıkmaz yok.
+            <div>
+              <EmptyState
+                icon="🧒"
+                title="Henüz öğrenci yok"
+                description="Hemen bir profil ekleyip oynamaya başlayabilirsiniz. Numap'te tarama tamamlarsanız çocuk bu listeye otomatik gelir ve oyun ona göre kalibre edilir."
+                actionLabel="➕ İlk Öğrencini Ekle"
+                onAction={openAddChild}
+              />
+              <div style={{ textAlign: 'center', marginTop: -20 }}>
+                <Button variant="ghost" size="sm" onClick={() => window.open('https://getnumap.com', '_blank', 'noopener')}>
+                  🛰️ Numap'te tarama başlat ↗
+                </Button>
+              </div>
+            </div>
           )
         ) : filtered.length === 0 ? (
           <EmptyState
@@ -594,10 +676,13 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
           <div style={{ display: 'grid', gap: 12 }}>
             {filtered.map((c) => {
               const avatarGlyph = c.avatar || avatarFor(c.name);
-              const metaLine = isLocal
+              // Öğe-bazlı kaynak: Numap modundaki tek liste karışıktır (FAZ B) —
+              // meta/rozet/düzenleme kartın kendi kaynağına göre belirlenir.
+              const isLocalItem = c.source === 'local';
+              const metaLine = isLocalItem
                 ? [ageGroupLabel(c.ageGroup), gradeLabel(c.grade)].filter(Boolean).join(' • ')
                 : [ageLabel(c.ageMonths), gradeLabel(c.grade), dateLabel(c.savedAt)].filter(Boolean).join(' • ');
-              const sub2 = isLocal ? '' : [c.school, c.city, genderLabel(c.gender)].filter(Boolean).join(' · ');
+              const sub2 = isLocalItem ? '' : [c.school, c.city, genderLabel(c.gender)].filter(Boolean).join(' · ');
               return (
                 <Card key={c.ns} onClick={() => handleSelect(c)} padding={18}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -617,18 +702,38 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                       {avatarGlyph}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 18,
-                          fontWeight: 800,
-                          color: colors.text.primary,
-                          fontFamily: typography.fontFamily.display,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {c.name}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                        <span
+                          style={{
+                            fontSize: 18,
+                            fontWeight: 800,
+                            color: colors.text.primary,
+                            fontFamily: typography.fontFamily.display,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {c.name}
+                        </span>
+                        {/* Kaynak rozeti — yalnız karışık listede (Numap modu) anlamlı */}
+                        {!isLocal && (
+                          <span
+                            style={{
+                              flexShrink: 0,
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              fontFamily: typography.fontFamily.display,
+                              padding: '2px 8px',
+                              borderRadius: layout.borderRadius.full,
+                              background: isLocalItem ? 'rgba(148,163,184,.16)' : 'rgba(124,58,237,.22)',
+                              border: `1px solid ${isLocalItem ? 'rgba(148,163,184,.35)' : 'rgba(124,58,237,.45)'}`,
+                              color: isLocalItem ? colors.text.secondary : '#c4b5fd',
+                            }}
+                          >
+                            {isLocalItem ? '🏠 Yerel' : '🛰️ Numap'}
+                          </span>
+                        )}
                       </div>
                       {metaLine && (
                         <div style={{ fontSize: 13, color: colors.text.tertiary, fontFamily: typography.fontFamily.display, marginTop: 2 }}>
@@ -641,7 +746,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         </div>
                       )}
                     </div>
-                    {isLocal && (
+                    {isLocalItem && (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); openEditChild(c); }}

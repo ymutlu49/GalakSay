@@ -492,10 +492,13 @@ function App() {
   const handleLogout = useCallback(async () => {
     if (authStatus === 'authed') {
       try { await numapLogout() } catch { /* yine de yerel oturumu temizle */ }
-      // FAZ A + KVKK: numap-kaynaklı TÜM roster kayıtları (ad/okul/şehir + oturum
+      // FAZ A + KVKK: numap-KAYNAKLI tüm roster kayıtları (ad/okul/şehir + oturum
       // payload'ları) cihazdan silinir — eski numap_children_cache_* süpürgesinin
       // wholesale semantiğiyle birebir: herhangi bir öğretmenin çıkışı, çıkışsız
       // ayrılmış önceki öğretmenin kalıntısını da temizler (veri yeniden çekilebilir).
+      // KAPSAM DIŞI (bilinçli, Faz B): öğretmenin ELLE eklediği yerel profiller
+      // (source:'local', ownerId 'numap:<id>') cihazda KALIR — çevrimdışı oynatma
+      // vaadi bunu gerektirir; ChildForm bu kalıcılığı ekleme anında aydınlatır.
       // Oyun İLERLEMESİ ns-anahtarlıdır ve silinmez — sonraki girişte upsert aynı
       // ns'i kurunca kaldığı yerden devam eder.
       try {
