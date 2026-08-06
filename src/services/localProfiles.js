@@ -109,9 +109,18 @@ export function updateChild(ns, patch) {
   return list[i];
 }
 
-/** Profili roster'dan kaldır. wipeProgress=true ise oyun ilerleme verisini de sil. */
+/** Profili roster'dan kaldır. wipeProgress=true ise oyun ilerleme verisini de sil.
+ *  FAZ C: kayıt bir Numap taramasına BAĞLIYSA bağ artıkları (gerçek-adlı oturum
+ *  payload'ı + türetilmiş müdahale planı) wipeProgress'ten BAĞIMSIZ temizlenir —
+ *  kayıt gidince bu anahtarları silebilecek başka yol kalmıyordu (orphan PII).
+ *  Oyun ilerlemesi (ds_*, dokunsay-user-*) yalnız wipeProgress=true ile gider. */
 export function removeChild(ns, wipeProgress = false) {
+  const rec = getChild(ns);
   writeAll(readAll().filter((c) => c.ns !== ns));
+  if (rec && rec.source !== 'numap' && rec.numapStudentKey) {
+    try { localStorage.removeItem(NUMAP_SESSION_KEY(ns)); } catch { /* yok say */ }
+    try { localStorage.removeItem(`numap_intervention_${ns}`); } catch { /* yok say */ }
+  }
   if (wipeProgress) wipeChildData(ns);
 }
 
@@ -276,7 +285,14 @@ export function listNumapChildren(userId) {
   if (!userId) return [];
   return readAll()
     .filter((c) => c.source === 'numap' && (c.numapOwnerId || null) === userId)
-    .map((c) => ({ ...c, session: readSessionPayload(c.ns) }))
+    // studentKey/sessionId takma adları: çevrimdışı liste, çevrimiçi distinctChildren
+    // çıktısıyla AYNI şekli taşır (Faz C eşleme + mükerrer-gizleme her iki yolda çalışır).
+    .map((c) => ({
+      ...c,
+      studentKey: c.numapStudentKey || null,
+      sessionId: c.numapSessionId || null,
+      session: readSessionPayload(c.ns),
+    }))
     .sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
 }
 
@@ -306,6 +322,98 @@ export function removeNumapChildren(userId) {
     }
     toRemove.forEach((k) => localStorage.removeItem(k));
   } catch { /* depolama engelli */ }
+}
+
+// ── FAZ C: yerel çocuğa Numap taraması BAĞLAMA ──────────────────────────────
+// Bağlama BİRLEŞTİRME değildir: yerel kaydın ns'i (local_N) AYNEN kalır; Numap
+// ilişkisi kayda alan olarak iliştirilir (numapStudentKey/numapSessionId/
+// numapSavedAt/numapLinkedAt). Oturum payload'ı aynı ns-anahtarlı depoda
+// (galaksay_numap_session_<ns>) yaşar — öğretmen çıkışında KVKK süpürmesiyle
+// gider (removeNumapChildren orphan taraması onu da kapsar; BİLİNÇLİ) ama bağ
+// alanları ve türetilmiş müdahale planı kalır; sonraki başarılı Numap
+// yenilemesinde refreshNumapLinks payload'ı geri yazar (kendini onarır).
+
+/** Bağlı yerel çocuğun oturum payload'ını oku (yoksa null — seçim toleranslı). */
+export function readNumapSessionPayload(ns) {
+  return readSessionPayload(ns);
+}
+
+/**
+ * Yerel çocuğa Numap taraması bağla. Bir studentKey aynı anda YALNIZ BİR yerel
+ * çocuğa bağlanabilir (mükerrer kimlik önlenir). Numap-kaynaklı kayda bağlama
+ * yapılamaz (onlar zaten taramanın kendisidir).
+ * @param {string} ns    yerel çocuk ns'i (local_N)
+ * @param {object} info  {studentKey, sessionId, savedAt, session}
+ * @returns {{ok: boolean, error: string}}
+ */
+export function linkNumapToChild(ns, info) {
+  if (!ns || !info?.studentKey) return { ok: false, error: 'Eksik bağlama bilgisi.' };
+  const list = readAll();
+  const i = list.findIndex((c) => c.ns === ns);
+  if (i < 0) return { ok: false, error: 'Çocuk kaydı bulunamadı.' };
+  if (list[i].source === 'numap') return { ok: false, error: 'Numap kaydına bağlama yapılmaz.' };
+  const taken = list.find((c) => c.ns !== ns && c.source !== 'numap' && c.numapStudentKey === info.studentKey);
+  if (taken) {
+    // Çapraz-sahip durumda başka öğretmenin çocuk rumuzu SIZDIRILMAZ (KVKK).
+    const sameOwner = (taken.ownerId || null) === (list[i].ownerId || null);
+    return {
+      ok: false,
+      error: sameOwner
+        ? `Bu tarama zaten "${taken.name}" profiline bağlı.`
+        : 'Bu tarama bu cihazda başka bir profile bağlı.',
+    };
+  }
+  list[i] = {
+    ...list[i],
+    numapStudentKey: info.studentKey,
+    numapSessionId: info.sessionId || null,
+    numapSavedAt: info.savedAt || '',
+    numapLinkedAt: new Date().toISOString(),
+  };
+  if (!writeAll(list)) return { ok: false, error: 'Depolamaya yazılamadı.' };
+  if (info.session) {
+    try { localStorage.setItem(NUMAP_SESSION_KEY(ns), JSON.stringify(info.session)); } catch { /* payload'sız da çalışır */ }
+  }
+  return { ok: true, error: '' };
+}
+
+/** Bağı kaldır: bağ alanları + payload + türetilmiş müdahale planı silinir.
+ *  Çocuğun OYUN ilerlemesi (ds_*_<ns>, IndexedDB) silinmez. */
+export function unlinkNumapFromChild(ns) {
+  const list = readAll();
+  const i = list.findIndex((c) => c.ns === ns);
+  if (i < 0) return false;
+  const { numapStudentKey, numapSessionId, numapSavedAt, numapLinkedAt, ...rest } = list[i];
+  list[i] = rest;
+  if (!writeAll(list)) return false;
+  try { localStorage.removeItem(NUMAP_SESSION_KEY(ns)); } catch { /* yok say */ }
+  try { localStorage.removeItem(`numap_intervention_${ns}`); } catch { /* yok say */ }
+  return true;
+}
+
+/**
+ * Başarılı Numap yenilemesinde bağlı yerel çocukların payload'ını tazele/onar
+ * (çıkış süpürmesi sonrası kendini iyileştirme). items = distinctChildren çıktısı.
+ */
+export function refreshNumapLinks(items) {
+  if (!Array.isArray(items) || !items.length) return;
+  const byKey = new Map(items.filter((x) => x?.studentKey).map((x) => [x.studentKey, x]));
+  const list = readAll();
+  let dirty = false;
+  for (let i = 0; i < list.length; i++) {
+    const c = list[i];
+    if (c.source === 'numap' || !c.numapStudentKey) continue;
+    const it = byKey.get(c.numapStudentKey);
+    if (!it) continue; // tarama artık listede yok → bağ durur, payload tazelenmez
+    if (c.numapSessionId !== (it.sessionId || null) || c.numapSavedAt !== (it.savedAt || '')) {
+      list[i] = { ...c, numapSessionId: it.sessionId || null, numapSavedAt: it.savedAt || '' };
+      dirty = true;
+    }
+    if (it.session) {
+      try { localStorage.setItem(NUMAP_SESSION_KEY(c.ns), JSON.stringify(it.session)); } catch { /* yok say */ }
+    }
+  }
+  if (dirty) writeAll(list);
 }
 
 // ── Yönetici (admin) PIN'i ──────────────────────────────────────────────────

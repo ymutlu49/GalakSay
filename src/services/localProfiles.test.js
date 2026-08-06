@@ -6,6 +6,7 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import {
   addChild,
+  removeChild,
   listChildren,
   childCount,
   upsertNumapChildren,
@@ -14,6 +15,10 @@ import {
   wipeChildData,
   hasPin,
   verifyPin,
+  linkNumapToChild,
+  unlinkNumapFromChild,
+  refreshNumapLinks,
+  readNumapSessionPayload,
 } from './localProfiles.js';
 
 const item = (key, over = {}) => ({
@@ -189,6 +194,96 @@ describe('localProfiles — numap roster (Faz A)', () => {
   });
 
   // ── Faz B: Numap öğretmeninin eklediği yerel profiller ("numap:<id>" sahipliği) ──
+
+  // ── Faz C: yerel çocuğa Numap taraması bağlama ────────────────────────────
+
+  const linkInfo = (key, over = {}) => ({
+    studentKey: key,
+    sessionId: `s_${key}`,
+    savedAt: '2026-08-06T09:00:00Z',
+    session: { id: `s_${key}`, studentKey: key, payload: { student: { name: 'Gerçek Ad' } } },
+    ...over,
+  });
+
+  it('link: alanlar iliştirilir, ns DEĞİŞMEZ, payload ns-anahtarına yazılır', () => {
+    const c = addChild({ name: 'Rumuz Deniz', ownerId: 'numap:u1' });
+    const r = linkNumapToChild(c.ns, linkInfo('k1'));
+    expect(r.ok).toBe(true);
+    const rec = listChildren('numap:u1')[0];
+    expect(rec.ns).toBe(c.ns); // local_1 aynen
+    expect(rec.numapStudentKey).toBe('k1');
+    expect(rec.numapSessionId).toBe('s_k1');
+    expect(readNumapSessionPayload(c.ns)?.studentKey).toBe('k1');
+  });
+
+  it('link tekilliği: aynı tarama ikinci yerel çocuğa bağlanamaz; numap kaydına bağlama reddedilir', () => {
+    const a = addChild({ name: 'Bir', ownerId: 'numap:u1' });
+    const b = addChild({ name: 'İki', ownerId: 'numap:u1' });
+    expect(linkNumapToChild(a.ns, linkInfo('k1')).ok).toBe(true);
+    const dup = linkNumapToChild(b.ns, linkInfo('k1'));
+    expect(dup.ok).toBe(false);
+    expect(dup.error).toContain('Bir');
+    upsertNumapChildren('u1', [item('x')]);
+    expect(linkNumapToChild('numap_x', linkInfo('k9')).ok).toBe(false);
+  });
+
+  it('unlink: bağ alanları + payload + müdahale planı gider; oyun verisi kalır', () => {
+    const c = addChild({ name: 'Rumuz', ownerId: 'numap:u1' });
+    linkNumapToChild(c.ns, linkInfo('k1'));
+    localStorage.setItem(`numap_intervention_${c.ns}`, '{"source":"numap"}');
+    localStorage.setItem(`dokunsay-user-${c.ns}`, '{"stats":{"totalGames":2}}');
+    expect(unlinkNumapFromChild(c.ns)).toBe(true);
+    const rec = listChildren('numap:u1')[0];
+    expect(rec.numapStudentKey).toBeUndefined();
+    expect(readNumapSessionPayload(c.ns)).toBeNull();
+    expect(localStorage.getItem(`numap_intervention_${c.ns}`)).toBeNull();
+    expect(localStorage.getItem(`dokunsay-user-${c.ns}`)).not.toBeNull();
+  });
+
+  it('çıkış süpürmesi bağlı payload\'ı alır (BİLİNÇLİ) ama bağ kalır; refreshNumapLinks onarır', () => {
+    const c = addChild({ name: 'Rumuz', ownerId: 'numap:u1' });
+    linkNumapToChild(c.ns, linkInfo('k1'));
+    removeNumapChildren(null); // çıkış: orphan taraması ns=local_* payload'ını da süpürür
+    expect(readNumapSessionPayload(c.ns)).toBeNull();
+    expect(listChildren('numap:u1')[0].numapStudentKey).toBe('k1'); // bağ durur
+    // Sonraki başarılı yenileme: aynı studentKey listede → payload geri yazılır + sürüm tazelenir
+    refreshNumapLinks([{ studentKey: 'k1', sessionId: 's_k1_yeni', savedAt: '2026-08-07T10:00:00Z', session: { id: 's_k1_yeni', studentKey: 'k1' } }]);
+    expect(readNumapSessionPayload(c.ns)?.id).toBe('s_k1_yeni');
+    const rec = listChildren('numap:u1')[0];
+    expect(rec.numapSessionId).toBe('s_k1_yeni');
+    expect(rec.numapSavedAt).toBe('2026-08-07T10:00:00Z');
+  });
+
+  it('bağlı profil silinince bağ artıkları da gider (payload+plan); oyun verisi kalır', () => {
+    const c = addChild({ name: 'Rumuz', ownerId: 'numap:u1' });
+    linkNumapToChild(c.ns, linkInfo('k1'));
+    localStorage.setItem(`numap_intervention_${c.ns}`, '{"source":"numap"}');
+    localStorage.setItem(`dokunsay-user-${c.ns}`, '{"stats":{"totalGames":2}}');
+    removeChild(c.ns, false); // ChildForm'un çağırdığı biçim (wipeProgress=false)
+    expect(readNumapSessionPayload(c.ns)).toBeNull();
+    expect(localStorage.getItem(`numap_intervention_${c.ns}`)).toBeNull();
+    expect(localStorage.getItem(`dokunsay-user-${c.ns}`)).not.toBeNull(); // ilerleme durur
+    expect(listChildren('numap:u1')).toHaveLength(0);
+  });
+
+  it('çapraz-sahip bağlama çakışmasında rumuz sızdırılmaz (jenerik mesaj)', () => {
+    const a = addChild({ name: 'Gizli Rumuz', ownerId: 'numap:u1' });
+    const b = addChild({ name: 'B Çocuğu', ownerId: 'numap:u2' });
+    expect(linkNumapToChild(a.ns, linkInfo('k1')).ok).toBe(true);
+    const r = linkNumapToChild(b.ns, linkInfo('k1'));
+    expect(r.ok).toBe(false);
+    expect(r.error).not.toContain('Gizli Rumuz');
+    expect(r.error).toContain('başka bir profile bağlı');
+  });
+
+  it('refreshNumapLinks: listede olmayan bağ anahtarına dokunmaz', () => {
+    const c = addChild({ name: 'Rumuz', ownerId: 'numap:u1' });
+    linkNumapToChild(c.ns, linkInfo('k1'));
+    refreshNumapLinks([{ studentKey: 'BASKA', sessionId: 's_b', savedAt: '2026-08-07T00:00:00Z', session: { id: 's_b' } }]);
+    const rec = listChildren('numap:u1')[0];
+    expect(rec.numapSessionId).toBe('s_k1'); // değişmedi
+    expect(readNumapSessionPayload(c.ns)?.id).toBe('s_k1');
+  });
 
   it('numap:<id> sahipli yerel profil: sahibine görünür, yönetici listesine sızmaz, StudentPicker\'da yaşar', () => {
     const mine = addChild({ name: 'Elle Eklenen', ownerId: 'numap:u1' });

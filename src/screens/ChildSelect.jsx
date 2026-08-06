@@ -16,7 +16,10 @@ import { typography } from '../design-system/typography.js';
 import { layout } from '../design-system/spacing.js';
 import { getSessions } from '../services/numapApi.js';
 import { summarizeSession, sessionToNumapProfile, sessionToChildMeta, makeNamespace } from '../systems/numapAdapter.js';
-import { listChildren, AGE_GROUPS, upsertNumapChildren, listNumapChildren } from '../services/localProfiles.js';
+import {
+  listChildren, AGE_GROUPS, upsertNumapChildren, listNumapChildren,
+  linkNumapToChild, unlinkNumapFromChild, refreshNumapLinks, readNumapSessionPayload,
+} from '../services/localProfiles.js';
 import ClassPanel from './ClassPanel.jsx';
 import ChildForm from './ChildForm.jsx';
 import UserManager from './UserManager.jsx';
@@ -169,8 +172,13 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
   const [error, setError] = useState('');
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [showMore, setShowMore] = useState(false);
-  const [view, setView] = useState('home'); // 'home' (hub) | 'list' | 'classPanel' | 'settings' | 'childForm'
+  const [view, setView] = useState('home'); // 'home' (hub) | 'list' | 'classPanel' | 'settings' | 'childForm' | 'linkPicker'
   const [formChild, setFormChild] = useState(null); // childForm: düzenlenen yerel çocuk (null=yeni)
+  // FAZ C: eşleme görünümü — numapPool tüm Numap öğeleri (mükerrer-gizleme ÖNCESİ),
+  // linkChild eşlenecek/bağı yönetilecek yerel çocuk, linkError son bağlama hatası.
+  const [numapPool, setNumapPool] = useState([]);
+  const [linkChild, setLinkChild] = useState(null);
+  const [linkError, setLinkError] = useState('');
   // Örtüşen load çağrılarında (🔄 + form-kaydet + Tekrar dene) SON istek kazanır —
   // closure-bazlı iptal yalnız useEffect cleanup'ında çalışıyordu; geç dönen bayat
   // istek listeyi/rozeti ezebiliyordu (Faz B doğrulama bulgusu).
@@ -192,8 +200,55 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
     // ekleme/oynatma her zaman mümkün — "Numap zorunlu değildir" vaadi tek listede).
     const myLocal = () =>
       user?.id
-        ? listChildren(`numap:${user.id}`).map((c) => ({ ...c, source: 'local', savedAt: c.lastSeenAt || c.createdAt }))
+        ? listChildren(`numap:${user.id}`).map((c) => ({
+            ...c,
+            source: 'local',
+            savedAt: c.lastSeenAt || c.createdAt,
+            // FAZ C: bağlı çocuğun oturum payload'ı seçimde profil/baseline üretir.
+            linkedSession: c.numapStudentKey ? readNumapSessionPayload(c.ns) : null,
+          }))
         : [];
+    // FAZ C mükerrer-gizleme: bir tarama yerel çocuğa BAĞLIYSA listede yalnız
+    // yerel kart görünür (aynı çocuk iki kez listelenmez); tam havuz eşleme
+    // görünümü için numapPool'da tutulur. Gizlenen kartın SÜZGEÇ alanları
+    // (okul/şehir/cinsiyet/tarih — AD DEĞİL, rumuz korunur) yerel karta bellek-içi
+    // kopyalanır: okul süzgeci bağlı çocuğu "kaybettirmez"; roster'a YAZILMAZ.
+    const dedup = (numapItems, locals) => {
+      const byKey = new Map(numapItems.filter((x) => x.studentKey).map((x) => [x.studentKey, x]));
+      for (let i = 0; i < locals.length; i++) {
+        const hit = locals[i].numapStudentKey ? byKey.get(locals[i].numapStudentKey) : null;
+        if (hit) {
+          locals[i] = {
+            ...locals[i],
+            school: hit.school || '',
+            city: hit.city || '',
+            district: hit.district || '',
+            gender: hit.gender || '',
+            assessmentDate: hit.assessmentDate || '',
+          };
+        }
+      }
+      const linkedKeys = new Set(locals.map((c) => c.numapStudentKey).filter(Boolean));
+      return numapItems.filter((x) => !linkedKeys.has(x.studentKey));
+    };
+    // Payload'sız link onarımı: bağlı çocuğun müdahale planı eksikse (çevrimdışı/
+    // kota-düşmüş bağlama) taze oturumdan yaz — çocuk self-login'de de kalibrasyon alır.
+    const repairPlans = (numapItems, locals) => {
+      for (const c of locals) {
+        if (!c.numapStudentKey) continue;
+        try {
+          if (localStorage.getItem(`numap_intervention_${c.ns}`)) continue;
+          const it = numapItems.find((x) => x.studentKey === c.numapStudentKey);
+          // Kaynak sırası: taze havuz oturumu → çocuğun kendi payload'ı (linkedSession)
+          const sess = it?.session || c.linkedSession || null;
+          if (sess) {
+            const prof = sessionToNumapProfile(sess, c.ns);
+            prof.child.name = c.name; // gerçek ad değil, yerel rumuz
+            localStorage.setItem(`numap_intervention_${c.ns}`, JSON.stringify(prof));
+          }
+        } catch { /* plan yazılamadıysa seçim yolu payload'dan üretir */ }
+      }
+    };
     const my = ++reqSeq.current; // son çağrı kazanır
     setLoading(true);
     setError('');
@@ -201,7 +256,11 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
       .then((sessions) => {
         if (reqSeq.current !== my) return;
         const d = distinctChildren(sessions).map((c) => ({ ...c, source: 'numap' }));
-        setChildren([...d, ...myLocal()]);
+        refreshNumapLinks(d); // bağlı payload'ları tazele/onar (çıkış süpürmesi sonrası)
+        const locals = myLocal();
+        repairPlans(d, locals); // eksik müdahale planlarını tamamla (payload'sız link)
+        setNumapPool(d);
+        setChildren([...dedup(d, locals), ...locals]);
         setOffline(false);
         setNumapDown(false);
         // FAZ A: liste roster'a upsert edilir (ns korunur); eski cache YALNIZ
@@ -224,7 +283,11 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             if (upsertNumapChildren(user.id, list)) clearLegacyCache(user.id);
           }
         }
-        const merged = [...list.map((c) => ({ ...c, source: 'numap' })), ...myLocal()];
+        const pool = list.map((c) => ({ ...c, source: 'numap' }));
+        const locals = myLocal();
+        repairPlans(pool, locals); // payload varsa eksik planı çevrimdışı da tamamla
+        const merged = [...dedup(pool, locals), ...locals];
+        setNumapPool(pool);
         if (merged.length) {
           setChildren(merged);
           // Bayat-liste rozeti yalnız Numap listesi varken; Numap listesi HİÇ yoksa
@@ -255,6 +318,45 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
     setView('childForm');
   }, [isLocal, user]);
   const openEditChild = useCallback((rec) => { setFormChild(rec); setView('childForm'); }, []);
+
+  // ── FAZ C: eşleme eylemleri ──
+  const openLinkPicker = useCallback((rec) => { setLinkChild(rec); setLinkError(''); setView('linkPicker'); }, []);
+  const handleLink = useCallback((numapItem) => {
+    if (!linkChild) return;
+    const r = linkNumapToChild(linkChild.ns, {
+      studentKey: numapItem.studentKey,
+      sessionId: numapItem.sessionId,
+      savedAt: numapItem.savedAt,
+      session: numapItem.session || null,
+    });
+    if (!r.ok) { setLinkError(r.error); return; }
+    // Türetilmiş müdahale planı link ANINDA ns-anahtarına yazılır → StudentPicker
+    // self-login yolunda da (numapPlan prop'suz) oyun mount'u planı bulur.
+    // Ad HEP yerel rumuz — gerçek ad cihazda plan içinde tutulmaz.
+    if (numapItem.session) {
+      try {
+        const prof = sessionToNumapProfile(numapItem.session, linkChild.ns);
+        prof.child.name = linkChild.name;
+        localStorage.setItem(`numap_intervention_${linkChild.ns}`, JSON.stringify(prof));
+      } catch { /* plan yazılamadıysa seçim anında payload'dan üretilir */ }
+    }
+    setLinkChild(null);
+    setView('list');
+    load();
+  }, [linkChild, load]);
+  const handleUnlink = useCallback(() => {
+    if (!linkChild) return;
+    unlinkNumapFromChild(linkChild.ns);
+    // IndexedDB'deki baseline + gerçek demografi de gitmeli — merge deseni boş
+    // geleni eskiyle doldurduğundan kendiliğinden silinmez; raporlar aksi hâlde
+    // bayat Numap baseline'ıyla üretilmeye devam ederdi (ateş-unut, oyunu bloklamaz).
+    import('../analytics/AnalyticsBridge.js')
+      .then((m) => m.clearNuMapBaseline(linkChild.ns))
+      .catch(() => {});
+    setLinkChild(null);
+    setView('list');
+    load();
+  }, [linkChild, load]);
 
   const setF = (k, v) => setFilters((f) => ({ ...f, [k]: v }));
   const clearFilters = () => setFilters(EMPTY_FILTERS);
@@ -307,9 +409,28 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         return;
       }
       // FAZ B: Numap modundaki YEREL kayıt (öğretmenin eklediği profil) — main.jsx
-      // handleSelectLocalChild ile birebir aynı oyun-prop şekline çevrilir
-      // (numapProfile yok; öğretmen başlattı → directPlay=false, panel araçları açık).
+      // handleSelectLocalChild ile birebir aynı oyun-prop şekline çevrilir.
+      // FAZ C: kayda tarama BAĞLIYSA profil + baseline meta bağlı oturumdan üretilir
+      // (ns local_N KALIR → ilerleme aynı; ad HEP yerel rumuz — veri minimizasyonu).
       if (item.source === 'local') {
+        let numapProfile = null;
+        let childMeta = { name: item.name, gradeLevel: item.grade || '' };
+        if (item.numapStudentKey) {
+          const session = item.linkedSession || null;
+          if (session) {
+            numapProfile = sessionToNumapProfile(session, item.ns);
+            numapProfile.child.name = item.name; // gerçek ad yerine yerel rumuz
+            childMeta = { ...sessionToChildMeta(session), name: item.name };
+          } else {
+            // Payload çıkış süpürmesinde gitmiş olabilir → link anında yazılan
+            // müdahale planına düş (kalibrasyon korunur; baseline meta ilk
+            // çevrimiçi yenilemede refreshNumapLinks ile geri gelir).
+            try {
+              const raw = localStorage.getItem(`numap_intervention_${item.ns}`);
+              if (raw) numapProfile = JSON.parse(raw);
+            } catch { /* plansız devam */ }
+          }
+        }
         onSelect?.({
           ns: item.ns,
           name: item.name,
@@ -317,8 +438,8 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
           grade: item.grade || '',
           ageMonths: 0,
           ageGroup: item.ageGroup || null,
-          numapProfile: null,
-          childMeta: { name: item.name, gradeLevel: item.grade || '' },
+          numapProfile,
+          childMeta,
           local: true,
           directPlay: false,
         });
@@ -348,6 +469,102 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
   // Yerel çocuk ekle/düzenle formu — yeni çocuk geçerli kullanıcının sahipliğiyle etiketlenir.
   if (view === 'childForm') {
     return <ChildForm child={formChild} ownerId={ownerId || null} onSave={onFormSave} onCancel={() => setView('list')} />;
+  }
+
+  // ── FAZ C: eşleme görünümü — yerel çocuğa Numap taraması bağla/kaldır ──
+  if (view === 'linkPicker' && linkChild) {
+    const q = fold(linkChild.name);
+    // Başka yerel çocuğa bağlı taramalar aday DEĞİL (bir tarama ↔ bir profil).
+    const takenKeys = new Set(
+      children
+        .filter((c) => c.source === 'local' && c.numapStudentKey && c.ns !== linkChild.ns)
+        .map((c) => c.numapStudentKey),
+    );
+    // Ad benzerliği önce (rumuz ↔ gerçek ad yakınlığı ipucu), sonra en yeni tarama.
+    const rank = (x) => {
+      const n = fold(x.name);
+      if (!q || !n) return 3;
+      if (n === q) return 0;
+      if (n.startsWith(q) || q.startsWith(n)) return 1;
+      if (n.includes(q) || q.includes(n)) return 2;
+      return 3;
+    };
+    const candidates = numapPool
+      .filter((x) => x.studentKey && !takenKeys.has(x.studentKey))
+      .sort((a, b) => rank(a) - rank(b) || (b.savedAt || '').localeCompare(a.savedAt || ''));
+    const F = typography.fontFamily.display;
+    return (
+      <div style={{ position: 'relative', minHeight: '100vh', background: colors.gradient.background, padding: '24px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
+        <SpaceBackground starCount={40} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto' }}>
+          <Button variant="ghost" size="sm" onClick={() => { setLinkChild(null); setView('list'); }}>← Listeye dön</Button>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text.primary, fontFamily: F, margin: '12px 0 4px' }}>
+            🔗 Numap taramasıyla eşle
+          </h1>
+          <p style={{ fontSize: 14, color: colors.text.secondary, fontFamily: F, margin: '0 0 16px' }}>
+            <b>{linkChild.name}</b> profiline bir tarama bağlayın — oyun taramaya göre kalibre edilir,
+            ön-son karşılaştırma raporları açılır. İlerleme verisine dokunulmaz; adı yerel kalır.
+          </p>
+          <p style={{ fontSize: 12, lineHeight: 1.5, color: colors.text.tertiary, fontFamily: F, margin: '-8px 0 16px' }}>
+            ℹ️ Tarama verisi (gerçek ad dahil) bu cihazda saklanır ve Numap çıkışınızda otomatik
+            silinir; çocuğun profil adı rumuz olarak kalır. Bağı kaldırırsanız tarama verisi ve
+            raporlardaki taban çizgisi de bu cihazdan temizlenir.
+          </p>
+
+          {linkChild.numapStudentKey && (
+            <div style={{ background: 'rgba(124,58,237,.12)', border: '1px solid rgba(124,58,237,.4)', borderRadius: layout.borderRadius.md, padding: '10px 14px', marginBottom: 14, fontFamily: F }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: colors.text.primary }}>
+                🔗 Şu an bağlı: {dateLabel(linkChild.numapSavedAt) || 'tarama'}
+              </div>
+              <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                <Button variant="ghost" size="sm" onClick={handleUnlink}>Bağlantıyı kaldır</Button>
+              </div>
+              <p style={{ fontSize: 12, color: colors.text.tertiary, margin: '6px 0 0' }}>
+                Aşağıdan başka bir tarama seçerseniz bağlantı onunla değiştirilir.
+              </p>
+            </div>
+          )}
+
+          {linkError && (
+            <div role="alert" style={{ background: colors.feedback.errorGlow, border: `1px solid ${colors.feedback.error}`, color: colors.text.primary, borderRadius: layout.borderRadius.md, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: F, marginBottom: 14 }}>
+              {linkError}
+            </div>
+          )}
+
+          {candidates.length === 0 ? (
+            <EmptyState
+              icon="🛰️"
+              title="Eşlenecek tarama yok"
+              description="Tamamlanmış Numap taramalarınız burada listelenir. Numap'te bir tarama tamamlayın, sonra '🔄 Numap'ten güncelle' ile listeyi tazeleyin."
+              actionLabel="Numap'i aç ↗"
+              onAction={() => window.open('https://getnumap.com', '_blank', 'noopener')}
+            />
+          ) : (
+            <div style={{ display: 'grid', gap: 10 }}>
+              {candidates.map((x) => {
+                const isCurrent = linkChild.numapStudentKey === x.studentKey;
+                return (
+                  <div key={x.ns} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(30,27,75,.55)', border: `1px solid ${isCurrent ? 'rgba(124,58,237,.5)' : colors.surface.divider}`, borderRadius: layout.borderRadius.lg, padding: '12px 14px', fontFamily: F }}>
+                    <span style={{ fontSize: 26, flexShrink: 0 }}>🛰️</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 15.5, fontWeight: 800, color: colors.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{x.name}</div>
+                      <div style={{ fontSize: 12.5, color: colors.text.tertiary, marginTop: 1 }}>
+                        {[ageLabel(x.ageMonths), gradeLabel(x.grade), dateLabel(x.savedAt)].filter(Boolean).join(' • ')}
+                      </div>
+                    </div>
+                    {isCurrent ? (
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#c4b5fd', flexShrink: 0 }}>Bağlı ✓</span>
+                    ) : (
+                      <Button variant="primary" size="sm" onClick={() => handleLink(x)}>Bağla</Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   // Kullanıcı yönetimi alt-görünümü (yalnız yönetici) — Numap'siz öğretmen/uzman hesapları.
@@ -716,7 +933,8 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         >
                           {c.name}
                         </span>
-                        {/* Kaynak rozeti — yalnız karışık listede (Numap modu) anlamlı */}
+                        {/* Kaynak rozeti — yalnız karışık listede (Numap modu) anlamlı.
+                            FAZ C: bağlı yerel çocuk '🔗 Numap bağlı' rozetini taşır. */}
                         {!isLocal && (
                           <span
                             style={{
@@ -726,12 +944,12 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                               fontFamily: typography.fontFamily.display,
                               padding: '2px 8px',
                               borderRadius: layout.borderRadius.full,
-                              background: isLocalItem ? 'rgba(148,163,184,.16)' : 'rgba(124,58,237,.22)',
-                              border: `1px solid ${isLocalItem ? 'rgba(148,163,184,.35)' : 'rgba(124,58,237,.45)'}`,
-                              color: isLocalItem ? colors.text.secondary : '#c4b5fd',
+                              background: !isLocalItem ? 'rgba(124,58,237,.22)' : c.numapStudentKey ? 'rgba(124,58,237,.14)' : 'rgba(148,163,184,.16)',
+                              border: `1px solid ${!isLocalItem ? 'rgba(124,58,237,.45)' : c.numapStudentKey ? 'rgba(124,58,237,.4)' : 'rgba(148,163,184,.35)'}`,
+                              color: !isLocalItem ? '#c4b5fd' : c.numapStudentKey ? '#c4b5fd' : colors.text.secondary,
                             }}
                           >
-                            {isLocalItem ? '🏠 Yerel' : '🛰️ Numap'}
+                            {!isLocalItem ? '🛰️ Numap' : c.numapStudentKey ? '🔗 Numap bağlı' : '🏠 Yerel'}
                           </span>
                         )}
                       </div>
@@ -746,6 +964,28 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         </div>
                       )}
                     </div>
+                    {/* FAZ C: eşleme yalnız Numap modunda (taramalar orada) — yerel modda 🔗 yok */}
+                    {isLocalItem && !isLocal && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); openLinkPicker(c); }}
+                        aria-label={`${c.name} — Numap taramasıyla eşle`}
+                        title={c.numapStudentKey ? 'Numap bağlantısını yönet' : 'Numap taramasıyla eşle'}
+                        style={{
+                          flexShrink: 0,
+                          width: 38,
+                          height: 38,
+                          borderRadius: '50%',
+                          border: `1px solid ${c.numapStudentKey ? 'rgba(124,58,237,.5)' : colors.surface.divider}`,
+                          background: c.numapStudentKey ? 'rgba(124,58,237,.15)' : 'rgba(255,255,255,.05)',
+                          color: colors.text.secondary,
+                          fontSize: 16,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        🔗
+                      </button>
+                    )}
                     {isLocalItem && (
                       <button
                         type="button"

@@ -310,9 +310,39 @@ function setCurrentModule(gameMode, level) {
 
 // ── Export ────────────────────────────────
 
+// FAZ C: bağ kaldırıldığında IndexedDB'deki Numap taban çizgisi + gerçek demografi
+// da silinmelidir — merge (pick) boş geleni eskiyle doldurduğundan initAnalytics
+// üzerinden temizlenemez; alan-silmeli doğrudan yazım gerekir. Ad/sınıf (yerel veri)
+// ve oyun ilerlemesi korunur. unlink çağıranı bunu ateş-unut çağırır.
+async function clearNuMapBaseline(childId) {
+  if (!childId) return;
+  try {
+    await openDB();
+    const e = await getChildProfile(childId);
+    if (!e) return;
+    await saveChildProfile({
+      ...e,
+      childId,
+      nuMapProfileId: null,
+      nuMapRiskLevel: null,
+      nuMapAssessmentDate: null,
+      nuMapCategoryScores: null,
+      birthDate: null,
+      gender: null,
+      school: null,
+      city: null,
+      district: null,
+      ageMonths: null,
+    });
+  } catch (err) {
+    console.warn('[GalakSay Analytics] Baseline temizliği başarısız:', err);
+  }
+}
+
 export {
   MODE_TO_CATEGORY,
   initAnalytics,
+  clearNuMapBaseline,
   beginGameSession,
   finishGameSession,
   onQuestionPresented,
