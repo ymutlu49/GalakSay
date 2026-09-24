@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { MODE_STORIES, getModeStory, setStoryLang, SPACE_EVENTS, getRandomSpaceEvent, CAPTAINS_LOG, ALIEN_ARTIFACTS, suggestNextArtifact, MISSION_ARC, TRANSITION_MESSAGES, CREW_DIALOGUES, PLANET_LORE, DAILY_MOTIVATION, getDailyMotivation, PLANET_WELCOME_SCENES, SHIP_UPGRADES, MATH_INSIGHT_EXTRAS, MISSION_COMPLETION_CELEBRATIONS, MATH_WONDER_FACTS, ACHIEVEMENT_CELEBRATIONS, SPACE_EVENT_DIALOGUES, CONTEXTUAL_LOG_NOTES, getStrategyReflection, PLANET_TRANSITION_STORIES } from "./src/data/modeStories.js";
-import { NumapProfile, RISK_LEVEL_MAP, SUPPORT_LEVELS } from "./src/systems/numapProfile.js";
+import { MODE_STORIES, getModeStory, setStoryLang, getRandomSpaceEvent, CAPTAINS_LOG, ALIEN_ARTIFACTS, MISSION_ARC, MATH_INSIGHT_EXTRAS, MISSION_COMPLETION_CELEBRATIONS } from "./src/data/modeStories.js";
+import { NumapProfile, RISK_LEVEL_MAP } from "./src/systems/numapProfile.js";
 import { HintManager, HINT_LEVELS } from "./src/systems/hintManager.js";
-import { createFluencySession, recordFluencyAnswer, adjustFluencyDifficulty, getFluencySummary, getStreakReward, PersonalRecords, getTimerColor } from "./src/systems/fluencyEngine.js";
-import { MODE_ANIM_MAP, ANIM_DEFAULTS, getAnimSpeed } from "./src/systems/animationTemplates.js";
-import { TripleCodingLayer, ConcreteLayer, VisualLayer, SymbolicLayer, getVisualModelForMode } from "./src/components/math/TripleCodingLayer.jsx";
+import { createFluencySession, recordFluencyAnswer, getFluencySummary, PersonalRecords } from "./src/systems/fluencyEngine.js";
+
+import { TripleCodingLayer, getVisualModelForMode } from "./src/components/math/TripleCodingLayer.jsx";
 import { DidacticAnimation } from "./src/components/math/DidacticAnimation.jsx";
 import { GalaksayLogo } from "./src/components/branding/GalaksayLogo.jsx";
 import { initKuAudio, trySpeakKu } from "./src/audio/kuAudio.js";
@@ -18,16 +18,8 @@ import { loadConsent, saveConsent } from "./src/utils/consent.js";
 // 2026-04-27 — Statik veri ekstraktları (refactor adımı)
 import { MEB_KAZANIM } from "./src/data/mebKazanim.js";
 import { LT_TRAJECTORIES } from "./src/data/ltTrajectories.js";
-import {
-  NUM_WORDS, NUM_WORDS_KU,
-  numWord, numWordKu, numWordLang,
-  kuEzafe, kuPlural,
-  WP_NAMES, WP_NAMES_KU, WP_pick, WP_name, WP_pair, WP_nameKu, WP_pairKu,
-  trG, trD, trK, trDA, capFirst,
-  trAbl, trAblSuf, trGen, trGenSuf, trDat, trDatSuf, trAcc, trAccSuf,
-  numDist,
-} from "./src/data/numWords.js";
-import { GALAXY_CORRECT_MSGS, GALAXY_WRONG_MSGS, GALAXY_STREAK_MSGS, galaxyCorrect, galaxyStreak, setFeedbackLang } from "./src/data/feedbackMessages.js";
+import { numWord, numWordLang, WP_pick, WP_pair, trG, trD, trK, trDA, capFirst, trAbl, trAblSuf, trGen, trGenSuf, trDat, trDatSuf, trAcc, numDist } from "./src/data/numWords.js";
+import { galaxyCorrect, galaxyStreak, setFeedbackLang } from "./src/data/feedbackMessages.js";
 // Rapor ekranları — MODÜL kapsamında lazy (render içinde React.lazy ÇAĞRILMAZ: her
 // render'da yeni bileşen tipi üretir → Suspense çocuğu unmount+remount olur, panel
 // açılırken sıfırlanır ve tıklamalar kaybolur — "rapor açılmıyor/çok tıklama" hatası).
@@ -675,7 +667,9 @@ const TextProcessor = {
   // 2026-04-28: U+2B00-2BFF (Misc Symbols & Arrows: ⬅️⬆️⬇️⬛⭐⭕) ve U+2190-21FF (Arrows: ←→↑↓↔️↕)
   // eklendi — TTS'in "kalın sol ok" gibi anlamsız okumalarını önler
   cleanEmoji: (text) => text
-    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{2702}-\u{27B0}\u{1F680}-\u{1F6FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2934}-\u{2935}\u{3030}\u{303D}\u{25A0}-\u{25FF}]/gu, "")
+    // Temel emoji blokları (kod noktası aralıkları); varyant seçici / birleştirici / etiket işaretleri ayrı sınıfta
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}\u{2702}-\u{27B0}\u{1F680}-\u{1F6FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2934}-\u{2935}\u{3030}\u{303D}\u{25A0}-\u{25FF}]/gu, "")
+    .replace(/[\u{FE00}-\u{FE0F}\u{20E3}\u{E0020}-\u{E007F}]|\u{200D}/gu, "")
     .replace(/[•→←▶►◀↔⬅➡⬆⬇↕↖↗↘↙📡📋💡⚠✓✗☀🌑✨⭐🌟💫🪐🚀🔢🎯✋🖐🔟➕➖✖➗⚖🧩🔄🔍🧠💪🎵🔊🗣✂🧪🔮🕵📈📊📏📐📦🎁🏗🔨🔭🦎🐱🐉🦉🐙🌊⚡🔶📍🔗🏅🥇🌉🦸]/gu, ""),
 
   // Kısaltma ve özel ifadeleri düzelt
