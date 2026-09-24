@@ -28,6 +28,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # Kalite kapısı: lint (0 hata) + 79 birim testi; sonra derleme
+      - run: npm run lint
+      - run: npm test
       # scripts/build-cf.mjs → cf-deploy/ (landing kökte, uygulama /oyna/, PWA varlıkları)
       - run: npm run build:cf
         env:

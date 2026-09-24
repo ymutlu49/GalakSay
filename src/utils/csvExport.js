@@ -29,7 +29,7 @@ function csvCell(v) {
 function toCsv(headers, rows) {
   const head = headers.map(csvCell).join(',');
   const body = rows.map((r) => headers.map((h) => csvCell(r[h])).join(',')).join('\r\n');
-  return `﻿${head}\r\n${body}${rows.length ? '\r\n' : ''}`;
+  return `\uFEFF${head}\r\n${body}${rows.length ? '\r\n' : ''}`;
 }
 
 // ── Pseudonimleştirme ───────────────────────────────────────────────────────

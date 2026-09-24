@@ -4,6 +4,7 @@
 // Renk kodlaması korunur, geçiş sırasında iki temsil yan yana görünür
 // ═══════════════════════════════════════════════════════════════════════════════
 
+import { useState } from 'react';
 import { ANIM_PRESETS } from '../DokunSayKit/MateryalFizik.js';
 import { KAPSUL_RENKLERI } from '../DokunSayKit/EnerjiKapsulu.jsx';
 

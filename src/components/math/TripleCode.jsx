@@ -12,16 +12,20 @@ import { Frame } from './Frame.jsx';
 const FINGER = {1:"\u261D\uFE0F",2:"\u270C\uFE0F",5:"\uD83D\uDD90\uFE0F",10:"\uD83D\uDE4C"};
 
 export const TripleCode = ({ n, size = "md", preReader = false, showFinger = false, animate = true, speak = false, compact = false }) => {
-  if (n == null || n < 0 || n > 99) return null;
+  // Hook'lar erken dönüşten ÖNCE: n geçerliden geçersize dönünce hook sırası değişmesin
+  // ("Rendered fewer hooks than expected" çökmesi).
+  const valid = n != null && n >= 0 && n <= 99;
   const s = size === "sm" ? { chip: 8, num: 14, word: 8, gap: 3, pad: "3px 6px" }
           : size === "lg" ? { chip: 14, num: 24, word: 12, gap: 6, pad: "8px 12px" }
           : { chip: 10, num: 18, word: 10, gap: 5, pad: "6px 10px" };
-  const chipCount = Math.min(n, compact ? 10 : 15);
-  const word = numWord(n);
+  const chipCount = valid ? Math.min(n, compact ? 10 : 15) : 0;
+  const word = valid ? numWord(n) : "";
 
   React.useEffect(() => {
     if (speak && word) TTS.speak(word, "tr-TR", 0.9);
   }, [speak, word]);
+
+  if (!valid) return null;
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: s.gap,

@@ -61,7 +61,7 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
     // Yeni çocuk ekleyen kullanıcının (öğretmenin) sahipliğiyle etiketlenir; düzenlemede sahip korunur.
     const saved = editing ? updateChild(child.ns, data) : addChild({ ...data, ownerId });
     onSave?.(saved);
-  }, [name, avatar, ageGroup, pin, editing, child, ownerId, onSave]);
+  }, [name, avatar, ageGroup, pin, removePin, editing, child, ownerId, onSave]);
 
   const handleDelete = useCallback(() => {
     if (!editing) return;
@@ -127,8 +127,8 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
 
           {/* Avatar seçimi */}
           <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>Avatar</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+            <span id="cf-avatar-label" style={labelStyle}>Avatar</span>
+            <div role="group" aria-labelledby="cf-avatar-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
               {LOCAL_AVATARS.map((a) => (
                 <button
                   key={a}
@@ -154,8 +154,8 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
 
           {/* Yaş grubu */}
           <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>Düzey</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <span id="cf-level-label" style={labelStyle}>Düzey</span>
+            <div role="group" aria-labelledby="cf-level-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {AGE_GROUPS.map((g) => (
                 <button
                   key={g.key}

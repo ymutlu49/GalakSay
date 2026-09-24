@@ -77,7 +77,7 @@ export function speakNumberKu(n) { return playClip("num/" + n); }
  * klibi varsa sırayla çalar (Promise<true>). Aksi halde Promise<false> →
  * çağıran tarayıcı TTS'e düşmeli.
  */
-const _EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}️]/gu;
+const _EMOJI_RE = /(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]|\u{FE0F})/gu;
 const _PUNCT_RE = /[?!.,:;…]/g;
 
 /** Bir metin parçasını klip id listesine çevir (rakam→num, KU sayı kelimesi→num, diğer→word/<slug>). */

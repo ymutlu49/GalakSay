@@ -292,7 +292,6 @@ export function ActivityLayout({
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      minHeight: '100vh',
       minHeight: '100dvh',
       background: colors.gradient.background,
       fontFamily: typography.fontFamily.display,

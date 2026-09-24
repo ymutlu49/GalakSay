@@ -662,8 +662,8 @@ const TextProcessor = {
   mathToWords: (text) => text
     .replace(/(\d+)\s*\+\s*(\d+)/g, "$1 artı $2")
     .replace(/(\d+)\s*[-−–]\s*(\d+)/g, "$1 eksi $2")
-    .replace(/(\d+)\s*[×x\*]\s*(\d+)/g, "$1 çarpı $2")
-    .replace(/(\d+)\s*[÷\/]\s*(\d+)/g, "$1 bölü $2")
+    .replace(/(\d+)\s*[×x*]\s*(\d+)/g, "$1 çarpı $2")
+    .replace(/(\d+)\s*[÷/]\s*(\d+)/g, "$1 bölü $2")
     .replace(/(\d+)\s*=\s*(\d+)/g, "$1 eşittir $2")
     .replace(/≠/g, " eşit değildir ")
     .replace(/≥/g, " büyük eşittir ")
@@ -676,7 +676,7 @@ const TextProcessor = {
   // eklendi — TTS'in "kalın sol ok" gibi anlamsız okumalarını önler
   cleanEmoji: (text) => text
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{2702}-\u{27B0}\u{1F680}-\u{1F6FF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2934}-\u{2935}\u{3030}\u{303D}\u{25A0}-\u{25FF}]/gu, "")
-    .replace(/[•→←▶►◀↔️⬅️➡️⬆️⬇️↕↖↗↘↙📡📋💡⚠️✓✗☀️🌑✨⭐🌟💫🪐🚀🔢🎯✋🖐️🔟➕➖✖️➗⚖️🧩🔄🔍🧠💪🎵🔊🗣️✂️🧪🔮🕵️📈📊📏📐📦🎁🏗️🔨🔭🦎🐱🐉🦉🐙🌊⚡🔶📍🔗🏅🥇🌉🦸]/g, ""),
+    .replace(/[•→←▶►◀↔⬅➡⬆⬇↕↖↗↘↙📡📋💡⚠✓✗☀🌑✨⭐🌟💫🪐🚀🔢🎯✋🖐🔟➕➖✖➗⚖🧩🔄🔍🧠💪🎵🔊🗣✂🧪🔮🕵📈📊📏📐📦🎁🏗🔨🔭🦎🐱🐉🦉🐙🌊⚡🔶📍🔗🏅🥇🌉🦸]/gu, ""),
 
   // Kısaltma ve özel ifadeleri düzelt
   fixAbbreviations: (text) => text
@@ -4767,16 +4767,20 @@ const LooseChips = ({ count, hidden, countingSlots }) => {
 // Çokluk (analog) + Rakam (Arap sayısı) + Sözcük (sözel/işitsel)
 // preReader: okuma yazma bilmeyenler için sözcük yerine 🔊 + TTS
 const TripleCode = ({ n, size = "md", preReader = false, showFinger = false, animate = true, speak = false, compact = false }) => {
-  if (n == null || n < 0 || n > 99) return null;
+  // Hook'lar erken dönüşten ÖNCE: n geçerliden geçersize dönünce hook sırası değişmesin
+  // ("Rendered fewer hooks than expected" çökmesi).
+  const valid = n != null && n >= 0 && n <= 99;
   const s = size === "sm" ? { chip: 8, num: 14, word: 8, gap: 3, pad: "3px 6px" }
           : size === "lg" ? { chip: 14, num: 24, word: 12, gap: 6, pad: "8px 12px" }
           : { chip: 10, num: 18, word: 10, gap: 5, pad: "6px 10px" };
-  const chipCount = Math.min(n, compact ? 10 : 15);
-  const word = numWord(n);
+  const chipCount = valid ? Math.min(n, compact ? 10 : 15) : 0;
+  const word = valid ? numWord(n) : "";
 
   React.useEffect(() => {
     if (speak && word) TTS.speak(word, "tr-TR", 0.9);
   }, [speak, word]);
+
+  if (!valid) return null;
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: s.gap,
@@ -9771,7 +9775,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   }, [question, correctAnswer, startCounting]);
 
   // Ana kademeli ipucu fonksiyonu — her basışta bir sonraki kademe
-  const useHint = useCallback(() => {
+  const requestHint = useCallback(() => {
     if (answered) return;
     if (hintKademe >= HintManager.MAX_LEVEL) return; // Maks 5 kademe
 
@@ -9855,9 +9859,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   // yeniden çalışır ve timer iptal edilir (çift ipucu yok). hintDelay=0/yok → otomatik yok.
   useEffect(() => {
     if (!numapSupport?.hintDelay || !question || answered || screen !== "game") return;
-    const t = setTimeout(() => { if (!answered) useHint(); }, numapSupport.hintDelay);
+    const t = setTimeout(() => { if (!answered) requestHint(); }, numapSupport.hintDelay);
     return () => clearTimeout(t);
-  }, [question, answered, screen, numapSupport, useHint]);
+  }, [question, answered, screen, numapSupport, requestHint]);
 
   // v5.5: Cevap eleme lifeline — 2+ ardışık hata sonrası bir yanlış seçenek yarı saydam gösterilir
   const [eliminatedOpt, setEliminatedOpt] = useState(null);
@@ -12021,8 +12025,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
         );
 
       }
-      // fall-through guard
-      return null;
       case "counting":
         { // 11-20: YAPILANDIRILMIŞ 10'luk satırlar (tam onluk üstte + kalan altta) — taşlar sayılabilir
           // boyda kalır + onluk yapısı görünür (eski tek-satır 15-20'de minik/kırpılabilirdi → cMax 14'tü)
@@ -17189,7 +17191,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               {canHint && (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                   {/* Ortak "cam pill" tasarımı (İpucu ↔ Nesnelerle Göster tutarlı; yalnız vurgu rengi/ikon farklı) */}
-                  <button onClick={useHint} style={{
+                  <button onClick={requestHint} style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
                     padding: "11px 22px", borderRadius: 16, minHeight: 46, minWidth: 132,
                     fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: "pointer", color: "#fcd34d",
@@ -17668,87 +17670,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               </div>
             )}
 
-            {/* ═══ KAPTAN GÜNLÜĞÜ — sonuç ekranından KALDIRILDI (sadelik); journey'de + tam-ekran overlay'de erişilebilir ═══ */}
-            {false && captainsLog.length > 0 && (() => {
-              const latestLog = captainsLog[0];
-              return (
-                <div style={{
-                  marginTop: 8, padding: "12px 14px", borderRadius: 14,
-                  background: "linear-gradient(135deg, rgba(30,27,75,.6), rgba(49,46,129,.4))",
-                  border: "1px solid rgba(251,191,36,.15)",
-                  position: "relative", overflow: "hidden",
-                  animation: "logSlideIn .6s ease .5s both",
-                }}>
-                  {/* Scanline effect */}
-                  <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(251,191,36,.15), transparent)", animation: "scanline 4s linear infinite", pointerEvents: "none" }} />
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <span style={{ fontSize: 14 }}>📓</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", letterSpacing: 2, textTransform: "uppercase", animation: "logStardate .5s ease .8s both" }}>Kaptan Günlüğü</span>
-                    {latestLog.isMilestone && <span style={{ fontSize: 10, fontWeight: 900, color: "#fff", background: "linear-gradient(135deg,#f59e0b,#ef4444)", padding: "3px 8px", borderRadius: 4, letterSpacing: 1 }}>ÖZEL</span>}
-                  </div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.6, fontStyle: "italic", opacity: .9 }}>
-                    "{latestLog.entry.length > 180 ? latestLog.entry.substring(0, 180) + "..." : latestLog.entry}"
-                  </div>
-                  <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                    {isPreReader && (
-                      <button onClick={() => TTS.speak(latestLog.entry)} style={{
-                        padding: "4px 12px", borderRadius: 8, border: "1px solid rgba(168,85,247,.3)",
-                        background: "rgba(168,85,247,.15)", color: "#c4b5fd", fontSize: 10, fontWeight: 700,
-                        cursor: "pointer", fontFamily: F,
-                      }} aria-label="Günlüğü dinle">🗣️ Dinle</button>
-                    )}
-                    <button onClick={() => setShowCaptainsLog(true)} style={{
-                      padding: "4px 12px", borderRadius: 8, border: "1px solid rgba(251,191,36,.2)",
-                      background: "rgba(251,191,36,.08)", color: "#fbbf24", fontSize: 10, fontWeight: 700,
-                      cursor: "pointer", fontFamily: F,
-                    }}>📖 {isPreReader ? "Hepsini Dinle" : "Tüm Günlüğü Oku"}</button>
-                  </div>
-                </div>
-              );
-            })()}
 
-            {/* ═══ GÖREV ARKI — sonuç ekranından KALDIRILDI (sadelik); journey haritasının işi ═══ */}
-            {false && missionArcProgress && (() => {
-              const { chapters, currentIdx, rescuedCrew, allComplete } = missionArcProgress;
-              const current = chapters[currentIdx];
-              return (
-                <div style={{
-                  marginTop: 8, padding: "10px 14px", borderRadius: 14,
-                  background: "linear-gradient(135deg, rgba(30,27,75,.5), rgba(15,23,42,.5))",
-                  border: "1px solid rgba(99,102,241,.15)",
-                  animation: "fadeUp .5s ease .8s both",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <span style={{ fontSize: 14 }}>🗺️</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#a5b4fc" }}>Görev Arkı</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1", marginLeft: "auto" }}>
-                      {rescuedCrew.length}/{chapters.filter(ch => ch.crewMember).length} mürettebat
-                    </span>
-                  </div>
-                  {/* Rescued crew portraits */}
-                  {rescuedCrew.length > 0 && (
-                    <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
-                      {rescuedCrew.map((crew, i) => (
-                        <div key={i} style={{
-                          width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                          background: "rgba(99,102,241,.15)", border: "1.5px solid rgba(99,102,241,.3)", fontSize: 14,
-                        }}>{crew.emoji}</div>
-                      ))}
-                    </div>
-                  )}
-                  {!allComplete && current && (
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#cbd5e1" }}>
-                      📍 {current.title}: {current.desc}
-                    </div>
-                  )}
-                  {allComplete && (
-                    <div style={{ fontSize: 12, fontWeight: 800, color: "#fbbf24", textAlign: "center" }}>
-                      🌌 Tüm mürettebat kurtarıldı! Galaksi güvende!
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
 
             {/* Fiziksel pratik ipucu kaldırıldı (sadelik) — mola/ekran-süresi overlay'inde zaten gösteriliyor */}
 
