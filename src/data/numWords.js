@@ -35,7 +35,8 @@ export const trG = name => { const l=name[name.length-1].toLowerCase(),v=_trLast
 // Yönelme (datif): Elif'e, Ali'ye, Yusuf'a, Ada'ya
 export const trD = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name); return name+"'"+ (_trIsV(l)?'y':'') + _trH2(v); };
 // Karşılaştırma: Elif'inkinden, Ali'ninkinden, Yusuf'unkinden
-export const trK = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name),h=_trH4(v); return name+"'"+ (_trIsV(l)?'n':'') + h+'nk'+h+'nd'+_trH2(v)+'n'; };
+// -ki aitlik eki ünlü uyumuna GİRMEZ; ardından -nden sabit: Yusuf'unkinden, Ada'nınkinden, Elif'inkinden
+export const trK = name => { const l=name[name.length-1].toLowerCase(),v=_trLastV(name),h=_trH4(v); return name+"'"+ (_trIsV(l)?'n':'') + h+'nkinden'; };
 // de/da bağlacı uyumu: Elif'in de, Kaan'ın da, Yusuf'un da, Duru'nun da
 export const trDA = name => _trH2(_trLastV(name)) === 'e' ? 'de' : 'da';
 

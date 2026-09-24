@@ -13,7 +13,8 @@ export const AdaptiveEngine = {
     const recentAcc = modeStats.recentAcc || 0;
     const avgTime = modeStats.avgTime || 5;
     // Çok başarılı + hızlı → seviye artır
-    if (recentAcc >= 85 && avgTime < 5 && currentLevel < 7) return currentLevel + 1;
+    // Seviye tavanı 5 (LEVELS 1..5) — eski '< 7' var olmayan seviyeleri öneriyordu
+    if (recentAcc >= 85 && avgTime < 5 && currentLevel < 5) return currentLevel + 1;
     // Zorlanıyor → seviye düşür
     if (recentAcc < 45 && currentLevel > 1) return currentLevel - 1;
     return currentLevel;

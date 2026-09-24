@@ -17,9 +17,10 @@ describe('AdaptiveEngine.suggestLevel', () => {
     expect(AdaptiveEngine.suggestLevel(stats, 3)).toBe(2);
   });
 
-  it('seviye 7 üstüne çıkmaz', () => {
-    const stats = { played: 5, recentAcc: 95, avgTime: 2 };
-    expect(AdaptiveEngine.suggestLevel(stats, 7)).toBe(7);
+  it('seviye 5 üstüne çıkmaz (LEVELS 1..5)', () => {
+    const stats = { played: 5, recentAcc: 95, avgTime: 3 };
+    expect(AdaptiveEngine.suggestLevel(stats, 5)).toBe(5);
+    expect(AdaptiveEngine.suggestLevel(stats, 4)).toBe(5);
   });
 
   it('seviye 1 altına inmez', () => {

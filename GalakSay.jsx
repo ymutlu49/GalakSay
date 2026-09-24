@@ -1467,8 +1467,14 @@ const WORD_PROBLEM_TEMPLATES = {
   compareQuantityUnknown: [
     { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} bilyesi var. ${trG(n[1])} bilyesi ondan ${nw(b)} tane daha fazla. ${trG(n[1])} kaç bilyesi var?`,
       icon: "🔮", theme: "oyun", obj: "bilye" },
+  ],
+  // "daha az" varyantı ayrı tür: cevap a − b (2026-09-24 denetimi: eski hâliyle compareQuantityUnknown
+  // altında op:"+" ile üretiliyor, doğru cevap a+b işaretleniyordu — %17–28 soru hatalıydı).
+  compareQuantityUnknownLess: [
     { text: (a,b,_,n,nw) => `Kırmızı kutuda ${nw(a)} top var. Mavi kutuda ise bundan ${nw(b)} top daha az var. Mavi kutuda kaç top var?`,
       icon: "📦", theme: "oyun", obj: "top" },
+    { text: (a,b,_,n,nw) => `${trG(n[0])} ${nw(a)} çıkartması var. ${trG(n[1])} çıkartması ondan ${nw(b)} tane daha az. ${trG(n[1])} kaç çıkartması var?`,
+      icon: "⭐", theme: "oyun", obj: "çıkartma" },
   ],
   compareReferentUnknown: [
     { text: (_,b,c,n,nw) => `${trG(n[0])} ${nw(c)} çıkartması var. Bu, ${trK(n[1])} ${nw(b)} tane daha fazla. ${trG(n[1])} kaç çıkartması var?`,
@@ -1528,6 +1534,7 @@ const CGI_TYPE_INFO = {
   ppwPartUnknown:         { op: "−", find: "part",   diff: 2, sinif: [1,2,3], kod: "MAT.1.2.3" },
   compareDiffUnknown:     { op: "−", find: "diff",   diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" },
   compareQuantityUnknown: { op: "+", find: "bigger", diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" },
+  compareQuantityUnknownLess: { op: "−", find: "result", diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" }, // a − b (daha az)
   compareReferentUnknown: { op: "−", find: "smaller",diff: 3, sinif: [2,3],   kod: "MAT.2.2.1" },
   multiplyProductUnknown: { op: "×", find: "product",diff: 1, sinif: [2,3],   kod: "MAT.2.2.4" },
   multiplyGroupSizeUnknown:{op: "÷", find: "size",   diff: 2, sinif: [2,3],   kod: "MAT.2.2.4" },
@@ -1560,7 +1567,7 @@ function generateWordProblem(level, maxNum, allowedOps = ["+","−"], allowedCgi
   let a, b, c, answer, equation;
   if (info.op === "+" || info.op === "−") {
     if (info.find === "result" || info.find === "whole" || info.find === "bigger" || info.find === "diff") {
-      a = R(2, Math.min(maxNum, 12)); b = R(1, Math.max(1, Math.min(a - 1, maxNum - a, 8)));
+      a = R(2, Math.max(2, Math.min(maxNum - 1, 12))); b = R(1, Math.max(1, Math.min(a - 1, maxNum - a, 8)));
       if (info.op === "+") { c = a + b; answer = c; equation = `${a} + ${b} = ${c}`; }
       else { c = a - b; answer = c; equation = `${a} − ${b} = ${c}`; }
     } else if (info.find === "change") {
@@ -1638,6 +1645,7 @@ const CGI_LABELS_TR = {
   ppwPartUnknown:         "Parça-Bütün — Parça Bilinmiyor",
   compareDiffUnknown:     "Karşılaştırma — Fark Bilinmiyor",
   compareQuantityUnknown: "Karşılaştırma — Çokluk Bilinmiyor",
+  compareQuantityUnknownLess: "Karşılaştırma — Çokluk Bilinmiyor (daha az)",
   compareReferentUnknown: "Karşılaştırma — Referans Bilinmiyor",
   multiplyProductUnknown: "Eşit Gruplar — Çarpım Bilinmiyor",
   multiplyGroupSizeUnknown:"Eşit Paylaşma — Grup Büyüklüğü Bilinmiyor",
@@ -1655,6 +1663,7 @@ const CGI_LABELS_KU = {
   ppwPartUnknown:         "Parçe-Gişt — Parçe nayê zanîn",
   compareDiffUnknown:     "Berhevdan — Ferq nayê zanîn",
   compareQuantityUnknown: "Berhevdan — Hejmar nayê zanîn",
+  compareQuantityUnknownLess: "Berhevdan — Hejmar nayê zanîn (kêmtir)",
   compareReferentUnknown: "Berhevdan — Referans nayê zanîn",
   multiplyProductUnknown: "Komên Wekhev — Carkirin nayê zanîn",
   multiplyGroupSizeUnknown:"Parvekirina Wekhev — Mezinahiya komê nayê zanîn",
@@ -5018,7 +5027,7 @@ const BADGES = [
   { id: "streak3",     emoji: "🔥", name: "Alevli",             desc: "3'lü doğru serisi yap",       check: s => (s._maxStreak || 0) >= 3 },
   { id: "streak7",     emoji: "☄️", name: "Durdurulamaz",       desc: "7'li doğru serisi yap",       check: s => (s._maxStreak || 0) >= 7 },
   { id: "level5",      emoji: "🚀", name: "Roketçi",            desc: "Herhangi bir modda Sv.5",     check: s => s.recent.some(g => g.level >= 5) },
-  { id: "level10",     emoji: "🛸", name: "Uzay Yolcusu",       desc: "Herhangi bir modda Sv.10",    check: s => s.recent.some(g => g.level >= 10) },
+  { id: "level10",     emoji: "🛸", name: "Uzay Yolcusu",       desc: "Bir modda Sv.5'te %100",      check: s => s.recent.some(g => g.level >= 5 && g.acc === 100) }, // 5 düzeyli oyunda 'Sv.10' kazanılamıyordu
 ];
 const getUnlockedBadges = (stats) => BADGES.filter(b => b.check(stats)).map(b => b.id);
 
@@ -6351,7 +6360,8 @@ const AdaptiveEngine = {
     const avgTime = modeStats.avgTime || 5;
     // v5.9.1: Hız koşulu kaldırıldı — doğruluk temelli seviye artışı yeterli
     // Diskalkülili çocuklar yavaş ama doğru cevaplayabilir; hız filtresi onları tavan etkisine sokar
-    if (recentAcc >= 85 && currentLevel < 7) return currentLevel + 1;
+    const maxLevel = Math.max(...Object.keys(LEVELS).map(Number)); // 5 — eski '< 7' var olmayan Sv.6'yı önerip LEVELS[6].maxNum'da çöküyordu
+    if (recentAcc >= 85 && currentLevel < maxLevel) return currentLevel + 1;
     // Zorlanıyor → seviye düşür
     if (recentAcc < 45 && currentLevel > 1) return currentLevel - 1;
     return currentLevel;
@@ -6362,7 +6372,7 @@ const AdaptiveEngine = {
   // Performans verisi güncelle
   updateModePerf: (existing, result) => {
     const prev = existing || { played: 0, totalCorrect: 0, totalQ: 0, recentAcc: 50, avgTime: 5, recentResults: [] };
-    const recent = [...(prev.recentResults || []).slice(-9), result.acc];
+    const recent = [...(prev.recentResults || []).slice(-4), result.acc]; // 5 oyunluk pencere (10'du: toparlanma 9 mükemmel oyun istiyordu)
     const recentAcc = recent.reduce((a, b) => a + b, 0) / recent.length;
     return {
       played: prev.played + 1,
@@ -7072,7 +7082,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         const lvl = params.get("level");
         if (modes) setNumapModes(modes.split(",").filter(Boolean));
         if (start) setNumapStartMode(start);
-        if (lvl) setLevel(parseInt(lvl, 10) || 1);
+        if (lvl) setLevel(Math.min(5, Math.max(1, parseInt(lvl, 10) || 1))); // deeplink seviyesi 1..5'e kıstırılır
         setNumapProfile({ source: "deeplink", modes: modes ? modes.split(",") : [], start: start, level: lvl });
       }
       // localStorage'dan Numap plan kontrol — YALNIZ aktif çocuğun (child.ns) anahtarı.
@@ -7682,6 +7692,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (t === "growingPattern") return `${t}-${q.sequence.join(",")}-${q.missingIdx}`;
     if (t === "patternTranslate") return `${t}-${q.subType}-${q.coreUnit.join("")}-${q.correctIdx}`;
     if (t === "counterFromN") return `${t}-${q.start}-${q.direction}-${q.steps}`;
+    // İçerik-tam anahtarlar (eskiden yalnız cevaba göre → aynı görünen soru "yeni" sayılıyordu)
+    if (t === "fracCompare") return `${t}-${q.f1?.a}/${q.f1?.b}-${q.f2?.a}/${q.f2?.b}-${q.askMin ? 1 : 0}`;
+    if (t === "nlPlacement") return `${t}-${q.target}-${q.range}`;
+    if (t === "rodSplit") return `${t}-${q.target}`;
+    if (t === "countOnAdd") return `${t}-${q.bigNum}-${q.addOn}`;
+    if (t === "inversePractice") return `${t}-${q.num1}-${q.num2}-${q.direction || ""}-${q.askPart || ""}`;
+    if (t === "ordinalCount") return `${t}-${q.count}-${q.highlightIdx}-${q.fromRight ? 1 : 0}`;
+    if (t === "decadeCount") return `${t}-${q.sequence?.[0]}-${q.missingIdx}`;
     return `${t}-${a}`;
   };
 
@@ -7909,7 +7927,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           const coMax = Math.min(mx, 20); // 5 seviye: üst seviyelerde üzerine-sayma 20'ye kadar
           // Büyük sayı + küçük sayı (üzerine 1-3 say)
           const addOn = R(1, lp(level, [2, 2, 3, 3, 4]));
-          const bigNum = R(Math.max(addOn + 1, 3, Math.min(mn, coMax - 1)), coMax);
+          const bigNum = R(Math.max(addOn + 1, 3, Math.min(mn, coMax - addOn)), Math.max(addOn + 1, coMax - addOn)); // toplam coMax'ı aşmasın
           const coResult = bigNum + addOn;
           // Sayı sırası göster: büyükten başla
           const countSeq = Array.from({ length: addOn }, (_, i) => bigNum + i + 1);
@@ -7963,8 +7981,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           if (level >= 2 && level <= 3) addStrategies.push("zero"); // n+0 = n (MEB: sıfırın etkisi) — L4-5'te değil (Usta'da n+0 trivyal)
           if (level >= 3) addStrategies.push("doubles");     // çiftler: 3+3, 5+5
           if (level >= 3) addStrategies.push("nearDoubles"); // yakın çiftler: 3+4, 5+6
-          if (level >= 4) addStrategies.push("makeTen");     // 10'a tamamla (ELDE) — L4'ten başlar
-          if (level >= 5) addStrategies.push("makeTen", "makeTen"); // L5: elde sıklığı artar (asıl zorluk)
+          if (level >= 4 && mx > 10) addStrategies.push("makeTen");     // 10'a tamamla (ELDE) — L4'ten başlar; okul öncesi (mx≤10) tavanı delmesin
+          if (level >= 5 && mx > 10) addStrategies.push("makeTen", "makeTen"); // L5: elde sıklığı artar (asıl zorluk)
           const strat = addStrategies[Math.floor(Math.random() * addStrategies.length)];
           let n1, n2, r;
           if (strat === "zero") {
@@ -7996,8 +8014,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           if (level >= 2 && level <= 3) subStrategies.push("zeroSelf"); // n-0=n, n-n=0 (MEB) — L4-5'te değil (trivyal)
           if (level >= 3) subStrategies.push("thinkAdd");    // toplamadan düşün: 9-6=? → 6+?=9
           if (level >= 3) subStrategies.push("doubles");     // çift çıkarma: 10-5, 8-4
-          if (level >= 4) subStrategies.push("bridgeTen");   // 10 üzerinden ONLUK-BOZMA — L4'ten başlar
-          if (level >= 5) subStrategies.push("bridgeTen", "bridgeTen"); // L5: onluk-bozma sıklığı artar
+          if (level >= 4 && maxOpS > 10) subStrategies.push("bridgeTen");   // 10 üzerinden ONLUK-BOZMA — L4'ten başlar (okul öncesinde R(11,10) dejenere oluyordu)
+          if (level >= 5 && maxOpS > 10) subStrategies.push("bridgeTen", "bridgeTen"); // L5: onluk-bozma sıklığı artar
           const sStrat = subStrategies[Math.floor(Math.random() * subStrategies.length)];
           let sn1, sn2, sr;
           if (sStrat === "zeroSelf") {
@@ -8044,7 +8062,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           ans=mp==="first"?n1:mp==="second"?n2:r;
           opts=gen3(ans,[ans+1,ans-1,ans+2].filter(x=>x>0),1,20); break;
         }
-        case "fivesFrame": { const n=R(1,5); q={type:"fivesFrame",number:n}; ans=n; let o=[1,2,3,4,5].sort(()=>Math.random()-.5).slice(0,3); if(!o.includes(n))o[0]=n; opts=o.sort(()=>Math.random()-.5); break; }
+        case "fivesFrame": { const n=R(1,5); q={type:"fivesFrame",number:n}; ans=n; let o=fyShuffle([1,2,3,4,5]).slice(0,3); if(!o.includes(n))o[0]=n; opts=fyShuffle(o); break; }
         case "tensFrame": { const cap=Math.min(10,mx); const n=R(1,cap); q={type:"tensFrame",number:n}; ans=n; opts=gen3(n,[n+1,n-1,n+2],1,cap); break; } // mx ile ölçekle (L1≈1-5 … L4+≈1-10; eskiden hep 1-10)
         case "doubleTensFrame": {
           // LT-10: Conceptual Subitizer to 20 — çift onluk çerçeve ile 10+n stratejisi
@@ -8120,7 +8138,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         case "ordering": {
           const cnt = lp(level, [3, 4, 5, 6, 6]);
           const nums = []; let _ordSafe = 0;
-          const ordMax = isPreReader ? 10 : mx; // sayılar mx'e ölçeklenir (eskiden hep ≤10 → L3+ ilerleme ölüydü)
+          const ordMax = isPreReader ? Math.min(mx, 10) : mx; // sayılar mx'e ölçeklenir; okul öncesi L1 (mx 5) 10'a fırlamasın
           while (nums.length < cnt && _ordSafe < 100) { const n = R(1, Math.max(cnt, ordMax)); if (!nums.includes(n)) nums.push(n); _ordSafe++; }
           // L5 YAPISAL: en az bir BİTİŞİK çift (n, n+1) garanti — sıralama ince ayrım gerektirir
           if (level >= 5 && nums.length >= 2) {
@@ -8355,7 +8373,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         case "wpCompare": {
           // wpCompare KARŞILAŞTIRMA problemi üretmeli: allowedCgiTypes ile compare türlerini zorla (eskiden join/separate düşüp toplama/çıkarma çıkıyordu, L1-2'de hiç karşılaştırma yoktu)
           // L1-2: temel iki tür (sayılar ≤6); L3-4: aynı türler ama sayılar mx'e açılır; L5: +referans-bilinmeyen (en zor CGI)
-          const wpCmpTypes = level <= 4 ? ["compareDiffUnknown", "compareQuantityUnknown"] : ["compareDiffUnknown", "compareQuantityUnknown", "compareReferentUnknown"];
+          const wpCmpTypes = level <= 4 ? ["compareDiffUnknown", "compareQuantityUnknown", "compareQuantityUnknownLess"] : ["compareDiffUnknown", "compareQuantityUnknown", "compareQuantityUnknownLess", "compareReferentUnknown"];
           const wp = (lang === "ku" ? generateWordProblemKu : generateWordProblem)(level, level <= 2 ? Math.min(mx, 6) : mx, ["+","−"], wpCmpTypes);
           if (!wp) { q={type:"addition",num1:R(1,5),num2:R(1,5),result:0}; q.result=q.num1+q.num2; ans=q.result; opts=gen3(ans,[ans+1,ans-1,ans+2],2,20); break; }
           q = wp; ans = wp.answer; opts = wp.options; break;
@@ -8379,7 +8397,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           if (level >= 4) { // L4+ uzun rod'larda ±1 çeldirici uzunluktan ayırt edilemez → ≥2-aralıklı çeldirici
             const lgO=[unk]; for(const c of [unk+2,unk-2,unk+3,unk-3,unk+4,unk-4]){ if(lgO.length>=3)break; if(c>=1&&c<=mx&&lgO.every(o=>Math.abs(o-c)>=2))lgO.push(c); }
             let _lf=1; while(lgO.length<3&&_lf<=mx){ if(lgO.every(o=>Math.abs(o-_lf)>=2))lgO.push(_lf); _lf++; }
-            opts=lgO.slice(0,3).sort(()=>Math.random()-0.5);
+            opts=fyShuffle(lgO.slice(0,3));
           } else opts=gen3(unk,[unk+1,unk-1,unk+2].filter(x=>x>=1&&x<=mx),1,mx);
           break;
         }
@@ -8528,7 +8546,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           const ecGap = Math.max(2, Math.round(0.25 * n));
           let ecOpts = [n]; let _eg = ecGap;
           while (ecOpts.length < 3 && _eg < ecMax + 10) { for (const cand of [n + _eg, n - _eg]) { if (cand >= 1 && !ecOpts.includes(cand) && ecOpts.every(o => Math.abs(o - cand) >= ecGap)) { ecOpts.push(cand); if (ecOpts.length >= 3) break; } } _eg++; }
-          opts = ecOpts.slice(0, 3).sort(() => Math.random() - 0.5);
+          opts = fyShuffle(ecOpts.slice(0, 3));
           break;
         }
         // ═══ FAZ2: Sayı Doğrusu Tahmin ═══
@@ -8932,7 +8950,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         // Tekrar eden örüntüyü tanıma ve devam ettirme
         case "patternAB": {
           // Örüntü türleri seviyeye göre
-          const patternTypes = level <= 2 ? [["A","B"]] : level <= 4 ? [["A","B"],["A","A","B"],["A","B","B"]] : [["A","B"],["A","A","B"],["A","B","B"],["A","B","C"],["A","B","B","C"],["A","A","B","B"],["A","B","A","C"]];
+          const patternTypes = level <= 2 ? [["A","B"],["B","A"]] : level <= 4 ? [["A","B"],["A","A","B"],["A","B","B"]] : [["A","B"],["A","A","B"],["A","B","B"],["A","B","C"],["A","B","B","C"],["A","A","B","B"],["A","B","A","C"]];
           const patCore = patternTypes[Math.floor(Math.random() * patternTypes.length)];
           // Renk kodları (kapsül renkleriyle tutarlı)
           const patColors = { "A": "blue", "B": "red", "C": "green" };
@@ -8941,7 +8959,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           const useShapes = level >= 3 && Math.random() < 0.4;
           const patShapes = useShapes ? { "A": "circle", "B": "square", "C": "triangle" } : null;
           // Örüntüyü 2-3 döngü tekrarla
-          const repeats = level <= 2 ? 2 : R(2, 3);
+          const repeats = R(2, 3); // L1-2'de de 2-3 döngü (eskiden hep 2 → tek soru, cevap hep 2. şık)
           const fullPattern = [];
           for (let r = 0; r < repeats; r++) fullPattern.push(...patCore);
           // Eksik elemanın konumu: son eleman veya 2. döngünün ortası (çeşitlilik)
@@ -8955,7 +8973,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             missingIdx = fullPattern.length - 1;
           } else {
             const missingCandidates = level <= 2
-              ? [fullPattern.length - 1]
+              ? [fullPattern.length - 1, fullPattern.length - 2]
               : [fullPattern.length - 1, fullPattern.length - 2, patCore.length + Math.floor(Math.random() * patCore.length)];
             missingIdx = missingCandidates[Math.floor(Math.random() * missingCandidates.length)];
           }
@@ -9186,6 +9204,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     do { gen(); attempts++; } while (
       (usedKeys.current.has(qKey(q, ans)) || recentKeysRef.current.includes(qKey(q, ans)) || qKey(q, ans) === lastQKeyRef.current) && attempts < 60
     );
+    // Havuz küçükse (L1'de 2-3 soru) 60 deneme tükenir; en azından ARDIŞIK aynı soru gelmesin.
+    if (attempts >= 60 && lastQKeyRef.current) {
+      let extra = 0;
+      while (qKey(q, ans) === lastQKeyRef.current && extra < 25) { gen(); extra++; }
+    }
     const newKey = qKey(q, ans);
     usedKeys.current.add(newKey);
     // Oyunlar-arası kayan pencere: son 8 soruyu hatırla (durak tekrarında aynı sorular gelmesin)
@@ -9490,6 +9513,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         somut = `${nw(q.c)} yıldız taşı koy. Bunlardan ${nw(q.b)} tanesini ayır. Kalan yıldız taşları başlangıçtaki miktar.`;
         gorsel = `${nw(q.c)} yıldız taşlı enerji kapsülden ${nw(q.b)} yıldız taşını kırmızıya çevir. Mavi kalanlar kaç?`;
         sembolik = `? + ${q.b} = ${q.c}  →  ${q.c} − ${q.b} = ?`;
+      } else if (ct === "compareQuantityUnknownLess") {
+        somut = `${nw(q.a)} mavi yıldız taşı koy. Onun altına ${nw(q.b)} tane DAHA AZ olacak şekilde kırmızı yıldız taşı diz: önce ${nw(q.a)} say, sonra ${nw(q.b)} tanesini geri al.`;
+        gorsel = `${nw(q.a)} yıldız taşlı mavi enerji kapsülünün yanına daha kısa bir kırmızı kapsül koy; mavi olandan ${nw(q.b)} taş eksik olsun. Kırmızı kapsülü say.`;
+        sembolik = `${q.a} − ${q.b} = ?`;
       } else if (ct === "separateResultUnknown") {
         somut = `${nw(q.a)} yıldız taşı koy. ${nw(q.b)} tanesini kaldır. Kaç yıldız taşı kaldı?`;
         gorsel = `${nw(q.a)} yıldız taşlı enerji kapsülden ${nw(q.b)} yıldız taşını çıkar. Kalan enerji kapsülündeki yıldız taşlarını say.`;
@@ -10605,7 +10632,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             ppwWholeUnknown: "İki parçayı birleştirerek bütünü bul! 🧩",
             ppwPartUnknown: "Bütünden bilinen parçayı çıkararak diğer parçayı bul! 🧩",
             compareDiffUnknown: "İki çokluğu yan yana koy — fazla olan kısmı say! 📏",
-            compareQuantityUnknown: "Bilinene daha fazla/az ekleyerek diğerini bul! ➕",
+            compareQuantityUnknown: "Bilinene daha fazlasını ekleyerek diğerini bul! ➕",
+            compareQuantityUnknownLess: "'Daha az' demek eksik demek — bilinenden çıkar! ➖",
             compareReferentUnknown: "Büyükten farkı çıkararak küçüğü bul! ➖",
             multiplyProductUnknown: "Eşit grupları tek tek topla veya ritmik say! 🔁",
             multiplyGroupSizeUnknown: "Toplamı gruplara eşit paylaştır! 🍕",
@@ -11281,7 +11309,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         var _nwL = function(n) { return numWordLang(n, lang); };
         if (find === "result" || find === "whole" || find === "bigger") {
           verilenA = _nwL(q.a) + " " + q.obj; verilenB = _nwL(q.b) + " " + q.obj;
-          istenenTR = lang === "ku" ? ("Bi gi\u015Ft\u00EE \u00E7end " + q.obj + " hene") : ("Toplamda ka\u00E7 " + q.obj + " oldu\u011Fu");
+          istenenTR = wpOp === "\u2212"
+            ? (lang === "ku" ? ("\u00C7end " + q.obj + " ma") : ("Ka\u00E7 " + q.obj + " oldu\u011Fu / kald\u0131\u011F\u0131"))
+            : (lang === "ku" ? ("Bi gi\u015Ft\u00EE \u00E7end " + q.obj + " hene") : ("Toplamda ka\u00E7 " + q.obj + " oldu\u011Fu"));
         } else if (find === "change" || find === "part") {
           verilenA = _nwL(q.a) + " " + q.obj; verilenB = (lang === "ku" ? "Di encam\u00EA de " : "Sonu\u00E7ta ") + _nwL(q.c) + " " + q.obj;
           istenenTR = lang === "ku" ? (wpOp === "+" ? "\u00C7end heb din hatin z\u00EAdekirin" : "\u00C7end heb hatin k\u00EAmkirin") : (wpOp === "+" ? "Ka\u00E7 tane daha eklendi\u011Fi" : "Ka\u00E7 tane \u00E7\u0131kar\u0131ld\u0131\u011F\u0131");
@@ -18774,7 +18804,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               </>)}
               {showing && <div style={{display:"flex",justifyContent:"center",animation:"fadeIn .2s ease"}}><NumberRod count={cur} defaultColor="blue" size={40} showNumber={false} /></div>}
               {!showing && !ans && !learnTapped.has(100+ci) && ci>0 && (<div style={{display:"flex",gap:6,justifyContent:"center"}}>
-                {[cur-1,cur,cur+1].filter(n=>n>0).sort(()=>Math.random()-.5).map(n => <button key={n} onClick={()=>{if(n===cur){tap(200+ci);sfx("correct");TTS.stop();TTS._scheduleSpeech(()=>TTS.speak(numWord(cur),"tr-TR",0.85),80);setTimeout(()=>setLearnRevealed(p=>p+1),1000);}else sfx("wrong");}} style={{width:56,height:56,borderRadius:14,border:"1px solid rgba(148,163,184,.12)",background:"rgba(30,27,75,.45)",fontSize:22,fontWeight:900,color:"#e2e8f0",cursor:"pointer",fontFamily:F,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
+                {fyShuffle([cur-1,cur,cur+1].filter(n=>n>0)).map(n => <button key={n} onClick={()=>{if(n===cur){tap(200+ci);sfx("correct");TTS.stop();TTS._scheduleSpeech(()=>TTS.speak(numWord(cur),"tr-TR",0.85),80);setTimeout(()=>setLearnRevealed(p=>p+1),1000);}else sfx("wrong");}} style={{width:56,height:56,borderRadius:14,border:"1px solid rgba(148,163,184,.12)",background:"rgba(30,27,75,.45)",fontSize:22,fontWeight:900,color:"#e2e8f0",cursor:"pointer",fontFamily:F,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
                   <span>{n}</span>
                   <span style={{fontSize:10,fontWeight:700,color:"#cbd5e1",fontStyle:"italic"}}>{numWord(n)}</span>
                 </button>)}
@@ -19336,7 +19366,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           return (<div style={bx}>
             {st.examples.map((ex,i) => {
               const done=learnTapped.has(i);
-              const opts=[ex.answer-1,ex.answer,ex.answer+1].filter(n=>n>=0).sort(()=>Math.random()-.5);
+              const opts=fyShuffle([ex.answer-1,ex.answer,ex.answer+1].filter(n=>n>=0));
               return (<div key={i} style={{padding:"10px 14px",borderRadius:12,background:done?"rgba(16,185,129,.12)":"rgba(49,46,129,.4)",border:`2px solid ${done?"#059669":"rgba(148,163,184,.15)"}`,width:"100%",transition:"all .3s"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:done?8:0}}>
                   <span style={{fontSize:15,fontWeight:900,color:"#e2e8f0",fontFamily:"monospace"}}>{ex.eq}</span>
