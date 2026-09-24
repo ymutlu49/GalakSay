@@ -623,7 +623,7 @@ function App() {
     <>
       {!splashDone && <SplashScreen onComplete={() => setSplashDone(true)} duration={2000} />}
 
-      <div style={{
+      <main style={{
         opacity: splashDone ? 1 : 0,
         transition: 'opacity 300ms ease',
         height: '100vh',
@@ -632,7 +632,7 @@ function App() {
         <Suspense fallback={loadingFallback}>
           {splashDone && renderGate()}
         </Suspense>
-      </div>
+      </main>
 
       {/* Çevrimdışı göstergesi — her zaman render */}
       <OfflineIndicator />

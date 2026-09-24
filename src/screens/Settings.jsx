@@ -97,7 +97,7 @@ function SettingRow({ label, description, checked, onChange, last = false }) {
           </div>
         )}
       </div>
-      <Toggle checked={checked} onChange={handleChange} size="md" />
+      <Toggle checked={checked} onChange={handleChange} size="md" label={label} />
     </div>
   );
 }
@@ -157,6 +157,7 @@ function SegmentControl({ options, value, onChange }) {
           style={{
             flex: 1,
             padding: '8px 12px',
+            minHeight: 44,
             borderRadius: 8,
             border: 'none',
             fontSize: 13,
@@ -439,7 +440,7 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
   }, [onOpenDashboard]);
 
   // Persist changes
-  const toggle = (setter, key) => (val) => { setter(val); save(key, val); };
+  const toggle = (setter, key) => (val) => { setter(val); save(key, val); try { window.dispatchEvent(new CustomEvent('galaksay:a11y-changed')); } catch { /* yok say */ } };
 
   return (
     <div style={{
@@ -468,8 +469,8 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
           onClick={onClose}
           aria-label="Geri"
           style={{
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             borderRadius: 12,
             border: 'none',
             background: 'rgba(108,99,255,.1)',
@@ -493,7 +494,7 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
         }}>
           Ayarlar
         </h1>
-        <div style={{ width: 40 }} /> {/* spacer */}
+        <div style={{ width: 44 }} /> {/* spacer */}
       </div>
 
       {/* Content */}

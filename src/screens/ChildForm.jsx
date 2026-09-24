@@ -128,7 +128,7 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
           {/* Avatar seçimi */}
           <div style={{ marginBottom: 18 }}>
             <span id="cf-avatar-label" style={labelStyle}>Avatar</span>
-            <div role="group" aria-labelledby="cf-avatar-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+            <div role="group" aria-labelledby="cf-avatar-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(52px, 1fr))', gap: 8 }}>
               {LOCAL_AVATARS.map((a) => (
                 <button
                   key={a}

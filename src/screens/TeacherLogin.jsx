@@ -50,6 +50,7 @@ const labelStyle = {
 const linkBtnStyle = {
   display: 'block',
   width: '100%',
+  minHeight: 44,
   marginTop: 16,
   padding: '8px 0',
   border: 'none',
@@ -201,6 +202,7 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
       onClick={() => { setTab(key); setError(''); setLocalError(''); setUserError(''); }}
       style={{
         flex: 1,
+        minHeight: 44,
         padding: '11px 0',
         borderRadius: layout.borderRadius.md,
         border: 'none',
@@ -250,7 +252,7 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
           <button
             type="button"
             onClick={onBack}
-            style={{ border: 'none', background: 'transparent', color: colors.text.secondary, fontSize: 14, fontWeight: 700, fontFamily: F, cursor: 'pointer', padding: '2px 0', marginBottom: 6 }}
+            style={{ minHeight: 44, minWidth: 44, border: 'none', background: 'transparent', color: colors.text.secondary, fontSize: 14, fontWeight: 700, fontFamily: F, cursor: 'pointer', padding: '2px 6px 2px 0', marginBottom: 6 }}
           >
             ← Geri
           </button>

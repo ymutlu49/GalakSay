@@ -901,8 +901,20 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                 : [ageLabel(c.ageMonths), gradeLabel(c.grade), dateLabel(c.savedAt)].filter(Boolean).join(' • ');
               const sub2 = isLocalItem ? '' : [c.school, c.city, genderLabel(c.gender)].filter(Boolean).join(' · ');
               return (
-                <Card key={c.ns} onClick={() => handleSelect(c)} padding={18}>
+                <Card key={c.ns} padding={18}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                   {/* Ana seçim alanı gerçek <button>: kart role=button + iç düğmeler
+                       (WCAG 4.1.2 nested-interactive) yerine tek bir erişilebilir isim */}
+                   <button
+                     type="button"
+                     onClick={() => handleSelect(c)}
+                     aria-label={`${c.name} ile çalış`}
+                     style={{
+                       flex: 1, minWidth: 0, minHeight: 52, display: 'flex', alignItems: 'center', gap: 16,
+                       background: 'transparent', border: 'none', padding: 0, margin: 0,
+                       textAlign: 'left', cursor: 'pointer', color: 'inherit', font: 'inherit', borderRadius: 12,
+                     }}
+                   >
                     <div
                       style={{
                         fontSize: 32,
@@ -964,6 +976,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         </div>
                       )}
                     </div>
+                   </button>
                     {/* FAZ C: eşleme yalnız Numap modunda (taramalar orada) — yerel modda 🔗 yok */}
                     {isLocalItem && !isLocal && (
                       <button
@@ -973,8 +986,8 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         title={c.numapStudentKey ? 'Numap bağlantısını yönet' : 'Numap taramasıyla eşle'}
                         style={{
                           flexShrink: 0,
-                          width: 38,
-                          height: 38,
+                          width: 44,
+                          height: 44,
                           borderRadius: '50%',
                           border: `1px solid ${c.numapStudentKey ? 'rgba(124,58,237,.5)' : colors.surface.divider}`,
                           background: c.numapStudentKey ? 'rgba(124,58,237,.15)' : 'rgba(255,255,255,.05)',
@@ -993,8 +1006,8 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         aria-label={`${c.name} düzenle`}
                         style={{
                           flexShrink: 0,
-                          width: 38,
-                          height: 38,
+                          width: 44,
+                          height: 44,
                           borderRadius: '50%',
                           border: `1px solid ${colors.surface.divider}`,
                           background: 'rgba(255,255,255,.05)',

@@ -66,16 +66,27 @@ export function Toggle({
         onClick={handleToggle}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
         style={{
+          // WCAG 2.5.8: dokunma alanı en az 44×44; görsel ray daha küçük kalır
+          minWidth: Math.max(s.w + 8, 44),
+          minHeight: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 12,
+          flexShrink: 0,
+          outlineOffset: 2,
+        }}
+      >
+       <div style={{
           width: s.w,
           height: s.h,
           borderRadius: s.h,
           background: checked ? colors.accent.primary : colors.surface.input,
           border: `1px solid ${checked ? colors.accent.primary : 'rgba(148,163,184,.2)'}`,
           position: 'relative',
-          transition: 'all 200ms ease-in-out',
+          transition: 'background 200ms ease-in-out, border-color 200ms ease-in-out',
           flexShrink: 0,
-        }}
-      >
+        }}>
         <div style={{
           width: s.dot,
           height: s.dot,
@@ -87,6 +98,7 @@ export function Toggle({
           transition: 'left 200ms ease-in-out',
           boxShadow: '0 1px 3px rgba(0,0,0,.3)',
         }} />
+       </div>
       </div>
       {label && (
         <span style={{

@@ -61,6 +61,22 @@ export function useAccessibility() {
     dyslexicFont: loadSetting(KEYS.dyslexicFont, false),
   }));
 
+  // Ayarlar ekranı (öğretmen) değiştirince canlı güncelle — eskiden yalnız mount'ta okunuyor,
+  // "Büyük metin" anahtarı sayfa yenilenene kadar etkisizdi.
+  useEffect(() => {
+    const reload = () => setSettings({
+      largeText: loadSetting(KEYS.largeText, false),
+      highContrast: loadSetting(KEYS.highContrast, false),
+      reducedMotion: loadSetting(KEYS.reducedMotion, isLowEndDevice()),
+      colorBlind: loadSetting(KEYS.colorBlind, 'off'),
+      calmMode: loadSetting(KEYS.calmMode, false),
+      dyslexicFont: loadSetting(KEYS.dyslexicFont, false),
+    });
+    window.addEventListener('galaksay:a11y-changed', reload);
+    window.addEventListener('storage', reload);
+    return () => { window.removeEventListener('galaksay:a11y-changed', reload); window.removeEventListener('storage', reload); };
+  }, []);
+
   // Sistem prefers-reduced-motion takibi
   const [systemReducedMotion, setSystemReducedMotion] = useState(false);
   useEffect(() => {

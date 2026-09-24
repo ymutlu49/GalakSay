@@ -3775,6 +3775,10 @@ button,.option-btn,[role="button"]{min-height:44px}
 @keyframes narrativeScroll{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
 @keyframes subtitleGlow{0%,100%{text-shadow:0 1px 6px rgba(167,139,250,.3)}50%{text-shadow:0 1px 12px rgba(167,139,250,.6),0 0 20px rgba(167,139,250,.2)}}
 .large-text{zoom:1.15}
+.page.game-screen.large-text{zoom:1.38} /* oyun sayfası tabanı 1.2 × 1.15 — eskiden 1.15 tabanı EZİYOR, büyütmüyordu */
+@media (max-width:480px){.planet-label--locked{display:none}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.option-btn:focus-visible{outline:4px solid #fbbf24;outline-offset:3px}
 /* zoom 100dvh sayfayı viewport'tan taşırır (alt çubuk kaybolur) → yükseklik telafisi */
 .page.large-text{height:calc(100vh / 1.15);height:calc(100dvh / 1.15);min-height:calc(100vh / 1.15);min-height:calc(100dvh / 1.15)}
 @media (min-width:1024px){.page.game-screen.large-text{height:calc(100vh / 1.38);height:calc(100dvh / 1.38);min-height:calc(100vh / 1.38);min-height:calc(100dvh / 1.38)}}
@@ -3892,7 +3896,7 @@ const MATH_SPACE_SYMBOLS = [
   { symbol: "∠", color: "#c4b5fd" }, { symbol: "≈", color: "#6ee7b7" },
 ];
 const MathSpaceObjectBase = ({ symbol, color = "#a78bfa", size = 16, top, left, right, bottom, delay = 0 }) => (
-  <div style={{
+  <div aria-hidden="true" style={{
     position: "absolute", top, left, right, bottom,
     fontSize: size, fontWeight: 900, color, opacity: .2,
     pointerEvents: "none", zIndex: 0, lineHeight: 1,
@@ -7306,6 +7310,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const countCancelRef = useRef(false); // sayma iptal bayrağı — geçiş/bitişte saymayı KESİN durdur (#3)
   const countAudioStopRef = useRef(null); // speakCountSequence iptal fonksiyonu
   const countActiveRef = useRef(false); // count-along sürüyor mu? (otomatik geçiş bunu BEKLER → sayım kesilmez)
+  const questionRegionRef = useRef(null); // odak yönetimi (K1)
   const usedKeys = useRef(new Set());
   const recentKeysRef = useRef([]); // oyunlar-arası kayan pencere (son ~8 soru) — durak tekrar/ardışık oynamada aynı soruları önler (oyun başında SIFIRLANMAZ)
   const lastQKeyRef = useRef(""); // son sorunun key'i — ard arda tekrar engeli
@@ -10927,6 +10932,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const advanceNext = useCallback(() => {
     clearTimeout(timerRef.current);
     TTS.stop(); // Önceki seslendirmeyi kes — yeni soruya temiz başla
+    // Klavye/ekran okuyucu: yeni soruda odak soru bölgesine (eskiden <body>'ye düşüyor, her soruda baştan Tab gerekiyordu)
+    setTimeout(() => { try { questionRegionRef.current?.focus({ preventScroll: true }); } catch { /* yok say */ } }, 350);
     if (round + 1 >= roundsPerGame) finishGame(correctCnt, score);
     else if (sessionLimitReached()) { setSessionWindDown(true); } // oturum tavanı: SORULAR ARASINDA nazik bitirme (soru ortasında asla)
     else { setRound(r => r + 1); createQuestion(); }
@@ -15394,7 +15401,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     // 3-option grid (default) — large & vivid with glassmorphism
     // maxWidth 460: masaüstü kapsülünde (768px × zoom) şıklar ekran boyu dev butonlara dönüşmesin — ortalanmış makul tavan
     return (<div style={{ marginTop: 14, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`, gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`, gap: 10, width: "100%" }}>
       {options.map((opt, i) => {
         if (isEliminated(opt) && !answered) return (
           <div key={i} style={{ padding: "14px 8px", borderRadius: 18, background: "rgba(30,27,75,.25)", backdropFilter: "blur(8px)", opacity: .3, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -15407,15 +15414,15 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         if (answered) { if (opt === correctAnswer) bg = C.correct; else if (opt === userAnswer) bg = C.wrong; else bg = "rgba(30,27,75,.3)"; }
         if (isHighlighted(opt) && !answered) bg = C.yellow;
         const isPreviewing = previewOpt === opt && !answered;
-        return (<button key={i} className={`option-btn answer-option${isCorrectOpt ? " correct-flash" : ""}${isWrongOpt ? " wrong-flash" : ""}`} aria-label={`Seçenek ${typeof opt === "number" ? numWordLang(opt, lang) || opt : opt}`} onClick={() => { if (!noAnswerYet) { handleOptionTap(opt); }}} disabled={answered || noAnswerYet} style={{
-          padding: "16px 8px", borderRadius: 18, border: isCorrectOpt ? "2px solid rgba(52,211,153,.6)" : isWrongOpt ? "2px solid rgba(248,113,113,.5)" : isPreviewing ? "2.5px solid #fbbf24" : "1px solid rgba(255,255,255,.12)",
+        return (<button key={i} className={`option-btn answer-option${isCorrectOpt ? " correct-flash" : ""}${isWrongOpt ? " wrong-flash" : ""}`} aria-label={`Seçenek ${typeof opt === "number" ? opt + ", " + numWordLang(opt, lang) || opt : opt}`} onClick={() => { if (!noAnswerYet) { handleOptionTap(opt); }}} disabled={answered || noAnswerYet} style={{
+          minWidth: 64, minHeight: 64, padding: "16px 8px", borderRadius: 18, border: isCorrectOpt ? "2px solid rgba(52,211,153,.6)" : isWrongOpt ? "2px solid rgba(248,113,113,.5)" : isPreviewing ? "2.5px solid #fbbf24" : "1px solid rgba(255,255,255,.12)",
           background: bg,
           cursor: (answered || noAnswerYet) ? "default" : "pointer",
           boxShadow: isCorrectOpt ? "0 0 20px rgba(16,185,129,.35), 0 4px 14px rgba(16,185,129,.25)" : isWrongOpt ? "0 0 12px rgba(239,68,68,.2)" : `0 4px 14px ${bg}40`,
           transition: "all .25s cubic-bezier(.4,0,.2,1)",
           animation: isCorrectOpt ? "optionCorrect .6s cubic-bezier(.16,1,.3,1) forwards" : isWrongOpt ? "optionWrong .5s ease forwards"
             : isHighlighted(opt) ? "hintGlow 1s ease infinite" : !answered ? `slideInFromBottom .3s ease ${i * 0.07}s both` : "none",
-          opacity: (answered && opt !== correctAnswer && opt !== userAnswer) ? .25 : noAnswerYet ? .5 : 1,
+          opacity: (answered && opt !== correctAnswer && opt !== userAnswer) ? .55 : noAnswerYet ? .5 : 1, // .25'ti: çocuk diğer sayıları karşılaştıramıyordu
           display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
           position: "relative", overflow: "hidden",
         }}>
@@ -15424,7 +15431,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {/* (sonsuz cardShine süpürmesi kaldırıldı — her şıkta ayrı döngü "ekran başına ≤1 animasyon" ilkesini deliyordu) */}
           <span style={{ fontSize: Math.max(...options) > 20 ? 22 : 26, fontWeight: 900, color: "#fff", textShadow: isCorrectOpt ? "0 0 12px rgba(52,211,153,.5)" : "0 2px 4px rgba(0,0,0,.3)", transition: "text-shadow .3s" }}>{opt}</span>
           {typeof opt === "number" && opt >= 0 && opt <= 99 && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: isCorrectOpt ? "rgba(167,243,208,.95)" : "rgba(255,255,255,.75)", lineHeight: 1, letterSpacing: .3 }}>{numWordLang(opt, lang)}</span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: isCorrectOpt ? "#d1fae5" : "#ffffff", lineHeight: 1, letterSpacing: .3, textShadow: "0 1px 2px rgba(0,0,0,.35)" }}>{numWordLang(opt, lang)}</span>
           )}
         </button>);
       })}
@@ -15482,12 +15489,13 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     ];
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">Çocuk Merkezi</h1>
         
         <SpaceDecor variant="dashboard" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: dashW, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header — öğretmen + seçili çocuk */}
-          <div style={{ background: "linear-gradient(135deg,#059669,#047857)", padding: "14px 18px", borderRadius: "0 0 24px 24px", boxShadow: "0 4px 20px rgba(0,0,0,.2)", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "linear-gradient(135deg,#059669,#047857)", padding: "14px 18px", borderRadius: "0 0 24px 24px", boxShadow: "0 4px 20px rgba(0,0,0,.2)", flexShrink: 0, position: "relative", zIndex: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <GalaksayLogo height={30} dark />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ color: "#fff", fontSize: 15, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{playerName || "Çocuk"}</div>
@@ -15620,6 +15628,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const roleIcons = { admin: "⚙️", teacher: "📚", parent: "👨‍👩‍👧", student: "🎓" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">{lang === "ku" ? "Navenda Mîsyonê" : "Görev Merkezi"}</h1>
         
         <SpaceDecor variant="dashboard" />
 
@@ -15894,6 +15903,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const catEmojis = { level1: "🔢", level2: "⚡", level3: "⚖️", level4: "🧱", level8: "🏛️", level5: "➕", level6: "✖️", level7: "🧩", level9: "🍕" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">{lang === "ku" ? "Hilbijartina Mîsyonê" : "Görev Seçimi"}</h1>
         
         <SpaceDecor variant="modes" />
 
@@ -15904,7 +15914,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             borderRadius: "0 0 22px 22px", boxShadow: "0 4px 20px rgba(124,58,237,.2)", flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F, backdropFilter: "blur(4px)" }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F, backdropFilter: "blur(4px)" }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <div style={{ textAlign: "center" }}>
                 <div style={{ color: "#fff", fontSize: 19, fontWeight: 900, letterSpacing: -.2 }}>{lang === "ku" ? "Erk" : "Görevler"} 🪐</div>
                 <div style={{ color: "rgba(255,255,255,.65)", fontSize: 12, fontWeight: 600 }}>{lang === "ku" ? "Galaksiyê keşf bike!" : "Galaksiyi keşfet!"}</div>
@@ -16103,6 +16113,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (!isLevelUnlocked(level)) setLevel(maxUnlocked);
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">{lang === "ku" ? "Hilbijartina Astê" : "Seviye Seçimi"}</h1>
         
         <SpaceDecor variant="modes" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
@@ -16113,7 +16124,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             boxShadow: `0 4px 20px ${mi?.c || "#7c3aed"}20`, flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <button onClick={() => navigateTo("modeSelect")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F, backdropFilter: "blur(4px)" }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={() => navigateTo("modeSelect")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F, backdropFilter: "blur(4px)" }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <button onClick={() => setShowMissionPopup(true)} title={lang === "ku" ? "Erkê nas bike" : "Görevi tanı"} style={{ textAlign: "center", background: "none", border: "none", cursor: "pointer", fontFamily: F, padding: 0, lineHeight: 1.1 }}>
                 <span style={{ fontSize: 28 }}>{mi?.i}</span>
                 <div style={{ color: "#fff", fontWeight: 900, fontSize: 18 }}>{mi?.n} <span style={{ fontSize: 10, opacity: .6, fontWeight: 700 }}>ℹ️</span></div>
@@ -16424,7 +16435,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             const mp = getModePlanet(gameMode);
             // v5.5: TTS buradan kaldırıldı — useEffect'e taşındı (render-body bug fix)
             return (
-              <div style={{
+              <div role="dialog" aria-modal="true" aria-label={lang === "ku" ? "Nasandina erkê" : "Görev tanıtımı"} style={{
                 position: "absolute", inset: 0, zIndex: 70, display: "flex", alignItems: "center", justifyContent: "center",
                 background: "rgba(0,0,0,.6)", backdropFilter: "blur(6px)",
               }}>
@@ -16706,10 +16717,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ fontSize: 18 }}>{mi?.i}</span>
                 <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{mi?.n}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)" }}>{round + 1}/{roundsPerGame}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,.92)" }} aria-label={`Soru ${round + 1} / ${roundsPerGame}`}>{round + 1}/{roundsPerGame}</span>
               </div>
               <div style={{ display: "flex", gap: 4 }}>
-                {(narrationOn || isPreReader) && (
+                {/* Her soruda görünür (eskiden yalnız narrationOn||isPreReader): diskalkulide sesli tekrar temel destek */}
+                {(
                   <button aria-label="Soruyu dinle" onClick={() => {
                     const mp = getModePlanet(gameMode);
                     if (mp?.guide && question) {
@@ -16765,7 +16777,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               </div>
             )}
             {/* Progress bar inside header — mode-colored with glow */}
-            <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: "rgba(255,255,255,.12)", overflow: "hidden", position: "relative" }} role="progressbar">
+            <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: "rgba(255,255,255,.12)", overflow: "hidden", position: "relative" }} role="progressbar" aria-label={lang === "ku" ? "Pêşketina erkê" : "Görev ilerlemesi"} aria-valuemin={0} aria-valuemax={roundsPerGame} aria-valuenow={round + 1}>
               <div style={{
                 height: "100%", borderRadius: 3,
                 background: `linear-gradient(90deg, ${modeColor}99, ${modeColor})`,
@@ -16855,7 +16867,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                     <GuideCharacter guide={mp.guide} color={mp.color} mood="idle" size={64} showName={false} compact />{/* 32→64: oyun içinde eşlik eden rehber artık belirgin (kullanıcı isteği) */}
                     <div>
                       {/* Karakter ismini koyu zeminde okunur kıl: mod rengini beyazla %50 karıştır */}
-                      <span style={{ fontSize: 12, fontWeight: 900, color: `color-mix(in srgb, ${mp.color}, white 50%)`, letterSpacing: .3 }}>{mp.guide.name}:</span>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: `color-mix(in srgb, ${mp.color}, white 78%)`, letterSpacing: .3 }}>{mp.guide.name}:</span>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginLeft: 5 }}>{msgs[round % msgs.length]}</span>
                     </div>
                   </div>
@@ -16865,7 +16877,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             {/* ─── ORTALANAN GÖREV BLOĞU: kök → görsel → şıklar → (tripleCode/ipucu/feedback) ─── */}
             <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 14, minHeight: 0, margin: "auto 0" }}>
               {/* Question content — always full width */}
-              <div role="region" aria-live="polite" aria-label="Soru alanı">{renderQ()}</div>
+              <div role="region" aria-live="polite" aria-label="Soru alanı" ref={questionRegionRef} tabIndex={-1} style={{ outline: "none" }}>
+                <h1 className="sr-only">{mi?.n || "Görev"} — {lang === "ku" ? "Pirs" : "Soru"} {round + 1} / {roundsPerGame}</h1>
+                {renderQ()}
+              </div>
 
               {renderOpts()}
 
@@ -16898,7 +16913,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             {/* ── Feedback — görev bloğunun SON çocuğu (ortalamayı bozmadan büyür) ── */}
             {feedback && !(question && question.type === "wordProblem") && (
               <div onClick={feedback.ok && !feedback.needNext ? advanceNext : undefined}
-                role="status" aria-live="polite" aria-label={feedback.ok ? "Doğru cevap" : "Yanlış cevap"}
+                role="status" aria-live="polite" aria-label={feedback.ok ? "Doğru cevap" : "Yanlış cevap"} tabIndex={-1}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginTop: 0, flexShrink: 0, animation: "fadeUp .3s ease",
                   cursor: feedback.ok && !feedback.needNext ? "pointer" : "default" }}>
                 {/* Guide character speech reaction — yalnız YANLIŞ cevapta (declutter: doğruda banner tek onaydır;
@@ -16952,7 +16967,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                     color: "#fff",
                     background: feedback.ok
                       ? `linear-gradient(135deg, ${C.correct}, ${C.correct}cc)`
-                      : `linear-gradient(135deg, ${C.wrong}, ${C.wrong}cc)`,
+                      : "linear-gradient(135deg, #b45309, #c2410c)", // C.wrong açık turuncuydu: beyaz metin 3.25:1 (KVKK değil, WCAG) → koyu zemin ≥4.5:1
                     boxShadow: feedback.ok
                       ? `0 4px 20px ${C.correct}40, inset 0 1px 0 rgba(255,255,255,.15)`
                       : `0 4px 20px ${C.wrong}40, inset 0 1px 0 rgba(255,255,255,.1)`,
@@ -17088,7 +17103,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 {feedback.needNext && (
                   <button ref={feedbackEndRef} onClick={advanceNext} aria-label="Devam et, sonraki soru" className="space-btn-hover" style={{
                     padding: "14px 48px", borderRadius: 16, border: "none", fontFamily: F,
-                    background: feedback.ok ? "linear-gradient(135deg,#059669,#34d399,#10b981)" : "linear-gradient(135deg,#6366f1,#818cf8,#a78bfa)",
+                    background: feedback.ok ? "linear-gradient(135deg,#059669,#34d399,#10b981)" : "linear-gradient(135deg,#4f46e5,#6d28d9)", // açık mor 3.04:1 idi
                     color: "#fff",
                     fontSize: 16, fontWeight: 900, cursor: "pointer", letterSpacing: .5,
                     boxShadow: feedback.ok
@@ -17563,7 +17578,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {/* ═══ İKİNCİL BÖLÜM — sadelik: gemi/istatistik varsayılan KATLI ═══ */}
           <div style={{ padding: "12px 16px 20px" }}>
             {/* Detaylar — varsayılan kapalı (kalabalığı azalt) */}
-            <button onClick={() => setShowDetail(d => !d)} style={{ width: "100%", padding: "9px 0", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.3)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F, minHeight: 40 }}>{showDetail ? (lang === "ku" ? "▲ Detayan veşêre" : "▲ Detayları gizle") : (lang === "ku" ? "▼ Detay" : "▼ Detaylar")}</button>
+            <button onClick={() => setShowDetail(d => !d)} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "1px solid rgba(148,163,184,.12)", background: "rgba(30,27,75,.3)", color: "#a8b2d1", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F, minHeight: 44 }}>{showDetail ? (lang === "ku" ? "▲ Detayan veşêre" : "▲ Detayları gizle") : (lang === "ku" ? "▼ Detay" : "▼ Detaylar")}</button>
             {showDetail && (<>
             {/* Gemi durumu — compact */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "8px 12px", borderRadius: 12, background: "rgba(30,27,75,.4)", border: "1px solid rgba(148,163,184,.08)" }}>
@@ -17803,7 +17818,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)", padding: "12px 16px 14px", borderRadius: "0 0 20px 20px", boxShadow: "0 4px 16px rgba(124,58,237,.2)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
             <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>📈 İlerlemem</span>
             <BrandMini />
             </div>
@@ -17922,7 +17937,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             borderRadius: "0 0 20px 20px", boxShadow: "0 4px 16px rgba(124,58,237,.25)", flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>📊 Gelişim Takibi</span>
               <BrandMini />
             </div>
@@ -18316,7 +18331,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             borderRadius: "0 0 20px 20px", boxShadow: "0 4px 20px rgba(124,58,237,.2)", flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.25)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.25)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>👨‍🎓 Sınıf Yönetim Paneli</span>
               <BrandMini />
             </div>
@@ -20368,7 +20383,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#3b82f6,#3b82f6)", padding: "14px 18px 10px", borderRadius: "0 0 24px 24px", boxShadow: "0 4px 20px rgba(59,130,246,.2)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-              <button onClick={() => navigateTo("settings")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={() => navigateTo("settings")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <BrandMini />
             </div>
             <div style={{ textAlign: "center", marginBottom: 6 }}>
@@ -20665,7 +20680,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           <div style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", padding: "14px 18px 16px", borderRadius: "0 0 24px 24px", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <button onClick={() => navigateTo("settings")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={() => navigateTo("settings")} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <span style={{ color: "#fff", fontSize: 14, fontWeight: 900 }}>🃏 {t("collection")}</span>
               <BrandMini />
             </div>
@@ -20989,7 +21004,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page " + pageAnim + a11yCls} style={{ background: `linear-gradient(180deg,${theme.bg1} 0%,${theme.bg2} 35%,${theme.bg3} 70%,${theme.land} 100%)`, fontFamily: F, position: "relative", overflow: "hidden" }}>
-        <style>{CSS}{`
+        <h1 className="sr-only">{lang === "ku" ? "Nexşeya Galaksiyê" : "Galaksi Haritası"}</h1>
+        <style>{`
           @keyframes mapFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
           @keyframes mapSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
           @keyframes mapBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
@@ -21618,8 +21634,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                     )}
                   </button>
 
-                  {/* Gezegen adı — okunaklılık: font 8/9→11/12, koyu pill + güçlü gölge + parlak metin */}
-                  <div style={{
+                  {/* Gezegen adı — okunaklılık: font 8/9→11/12, koyu pill + güçlü gölge + parlak metin.
+                      Dar ekranda (≤480px) KİLİTLİ gezegenlerin etiketi gizlenir: zig-zag dizilimde etiketler
+                      birbirinin ve komşu düğümün üstüne biniyordu (a11y denetimi R2). */}
+                  <div className={`planet-label${(!isDone && !isCurrent) ? " planet-label--locked" : ""}`} style={{
                     marginTop: 4, fontSize: isCurrent ? 12 : 11, fontWeight: 800, textAlign: "center",
                     color: isDone ? "#fde68a" : isCurrent ? "#ffffff" : "#e8edf6",
                     textShadow: "0 1px 3px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.7)",
@@ -21810,8 +21828,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           )}
 
           {/* ═══ ONBOARDİNG HİKÂYE — 5 Sahne Sinematik Deneyim ═══ */}
-          {storyStep > 0 && (
-            <div style={{
+          {storyStep > 0 && ( /* role=dialog: ekran okuyucu ve klavye için kip belirtir */
+            <div role="dialog" aria-modal="true" aria-label={lang === "ku" ? "Çîrok" : "Hikâye"} style={{
               position: "fixed", inset: 0, zIndex: 210,
               background: "radial-gradient(ellipse at 30% 20%, #0d1b3e 0%, #080e24 40%, #020612 100%)",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -22334,6 +22352,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const gateCorrect = gateA + gateB;
       return (
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <h1 className="sr-only">{lang === "ku" ? "Piştrastkirina Dêûbav" : "Ebeveyn Doğrulaması"}</h1>
           
           <div style={{ ...DS.card, padding: "28px 24px", maxWidth: 360, textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
@@ -22343,7 +22362,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             <input
               type="number" inputMode="numeric"
               onChange={e => { if (parseInt(e.target.value) === gateCorrect) setParentGatePassed(true); }}
-              style={{ fontSize: 20, fontWeight: 800, width: 100, textAlign: "center", padding: "8px 12px", borderRadius: 12, border: "1px solid rgba(148,163,184,.2)", background: "rgba(30,27,75,.5)", color: "#e2e8f0", fontFamily: F }}
+              style={{ fontSize: 20, fontWeight: 800, width: 110, minHeight: 48, textAlign: "center", padding: "8px 12px", borderRadius: 12, border: "1px solid rgba(148,163,184,.2)", background: "rgba(30,27,75,.5)", color: "#e2e8f0", fontFamily: F }}
               placeholder="?"
               autoFocus
             />
@@ -22362,13 +22381,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">{lang === "ku" ? "Mîheng" : "Ayarlar"}</h1>
         
         <SpaceDecor variant="settings" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#7c8db5,#5b6b8a)", padding: "14px 18px 16px", borderRadius: "0 0 24px 24px", boxShadow: "0 4px 20px rgba(71,85,105,.25)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
+              <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <span style={{ color: "#fff", fontSize: 16, fontWeight: 900 }}>⚙️ {lang === "ku" ? "Mîheng" : "Ayarlar"}</span>
               <BrandMini />
             </div>

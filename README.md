@@ -13,7 +13,7 @@ ayağıdır; tarama ve profil NuMap'ten (getnumap.com), somut materyal DokunSay'
 ```bash
 npm ci            # bağımlılıklar
 npm run dev       # http://localhost:5173/galaksay/
-npm run check     # lint + 79 birim testi + derleme (gönderim öncesi kalite kapısı)
+npm run check     # lint + 83 birim testi + derleme (gönderim öncesi kalite kapısı)
 ```
 
 Ortam değişkenleri `.env.example` dosyasında; gerçek değerler `.env.local`'a yazılır

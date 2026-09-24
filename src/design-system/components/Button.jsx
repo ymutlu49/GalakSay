@@ -50,7 +50,7 @@ const VARIANTS = {
 };
 
 const SIZES = {
-  sm: { height: 36, fontSize: 14, padding: '0 16px', borderRadius: layout.borderRadius.sm },
+  sm: { height: 44, fontSize: 14, padding: '0 16px', borderRadius: layout.borderRadius.sm }, // 36'ydı: dokunma hedefi ≥44 (WCAG 2.5.8)
   md: { height: 44, fontSize: 16, padding: '0 22px', borderRadius: layout.borderRadius.md },
   lg: { height: 56, fontSize: 20, padding: '0 30px', borderRadius: layout.borderRadius.lg },
   xl: { height: 64, fontSize: 24, padding: '0 36px', borderRadius: layout.borderRadius.xl },
