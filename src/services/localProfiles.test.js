@@ -162,10 +162,13 @@ describe('localProfiles — numap roster (Faz A)', () => {
   });
 
   it('roster yazılamazsa upsert false döner ve HİÇBİR payload yazılmaz (orphan PII yok)', () => {
-    const orig = localStorage.setItem.bind(localStorage);
-    const spy = vi.spyOn(localStorage, 'setItem').mockImplementation((k, v) => {
+    // jsdom Storage'ında örnek üzerine tanımlanan özellik metodu geçersiz kılmaz
+    // (WebIDL adlı-özellik ayarlayıcısı onu bir anahtar olarak saklar); prototipte casusla.
+    const proto = Object.getPrototypeOf(localStorage);
+    const orig = proto.setItem;
+    const spy = vi.spyOn(proto, 'setItem').mockImplementation(function (k, v) {
       if (k === 'galaksay_local_children') throw new Error('QuotaExceeded');
-      return orig(k, v);
+      return orig.call(this, k, v);
     });
     try {
       const ok = upsertNumapChildren('u1', [item('a')]);
