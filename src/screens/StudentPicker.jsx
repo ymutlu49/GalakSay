@@ -24,6 +24,12 @@ function speak(text) {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'tr-TR';
+    // Gizlilik: çocuğun adı seslendiriliyor → cihaz-içi (localService) Türkçe ses varsa onu seç,
+    // bulut sesine (metin sunucuya gider) düşme.
+    try {
+      const local = (window.speechSynthesis.getVoices() || []).find((v) => v.localService && /^tr/i.test(v.lang || ''));
+      if (local) u.voice = local;
+    } catch { /* ses listesi yoksa varsayılan */ }
     u.rate = 0.95;
     window.speechSynthesis.speak(u);
   } catch { /* ses desteklenmiyorsa sessiz devam */ }

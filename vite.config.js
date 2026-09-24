@@ -57,7 +57,7 @@ export default defineConfig({
           // React shared — Vite otomatik ayırıyor, manuel belirtmeye gerek yok
           'vendor-motion': ['framer-motion'],
           'vendor-charts': ['recharts'],
-          'vendor-pdf': ['html2canvas', 'jspdf'],
+          'vendor-pdf': ['jspdf'],
           // Analytics/dashboard ayrı chunk (lazy loaded)
           'analytics': [
             './src/analytics/PerformanceAnalyzer.js',

@@ -244,8 +244,42 @@ async function getAchievementsByChild(childId) {
   return queryByIndex(STORES.ACHIEVEMENTS, 'byChild', childId);
 }
 
+/** KVKK: bir çocuğun IndexedDB'deki TÜM kayıtlarını sil (profil, oturum, olay, yörünge
+ *  geçmişi, gün/hafta özetleri, uyarı, başarım). Profil silme ve 'verileri sil' akışları çağırır. */
+async function deleteChildRecords(childId) {
+  if (!childId) return;
+  const db = await openDB();
+  const byChild = [STORES.SESSIONS, STORES.EVENTS, STORES.LT_HISTORY, STORES.ALERTS, STORES.ACHIEVEMENTS];
+  for (const store of byChild) {
+    const rows = await queryByIndex(store, 'byChild', childId).catch(() => []);
+    for (const r of rows) {
+      const key = store === STORES.SESSIONS ? r.sessionId : store === STORES.EVENTS ? r.eventId : r.id;
+      if (key !== undefined) await deleteRecord(store, key).catch(() => {});
+    }
+  }
+  for (const store of [STORES.DAILY_SUMMARY, STORES.WEEKLY_SUMMARY]) {
+    const rows = await getAllFromStore(store).catch(() => []);
+    for (const r of rows) if (r.childId === childId && r.id !== undefined) await deleteRecord(store, r.id).catch(() => {});
+  }
+  await deleteRecord(STORES.CHILD_PROFILES, childId).catch(() => {});
+  void db;
+}
+
+/** KVKK: öğretmen çıkışında NuMap-kaynaklı çocuk profillerinin demografisini (ad, doğum
+ *  tarihi, cinsiyet, okul, şehir, ilçe) cihazdan sil; anonim ilerleme (childId) kalır. */
+async function purgeChildDemographics(childIdPrefix = 'numap_') {
+  const rows = await getAllFromStore(STORES.CHILD_PROFILES).catch(() => []);
+  for (const p of rows) {
+    if (!p?.childId || !String(p.childId).startsWith(childIdPrefix)) continue;
+    const { name, birthDate, gender, school, city, district, ageMonths, ...rest } = p; // eslint-disable-line no-unused-vars
+    await putRecord(STORES.CHILD_PROFILES, { ...rest, childId: p.childId, name: null, birthDate: null, gender: null, school: null, city: null, district: null, ageMonths: null }).catch(() => {});
+  }
+}
+
 export {
   STORES,
+  deleteChildRecords,
+  purgeChildDemographics,
   openDB,
   putRecord,
   getRecord,

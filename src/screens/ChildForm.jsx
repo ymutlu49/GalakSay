@@ -66,10 +66,10 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
   const handleDelete = useCallback(() => {
     if (!editing) return;
     const wipe = window.confirm(
-      `${child.name} profilini silmek istediğine emin misin?\n\n"Tamam" → profil silinir (oyun ilerlemesi cihazda kalır).`,
+      `${child.name} profilini silmek istediğine emin misin?\n\n"Tamam" → profil ve bu cihazdaki tüm oyun verisi (ilerleme, istatistik, kayıtlar) kalıcı olarak silinir.`,
     );
     if (!wipe) return;
-    removeChild(child.ns, false);
+    removeChild(child.ns, true); // KVKK: profil + ilerleme + IndexedDB kayıtları (sahipsiz PII kalmasın)
     onSave?.(null);
   }, [editing, child, onSave]);
 

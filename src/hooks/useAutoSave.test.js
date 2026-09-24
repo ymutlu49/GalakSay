@@ -12,7 +12,7 @@ describe('useAutoSave', () => {
     await act(async () => {
       result.current.saveProgress({ category: 'sayma', mode: 'counting', currentQuestion: 3, totalQuestions: 10 });
       // 100ms debounce + crypto async — bekleyelim
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
     });
 
     const raw = localStorage.getItem('galaksay_session_progress');
@@ -29,7 +29,7 @@ describe('useAutoSave', () => {
     const { result } = renderHook(() => useAutoSave());
     await act(async () => {
       result.current.saveProgress({ category: 'a' });
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
     });
     expect(localStorage.getItem('galaksay_session_progress')).toBeTruthy();
     act(() => result.current.clearProgress());
@@ -41,7 +41,7 @@ describe('useAutoSave', () => {
     expect(await result.current.hasResumableSession()).toBe(false);
     await act(async () => {
       result.current.saveProgress({ category: 'a' });
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
     });
     expect(await result.current.hasResumableSession()).toBe(true);
   });
@@ -50,7 +50,7 @@ describe('useAutoSave', () => {
     const { result } = renderHook(() => useAutoSave());
     await act(async () => {
       result.current.saveProgress({ category: 'subitizing', mode: 'fivesFrame', currentQuestion: 5, totalQuestions: 10 });
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
     });
     const info = await getResumeInfo();
     expect(info.category).toBe('subitizing');

@@ -146,6 +146,8 @@ export function wipeChildData(ns) {
   } catch {
     /* depolama engelli */
   }
+  // KVKK: IndexedDB'deki oturum/olay/profil kayıtları da (ad + doğum tarihi taşıyabilir)
+  try { import('../analytics/database.js').then((m) => m.deleteChildRecords(ns)).catch(() => {}); } catch { /* yok say */ }
 }
 
 /** Son giriş zamanını güncelle (StudentPicker sıralaması için). */
@@ -167,16 +169,20 @@ export async function verifyPin(ns, pin) {
   if (!c) return false;
   if (c.source === 'numap') return false;
   if (!c.pin) return true;
+  if (getPinLockRemainingMs(`child_${ns}`) > 0) return false;
+  let ok;
   // Geriye uyumluluk: eski düz-metin PIN (önek yok) → düz karşılaştır; yeni PIN'ler hash'li.
   if (!/^(pbkdf2|sha256|plain):/.test(c.pin)) {
-    const ok = String(pin) === String(c.pin);
+    ok = String(pin) === String(c.pin);
     if (ok) {
       // Başarılı girişte sessiz yükseltme: düz-metin PIN cihazda bir daha durmasın
       try { updateChild(ns, { pin: await hashPin(String(pin)) }); } catch { /* yükseltme başarısızsa eski davranış sürer */ }
     }
-    return ok;
+  } else {
+    ok = await verifyHash(String(pin), c.pin);
   }
-  return verifyHash(String(pin), c.pin);
+  if (ok) _clearPinFails(`child_${ns}`); else _recordPinFail(`child_${ns}`);
+  return ok;
 }
 
 // ── Numap-kaynaklı roster kayıtları (FAZ A — birleşik roster temeli) ─────────
@@ -439,16 +445,41 @@ export async function setAdminPin(pin) {
   }
 }
 
+// ── PIN deneme kilidi (kaba kuvvet freni): 5 başarısız denemeden sonra artan bekleme ──
+// 4 haneli PIN = 10.000 olasılık; konsoldan döngüyle dakikalar içinde kırılabiliyordu.
+const LOCK_KEY = (id) => `galaksay_pin_attempts_${id}`;
+const LOCK_MAX_FREE = 5;          // ücretsiz deneme
+const LOCK_BASE_MS = 30 * 1000;   // 6. denemede 30 sn, sonra 2×, 4×… (tavan 8×)
+function _readLock(id) {
+  try { return JSON.parse(localStorage.getItem(LOCK_KEY(id)) || '{"n":0,"until":0}'); } catch { return { n: 0, until: 0 }; }
+}
+/** Kilit kalan süresi (ms); 0 = deneme serbest. */
+export function getPinLockRemainingMs(id) {
+  const s = _readLock(id);
+  return s.until > Date.now() ? s.until - Date.now() : 0;
+}
+function _recordPinFail(id) {
+  const s = _readLock(id); s.n += 1;
+  if (s.n >= LOCK_MAX_FREE) s.until = Date.now() + LOCK_BASE_MS * Math.min(8, 2 ** (s.n - LOCK_MAX_FREE));
+  try { localStorage.setItem(LOCK_KEY(id), JSON.stringify(s)); } catch { /* depolama yok */ }
+}
+function _clearPinFails(id) {
+  try { localStorage.removeItem(LOCK_KEY(id)); } catch { /* yok say */ }
+}
+
 export async function verifyAdminPin(pin) {
+  if (getPinLockRemainingMs('admin') > 0) return false;
+  let ok = false;
   try {
     const s = localStorage.getItem(ADMIN_PIN_KEY);
     if (!s) return false;
     // Geriye uyumluluk: eski düz-metin PIN (önek yok) → düz karşılaştır.
-    if (!/^(pbkdf2|sha256|plain):/.test(s)) return String(pin) === s;
-    return verifyHash(String(pin), s);
+    ok = !/^(pbkdf2|sha256|plain):/.test(s) ? String(pin) === s : await verifyHash(String(pin), s);
   } catch {
-    return false;
+    ok = false;
   }
+  if (ok) _clearPinFails('admin'); else _recordPinFail('admin');
+  return ok;
 }
 
 export function clearAdminPin() {

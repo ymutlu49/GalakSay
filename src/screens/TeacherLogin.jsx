@@ -18,7 +18,7 @@ import { colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
 import { layout } from '../design-system/spacing.js';
 import { login as numapLogin, ApiError } from '../services/numapApi.js';
-import { hasAdminPin, setAdminPin, verifyAdminPin, verifyUser, userCount } from '../services/localProfiles.js';
+import { hasAdminPin, setAdminPin, verifyAdminPin, verifyUser, userCount, getPinLockRemainingMs } from '../services/localProfiles.js';
 
 const F = typography.fontFamily.display;
 
@@ -174,10 +174,17 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
       await setAdminPin(pin); // PBKDF2 ile hash'lenerek saklanır
       onLocalAdmin?.();
     } else {
+      const lockMs = getPinLockRemainingMs('admin');
+      if (lockMs > 0) {
+        setLocalError(`Çok fazla yanlış deneme. ${Math.ceil(lockMs / 1000)} saniye sonra tekrar deneyin.`);
+        setPin('');
+        return;
+      }
       if (await verifyAdminPin(pin)) {
         onLocalAdmin?.();
       } else {
-        setLocalError('Şifre yanlış.');
+        const after = getPinLockRemainingMs('admin');
+        setLocalError(after > 0 ? `Şifre yanlış. Çok fazla deneme — ${Math.ceil(after / 1000)} saniye bekleyin.` : 'Şifre yanlış.');
         setPin('');
       }
     }

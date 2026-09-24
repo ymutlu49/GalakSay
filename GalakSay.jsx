@@ -599,8 +599,10 @@ const VoiceSelector = {
     // Türkçe isimdeki sesler (Tolga, Filiz, vb.) tercih edilir
     if (name.includes("tolga") || name.includes("filiz") || name.includes("emel")) score += 15;
 
-    // Yerel (offline) sesler genelde daha düşük kalite
-    if (local) score -= 5;
+    // Gizlilik (2026-09-24 denetimi): bulut sesleri (Edge 'Online/Natural' vb.) metni — çocuğun adı
+    // dahil — üçüncü taraf sunucuya gönderir. Cihaz-içi ses varsa o kazanır; bulut yalnız yedek.
+    if (local === false) score -= 100;
+    else if (local) score += 10;
 
     // Kadın sesleri çocuklar için genelde daha anlaşılır
     if (name.includes("female") || name.includes("kadın") || name.includes("filiz") || name.includes("emel")) score += 5;
@@ -6898,13 +6900,6 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
   // ═══ AUTH & ADVANCED FEATURES ═══
   const [currentUser, setCurrentUser] = useState(child ? { username: child.ns, role: "student", displayName: child.name } : null); // {username, role, displayName}
-  const [showPw, setShowPw] = useState(false); // şifre görünürlük toggle (admin panelindeki yeni-kullanıcı alanı)
-  const [aiReport, setAiReport] = useState(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [adminTab, setAdminTab] = useState("users");
-  const [addUserMode, setAddUserMode] = useState(false);
-  const [newUser, setNewUser] = useState({ username: "", password: "", displayName: "", role: "student" });
-  const [addUserMsg, setAddUserMsg] = useState("");
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminLoading, setAdminLoading] = useState(true);
   const [adminUserStats, setAdminUserStats] = useState({});
@@ -7550,42 +7545,6 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // kurulur, oyun her zaman child prop'uyla açılır; bundle'a gömülü yönetici
   // kimliği içeren erişilemez eski giriş/kayıt akışı güvenlik gereği silindi.)
 
-  // Admin: add user
-  const adminAddUser = async () => {
-    setAddUserMsg("");
-    const { username, password, displayName, role } = newUser;
-    if (!username.trim() || !password.trim() || !displayName.trim()) { setAddUserMsg("❌ Tüm alanları doldurun"); return; }
-    if (password.length < 4) { setAddUserMsg("❌ Şifre min 4 karakter"); return; }
-    try {
-      let exists = false;
-      try { const existing = await window.storage?.get(`dokunsay-auth-${username.trim().toLowerCase()}`); if (existing?.value) exists = true; } catch {}
-      if (exists) { setAddUserMsg("❌ Bu kullanıcı adı zaten var"); return; }
-      const user = { username: username.trim().toLowerCase(), password, displayName: displayName.trim(), role, createdAt: new Date().toISOString() };
-      await window.storage?.set(`dokunsay-auth-${user.username}`, JSON.stringify(user));
-      let users = [];
-      try { const ul = await window.storage?.get("dokunsay-users"); if (ul?.value) users = JSON.parse(ul.value); } catch {}
-      users.push({ username: user.username, displayName: user.displayName, role: user.role, createdAt: user.createdAt });
-      await window.storage?.set("dokunsay-users", JSON.stringify(users));
-      setAddUserMsg("✅ " + user.displayName + " eklendi!");
-      setNewUser({ username: "", password: "", displayName: "", role: "student" });
-      loadAdminData();
-    } catch (err) { setAddUserMsg("❌ Hata: " + (err?.message || "Bilinmeyen hata")); }
-  };
-
-  // Admin: delete user
-  const adminDeleteUser = async (username) => {
-    if (!confirm(username + " silinsin mi?")) return;
-    try {
-      await window.storage?.delete(`dokunsay-auth-${username}`);
-      await window.storage?.delete(`dokunsay-user-${username}`);
-      let users = [];
-      try { const ul = await window.storage?.get("dokunsay-users"); if (ul?.value) users = JSON.parse(ul.value); } catch {}
-      users = users.filter(u => u.username !== username);
-      await window.storage?.set("dokunsay-users", JSON.stringify(users));
-      loadAdminData();
-    } catch {}
-  };
-
     const handleLogout = () => {
     setShowExitMenu(false);
     // Çıkışı main.jsx gate'e devret (oturum/çocuk temizle + Welcome'a dön; GalaksayGame
@@ -7622,81 +7581,6 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       }
     } catch {}
     setAdminLoading(false);
-  };
-
-  const generateAiReport = async () => {
-    if (aiLoading || stats.totalGames === 0) return;
-    setAiLoading(true);
-    setAiReport(null);
-    try {
-      const modeDetails = Object.entries(stats.modeStats).map(([m, s]) => {
-        const info = gmi(m);
-        const lt = LT_TRAJECTORIES[m];
-        const ac = s.total > 0 ? Math.round((s.correct/s.total)*100) : 0;
-        return `${info?.n || m}: ${s.games} oyun, %${ac} başarı${lt ? ` [Yörünge: ${lt.trajectory}, Seviye: ${lt.level}, Yaş: ${lt.ageRange}]` : ""}`;
-      }).join("\n");
-      // Güçlü/zayıf alan analizi
-      const sorted = Object.entries(stats.modeStats).map(([m, s]) => ({ m, acc: s.total > 0 ? Math.round((s.correct/s.total)*100) : 0, games: s.games })).filter(x => x.games >= 2).sort((a, b) => b.acc - a.acc);
-      const strong = sorted.slice(0, 3).map(x => `${gmi(x.m)?.n}: %${x.acc}`).join(", ");
-      const weak = sorted.slice(-3).reverse().map(x => `${gmi(x.m)?.n}: %${x.acc}`).join(", ");
-      const coveredTrajectories = [...new Set(Object.keys(LT_TRAJECTORIES).filter(m => stats.modeStats[m]).map(m => LT_TRAJECTORIES[m].trajectory))];
-      const prompt = `Sen erken çocukluk dönemi matematik gelişimi alanında uzmanlaşmış bir eğitim psikoloğu ve pedagogsun. GalakSay (4-8 yaş uzay temalı matematik uygulaması) kullanıcısının gelişimsel ilerlemesini Clements & Sarama Öğrenme Yörüngeleri çerçevesinde analiz et.
-
-📊 ÖĞRENCİ PROFİLİ
-Ad: ${playerName || "Öğrenci"}
-Toplam oyun sayısı: ${stats.totalGames}
-Genel başarı: ${stats.totalCorrect}/${stats.totalQ} (%${stats.totalQ > 0 ? Math.round((stats.totalCorrect/stats.totalQ)*100) : 0})
-Toplam puan: ${stats.totalScore}
-Kapsanan öğrenme yörüngeleri: ${coveredTrajectories.join(", ") || "Henüz yeterli veri yok"} (${coveredTrajectories.length}/18)
-
-📈 MOD BAZLI PERFORMANS
-${modeDetails || "Henüz veri yok"}
-
-🏆 En güçlü alanlar: ${strong || "Henüz yeterli veri yok"}
-⚠️ Gelişim gereken alanlar: ${weak || "Henüz yeterli veri yok"}
-
-📝 SON 5 OYUN
-${stats.recent.slice(0,5).map(g => {
-  const info = gmi(g.mode);
-  return `${info?.n}: Sv.${g.level}, ${g.correct}/${g.total} (%${g.acc || Math.round((g.correct/g.total)*100)})`;
-}).join("\n")}
-
-Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bölümlerden oluşsun:
-
-📋 GELİŞİMSEL DEĞERLENDİRME
-• Çocuğun matematiksel gelişim düzeyini Clements & Sarama yörüngelerine göre değerlendir
-• Hangi gelişimsel basamakta olduğunu belirt
-
-💪 GÜÇLÜ YÖNLER (2-3 madde)
-• Somut veriye dayalı güçlü yönleri belirt
-
-🌱 GELİŞİM ALANLARI (2-3 madde)
-• Hangi kavramsal alanlarda pratik gerektiğini belirt
-• Hangi öğrenme yörüngesinde sonraki adımın ne olduğunu öner
-
-🎯 AİLE İÇİN ÖNERİLER (3 somut öneri)
-• Evde yapılabilecek somut, günlük yaşamla bütünleşik matematik etkinlikleri öner
-• CRA (Somut-Temsili-Soyut) pedagojisine uygun öneriler ver
-
-🌟 MOTİVASYON NOTU
-• Çocuğa hitaben kısa, cesaretlendirici bir mesaj yaz`;
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1500,
-          messages: [{ role: "user", content: prompt }],
-        })
-      });
-      const data = await response.json();
-      const text = data.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "Rapor oluşturulamadı.";
-      setAiReport(text);
-    } catch (e) {
-      setAiReport("Yapay zeka raporu oluşturulurken hata oluştu. Lütfen tekrar deneyin.");
-    }
-    setAiLoading(false);
   };
 
   // E4.4: Load saved session on mount
@@ -15543,7 +15427,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
       { icon: "📊", label: "Gelişim Paneli", desc: "Detaylı performans analizi", color: "#22d3ee", onClick: () => navigateTo("dashboard") },
       { icon: "🔬", label: "Numap Karşılaştırma", desc: "Başlangıç vs güncel performans", color: "#7c3aed", onClick: () => navigateTo("nuMapReport") },
       { icon: "📈", label: "İstatistik", desc: "Performans", color: "#10b981", onClick: () => navigateTo("progress") },
-      { icon: "🤖", label: "AI Rapor", desc: "Yapay zeka değerlendirmesi", color: "#8b5cf6", onClick: () => { navigateTo("report"); if (!aiReport) generateAiReport(); } },
     ];
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
@@ -15762,7 +15645,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <div style={{ fontSize: 13, fontWeight: 800, color: "#a8b2d1", textTransform: "uppercase", letterSpacing: 1.2, marginTop: 8, marginBottom: 0 }}>⚙️ Yönetim</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                 {[
-                  { icon: "🛡️", label: "Yönetim Paneli", desc: "Kullanıcı ve sistem", color: "#ef4444", onClick: () => { loadAdminData(); navigateTo("admin"); } },
                   { icon: "👨‍🎓", label: "Sınıf Paneli", desc: "Öğrenci takibi", color: "#7c3aed", onClick: () => { loadAdminData(); navigateTo("teacherDash"); } },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "14px 12px", border: `1px solid ${c.color}18`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -15779,7 +15661,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {[
                   { icon: "📊", label: "Gelişim", desc: "Beceri analizi", color: "#3b82f6", onClick: () => navigateTo("devTrack") },
                   { icon: "📈", label: "İstatistik", desc: "Performans", color: "#10b981", onClick: () => navigateTo("progress") },
-                  { icon: "🤖", label: "AI Rapor", desc: "Yapay zeka", color: "#8b5cf6", onClick: () => { navigateTo("report"); if (!aiReport) generateAiReport(); } },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 8px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{c.icon}</div>
@@ -15848,7 +15729,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 {[
                   { icon: "📊", label: "Gelişim", desc: "Beceri analizi", color: "#3b82f6", onClick: () => navigateTo("devTrack") },
                   { icon: "📈", label: "İstatistik", desc: "Performans", color: "#10b981", onClick: () => navigateTo("progress") },
-                  { icon: "🤖", label: "AI Rapor", desc: "Yapay zeka", color: "#8b5cf6", onClick: () => { navigateTo("report"); if (!aiReport) generateAiReport(); } },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 8px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{c.icon}</div>
@@ -15912,7 +15792,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
                 {[
                   { icon: "📈", label: "İstatistik", desc: "Detaylı veri", color: "#10b981", onClick: () => navigateTo("progress") },
-                  { icon: "🤖", label: "AI Rapor", desc: "Uzman analizi", color: "#8b5cf6", onClick: () => { navigateTo("report"); if (!aiReport) generateAiReport(); } },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 8px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{c.icon}</div>
@@ -18134,11 +18013,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 background: DS.accent, color: "#fff", fontSize: 13, fontWeight: 800,
                 cursor: "pointer", fontFamily: F, boxShadow: "0 4px 14px rgba(124,58,237,.25)",
               }}>🎯 Oyun Oyna</button>
-              <button onClick={() => { navigateTo("report"); if (!aiReport) generateAiReport(); }} style={{
-                flex: 1, padding: "11px 0", borderRadius: 12,
-                background: "rgba(49,46,129,.5)", color: "#e2e8f0", fontSize: 13, fontWeight: 800,
-                cursor: "pointer", fontFamily: F, border: "1px solid rgba(148,163,184,.15)",
-              }}>🤖 AI Rapor</button>
             </div>
           </>)}
 
@@ -18370,376 +18244,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   }
 
   // ─── 7b. AI REPORT ────────────────────────────────────────────────────────
-  if (screen === "report") {
-    const oa = stats.totalQ > 0 ? Math.round((stats.totalCorrect / stats.totalQ) * 100) : 0;
-    // Gelişimsel analiz verileri
-    const coveredLTs = [...new Set(Object.keys(LT_TRAJECTORIES).filter(m => stats.modeStats[m]).map(m => LT_TRAJECTORIES[m].trajectory))];
-    const totalLTs = 18;
-    const ltCoverage = Math.round((coveredLTs.length / totalLTs) * 100);
-    const modeSorted = Object.entries(stats.modeStats).map(([m, s]) => ({ m, acc: s.total > 0 ? Math.round((s.correct/s.total)*100) : 0, games: s.games, info: gmi(m) })).filter(x => x.games >= 1).sort((a, b) => b.acc - a.acc);
-    const strongModes = modeSorted.filter(x => x.acc >= 80).slice(0, 3);
-    const growthModes = modeSorted.filter(x => x.acc < 60 && x.games >= 2).slice(0, 3);
-    const devLevel = oa >= 85 ? "İleri Düzey" : oa >= 70 ? "Hedeflenen Düzey" : oa >= 50 ? "Gelişen Düzey" : "Başlangıç Düzeyi";
-    const devColor = oa >= 85 ? "#059669" : oa >= 70 ? "#7c3aed" : oa >= 50 ? "#eab308" : "#94a3b8";
-    return (
-      <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
-        <SpaceDecor variant="progress" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", padding: "0", minHeight: 0 }}>
-          <div style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", padding: "12px 16px 14px", borderRadius: "0 0 20px 20px", boxShadow: "0 4px 20px rgba(124,58,237,.2)", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
-            <span style={{ color: "#fff", fontSize: 15, fontWeight: 800 }}>📋 Gelişim Raporu</span>
-            <BrandMini />
-            </div>
-          </div>
-          {/* Content */}
-          <div style={{ flex: 1, overflow: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-          {/* Öğrenci Profil Kartı */}
-          <div style={{ ...DS.card, padding: "14px 12px", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${devColor}30, ${devColor}10)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: `2px solid ${devColor}40` }}>
-                {oa >= 85 ? "🌟" : oa >= 70 ? "🚀" : oa >= 50 ? "🌱" : "🔭"}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 900, color: "#e2e8f0" }}>{playerName || "Öğrenci"}</div>
-                {currentUser && <div style={{ fontSize: 12, color: "#a8b2d1" }}>@{currentUser.username}</div>}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 4, padding: "3px 10px", borderRadius: 8, background: `${devColor}15`, border: `1px solid ${devColor}25` }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: devColor }}>{devLevel}</span>
-                </div>
-              </div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, textAlign: "center" }}>
-              {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed", icon: "🎮" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669", icon: "✅" }, { v: stats.totalScore, l: "✨", c: "#ca8a04", icon: "✨" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed", icon: "📊" }].map(s => (
-                <div key={s.l} style={{ borderRadius: 10, padding: "8px 4px", background: "rgba(30,27,75,.35)" }}>
-                  <div style={{ fontSize: 12, marginBottom: 2 }}>{s.icon}</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Öğrenme Yörüngesi Kapsama */}
-          <div style={{ ...DS.card, padding: "12px 12px", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#e2e8f0" }}>🧭 Öğrenme Yörüngesi Kapsaması</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#a78bfa" }}>{coveredLTs.length}/{totalLTs}</span>
-            </div>
-            <div style={{ height: 10, borderRadius: 5, background: "rgba(148,163,184,.12)", overflow: "hidden", marginBottom: 8 }}>
-              <div style={{ height: "100%", borderRadius: 5, width: `${ltCoverage}%`, background: "linear-gradient(90deg, #7c3aed, #a78bfa)", transition: "width 1s ease" }} />
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-              {coveredLTs.map(lt => (
-                <span key={lt} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: "rgba(124,58,237,.12)", color: "#a78bfa", border: "1px solid rgba(124,58,237,.2)" }}>{lt}</span>
-              ))}
-            </div>
-            {coveredLTs.length === 0 && <div style={{ fontSize: 12, color: "#a8b2d1", fontStyle: "italic" }}>Henüz yeterli oyun verisi yok. Daha fazla mod deneyin!</div>}
-          </div>
-
-          {/* Güçlü ve Gelişim Alanları */}
-          {(strongModes.length > 0 || growthModes.length > 0) && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-              <div style={{ ...DS.card, padding: "10px 10px" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#059669", marginBottom: 6 }}>💪 Güçlü Yönler</div>
-                {strongModes.length > 0 ? strongModes.map(x => (
-                  <div key={x.m} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12 }}>{x.info?.i}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", flex: 1 }}>{x.info?.n}</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#059669" }}>%{x.acc}</span>
-                  </div>
-                )) : <div style={{ fontSize: 11, color: "#a8b2d1" }}>Daha fazla oyun oyna!</div>}
-              </div>
-              <div style={{ ...DS.card, padding: "10px 10px" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#eab308", marginBottom: 6 }}>🌱 Gelişim Alanları</div>
-                {growthModes.length > 0 ? growthModes.map(x => (
-                  <div key={x.m} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12 }}>{x.info?.i}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0", flex: 1 }}>{x.info?.n}</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#eab308" }}>%{x.acc}</span>
-                  </div>
-                )) : <div style={{ fontSize: 11, color: "#a8b2d1" }}>Harika gidiyorsun!</div>}
-              </div>
-            </div>
-          )}
-
-          {/* Mode performance bars */}
-          {Object.keys(stats.modeStats).length > 0 && (
-            <div style={{ ...DS.card, padding: "12px 12px 10px", flexShrink: 0 }}>
-              <h3 style={{ fontSize: 13, fontWeight: 800, color: "#cbd5e1", margin: "0 0 8px", letterSpacing: .3 }}>📈 Mod Bazlı Performans</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {Object.entries(stats.modeStats).slice(0, 8).map(([m, ms]) => {
-                  const info = gmi(m), ac = Math.round((ms.total > 0 ? ms.correct / ms.total : 0) * 100);
-                  return (<div key={m} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 14, width: 20 }}>{info?.i}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", width: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{info?.n}</span>
-                    <div style={{ flex: 1, height: 8, borderRadius: 4, background: "rgba(148,163,184,.12)", overflow: "hidden" }}>
-                      <div style={{ height: "100%", borderRadius: 4, width: `${ac}%`, background: ac >= 80 ? "linear-gradient(90deg,#059669,#34d399)" : ac >= 60 ? "linear-gradient(90deg,#eab308,#fbbf24)" : "linear-gradient(90deg,#ef4444,#f87171)", transition: "width .5s" }} />
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: ac >= 80 ? "#059669" : ac >= 60 ? "#ca8a04" : "#ef4444", width: 35, textAlign: "right" }}>%{ac}</span>
-                    <span style={{ fontSize: 11, color: "#a8b2d1", width: 20, textAlign: "right" }}>{ms.games}</span>
-                  </div>);
-                })}
-              </div>
-            </div>
-          )}
-          {/* AI Report Content */}
-          <div style={{ ...DS.card, padding: "16px 14px", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexShrink: 0 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, rgba(124,58,237,.2), rgba(99,102,241,.1))", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 20 }}>🤖</span>
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "#a78bfa" }}>Yapay Zeka Gelişim Analizi</div>
-                <div style={{ fontSize: 11, color: "#a8b2d1" }}>Clements & Sarama yörüngelerine dayalı profesyonel değerlendirme</div>
-              </div>
-            </div>
-            {aiLoading ? (
-              <div style={{ textAlign: "center", padding: 30 }}>
-                <div style={{ fontSize: 32 }}>🤖</div>
-                <p style={{ color: "#a8b2d1", fontSize: 13, fontWeight: 600, marginTop: 10 }}>Rapor hazırlanıyor...</p>
-                <p style={{ color: "#a8b2d1", fontSize: 12 }}>Yapay zeka performansınızı analiz ediyor</p>
-              </div>
-            ) : aiReport ? (
-              <div style={{ fontSize: 13, lineHeight: 1.8, color: "#e2e8f0", whiteSpace: "pre-wrap", flex: 1 }}>{aiReport}</div>
-            ) : (
-              <div style={{ textAlign: "center", padding: 20 }}>
-                <p style={{ color: "#a8b2d1", fontSize: 13 }}>Henüz rapor oluşturulmadı</p>
-                <button onClick={generateAiReport} style={{ marginTop: 10, padding: "10px 24px", borderRadius: 10, border: "none", background: DS.accent, color: "#fff", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: F }}>🤖 Rapor Oluştur</button>
-              </div>
-            )}
-          </div>
-          {aiReport && (
-            <button onClick={generateAiReport} disabled={aiLoading} style={{
-              padding: "8px 0", borderRadius: 10, border: "none", flexShrink: 0,
-              background: DS.accent, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: F,
-            }}>🔄 Yeniden Oluştur</button>
-          )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── 8. ADMIN PANEL ─────────────────────────────────────────────────────
-  if (screen === "admin") {
-    const totalGamesAll = Object.values(adminUserStats).reduce((s, u) => s + (u?.totalGames || 0), 0);
-    const totalCorrectAll = Object.values(adminUserStats).reduce((s, u) => s + (u?.totalCorrect || 0), 0);
-    const totalQAll = Object.values(adminUserStats).reduce((s, u) => s + (u?.totalQ || 0), 0);
-    const avgAcc = totalQAll > 0 ? Math.round((totalCorrectAll / totalQAll) * 100) : 0;
-    return (
-      <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
-        <SpaceDecor variant="dashboard" />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto", width: "100%", padding: "0", minHeight: 0 }}>
-          <div style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", padding: "12px 16px 14px", borderRadius: "0 0 20px 20px", boxShadow: "0 4px 20px rgba(124,58,237,.2)", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 36, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
-            <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>⚙️ Yönetim Paneli</span>
-            <BrandMini />
-            </div>
-            {/* KPIs in header */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, marginTop: 10, textAlign: "center" }}>
-              {[
-                { v: adminUsers.length, l: "Kullanıcı", c: "rgba(255,255,255,.9)" },
-                { v: totalGamesAll, l: "T. Oyun", c: "rgba(255,255,255,.9)" },
-                { v: `%${avgAcc}`, l: "Ort. Başarı", c: "rgba(255,255,255,.9)" },
-                { v: adminUsers.filter(u => u.role === "student").length, l: "Öğrenci", c: "rgba(255,255,255,.9)" },
-              ].map(s => (
-                <div key={s.l} style={{ padding: "6px 2px", borderRadius: 10, background: "rgba(255,255,255,.15)" }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: s.c }}>{s.v}</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.6)", textTransform: "uppercase" }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Content */}
-          <div className="scroll-fade" style={{ flex: 1, overflow: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
-
-          {/* Tabs */}
-          <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-            {[{k:"users",l:"👥 Kullanıcılar"},{k:"data",l:"📊 Veri Paneli"},{k:"system",l:"⚙️ Sistem"}].map(t => (
-              <button key={t.k} onClick={() => setAdminTab(t.k)} style={{
-                flex: 1, padding: "7px 0", borderRadius: 8, border: "none",
-                background: adminTab === t.k ? "#7c3aed" : "#fff",
-                color: adminTab === t.k ? "#fff" : "#94a3b8",
-                fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: F, transition: "all .2s",
-              }}>{t.l}</button>
-            ))}
-          </div>
-          {/* Tab Content */}
-          <div style={{ ...DS.card, padding: "10px 10px 8px", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-            {adminTab === "users" && (<>
-              {/* Add user toggle */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: 0, textTransform: "uppercase", letterSpacing: .5 }}>Kullanıcılar ({adminUsers.length})</h3>
-                <button onClick={() => { setAddUserMode(!addUserMode); setAddUserMsg(""); }} style={{
-                  padding: "4px 12px", borderRadius: 8, border: "none", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: F,
-                  background: addUserMode ? "#fee2e2" : "#7c3aed", color: addUserMode ? "#dc2626" : "#fff",
-                }}>{addUserMode ? "✕ İptal" : "+ Yeni Kullanıcı"}</button>
-              </div>
-
-              {/* Add user form */}
-              {addUserMode && (
-                <div style={{ padding: "12px", borderRadius: 14, background: "rgba(30,27,75,.35)", border: "1.5px solid #7c3aed20", marginBottom: 6, animation: "fadeUp .2s ease" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <input value={newUser.displayName} onChange={e => setNewUser(p => ({...p, displayName: e.target.value}))}
-                      placeholder="Ad Soyad" style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,.12)", fontSize: 12, fontWeight: 600, fontFamily: F, color: "#e2e8f0", outline: "none", background: "rgba(30,27,75,.5)" }} />
-                    <input value={newUser.username} onChange={e => setNewUser(p => ({...p, username: e.target.value}))}
-                      placeholder="Kullanıcı Adı (e-posta)" style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,.12)", fontSize: 12, fontWeight: 600, fontFamily: F, color: "#e2e8f0", outline: "none", background: "rgba(30,27,75,.5)" }} />
-                    <div style={{ position: "relative" }}>
-                      <input value={newUser.password} onChange={e => setNewUser(p => ({...p, password: e.target.value}))} type={showPw ? "text" : "password"}
-                        placeholder="Şifre (min 4 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "8px 36px 8px 12px", borderRadius: 8, border: "1px solid rgba(148,163,184,.12)", fontSize: 12, fontWeight: 600, fontFamily: F, color: "#e2e8f0", outline: "none", background: "rgba(30,27,75,.5)" }} />
-                      <button onClick={() => setShowPw(p => !p)} type="button" style={{
-                        position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                        background: "none", border: "none", cursor: "pointer", padding: "2px 4px",
-                        fontSize: 14, color: showPw ? "#60a5fa" : "#94a3b8",
-                      }}>{showPw ? "👁️" : "👁️‍🗨️"}</button>
-                    </div>
-                    {/* Role selector */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 4 }}>
-                      {[
-                        { v: "student", l: "Öğrenci", i: "🎓", c: "#7c3aed" },
-                        { v: "parent", l: "Ebeveyn", i: "👨‍👩‍👧", c: "#059669" },
-                        { v: "teacher", l: "Öğretmen", i: "📚", c: "#7c3aed" },
-                        { v: "admin", l: "Yönetici", i: "⚙️", c: "#ef4444" },
-                      ].map(r => (
-                        <button key={r.v} onClick={() => setNewUser(p => ({...p, role: r.v}))} style={{
-                          padding: "8px 2px", borderRadius: 10, border: `2px solid ${newUser.role === r.v ? r.c : "rgba(148,163,184,.15)"}`,
-                          background: newUser.role === r.v ? `${r.c}15` : "rgba(30,27,75,.4)",
-                          cursor: "pointer", fontFamily: F, textAlign: "center", transition: "all .15s",
-                        }}>
-                          <div style={{ fontSize: 16 }}>{r.i}</div>
-                          <div style={{ fontSize: 10, fontWeight: 800, color: newUser.role === r.v ? r.c : "#94a3b8" }}>{r.l}</div>
-                        </button>
-                      ))}
-                    </div>
-                    <button onClick={adminAddUser} style={{
-                      padding: "10px 0", borderRadius: 10, border: "none", background: "#7c3aed", color: "#fff",
-                      fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: F,
-                    }}>✓ Kullanıcı Ekle</button>
-                    {addUserMsg && (
-                      <div style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: addUserMsg.startsWith("✅") ? "#059669" : "#ef4444", padding: "4px 0" }}>{addUserMsg}</div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* User list */}
-              {adminLoading ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 20 }}>Yükleniyor...</p> :
-              adminUsers.length === 0 ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 20 }}>Henüz kullanıcı yok</p> :
-              <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 5 }}>
-                {adminUsers.map((u, i) => {
-                  const ri = { student: { i: "🎓", l: "Öğrenci", c: "#7c3aed" }, parent: { i: "👨‍👩‍👧", l: "Ebeveyn", c: "#059669" }, teacher: { i: "📚", l: "Öğretmen", c: "#7c3aed" }, admin: { i: "⚙️", l: "Yönetici", c: "#ef4444" } }[u.role] || { i: "👤", l: u.role, c: "#999" };
-                  const us = adminUserStats[u.username];
-                  const ua = us?.totalQ > 0 ? Math.round((us.totalCorrect / us.totalQ) * 100) : null;
-                  const isMe = u.username === currentUser?.username;
-                  return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 12, background: "rgba(30,27,75,.4)", animation: `fadeUp ${.2 + i * .04}s ease` }}>
-                    <div style={{
-                      width: 34, height: 34, borderRadius: 10, background: `${ri.c}12`,
-                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0,
-                    }}>{ri.i}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {u.displayName} {isMe && <span style={{ fontSize: 10, color: "#a8b2d1" }}>(sen)</span>}
-                      </div>
-                      <div style={{ fontSize: 10, color: "#a8b2d1" }}>@{u.username} {us ? `• ${us.totalGames || 0} oyun` : ""}</div>
-                    </div>
-                    {ua !== null && <span style={{ fontSize: 11, fontWeight: 900, color: ua >= 80 ? "#059669" : ua >= 60 ? "#ca8a04" : "#ea580c" }}>%{ua}</span>}
-                    <span style={{ fontSize: 10, fontWeight: 800, color: ri.c, background: `${ri.c}12`, padding: "3px 8px", borderRadius: 6 }}>{ri.l}</span>
-                    {!isMe && (
-                      <button onClick={() => adminDeleteUser(u.username)} style={{
-                        padding: "4px 6px", borderRadius: 6, border: "none", background: "#fee2e2",
-                        color: "#dc2626", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: F, flexShrink: 0,
-                      }}>🗑</button>
-                    )}
-                  </div>);
-                })}
-              </div>}
-            </>)}
-            {adminTab === "data" && (<>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Platform Veri Analizi</h3>
-              <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-                {/* Role distribution */}
-                <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>Rol Dağılımı</div>
-                  {["student","parent","teacher","admin"].map(role => {
-                    const count = adminUsers.filter(u => u.role === role).length;
-                    const pct = adminUsers.length > 0 ? Math.round((count / adminUsers.length) * 100) : 0;
-                    const labels = { student: "Öğrenci", parent: "Ebeveyn", teacher: "Öğretmen", admin: "Yönetici" };
-                    const colors = { student: "#7c3aed", parent: "#059669", teacher: "#7c3aed", admin: "#dc2626" };
-                    return (<div key={role} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#a8b2d1", width: 55 }}>{labels[role]}</span>
-                      <div style={{ flex: 1, height: 10, borderRadius: 5, background: "rgba(148,163,184,.12)", overflow: "hidden" }}>
-                        <div style={{ height: "100%", borderRadius: 5, width: `${pct}%`, background: colors[role], transition: "width .5s" }} />
-                      </div>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: colors[role], width: 25, textAlign: "right" }}>{count}</span>
-                    </div>);
-                  })}
-                </div>
-                {/* Top performers */}
-                <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>En Aktif Kullanıcılar</div>
-                  {adminUsers
-                    .map(u => ({ ...u, games: adminUserStats[u.username]?.totalGames || 0, acc: adminUserStats[u.username]?.totalQ > 0 ? Math.round((adminUserStats[u.username].totalCorrect / adminUserStats[u.username].totalQ) * 100) : 0 }))
-                    .sort((a, b) => b.games - a.games)
-                    .slice(0, 5)
-                    .map((u, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0" }}>
-                        <span style={{ fontSize: 12, fontWeight: 900, color: i === 0 ? "#eab308" : i === 1 ? "#94a3b8" : i === 2 ? "#fb923c" : "#ccc", width: 16 }}>{i+1}.</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: "#c4b5fd", flex: 1 }}>{u.displayName}</span>
-                        <span style={{ fontSize: 10, color: "#a8b2d1" }}>{u.games} oyun</span>
-                        {u.acc > 0 && <span style={{ fontSize: 10, fontWeight: 800, color: u.acc >= 80 ? "#059669" : "#ca8a04" }}>%{u.acc}</span>}
-                      </div>
-                    ))}
-                  {adminUsers.length === 0 && <p style={{ color: "#a8b2d1", fontSize: 11, textAlign: "center" }}>Veri yok</p>}
-                </div>
-                {/* Activity summary */}
-                <div style={{ padding: "10px", borderRadius: 10, background: "rgba(30,27,75,.4)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#a8b2d1", marginBottom: 6, textTransform: "uppercase" }}>Genel İstatistikler</div>
-                  {[
-                    { l: "Toplam Oyun", v: totalGamesAll },
-                    { l: "Toplam Doğru Cevap", v: totalCorrectAll },
-                    { l: "Toplam Soru", v: totalQAll },
-                    { l: "Ortalama Başarı", v: `%${avgAcc}` },
-                    { l: "Aktif Öğrenci", v: Object.values(adminUserStats).filter(s => s?.totalGames > 0).length },
-                  ].map(s => (
-                    <div key={s.l} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
-                      <span style={{ fontSize: 11, color: "#a8b2d1" }}>{s.l}</span>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>{s.v}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>)}
-            {adminTab === "system" && (<>
-              <h3 style={{ fontSize: 11, fontWeight: 800, color: "#a8b2d1", margin: "0 0 8px", textTransform: "uppercase", letterSpacing: .5 }}>Sistem Bilgileri</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {[
-                  { l: "Platform", v: "GalakSay v5.9", c: "#a78bfa" },
-                  { l: "AI Motoru", v: "Claude AI ✓", c: "#34d399" },
-                  { l: "Oyun Modülleri", v: "61 etkinlik", c: "#a78bfa" },
-                  { l: "AR Modları", v: "11 etkileşimli mod", c: "#818cf8" },
-                  { l: "Seviye Sistemi", v: "7 kademe (1–10 arası)", c: "#fbbf24" },
-                  { l: "Veri Saklama", v: "Persistent Storage", c: "#94a3b8" },
-                  { l: "Güvenlik", v: "Şifreli Giriş", c: "#f87171" },
-                  { l: "KVKK Uyumu", v: "Aktif ✓", c: "#34d399" },
-                  { l: "Geliştirici", v: "Prof. Dr. Yılmaz MUTLU", c: "#e2e8f0" },
-                ].map(s => (
-                  <div key={s.l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", borderRadius: 8, background: "rgba(30,27,75,.5)", border: "1px solid rgba(148,163,184,.08)" }}>
-                    <span style={{ fontSize: 12, color: "#a8b2d1" }}>{s.l}</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: s.c }}>{s.v}</span>
-                  </div>
-                ))}
-              </div>
-            </>)}
-          </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // ─── 9. TEACHER DASHBOARD ──────────────────────────────────────────────
   if (screen === "teacherDash") {
     const totalGamesAll = Object.values(adminUserStats).reduce((s, u) => s + (u?.totalGames || 0), 0);
@@ -18951,13 +18455,6 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 textShadow: "0 1px 4px rgba(0,0,0,.4)",
               }}>📊 <span>Gelişim Analizi</span></button>
-              <button onClick={() => { navigateTo("report"); if (!aiReport) generateAiReport(); }} style={{
-                padding: "16px 0", borderRadius: 14, border: "1.5px solid rgba(52,211,153,.4)",
-                background: "linear-gradient(135deg, rgba(5,150,105,.25), rgba(16,185,129,.18))", color: "#a7f3d0", fontSize: 14, fontWeight: 800,
-                cursor: "pointer", fontFamily: F, boxShadow: "0 4px 14px rgba(5,150,105,.2), inset 0 1px 0 rgba(255,255,255,.08)",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                textShadow: "0 1px 4px rgba(0,0,0,.4)",
-              }}>🤖 <span>AI Rapor</span></button>
             </div>
           </div>
         </div>
@@ -21286,7 +20783,7 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
 
           {/* Alt butonlar satırı */}
           <div style={{ display: "flex", gap: 6, animation: "fadeUp .7s ease" }}>
-            <button onClick={() => window.open("https://numap.netlify.app", "_blank")} style={{
+            <button onClick={() => window.open("https://getnumap.com", "_blank", "noopener")} style={{
               flex: 1, padding: "10px 10px", borderRadius: 12,
               background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)",
               backdropFilter: "blur(8px)", cursor: "pointer", fontFamily: F,

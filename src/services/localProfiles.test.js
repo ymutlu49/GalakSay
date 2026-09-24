@@ -300,3 +300,37 @@ describe('localProfiles — numap roster (Faz A)', () => {
     expect(listChildren('numap:u1')).toHaveLength(1);
   });
 });
+
+describe('localProfiles — PIN deneme kilidi (kaba kuvvet freni)', () => {
+  beforeEach(() => { localStorage.clear(); });
+
+  it('5 yanlış denemeden sonra doğru PIN bile kilit süresince reddedilir', async () => {
+    const { setAdminPin, verifyAdminPin, getPinLockRemainingMs } = await import('./localProfiles.js');
+    await setAdminPin('1234');
+    expect(await verifyAdminPin('1234')).toBe(true);
+    expect(getPinLockRemainingMs('admin')).toBe(0);
+    for (let i = 0; i < 5; i++) expect(await verifyAdminPin('0000')).toBe(false);
+    expect(getPinLockRemainingMs('admin')).toBeGreaterThan(0);
+    expect(await verifyAdminPin('1234')).toBe(false); // kilitli
+  });
+
+  it('başarılı giriş sayaç ve kilidi sıfırlar', async () => {
+    const { setAdminPin, verifyAdminPin, getPinLockRemainingMs } = await import('./localProfiles.js');
+    await setAdminPin('4321');
+    for (let i = 0; i < 3; i++) await verifyAdminPin('9999');
+    expect(await verifyAdminPin('4321')).toBe(true);
+    expect(getPinLockRemainingMs('admin')).toBe(0);
+    expect(localStorage.getItem('galaksay_pin_attempts_admin')).toBeNull();
+  });
+
+  it('çocuk PIN kilidi çocuğa özgüdür', async () => {
+    const { addChild, updateChild, verifyPin, getPinLockRemainingMs } = await import('./localProfiles.js');
+    const { hashPin } = await import('../utils/crypto.js');
+    const a = addChild({ name: 'A' }); const b = addChild({ name: 'B' });
+    updateChild(a.ns, { pin: await hashPin('1111') }); updateChild(b.ns, { pin: await hashPin('2222') });
+    for (let i = 0; i < 5; i++) await verifyPin(a.ns, '0000');
+    expect(getPinLockRemainingMs(`child_${a.ns}`)).toBeGreaterThan(0);
+    expect(await verifyPin(a.ns, '1111')).toBe(false);
+    expect(await verifyPin(b.ns, '2222')).toBe(true);
+  });
+});

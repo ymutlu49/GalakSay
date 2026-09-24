@@ -66,9 +66,16 @@ export class ApiError extends Error {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 15000; // kötü ağda giriş düğmesi süresiz 'yükleniyor'da kalmasın
+
 async function request(method, path, body) {
   const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), REQUEST_TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+    signal: ac.signal,
     method,
     credentials: 'omit', // cross-origin; cookie gönderme (token header'da)
     headers: {
@@ -77,6 +84,12 @@ async function request(method, path, body) {
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+  } catch (e) {
+    clearTimeout(timer);
+    if (e && e.name === 'AbortError') throw new ApiError('Sunucu yanıt vermedi (zaman aşımı). Bağlantını kontrol edip tekrar dene.', 0);
+    throw e;
+  }
+  clearTimeout(timer);
   let data = null;
   try {
     data = await res.json();

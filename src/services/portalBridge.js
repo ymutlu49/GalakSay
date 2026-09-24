@@ -17,6 +17,14 @@ export function getPortalStudentKey() {
 function set(k, v) {
   try { localStorage.setItem(k, v) } catch { /* depolama yok → köprü pasif */ }
 }
+/** Çıkış / çocuk değişimi / veri silme: portal çocuk jetonu + bağı cihazdan gitsin. */
+export function clearPortalStudent() {
+  for (const k of [TKEY, KKEY, NSKEY]) { try { localStorage.removeItem(k) } catch { /* yok say */ } }
+}
+// Ağ çağrıları 15 sn'de düşer (kötü ağda sonsuz bekleme yok)
+function withTimeout(ms = 15000) {
+  const ac = new AbortController(); setTimeout(() => ac.abort(), ms); return ac.signal
+}
 
 // Portaldan çocuk-SSO ile gelinmişse (#hcmo_student=<code> ya da ?hcmo_student=)
 // kodu çöz → öğrenci token + student_key sakla. URL'i temizle (kod geçmişte kalmasın).
@@ -31,6 +39,7 @@ export async function capturePortalStudent() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
+      signal: withTimeout(),
     }).then((r) => (r.ok ? r.json() : null))
     if (d && d.token) {
       set(TKEY, d.token)
@@ -60,6 +69,7 @@ export async function pushProgress(payload, childNs) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
       body: JSON.stringify({ student_key: sk, app: 'galaksay', kind: 'progress', payload }),
+      signal: withTimeout(),
     })
     return r.ok
   } catch { return false }

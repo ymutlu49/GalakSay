@@ -56,9 +56,24 @@ console.log('4/4  Cloudflare yapılandırması (_redirects, _headers)');
 // kullanmasa da zararsız ve ileriye dönük güvenli.
 writeFileSync(join(out, '_redirects'), '/oyna/* /oyna/index.html 200\n');
 // SW her zaman taze; manifest doğru MIME.
+// Güvenlik başlıkları (2026-09-24 denetimi): clickjacking, MIME sniffing, referer sızıntısı,
+// gereksiz cihaz izinleri kapatılır; CSP dış origin'lere veri çıkışını sınırlar (connect-src).
+// Not: script-src'de 'unsafe-inline' index.html içi küçük betikler (SW kaydı, gate marka
+// değişkenleri) için; portal alan adı a11y/gate widget'ları için izinli.
+const SECURITY_HEADERS = [
+  '/*',
+  '  X-Frame-Options: DENY',
+  '  X-Content-Type-Options: nosniff',
+  '  Referrer-Policy: strict-origin-when-cross-origin',
+  '  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
+  '  Strict-Transport-Security: max-age=31536000; includeSubDomains',
+  "  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://hercocukmatematikogrenebilir.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' blob: data:; connect-src 'self' https://getnumap.com https://hercocukmatematikogrenebilir.com; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+  '',
+];
 writeFileSync(
   join(out, '_headers'),
   [
+    ...SECURITY_HEADERS,
     '/sw.js',
     '  Cache-Control: public, max-age=0, must-revalidate',
     '',

@@ -42,4 +42,17 @@ describe('dataExport', () => {
     expect(localStorage.getItem('galaksay_a')).toBeNull();
     expect(localStorage.getItem('other_keep')).toBe('z');
   });
+
+  it('eraseAllData çocuk adı taşıyan ds_/dokunsay-/portal_student_ anahtarlarını da siler (KVKK)', async () => {
+    localStorage.setItem('dokunsay-user-local_1', JSON.stringify({ name: 'Elif', stats: {} }));
+    localStorage.setItem('dokunsay-session', JSON.stringify({ username: 'local_1', displayName: 'Elif' }));
+    localStorage.setItem('ds_streak_local_1', '3');
+    localStorage.setItem('portal_student_token', 'tok');
+    localStorage.setItem('unrelated', 'keep');
+    await eraseAllData();
+    for (const k of ['dokunsay-user-local_1', 'dokunsay-session', 'ds_streak_local_1', 'portal_student_token']) {
+      expect(localStorage.getItem(k)).toBeNull();
+    }
+    expect(localStorage.getItem('unrelated')).toBe('keep');
+  });
 });

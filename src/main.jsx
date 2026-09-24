@@ -2,6 +2,7 @@
 // Lazy loading: ekranlar ve Game ayrı chunk'larda yüklenir
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
+import './assets/fonts/fonts.css' // Nunito + Atkinson Hyperlegible (kendi sunucumuzdan)
 import { SplashScreen } from './design-system/components/SplashScreen.jsx'
 import { colors } from './design-system/colors.js'
 import { typography } from './design-system/typography.js'
@@ -383,12 +384,10 @@ function App() {
   // anahtarlarda kalır (dataSync oradan kapatılabilir — syncEngine yine ona bakar).
   useEffect(() => {
     const existing = loadConsent()
+    // 2026-09-24 KVKK denetimi: kullanıcının Ayarlar'da verdiği 'kapalı' tercihi bir daha
+    // otomatik açığa taşınmaz; yalnız hiç kayıt yoksa varsayılan yazılır (decision:'auto').
     if (existing === null) {
-      saveConsent({ essential: true, analytics: true, dataSync: true, auto: true, autoMigrated: true })
-    } else if (!existing.autoMigrated && existing.decision !== 'revoked') {
-      // Eski ekrandan kalan varsayılan-kapalı kayıtları BİR KEZ açığa taşı
-      // (sonrasında Ayarlar'dan kapatma tercihi kalıcıdır — tekrar zorlanmaz).
-      saveConsent({ ...existing, analytics: true, dataSync: true, autoMigrated: true })
+      saveConsent({ essential: true, analytics: true, dataSync: true, auto: true, autoMigrated: true, decision: 'auto' })
     }
     const w = /** @type {any} */ (window)
     w.galaksayRequireConsent = () => Promise.resolve(true) // eski çağıranlar için no-op köprü
@@ -404,6 +403,7 @@ function App() {
   useEffect(() => {
     if (!ssoTicket) return
     let active = true
+    stripSsoParam() // bilet state'te; URL'den HEMEN sil (geçmiş/paylaşım/Referer sızıntısı ağ dönüşünü beklemesin)
     numapSsoExchange(ssoTicket)
       .then(u => { if (active) { setTeacher(u); setAuthStatus('authed') } })
       .catch(() => {
@@ -487,7 +487,11 @@ function App() {
     })
     setShowResume(true)
   }, [])
-  const handleSwitchChild = useCallback(() => { setSelectedChild(null) }, [])
+  const handleSwitchChild = useCallback(() => {
+    setSelectedChild(null)
+    // Çocuk değişince portal çocuk-bağı düşer: kardeşin ilerlemesi öncekinin portal kaydına yazılmasın
+    import('./services/portalBridge.js').then(pb => pb.clearPortalStudent()).catch(() => {})
+  }, [])
   // Çıkış: Numap oturumu varsa sunucudan da çık; her durumda front door'a (Welcome) dön.
   const handleLogout = useCallback(async () => {
     if (authStatus === 'authed') {
@@ -505,7 +509,12 @@ function App() {
         const m = await import('./services/localProfiles.js')
         m.removeNumapChildren(null)
       } catch { /* temizlik başarısızsa oturum kapatma yine tamamlanır */ }
+      // KVKK (2026-09-24): IndexedDB child_profiles'taki NuMap-kaynaklı demografi de gitsin
+      // (ad/doğum tarihi/okul/şehir/cinsiyet) — paylaşılan okul cihazında sonraki kullanıcıya kalmasın.
+      try { const db = await import('./analytics/database.js'); await db.purgeChildDemographics('numap_') } catch { /* yok say */ }
     }
+    // HÇMÖ çocuk jetonu/bağı her çıkışta temizlenir (12 saatlik jeton başka çocuğa yazmasın)
+    try { const pb = await import('./services/portalBridge.js'); pb.clearPortalStudent() } catch { /* yok say */ }
     setSelectedChild(null); setTeacher(null); setAuthStatus('unauthed')
     setLocalSession(null); setEntryView('welcome')
   }, [authStatus])

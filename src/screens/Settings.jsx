@@ -585,7 +585,7 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
               color: consentSnapshot?.decision === 'accept' ? colors.feedback.success : colors.accent.tertiary,
               marginLeft: 4,
             }}>
-              {consentSnapshot?.decision === 'accept' ? 'Verildi' : consentSnapshot?.decision === 'revoked' ? 'Geri çekildi' : 'Verilmedi'}
+              {consentSnapshot?.decision === 'accept' ? 'Verildi' : consentSnapshot?.decision === 'revoked' ? 'Geri çekildi' : consentSnapshot?.auto ? 'Varsayılan (otomatik) — aşağıdan yönetilebilir' : 'Verilmedi'}
             </strong>
             {consentSnapshot?.grantedAt && (
               <span style={{ marginLeft: 8 }}>· {new Date(consentSnapshot.grantedAt).toLocaleDateString('tr-TR')}</span>
