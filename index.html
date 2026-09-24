@@ -1852,8 +1852,9 @@
         border-radius: 4px;
       }
     </style>
-    <!-- HÇMÖ ortak erişilebilirlik widget'ı -->
-    <script src="https://hercocukmatematikogrenebilir.com/sso/hcmo-a11y.js?v=2"></script>
+    <!-- HÇMÖ ortak erişilebilirlik widget'ı — defer: portal yavaş/erişilemezse ilk boyamayı ENGELLEMESİN
+         (senkron dış betik HTML ayrıştırmayı DNS/TCP zaman aşımı boyunca bloklar); widget DOMContentLoaded'ı kendi bekliyor. -->
+    <script defer src="https://hercocukmatematikogrenebilir.com/sso/hcmo-a11y.js?v=2"></script>
   </head>
   <body>
     <div id="root"></div>
