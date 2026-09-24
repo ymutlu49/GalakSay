@@ -386,7 +386,10 @@
       .page-warp { animation: warpSpeed .5s ease both; }
 
       /* ═══ BUTTON HOVER EFFECTS ═══ */
-      .space-btn-hover { transition: all .25s cubic-bezier(.4,0,.2,1) !important; }
+      /* position:relative ŞART: aşağıdaki ::after (inset:0) düğmeye bağlansın. Aksi halde en
+         yakın konumlu ataya (ekranın kapsayıcısına) yayılır ve son kardeşin görünmez katmanı
+         önceki düğmelerin (örn. karşılama ekranında "Öğrenci Girişi") dokunuşlarını yutar. */
+      .space-btn-hover { position: relative; transition: all .25s cubic-bezier(.4,0,.2,1) !important; }
       .space-btn-hover:hover:not(:disabled) {
         transform: translateY(-2px) scale(1.02) !important;
         filter: brightness(1.1);
