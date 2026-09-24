@@ -43,11 +43,19 @@ function saveSetting(key, value) {
  * - setSetting(key, value): Ayar güncelle
  * - getAnimDuration(baseDur): Azaltılmış harekete göre süre hesapla
  */
+function isLowEndDevice() {
+  try {
+    const n = typeof navigator !== 'undefined' ? navigator : {};
+    return (n.deviceMemory != null && n.deviceMemory <= 2) || (n.hardwareConcurrency != null && n.hardwareConcurrency <= 2) || n.connection?.saveData === true;
+  } catch { return false; }
+}
+
 export function useAccessibility() {
   const [settings, setSettings] = useState(() => ({
     largeText: loadSetting(KEYS.largeText, false),
     highContrast: loadSetting(KEYS.highContrast, false),
-    reducedMotion: loadSetting(KEYS.reducedMotion, false),
+    // Düşük güçlü cihaz (≤2 GB bellek ya da ≤2 çekirdek) → varsayılan hareket azaltma; kullanıcı ayarı önceliklidir
+    reducedMotion: loadSetting(KEYS.reducedMotion, isLowEndDevice()),
     colorBlind: loadSetting(KEYS.colorBlind, 'off'),
     calmMode: loadSetting(KEYS.calmMode, false),
     dyslexicFont: loadSetting(KEYS.dyslexicFont, false),

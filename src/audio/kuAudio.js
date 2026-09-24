@@ -1,5 +1,6 @@
 // ═══ Kürtçe (Kurmancî) gerçek ses — klip oynatma katmanı ═══
-// public/audio/ku/<id>.wav kliplerini çalar (facebook/mms-tts-kmr-script_latin ile üretilir).
+// public/audio/ku/<id>.m4a kliplerini çalar (facebook/mms-tts-kmr-script_latin ile WAV üretilir,
+// scripts/ku-audio-encode.sh ile AAC m4a'ya çevrilir; index.json "format":"m4a").
 // Klip yoksa veya henüz üretilmemişse güvenli şekilde tarayıcı TTS'e düşer.
 // Üretim: scripts/ku-tts/  (build-manifest.mjs + generate.py)
 import { numWordKu } from "../data/numWords.js";
@@ -27,6 +28,7 @@ export async function initKuAudio() {
     if (res.ok) {
       const j = await res.json();
       _index = new Set(j.ids || []);
+      if (j.format) setKuAudioFormat(j.format); // "m4a" → AAC klipler (derleme betiği yazar), yoksa wav
     }
   } catch (_) { _index = null; }
 }
@@ -35,9 +37,15 @@ export function setKuAudioEnabled(on) { _enabled = !!on; }
 export function kuAudioReady() { return _enabled && _index && _index.size > 0; }
 export function hasClip(id) { return !!(_index && _index.has(id)); }
 
+const _CACHE_MAX = 30; // LRU: 343 klibin çözülmüş PCM'i bellekte tutulmasın
+// Biçim: derleme m4a (AAC, ~%90 küçük) üretmişse onu, yoksa wav'ı kullan (index.json 'format' alanı)
+let _ext = ".wav";
+export function setKuAudioFormat(fmt) { _ext = fmt === "m4a" ? ".m4a" : ".wav"; }
 function _audio(id) {
   let a = _cache.get(id);
-  if (!a) { a = new Audio(BASE + id + ".wav"); a.preload = "auto"; _cache.set(id, a); }
+  if (a) { _cache.delete(id); _cache.set(id, a); return a; } // en son kullanılanı sona al
+  a = new Audio(BASE + id + _ext); a.preload = "auto"; _cache.set(id, a);
+  if (_cache.size > _CACHE_MAX) { const oldest = _cache.keys().next().value; const o = _cache.get(oldest); try { o.src = ""; } catch { /* yok say */ } _cache.delete(oldest); }
   return a;
 }
 

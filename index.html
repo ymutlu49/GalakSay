@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
     <!-- Yazı tipleri kendi sunucumuzdan (src/assets/fonts, main.jsx import eder): Google Fonts'a
          istek yok → çocuk cihazının IP'si üçüncü tarafa gitmez; çevrimdışı PWA'da da yüklenir. -->
     <title>Galaksay — Sayılar Evrenin Dilidir</title>
@@ -1852,7 +1853,7 @@
     </style>
     <!-- HÇMÖ ortak erişilebilirlik widget'ı — defer: portal yavaş/erişilemezse ilk boyamayı ENGELLEMESİN
          (senkron dış betik HTML ayrıştırmayı DNS/TCP zaman aşımı boyunca bloklar); widget DOMContentLoaded'ı kendi bekliyor. -->
-    <script defer src="https://hercocukmatematikogrenebilir.com/sso/hcmo-a11y.js?v=2"></script>
+    <script async src="https://hercocukmatematikogrenebilir.com/sso/hcmo-a11y.js?v=2"></script>
   </head>
   <body>
     <div id="root"></div>

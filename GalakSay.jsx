@@ -521,6 +521,7 @@ if (typeof document !== "undefined") {
       const buf = ac.createBuffer(1, 1, 22050);
       const src = ac.createBufferSource(); src.buffer = buf; src.connect(ac.destination); src.start(0);
       if (ac.state === "suspended") ac.resume();
+      setTimeout(() => { try { ac.close(); } catch { /* yok say */ } }, 1000); // iOS: en fazla 4 bağlam; bu geçici olan açık kalmasın
       // speechSynthesis unlock
       if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(""); u.volume = 0; window.speechSynthesis.speak(u); }
     } catch {}
@@ -3598,9 +3599,9 @@ const getModePlanet = (modeId) => {
 
 // GALAXY_*_MSGS artık src/data/feedbackMessages.js'den import ediliyor (refactor 2026-04-27)
 
+// NOT: Nunito artık src/assets/fonts/fonts.css'ten (main.jsx) yüklenir — buradaki Google Fonts
+// @import kaldırıldı (çocuk cihazından Google'a istek + çevrimdışı PWA'da font kaybı).
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
-@font-face{font-family:'Nunito';font-display:swap;src:local('Nunito')}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;overflow:hidden;font-family:'Nunito',sans-serif}
 /* v5.9.1: Focus görünürlüğü — WCAG 2.4.7 uyumu, klavye kullanıcıları için */
@@ -3711,7 +3712,7 @@ button,.option-btn,[role="button"]{min-height:44px}
 @keyframes pulseGlow{0%,100%{box-shadow:0 0 8px var(--glow-color,#7c3aed)40,0 0 16px var(--glow-color,#7c3aed)20}50%{box-shadow:0 0 20px var(--glow-color,#7c3aed)60,0 0 40px var(--glow-color,#7c3aed)30}}
 .space-btn-hover{transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}.space-btn-hover::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s ease,height .5s ease;pointer-events:none;z-index:0}.space-btn-hover:hover::before{width:300px;height:300px}.space-btn-hover:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 25px rgba(124,58,237,.45),0 0 15px rgba(167,139,250,.15)!important;filter:brightness(1.1)}.space-btn-hover:active{transform:translateY(1px) scale(.96);transition-duration:.1s}
 .card-hover{transition:all .3s cubic-bezier(.4,0,.2,1)}.card-hover:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,0,0,.4),0 0 20px rgba(124,58,237,.12)!important;border-color:rgba(167,139,250,.35)!important}
-.option-btn{transition:all .2s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}.option-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);transform:translateX(-100%);transition:transform .5s ease}.option-btn:hover::after{transform:translateX(100%)}.option-btn:hover{transform:scale(1.04) translateY(-2px);filter:brightness(1.15);box-shadow:0 6px 20px rgba(0,0,0,.25),0 0 12px rgba(124,58,237,.12)}.option-btn:active{transform:scale(.95);transition-duration:.1s;filter:brightness(.95)}
+.option-btn{transition:transform .2s cubic-bezier(.4,0,.2,1),filter .2s,box-shadow .2s,opacity .2s;position:relative;overflow:hidden}.option-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);transform:translateX(-100%);transition:transform .5s ease}.option-btn:hover::after{transform:translateX(100%)}.option-btn:hover{transform:scale(1.04) translateY(-2px);filter:brightness(1.15);box-shadow:0 6px 20px rgba(0,0,0,.25),0 0 12px rgba(124,58,237,.12)}.option-btn:active{transform:scale(.95);transition-duration:.1s;filter:brightness(.95)}
 .option-btn.correct-flash{animation:optionCorrect .6s cubic-bezier(.16,1,.3,1) forwards}.option-btn.wrong-flash{animation:optionWrong .5s ease forwards}
 @keyframes optionCorrect{0%{transform:scale(1);filter:brightness(1)}20%{transform:scale(1.08);filter:brightness(1.3);box-shadow:0 0 30px rgba(5,150,105,.5),0 0 60px rgba(5,150,105,.2)}50%{transform:scale(.97);filter:brightness(1.1)}100%{transform:scale(1);filter:brightness(1);box-shadow:0 0 15px rgba(5,150,105,.2)}}
 @keyframes optionWrong{0%{transform:translateX(0) rotate(0deg);background-color:transparent}10%{background-color:rgba(251,146,60,.15)}20%{transform:translateX(-6px) rotate(-2deg)}35%{transform:translateX(6px) rotate(2deg)}50%{transform:translateX(-4px) rotate(-1deg);background-color:rgba(251,146,60,.08)}65%{transform:translateX(4px) rotate(1deg)}80%{transform:translateX(-2px) rotate(0deg)}100%{transform:translateX(0) rotate(0deg);background-color:transparent}}
@@ -3862,7 +3863,7 @@ const CrescentMoon = ({ size = 40, top = "5%", right = "10%" }) => (
   </div>
 );
 // GalakSay Pro — 2026-03-20 — Dekoratif gezegen bileşeni (3D halka — overflow clip)
-const MiniPlanet = ({ color = "#6366f1", size = 40, top, left, right, bottom, ring = true }) => {
+const MiniPlanetBase = ({ color = "#6366f1", size = 40, top, left, right, bottom, ring = true }) => {
   const ringW = Math.max(2, size * 0.08);
   const rW = size * 1.6, rH = size * 0.55;
   const ringS = { position: "absolute", left: "50%", width: rW, height: rH, borderRadius: "50%" };
@@ -3890,7 +3891,7 @@ const MATH_SPACE_SYMBOLS = [
   { symbol: "⬡", color: "#a78bfa" }, { symbol: "⊕", color: "#38bdf8" },
   { symbol: "∠", color: "#c4b5fd" }, { symbol: "≈", color: "#6ee7b7" },
 ];
-const MathSpaceObject = ({ symbol, color = "#a78bfa", size = 16, top, left, right, bottom, delay = 0 }) => (
+const MathSpaceObjectBase = ({ symbol, color = "#a78bfa", size = 16, top, left, right, bottom, delay = 0 }) => (
   <div style={{
     position: "absolute", top, left, right, bottom,
     fontSize: size, fontWeight: 900, color, opacity: .2,
@@ -3913,7 +3914,7 @@ const OrbitalRing = ({ size = 60, color = "#6366f1", top, left, right, bottom })
   </div>
 );
 // Dekoratif Dünya bileşeni (büyük, arka plan dekorasyon)
-const Earth = ({ size = 120, top, left, right, bottom, opacity = 0.35 }) => (
+const EarthBase = ({ size = 120, top, left, right, bottom, opacity = 0.35 }) => (
   <div style={{ position: "absolute", top, left, right, bottom, width: size, height: size, borderRadius: "50%", pointerEvents: "none", zIndex: 0, opacity, animation: `nebulaFloat ${25 + size * 0.1}s ease-in-out infinite`, background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,.15) 0%, transparent 25%), radial-gradient(ellipse at 25% 60%, #2d8a4e 0%, transparent 30%), radial-gradient(ellipse at 55% 35%, #1a7a3a 0%, transparent 25%), radial-gradient(ellipse at 70% 65%, #2d8a4e 0%, transparent 20%), radial-gradient(ellipse at 40% 80%, #1e6b35 0%, transparent 22%), radial-gradient(ellipse at 80% 40%, #22703c 0%, transparent 18%), radial-gradient(circle at 50% 50%, #1e60a0 0%, #1a4e8a 40%, #153d6e 70%, #0f2d52 100%)`, boxShadow: `inset -${size * 0.15}px -${size * 0.08}px ${size * 0.25}px rgba(0,0,0,.4), 0 0 ${size * 0.4}px rgba(30,96,160,.2), 0 0 ${size * 0.8}px rgba(30,96,160,.08)` }}>
     <div style={{ position: "absolute", inset: -size * 0.06, borderRadius: "50%", background: "radial-gradient(circle, transparent 45%, rgba(100,180,255,.08) 60%, rgba(60,140,220,.12) 75%, transparent 100%)", pointerEvents: "none" }} />
     <div style={{ position: "absolute", top: "10%", left: "15%", width: "30%", height: "25%", borderRadius: "50%", background: "rgba(255,255,255,.2)", filter: `blur(${size * 0.08}px)` }} />
@@ -3921,7 +3922,7 @@ const Earth = ({ size = 120, top, left, right, bottom, opacity = 0.35 }) => (
   </div>
 );
 // Reusable space decoration overlays — variant-based
-const SpaceDecor = ({ variant = "default" }) => {
+const SpaceDecorBase = ({ variant = "default" }) => {
   const configs = {
     // Menu/Dashboard — constellation-like connected geometry
     dashboard: [
@@ -4133,7 +4134,7 @@ const GUIDE_BODIES = {
   },
 };
 
-const GuideCharacter = ({ guide, color, mood = "idle", size = 72, speech, compact, showName = true, talking = false }) => {
+const GuideCharacterBase = ({ guide, color, mood = "idle", size = 72, speech, compact, showName = true, talking = false }) => {
   if (!guide) return null;
   const b = GUIDE_BODIES[guide.type] || GUIDE_BODIES.robot;
   const s = size;
@@ -4471,7 +4472,7 @@ const TenBlock = ({ size = "md", anim = null }) => {
   );
 };
 
-const Chip = ({ color = "blue", size = 44, number = null, glow, countAnim, hidden, style: sx, cb: cbProp }) => {
+const ChipBase = ({ color = "blue", size = 44, number = null, glow, countAnim, hidden, style: sx, cb: cbProp }) => {
   // Auto-detect color blind mode if not explicitly passed
   const cb = cbProp !== undefined ? cbProp : (() => { try { const a = JSON.parse(localStorage.getItem("ds_a11y_global") || "{}"); return a.colorBlind || false; } catch { return false; } })();
   const clr = cb && CB_COLORS[color] ? CB_COLORS[color] : C[color] || color; // cb: red→turuncu, green→mor, blue→aynı
@@ -4556,7 +4557,7 @@ const ChipRows5 = ({ count, color, size, gap = 3, banded = false }) => (
   </div>
 );
 
-const RodCell = ({ filled, chipColor = "blue", size = 56, onClick, interactive, countAnim, hidden, blank, greenNumber }) => {
+const RodCellBase = ({ filled, chipColor = "blue", size = 56, onClick, interactive, countAnim, hidden, blank, greenNumber }) => {
   const cs = size - 8;
   // blank = completely flat wooden back, no circles at all
   if (blank) {
@@ -4852,7 +4853,7 @@ const Confetti = ({ show, intense }) => {
 };
 
 // Streak burst — star explosion around correct answer
-const StreakBurst = ({ show, count = 8, streak }) => {
+const StreakBurstBase = ({ show, count = 8, streak }) => {
   if (!show) return null;
   const emojis = streak >= 7 ? ["🔥", "⚡", "💥", "🌟", "✨", "🚀"] : streak >= 5 ? ["⭐", "🌟", "💫", "✨", "⚡"] : ["⭐", "✨", "💫", "🌟", "✦"];
   const ringColor = streak >= 7 ? "rgba(239,68,68,.6)" : streak >= 5 ? "rgba(251,191,36,.6)" : "rgba(251,191,36,.5)";
@@ -4933,6 +4934,17 @@ const Btn = ({ children, onClick, bg, full, big, disabled, style: sx }) => (
     transition: "all .2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, ...sx,
   }}>{children}</button>
 );
+
+// ═══ Dekor/materyal bileşenleri memo'lu (2026-09-24 performans denetimi): her state değişiminde
+// yeniden render ediliyorlardı (60 soruda Chip ×900, MiniPlanet ×850 …); prop'ları ilkel → güvenli.
+const MiniPlanet = React.memo(MiniPlanetBase);
+const MathSpaceObject = React.memo(MathSpaceObjectBase);
+const Earth = React.memo(EarthBase);
+const SpaceDecor = React.memo(SpaceDecorBase);
+const GuideCharacter = React.memo(GuideCharacterBase);
+const Chip = React.memo(ChipBase);
+const RodCell = React.memo(RodCellBase);
+const StreakBurst = React.memo(StreakBurstBase);
 
 // ═══ HELPERS ═════════════════════════════════════════════════════════════════
 let _g3Level = 1; // gen() her soruda günceller → çeldirici yakınlığı seviyeye bağlı (düşük=uzak/kolay, yüksek=bitişik/zor)
@@ -6811,6 +6823,13 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // Numap öğretmen akışı: child prop'u varsa kimlik/isim/yaş aşağıdaki state
   // initializer'larında prop'tan kurulur (flicker yok); auth dışarıda (main.jsx)
   // yapıldığı için "login" yerine doğrudan "menu"den başlanır.
+  // Oyun CSS'i (38 KB) tek <style> ile bir kez <head>'e yazılır; eskiden 25 ekran dalı kendi
+  // <style>{CSS}</style>'ını bağlıyor, her ekran geçişinde yeniden ayrıştırılıyordu.
+  useEffect(() => {
+    let el = document.getElementById("galaksay-game-css");
+    if (!el) { el = document.createElement("style"); el.id = "galaksay-game-css"; el.textContent = CSS; document.head.appendChild(el); }
+    return () => { try { el.remove(); } catch { /* yok say */ } };
+  }, []);
   const [screen, setScreen] = useState(() => (child ? "childHub" : "login"));
   const [parentGatePassed, setParentGatePassed] = useState(false); // §Araştırma: Ebeveyn kapısı (Parent Gate)
   const [pageAnim, setPageAnim] = useState("page-fade");
@@ -10999,7 +11018,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // header'ın arkasına kaymaz. Footer (fixed) zaten alt kısmı garantiliyor.
   useEffect(() => {
     if (feedback && feedback.needNext && feedbackEndRef.current) {
-      setTimeout(() => feedbackEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 350);
+      const t = setTimeout(() => feedbackEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 350);
+      return () => clearTimeout(t);
     }
   }, [feedback]);
 
@@ -11007,14 +11027,16 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // için kart doluyken ekran dışında kalıyordu (çocuk "Kademe 2/5" görüp içeriği göremiyordu).
   useEffect(() => {
     if (hintData && hintPanelRef.current) {
-      setTimeout(() => hintPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320); // hintSlideIn .35s bitmeden hemen önce
+      const t = setTimeout(() => hintPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320); // hintSlideIn .35s bitmeden hemen önce
+      return () => clearTimeout(t);
     }
   }, [hintData]);
 
   // Nesnelerle Göster (TripleCode) açılınca aynı şekilde görünüme kaydır.
   useEffect(() => {
     if (showTripleCode && tripleCodeRef.current) {
-      setTimeout(() => tripleCodeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320);
+      const t = setTimeout(() => tripleCodeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 320);
+      return () => clearTimeout(t);
     }
   }, [showTripleCode]);
 
@@ -15460,7 +15482,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     ];
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="dashboard" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: dashW, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header — öğretmen + seçili çocuk */}
@@ -15598,7 +15620,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const roleIcons = { admin: "⚙️", teacher: "📚", parent: "👨‍👩‍👧", student: "🎓" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="dashboard" />
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: typeof window !== "undefined" && window.innerWidth >= 1024 ? 600 : typeof window !== "undefined" && window.innerWidth >= 768 ? 520 : 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
@@ -15872,7 +15894,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const catEmojis = { level1: "🔢", level2: "⚡", level3: "⚖️", level4: "🧱", level8: "🏛️", level5: "➕", level6: "✖️", level7: "🧩", level9: "🍕" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="modes" />
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: typeof window !== "undefined" && window.innerWidth >= 1024 ? 720 : (typeof window !== "undefined" && window.innerWidth >= 768 ? 600 : 480), margin: "0 auto", width: "100%", minHeight: 0 }}>
@@ -16081,7 +16103,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (!isLevelUnlocked(level)) setLevel(maxUnlocked);
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="modes" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header with mode color */}
@@ -16355,7 +16377,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     // Tek kaydırma bağlamı = kartın kendisi; üst bar + alt yardım çubuğu HER ZAMAN görünür.
     return (
       <div className={"page game-screen space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, position: "relative" }}>
-        <style>{CSS}</style>
+        
         {/* Mission complete flash overlay */}
         {showMissionFlash && (
           <div style={{
@@ -17187,7 +17209,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     }
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="progress" />
 
         {/* ═══ ACHIEVEMENT UNLOCK BANNER ═══ */}
@@ -17606,7 +17628,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   if (showCaptainsLog) {
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="progress" />
         <div style={{ maxWidth: 440, margin: "0 auto", width: "100%", height: "100%", position: "relative", zIndex: 1, display: "flex", flexDirection: "column" }}>
           {/* Başlık */}
@@ -17775,7 +17797,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const oa = stats.totalQ > 0 ? Math.round((stats.totalCorrect / stats.totalQ) * 100) : 0;
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="progress" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", padding: "0", minHeight: 0 }}>
           {/* Header */}
@@ -17888,7 +17910,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="progress" />
         <div style={{ position: "absolute", bottom: -40, left: -40, width: 150, height: 150, borderRadius: "50%", background: "radial-gradient(circle,#05966915,transparent 70%)", pointerEvents: "none" }} />
 
@@ -18284,7 +18306,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="dashboard" />
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", padding: "0", minHeight: 0 }}>
@@ -18502,7 +18524,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="dashboard" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
 
@@ -20249,7 +20271,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page space-bg "+pageAnim} style={{fontFamily:F}}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="guide" />
         <div style={{flex:1,display:"flex",flexDirection:"column",maxWidth:440,margin:"0 auto",width:"100%",minHeight:0}}>
           <div style={{background:`linear-gradient(135deg,rgba(30,27,75,.88),${lc.color}44)`,backdropFilter:"blur(16px)",padding:"14px 18px 16px",borderRadius:"0 0 24px 24px",flexShrink:0,borderBottom:`1px solid ${lc.color}30`,boxShadow:`0 4px 20px rgba(0,0,0,.4)`}}>
@@ -20340,7 +20362,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="guide" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header */}
@@ -20638,7 +20660,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     });
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="dashboard" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           <div style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", padding: "14px 18px 16px", borderRadius: "0 0 24px 24px", flexShrink: 0 }}>
@@ -20716,7 +20738,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     ];
     return (
       <div className={"page page-medium " + pageAnim + a11yCls} style={{ background: "linear-gradient(180deg,#1e3a5f 0%,#4c1d95 30%,#5b21b6 100%)", fontFamily: F, justifyContent: "center", position: "relative", overflow: "hidden" }}>
-        <style>{CSS}</style>
+        
 
         {/* Arka plan yıldızları (sakin: 20→12) */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
@@ -22271,9 +22293,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // GalakSay Analytics — 2026-03-18 — Dashboard ve Uzay Haritası ekranları
   if (screen === "dashboard") {
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>Dashboard yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "#a8b2d1" }}>Dashboard yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
-          <style>{CSS}</style>
+          
           <DashboardScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
         </div>
       </React.Suspense>
@@ -22282,9 +22304,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
   if (screen === "spaceMap") {
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>Uzay haritası yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "#a8b2d1" }}>Uzay haritası yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
-          <style>{CSS}</style>
+          
           <SpaceMapScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
         </div>
       </React.Suspense>
@@ -22293,9 +22315,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
   if (screen === "nuMapReport") {
     return (
-      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><style>{CSS}</style><div style={{ color: "#a8b2d1" }}>Numap raporu yükleniyor...</div></div>}>
+      <React.Suspense fallback={<div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "#a8b2d1" }}>Numap raporu yükleniyor...</div></div>}>
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, height: "100vh" }}>
-          <style>{CSS}</style>
+          
           <NuMapScreen childId={currentUser?.username || "default_child"} onBack={() => navigateTo("menu")} />
         </div>
       </React.Suspense>
@@ -22312,7 +22334,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const gateCorrect = gateA + gateB;
       return (
         <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <style>{CSS}</style>
+          
           <div style={{ ...DS.card, padding: "28px 24px", maxWidth: 360, textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
             <div style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", marginBottom: 6 }}>{lang === "ku" ? "Piştrastkirina Dêûbav" : "Ebeveyn Doğrulaması"}</div>
@@ -22340,7 +22362,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="settings" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 440, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header */}
@@ -22829,7 +22851,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="modes" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 420, margin: "0 auto", width: "100%", padding: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -22905,7 +22927,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const areaIcons = { numberSense: "🔢", arithmetic: "➕", workingMemory: "🧠", multiplication: "✖️", placeValue: "🏛️" };
     return (
       <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
-        <style>{CSS}</style>
+        
         <SpaceDecor variant="progress" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 420, margin: "0 auto", width: "100%", padding: "16px", overflow: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>

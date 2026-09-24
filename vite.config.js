@@ -1,6 +1,7 @@
 // GalakSay Pro — Vite yapılandırması (code splitting + Vitest)
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 
 // galaksay.com (Cloudflare Pages) build'i için PWA <head> etiketleri + SW kaydı.
@@ -47,26 +48,29 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.js'],
     include: ['src/**/*.{test,spec}.{js,jsx}'],
   },
+  resolve: {
+    // jspdf'in opsiyonel html2canvas bağımlılığı (doc.html() hiç kullanılmıyor) 410 KB — boş modülle değiştir
+    alias: { html2canvas: fileURLToPath(new URL('./src/utils/empty.js', import.meta.url)) },
+  },
   build: {
+    target: ['es2020', 'safari14'], // tablet hedefi; Vite varsayılanıyla aynı, açıkça yazıldı
     // Chunk boyutu uyarı limiti (GalakSay.jsx büyük — monolitik oyun motoru)
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Üçüncü parti kütüphaneler ayrı chunk'larda
-          // React shared — Vite otomatik ayırıyor, manuel belirtmeye gerek yok
-          'vendor-motion': ['framer-motion'],
-          'vendor-charts': ['recharts'],
-          'vendor-pdf': ['jspdf'],
-          // Analytics/dashboard ayrı chunk (lazy loaded)
-          'analytics': [
-            './src/analytics/PerformanceAnalyzer.js',
-            './src/analytics/LTProgressEngine.js',
-            './src/analytics/RiskClassifier.js',
-            './src/analytics/StrengthWeaknessMapper.js',
-            './src/analytics/RecommendationEngine.js',
-            './src/analytics/PDFReportGenerator.js',
-          ],
+        // FONKSİYON formu (2026-09-24 performans denetimi): nesne formunda Rollup, listelenen
+        // paketin bağımlılıklarını (react, react-dom, scheduler) ilk eşleşen chunk'a taşıyordu;
+        // giriş chunk'ı bu yüzden vendor-pdf + vendor-charts + vendor-motion'ı (≈350 KB brotli)
+        // karşılama ekranı görünmeden indiriyordu. Şimdi: giriş = index + vendor-react (~50 KB br);
+        // PDF/grafik/animasyon kütüphaneleri yalnız kullanıldıkları ekranda iner.
+        manualChunks(id) {
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(id) || id.includes('vite/preload-helper') || id.includes('vite/modulepreload-polyfill')) return 'vendor-react'
+          if (/node_modules\/(framer-motion|motion-dom|motion-utils)\//.test(id)) return 'vendor-motion'
+          if (/node_modules\/(recharts|d3-[a-z]+|es-toolkit|@reduxjs|redux|react-redux|immer|reselect|decimal\.js-light|eventemitter3|use-sync-external-store|internmap|redux-thunk|clsx|react-is|victory-vendor)\//.test(id)) return 'vendor-charts'
+          if (/node_modules\/(jspdf|html2canvas|pako|fflate|fast-png|iobuffer|@babel\/runtime|dompurify|canvg|core-js|raf|rgbcolor|stackblur-canvas|svg-pathdata|performance-now)\//.test(id)) return 'vendor-pdf'
+          // PDFReportGenerator bilerek DIŞARIDA: Dashboard onu dinamik import eder; analytics
+          // chunk'ına girince syncEngine→analytics zinciri jspdf'i ilk yüklemeye çekiyordu.
+          if (/\/src\/analytics\/(PerformanceAnalyzer|LTProgressEngine|RiskClassifier|StrengthWeaknessMapper|RecommendationEngine)\.js$/.test(id)) return 'analytics'
         },
       },
     },
