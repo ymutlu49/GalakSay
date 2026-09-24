@@ -7704,7 +7704,9 @@ Lütfen profesyonel bir gelişim raporu yaz (250 kelimeyi geçme). Rapor şu bö
   // E4.4: Load saved session on mount
   useEffect(() => {
     // §3.2: PWA Service Worker Registration
-    if ("serviceWorker" in navigator) {
+    // SW yalnız PWA (galaksay.com, VITE_PWA=1) derlemesinde; kayıt index.html'de yapılır.
+    // Umbrella (/galaksay/) ve önizlemede kök /sw.js yok → 404 + "unsupported MIME type" gürültüsü.
+    if ("serviceWorker" in navigator && import.meta.env?.VITE_PWA === "1") {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
     // Browser back button: popstate dinleyici.
