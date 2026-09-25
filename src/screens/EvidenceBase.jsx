@@ -12,7 +12,7 @@ export const EVIDENCE_PRINCIPLES = [
   {
     icon: '🧭',
     title: 'Öğrenme yörüngeleri (Clements & Sarama)',
-    app: 'Galaksi haritasındaki 8 gezegen ve 59 görev, sayma → nicelik eşleme → karşılaştırma → parça-bütün → toplama/çıkarma gelişimsel sırasını izler; bir üst düzey, alt düzeyde %60 başarı olmadan açılmaz.',
+    app: 'Galaksi haritasındaki 9 gezegen ve 65 görev, sayma → nicelik eşleme → karşılaştırma → parça-bütün → toplama/çıkarma gelişimsel sırasını izler; bir üst düzey, alt düzeyde %60 başarı olmadan açılmaz.',
     evidence: 'Küme-randomize Building Blocks çalışmalarında ES = 1,07 (kontrol) ve 0,47 (karşılaştırma grubu).',
     ref: 'Clements & Sarama, 2008; Clements ve ark., 2011',
   },

@@ -1,6 +1,6 @@
 # GalakSay
 
-> GalakSay (galaksay.com), diskalkuli (matematik öğrenme güçlüğü) riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış bir matematik öğrenme ve müdahale oyunudur. Clements & Sarama öğrenme yörüngeleri temelli 59 görev modu (9 tematik gezegen) içerir; somut–görsel–sembolik (CRA) 5 kademeli ipucu sistemi, uyarlanabilir zorluk, sesli yönergeler, öğretmen sınıf paneli ile PDF/CSV raporu sunar; Türkçe ve Kürtçe (Kurmancî) dillerinde sunulur; NuMap tarama platformuyla entegredir. Web tabanlıdır (PWA), telefon, tablet ve bilgisayarda çevrimdışı da çalışır ve ücretsizdir.
+> GalakSay (galaksay.com), diskalkuli (matematik öğrenme güçlüğü) riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış bir matematik öğrenme ve müdahale oyunudur. Clements & Sarama öğrenme yörüngeleri temelli 65 görev modu (9 tematik gezegen) içerir; somut–görsel–sembolik (CRA) 5 kademeli ipucu sistemi, uyarlanabilir zorluk, sesli yönergeler, öğretmen sınıf paneli ile PDF/CSV raporu sunar; Türkçe ve Kürtçe (Kurmancî) dillerinde sunulur; NuMap tarama platformuyla entegredir. Web tabanlıdır (PWA), telefon, tablet ve bilgisayarda çevrimdışı da çalışır ve ücretsizdir.
 
 ## Geliştirici
 

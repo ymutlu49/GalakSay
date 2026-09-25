@@ -2,292 +2,535 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<title>Galaksay — Tanıtım Kitapçığı</title>
+<title>GalakSay — Tanıtım Kitapçığı</title>
+<meta name="description" content="GalakSay: diskalkuli riski taşıyan 5–10 yaş çocuklar için kanıta dayalı, oyun görünümlü matematik müdahalesi — A4 tanıtım kitapçığı (9 sayfa)." />
 <style>
+  /* Yazı tipleri: uygulamanın kendi sunduğu dosyalar (site/fonts). Kitapçık docs/booklet/ altında olduğu için ../../site/fonts/… */
+  @font-face{font-family:'Nunito';font-weight:700;font-style:normal;src:url('../../site/fonts/nunito-700-normal-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Nunito';font-weight:700;font-style:normal;src:url('../../site/fonts/nunito-700-normal-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+  @font-face{font-family:'Nunito';font-weight:800;font-style:normal;src:url('../../site/fonts/nunito-800-normal-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Nunito';font-weight:800;font-style:normal;src:url('../../site/fonts/nunito-800-normal-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:400;font-style:normal;src:url('../../site/fonts/atkinson-hyperlegible-400-normal-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:400;font-style:normal;src:url('../../site/fonts/atkinson-hyperlegible-400-normal-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:400;font-style:italic;src:url('../../site/fonts/atkinson-hyperlegible-400-italic-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:400;font-style:italic;src:url('../../site/fonts/atkinson-hyperlegible-400-italic-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:700;font-style:normal;src:url('../../site/fonts/atkinson-hyperlegible-700-normal-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Atkinson Hyperlegible';font-weight:700;font-style:normal;src:url('../../site/fonts/atkinson-hyperlegible-700-normal-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+
   :root{
-    --brand:#4f46e5; --brand2:#7c3aed; --brandL:#eef2ff; --brandB:#c7d2fe;
-    --ink:#1f2937; --sub:#4b5563; --faint:#9ca3af; --line:#e5e7eb; --card:#f9fafb;
-    --green:#15803d; --greenL:#f0fdf4; --amber:#b45309; --amberL:#fffbeb; --gold:#b45309;
+    --navy:#0b0e2d; --navy-2:#141852; --navy-3:#1e2470;
+    --purple:#6d28d9; --purple-2:#5b21b6; --purple-soft:#efeafd; --lilac:#c4b5fd;
+    --ink:#15172e; --ink-2:#474b66; --ink-3:#6b6f8c; --line:#e3e4f0; --line-2:#cfd1e6; --bg:#f7f7fb;
+    --green:#047857; --green-soft:#e7f7f0; --gold:#b45309; --gold-soft:#fff7e6; --rose:#be185d; --rose-soft:#fdeaf1; --sky:#0e7490; --sky-soft:#e6f6fa;
+    --display:'Nunito',system-ui,'Segoe UI',Roboto,sans-serif;
+    --body:'Atkinson Hyperlegible',system-ui,'Segoe UI',Roboto,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   @page{size:A4;margin:0}
-  html,body{background:#fff;color:var(--ink);font:13px/1.62 "Segoe UI",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .page{width:210mm;height:296mm;padding:16mm 18mm;position:relative;page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
-  .page:last-child{page-break-after:auto}
-  h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
-  h2{font-size:23px;font-weight:600;letter-spacing:-.2px}
-  h3{font-size:15px;font-weight:600;color:var(--brand);margin-bottom:4px}
-  p{color:var(--sub)}
-  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--brand2);margin-bottom:6px}
-  .rule{height:1px;background:var(--line);margin:10px 0 14px}
-  .footer{position:absolute;left:18mm;right:18mm;bottom:9mm;display:flex;justify-content:space-between;font-size:9px;color:var(--faint);border-top:1px solid var(--line);padding-top:5px}
-  .shot{border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.10);background:#0b0e2d}
-  .shot img{display:block;width:100%}
-  .cap{font-size:10px;color:var(--faint);margin-top:5px;text-align:center}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-  .card.brand{background:var(--brandL);border-color:var(--brandB)}
-  .card.amberx{background:var(--amberL);border-color:#fde68a}
+  html,body{background:#fff;color:var(--ink);font:10.2pt/1.5 var(--body);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{counter-reset:page}
+  .page{width:210mm;height:297mm;padding:13mm 15mm 15mm;position:relative;page-break-after:always;break-after:page;overflow:hidden;display:flex;flex-direction:column;background:#fff}
+  .page:last-child{page-break-after:auto;break-after:auto}
+  @media screen{body{background:#d9dbe8;padding:10mm 0}.page{margin:0 auto 10mm;box-shadow:0 8px 30px rgba(20,23,60,.18)}}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.15;letter-spacing:-.01em;color:var(--ink)}
+  h2{font-size:19.5pt;margin:2px 0 4px}
+  h3{font-size:11.5pt;margin-bottom:3px}
+  h4{font-size:10pt;margin-bottom:2px}
+  p{color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:700}
+  .kicker{font-family:var(--display);font-weight:800;font-size:8.5pt;letter-spacing:.09em;text-transform:uppercase;color:var(--purple)}
+  .lead{font-size:10.8pt;color:var(--ink-2);max-width:170mm}
+  .rule{height:1px;background:var(--line);margin:6px 0 8px}
+  .footer{position:absolute;left:15mm;right:15mm;bottom:7.5mm;display:flex;justify-content:space-between;align-items:center;font-size:7.6pt;color:var(--ink-3);border-top:1px solid var(--line);padding-top:4px;font-family:var(--display);font-weight:700}
+  .footer .pn{background:var(--navy);color:#fff;border-radius:999px;padding:1px 8px;font-size:7.6pt}
+  sup{font-size:.68em;line-height:0;color:var(--purple);font-weight:700;white-space:nowrap}
+  td.nw{white-space:nowrap}
+  .refnote{font-size:7.9pt;color:var(--ink-3)}
+
+  /* Görseller */
+  .shot{border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:#0b0e2d;box-shadow:0 3px 12px rgba(20,23,60,.14)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot.tall{border-radius:14px}
+  .cap{font-size:7.9pt;color:var(--ink-3);margin-top:4px;line-height:1.35}
+  .cap b{color:var(--ink);font-family:var(--display);font-weight:800;display:block;font-size:8.2pt}
+  figure{margin:0}
+
+  /* Izgara ve kartlar */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .card.purple{background:var(--purple-soft);border-color:#d9cffc}
+  .card.green{background:var(--green-soft);border-color:#b9e9d3}
+  .card.gold{background:var(--gold-soft);border-color:#f5dfae}
+  .card.rose{background:var(--rose-soft);border-color:#f6c6da}
+  .card.sky{background:var(--sky-soft);border-color:#b8e3ee}
+  .card.dark{background:var(--navy);border-color:var(--navy-3);color:#e5e7f6}
+  .card.dark p,.card.dark li{color:#d5d8ee}
+  .card.dark h3,.card.dark h4,.card.dark strong{color:#fff}
+  .card p,.card li{font-size:9.3pt}
   ul.tick{list-style:none}
-  ul.tick li{padding-left:18px;position:relative;margin-bottom:4.5px;color:var(--sub)}
-  ul.tick li::before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:700}
-  .pill{display:inline-block;background:var(--brandL);border:1px solid var(--brandB);color:var(--brand);font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;margin:0 4px 4px 0}
-  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
-  .stat b{display:block;font-family:Georgia,serif;font-size:17px;color:var(--brand)}
-  .stat span{font-size:10px;color:var(--faint)}
-  td,th{font-size:11.5px;padding:5.5px 9px;text-align:left;border-bottom:1px solid var(--line);color:var(--sub)}
-  th{color:var(--ink);font-weight:700;background:var(--card)}
+  ul.tick li{padding-left:15px;position:relative;margin-bottom:3px;color:var(--ink-2)}
+  ul.tick li::before{content:"";position:absolute;left:0;top:.42em;width:9px;height:9px;border-radius:50%;background:var(--green-soft);border:1px solid #a7f3d0}
+  ul.tick li::after{content:"";position:absolute;left:3px;top:.5em;width:3px;height:5px;border-right:1.6px solid var(--green);border-bottom:1.6px solid var(--green);transform:rotate(45deg)}
+  ul.dash{list-style:none}
+  ul.dash li{padding-left:11px;position:relative;margin-bottom:2.5px;color:var(--ink-2)}
+  ul.dash li::before{content:"–";position:absolute;left:0;color:var(--purple);font-weight:700}
+  .pill{display:inline-block;background:var(--purple-soft);border:1px solid #d9cffc;color:var(--purple-2);font-family:var(--display);font-weight:800;font-size:7.8pt;border-radius:999px;padding:1px 8px;margin:0 3px 3px 0}
+  .pill.g{background:var(--green-soft);border-color:#b9e9d3;color:var(--green)}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 8px;text-align:center}
+  .stat b{display:block;font-family:var(--display);font-weight:800;font-size:15pt;color:var(--purple);letter-spacing:-.02em;line-height:1.1}
+  .stat span{font-size:8pt;color:var(--ink-3);display:block;margin-top:2px}
+  .fig{background:var(--navy);color:#fff;border-radius:12px;padding:10px 12px;border:1px solid var(--navy-3)}
+  .fig .n{font-family:var(--display);font-weight:800;font-size:19pt;line-height:1;letter-spacing:-.02em;margin-bottom:5px}
+  .fig .n small{font-size:9pt;color:var(--lilac);margin-left:2px}
+  .fig p{font-size:8.6pt;color:#c9cee8;line-height:1.35}
+  .fig p a,.fig p b{color:var(--lilac);font-weight:700;text-decoration:none}
+  .num{width:22px;height:22px;border-radius:7px;display:inline-grid;place-items:center;font-family:var(--display);font-weight:800;font-size:11pt;color:#fff;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0}
+  .step{display:flex;gap:8px;align-items:flex-start}
   table{border-collapse:collapse;width:100%}
+  td,th{font-size:8.6pt;padding:4px 7px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+  th{color:var(--ink);font-family:var(--display);font-weight:800;background:var(--bg);font-size:8.2pt}
+  .refs{columns:2;column-gap:7mm;font-size:8pt;color:var(--ink-2);line-height:1.38}
+  .refs li{break-inside:avoid;margin-bottom:5px;padding-left:2px}
+  .refs ol{padding-left:16px}
+  .refs i{font-style:italic}
+  .refs a{color:var(--purple-2);text-decoration:none;word-break:break-all}
+
+  /* Kapak */
+  .cover{padding:0}
+  .cover .top{background:radial-gradient(ellipse 80% 60% at 15% 0%,#232a78 0%,var(--navy-2) 40%,var(--navy) 85%);color:#fff;padding:16mm 15mm 0;height:188mm;position:relative;overflow:hidden}
+  .cover .top::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:
+    radial-gradient(1.5px 1.5px at 8% 22%,rgba(255,255,255,.75),transparent),radial-gradient(1px 1px at 20% 68%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1.5px 1.5px at 33% 15%,rgba(196,181,253,.7),transparent),radial-gradient(1px 1px at 44% 84%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 57% 30%,rgba(255,255,255,.55),transparent),radial-gradient(2px 2px at 66% 62%,rgba(255,255,255,.35),transparent),
+    radial-gradient(1px 1px at 78% 12%,rgba(255,255,255,.6),transparent),radial-gradient(1.5px 1.5px at 90% 40%,rgba(167,139,250,.6),transparent),
+    radial-gradient(1px 1px at 95% 80%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 5% 90%,rgba(255,255,255,.4),transparent)}
+  .cover .top > *{position:relative;z-index:1}
+  .cover .eyebrow{display:inline-block;font-family:var(--display);font-weight:800;font-size:8.5pt;color:var(--lilac);background:rgba(124,58,237,.18);border:1px solid rgba(196,181,253,.35);padding:3px 10px;border-radius:999px;margin-bottom:8mm}
+  .cover h1{font-size:24pt;color:#fff;max-width:150mm;letter-spacing:-.02em;margin:5mm 0 4mm}
+  .cover h1 em{font-style:normal;color:var(--lilac)}
+  .cover .lead{color:#c9cee8;font-size:10.3pt;max-width:128mm}
+  .cover .eyebrow{margin-bottom:4mm !important}
+  .cover .hero{position:absolute;left:15mm;right:15mm;bottom:0;height:72mm;z-index:1}
+  .cover .hero .desk{position:absolute;left:0;bottom:0;width:115mm;border-radius:10px 10px 0 0;overflow:hidden;border:1px solid rgba(196,181,253,.35);border-bottom:0;box-shadow:0 -10px 40px rgba(0,0,0,.45)}
+  .cover .hero .desk img{display:block;width:100%}
+  .cover .hero .ph{position:absolute;right:4mm;bottom:0;width:38mm;border-radius:12px 12px 0 0;overflow:hidden;border:1.5px solid rgba(255,255,255,.35);border-bottom:0;box-shadow:0 -12px 40px rgba(0,0,0,.55)}
+  .cover .hero .ph img{display:block;width:100%}
+  .cover .bottom{padding:9mm 15mm 0;flex:1;display:flex;flex-direction:column}
+  .cover .meta{margin-top:auto;padding-bottom:12mm;display:flex;justify-content:space-between;align-items:flex-end;font-size:8.6pt;color:var(--ink-3)}
+  .cover .meta b{color:var(--ink);font-family:var(--display);font-weight:800;font-size:9.5pt;display:block}
+
+  /* Platform diyagramı */
+  .plat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:stretch}
+  .plat .node{border-radius:12px;padding:10px 12px;border:1px solid var(--line);background:#fff}
+  .plat .node .t{font-family:var(--display);font-weight:800;font-size:11pt;color:var(--ink)}
+  .plat .node .s{font-size:8.2pt;color:var(--ink-3);margin-bottom:4px}
+  .plat .node p{font-size:8.8pt}
+  .loop{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:3mm;align-items:center}
+  .loop .arr{font-family:var(--display);font-weight:800;color:var(--purple);font-size:16pt;text-align:center}
+  .qr{width:30mm;height:30mm;border:2px dashed var(--line-2);border-radius:10px;display:grid;place-items:center;text-align:center;font-size:7.8pt;color:var(--ink-3);padding:6px;font-family:var(--display);font-weight:700;background:var(--bg)}
 </style>
 </head>
 <body>
 
 <!-- ════════ SAYFA 1 — KAPAK ════════ -->
-<div class="page" style="padding:0">
-  <div style="background:linear-gradient(140deg,#0b0e2d,#1e1b4b 45%,#4f46e5 130%);color:#fff;padding:26mm 18mm 18mm">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:58px;height:58px;border-radius:14px;background:#fff;display:grid;place-items:center">
-        <svg viewBox="0 0 100 100" width="46" height="46" xmlns="http://www.w3.org/2000/svg">
-          <line x1="28" y1="26" x2="72" y2="26" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
-          <line x1="28" y1="26" x2="50" y2="74" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
-          <line x1="72" y1="26" x2="50" y2="74" stroke="#94a3b8" stroke-width="2" opacity="0.5"/>
-          <circle cx="28" cy="26" r="20" fill="#4f46e5"/>
-          <circle cx="21" cy="25" r="3" fill="#fff"/><circle cx="28" cy="25" r="3" fill="#fff"/><circle cx="35" cy="25" r="3" fill="#fff"/>
-          <circle cx="72" cy="26" r="20" fill="#6d28d9"/>
-          <text x="72" y="31" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-weight="800" font-size="12" fill="#fff">üç</text>
-          <circle cx="50" cy="74" r="20" fill="#059669"/>
-          <text x="50" y="83" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-weight="800" font-size="24" fill="#fff">3</text>
-        </svg>
-      </div>
-      <div>
-        <div class="serif" style="font-size:34px;font-weight:600;letter-spacing:-.5px">Galak<span style="color:#a78bfa">say</span></div>
-        <div style="font-size:11px;letter-spacing:.26em;opacity:.85">SAYILAR EVRENİN DİLİDİR</div>
-      </div>
-    </div>
-    <div class="serif" style="font-size:30px;line-height:1.22;margin-top:15mm;max-width:152mm">Diskalkuli odaklı, uzay temalı matematik öğrenme ve müdahale oyunu</div>
-    <p style="color:#ddd6fe;margin-top:6mm;max-width:142mm;font-size:13.5px">5–10 yaş çocuklar için: üçlü kodlama modeline dayalı 60+ etkinlik, 8 gezegen, 5 gerçek zorluk seviyesi. Türkçe ve Kürtçe (Kurmancî) sesli destek; telefon, tablet ve bilgisayarda, çevrimdışı da çalışır.</p>
-  </div>
-  <div style="padding:11mm 18mm 0;flex:1;display:flex;flex-direction:column">
-    <div class="shot" style="max-width:158mm;margin:0 auto"><img src="shots/site-landing.png" alt="galaksay.com"></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:9mm">
-      <div class="stat"><b>60+ etkinlik</b><span>8 gezegen</span></div>
-      <div class="stat"><b>5 seviye</b><span>gerçek zorluk rampası</span></div>
-      <div class="stat"><b>TR + KU</b><span>iki dilli seslendirme</span></div>
-      <div class="stat"><b>PWA</b><span>çevrimdışı çalışır</span></div>
-    </div>
-    <div style="margin-top:auto;padding-bottom:12mm;text-align:center;font-size:11px;color:var(--faint)">
-      <b style="color:var(--sub)">Tanıtım Kitapçığı · Haziran 2026</b><br/>
-      Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır · galaksay.com
+<section class="page cover">
+  <div class="top">
+    <svg viewBox="0 0 300 100" width="210" height="70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GalakSay">
+      <defs>
+        <linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+        <linearGradient id="lgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient>
+        <linearGradient id="lgC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#059669"/></linearGradient>
+      </defs>
+      <line x1="28" y1="26" x2="72" y2="26" stroke="#a5b4c8" stroke-width="2" opacity=".45"/><line x1="28" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity=".45"/><line x1="72" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity=".45"/>
+      <circle cx="28" cy="26" r="20" fill="url(#lgA)"/><circle cx="21" cy="25" r="3" fill="#fff" opacity=".9"/><circle cx="28" cy="25" r="3" fill="#fff" opacity=".9"/><circle cx="35" cy="25" r="3" fill="#fff" opacity=".9"/>
+      <circle cx="72" cy="26" r="20" fill="url(#lgB)"/><text x="72" y="31" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="12" fill="#fff">üç</text>
+      <circle cx="50" cy="74" r="20" fill="url(#lgC)"/><text x="50" y="82" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="24" fill="#fff">3</text>
+      <text x="106" y="62" font-family="Nunito, sans-serif" font-weight="800" font-size="46" letter-spacing="-1"><tspan fill="#ffffff">Galak</tspan><tspan fill="#a78bfa">Say</tspan></text>
+    </svg>
+    <div style="margin-top:6mm"><span class="eyebrow">Her Çocuk Matematik Öğrenebilir ailesinden</span></div>
+    <h1>Diskalkuli riski taşıyan çocuklar için <em>kanıta dayalı</em>, oyun görünümlü bir matematik müdahalesi</h1>
+    <p class="lead">GalakSay, 5–10 yaş çocuklarının sayma, büyüklük karşılaştırma, sayı doğrusu ve işlem becerilerini Clements–Sarama öğrenme yörüngeleri boyunca adım adım geliştirir. Her yanıt anlık ve açıklayıcı geri bildirim alır; zorluk çocuğa göre ayarlanır; öğretmen ilerlemeyi veriyle izler.</p>
+    <div class="hero">
+      <div class="desk"><img src="shots/map.png" alt="Galaksi haritası — 1. sınıf yörüngesi"></div>
+      <div class="ph"><img src="shots/phone-question.png" alt="Görev sorusu (telefon görünümü)"></div>
     </div>
   </div>
-</div>
+  <div class="bottom">
+    <div class="g4">
+      <div class="stat"><b>9 gezegen</b><span>65 görev modu</span></div>
+      <div class="stat"><b>5 seviye</b><span>uyarlanabilir zorluk</span></div>
+      <div class="stat"><b>TR · KU</b><span>Türkçe ve Kurmancî sesli yönerge</span></div>
+      <div class="stat"><b>Cihazda</b><span>veriler cihazda, çevrimdışı PWA</span></div>
+    </div>
+    <p style="margin-top:5mm;font-size:9.4pt;max-width:172mm">Öğrenme yörüngeleri · hataya özgü somut–görsel–sembolik ipuçları · uyarlanabilir zorluk · veri temelli öğretmen izlemesi · MEB 2024 öğrenme çıktılarıyla eşleme · tamamen tarayıcıda, kurulum ve mağaza gerekmez.</p>
+    <div class="g3" style="margin-top:5mm">
+      <div class="card"><h4 style="color:var(--purple)">Öğretmenler</h4><p style="font-size:8.8pt">Sınıf paneli, PDF sınıf raporu, CSV; NuMap hesabı ya da yerel hesap; MEB 2024 kodlarıyla etiketli beceriler.</p></div>
+      <div class="card"><h4 style="color:var(--rose)">Ebeveynler</h4><p style="font-size:8.8pt">Evde kısa, düzenli oturumlar; sesli yönergelerle okuma bilmeyen çocuk da bağımsız oynar; ceza ve zaman baskısı yok.</p></div>
+      <div class="card"><h4 style="color:var(--sky)">Uzmanlar ve araştırmacılar</h4><p style="font-size:8.8pt">Belgelenmiş yörünge eşlemesi, madde düzeyinde kayıt, anonim CSV; pilot ve iş birliklerine açık.</p></div>
+    </div>
+    <div class="meta">
+      <div><b>Tanıtım Kitapçığı · Eylül 2026</b>Prof. Dr. Yılmaz Mutlu — Muş Alparslan Üniversitesi, Matematik Eğitimi<br/>Tasarım ve geliştirme · Her Çocuk Matematik Öğrenebilir platformu</div>
+      <div style="text-align:right"><b>galaksay.com</b>hercocukmatematikogrenebilir.com<br/>Uygulama: galaksay.com/oyna</div>
+    </div>
+  </div>
+</section>
 
-<!-- ════════ SAYFA 2 — PEDAGOJİK TEMEL ════════ -->
-<div class="page">
-  <div class="eyebrow">Bilimsel Temel</div>
-  <h2>Oyun gibi görünür, müdahale gibi çalışır</h2>
+<!-- ════════ SAYFA 2 — SORUN VE İDDİA ════════ -->
+<section class="page">
+  <div class="kicker">Sorun ve iddia</div>
+  <h2>Her 100 çocuktan 3–7'si — ve doğru tasarlanmış müdahale işe yarar</h2>
   <div class="rule"></div>
-  <p>Galaksay, diskalkuli riski taşıyan çocukların <b>sayı hissini</b> sistematik biçimde inşa eden bir müdahale aracıdır. Her etkinlik, alanyazındaki kanıt temelli ilkelerle kurgulanmıştır; uzay macerası bu pedagojinin çocuk diline çevirisidir.</p>
-  <div class="grid2" style="margin-top:12px">
-    <div class="card brand"><h3>🧩 Üçlü Kodlama Modeli</h3><p style="font-size:12px">Dehaene'in modeli: her sayı <b>somut</b> (nesneler), <b>sözel</b> (sayı adı) ve <b>sembolik</b> (rakam) temsille birbirine bağlanır — logodaki üç gezegen bunu simgeler.</p></div>
-    <div class="card brand"><h3>🪜 Somut → Görsel → Soyut</h3><p style="font-size:12px">CRA sıralaması: manipülatiflerle başlar, görsel modellerden geçer, soyut rakama ulaşır. Temsil yoğunluğu seviyeye göre sadeleşir.</p></div>
-    <div class="card brand"><h3>🎯 Sade ekran ilkesi</h3><p style="font-size:12px">Bilişsel yük araştırmalarına dayalı "daha sade daha iyidir" tasarımı: ekranda tek fikir, az seçenek, tek dikkat vurgusu; metin yalnız okuyabilen çocuklara.</p></div>
-    <div class="card brand"><h3>💬 Anında, yönlendirici dönüt</h3><p style="font-size:12px">Doğruda kısa kutlama + sesli tekrar-sayım; yanlışta doğru cevabın öğretici gösterimi ve tek cümlelik strateji ipucu. Kıyas ve baskı yok.</p></div>
-  </div>
-  <h3 style="margin-top:14px">Çocuğu koruyan tasarım kararları</h3>
-  <ul class="tick" style="font-size:12.5px">
-    <li>İlk deneme kilitli (tanılayıcı doğruluk) — ama <b>ipucu kullanmak puan düşürmez</b>; 5 kademeli ipucu sistemi yardım istemeyi ödüllendirir.</li>
-    <li>Hız baskısı ana akışta yok; akıcılık çalışması ayrı ve isteğe bağlıdır.</li>
-    <li>Yanılgı tespiti: "1 eksik/fazla sayma" gibi tipik hata örüntüleri yakalanır ve çocuk diliyle düzeltilir.</li>
-    <li>Rozet/onay enflasyonu yok — içsel motivasyonu zedeleyen ödül kalabalığı bilinçli olarak budanmıştır.</li>
-    <li>MEB 2024 Maarif Modeli kazanımlarıyla eşlenmiş içerik.</li>
-  </ul>
-  <div class="card amberx" style="margin-top:auto"><b style="color:var(--amber)">Hedef kitle:</b> <span style="font-size:12px">okul öncesi – 4. sınıf (5-10 yaş); diskalkuli riski taşıyan, matematik öğrenme güçlüğü yaşayan ya da temel sayı hissini güçlendirmek istenen tüm çocuklar.</span></div>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>2</span></div>
-</div>
+  <p class="lead" style="font-size:10pt">Her 100 çocuktan yaklaşık 3–7'si, zekâ ve çabadan bağımsız olarak sayıları ve nicelikleri işlemede kalıcı güçlük yaşar; buna <strong>matematik öğrenme güçlüğü</strong> ya da <strong>gelişimsel diskalkuli</strong> denir<sup>[1, 2]</sup>. Bu çocuklar sayı adı ile nicelik arasındaki bağı kurmakta, iki sayıdan hangisinin büyük olduğunu hızla söylemekte ve zihinsel sayı doğrusunu kullanmakta zorlanır<sup>[3, 4]</sup>. İyi haber şu: erken ve doğru tasarlanmış müdahaleler işe yarar.</p>
 
-<!-- ════════ SAYFA 3 — EVREN: 8 GEZEGEN ════════ -->
-<div class="page">
-  <div class="eyebrow">İçerik Evreni</div>
-  <h2>8 gezegen, 60+ etkinlik</h2>
+  <div class="g4" style="margin-top:6mm">
+    <div class="fig"><div class="n">%3–7</div><p>Okul çağı çocuklarında gelişimsel diskalkuli yaygınlığı; disleksi kadar yaygın. <b>[1] [2]</b></p></div>
+    <div class="fig"><div class="n"><i>d</i> = 0,83</div><p>Matematik güçlüğü olan çocuklara yönelik yapılandırılmış müdahalelerin ortalama etkisi (35 çalışma). <b>[5]</b></p></div>
+    <div class="fig"><div class="n">ES = 0,55</div><p>Dijital müdahalelerin etkisi: 15 randomize kontrollü çalışma, 1.073 çocuk. Belirleyici olan oyun formatı değil, öğretim tasarımı. <b>[6]</b></p></div>
+    <div class="fig"><div class="n">0,49 <small>vs</small> 0,05</div><p>Bilgisayar ortamında açıklayıcı geri bildirimin etkisi, yalnızca "doğru/yanlış" bildirimine karşı. <b>[12]</b></p></div>
+  </div>
+  <p class="refnote" style="margin-top:3mm">Bu sayılar GalakSay'a değil, dayandığı araştırma literatürüne aittir. Ayrıca: diskalkulik çocuklarda yüksek matematik kaygısı tipik akranlarına göre <strong>2 kat</strong> daha olası (1.757 çocuk)<sup>[14]</sup>; uyarlanabilir sayı doğrusu yazılımıyla <strong>42 oturum × 20 dakika</strong>lık dozun kazanımları üç ay sonra da korunmuştur (RKÇ)<sup>[11]</sup>.</p>
+
+  <div class="g2" style="margin-top:5mm;align-items:start">
+    <div>
+      <h3>Literatür ne söylüyor?</h3>
+      <p style="font-size:9.4pt">35 kontrollü çalışmayı birleştiren bir meta-analiz, matematik güçlüğü olan çocuklara yönelik yapılandırılmış müdahalelerin büyük bir etki ürettiğini (<i>d</i> = 0,83) ve bilgisayar üzerinden verilen müdahalelerin yüz yüze olanlar kadar etkili olduğunu bildirmiştir<sup>[5]</sup>. Yalnızca dijital müdahaleleri inceleyen 15 randomize kontrollü çalışmanın meta-analizi de (1.073 çocuk) orta–büyük düzeyde bir etki (ES = 0,55) bulmuştur; bu çalışma, "oyunlaştırma"nın tek başına ek yarar sağlamadığını, önemli olanın öğretim tasarımı olduğunu göstermektedir<sup>[6]</sup>.</p>
+      <p style="font-size:9.4pt;margin-top:5px">ABD Eğitim Bilimleri Enstitüsü'nün (IES/What Works Clearinghouse) 2021 tarihli uygulama kılavuzu, matematikte zorlanan ilkokul öğrencileri için altı öneri sıralar ve altısı da "güçlü kanıt" düzeyindedir: sistematik öğretim, açık matematik dili, somut ve yarı-somut temsiller, sayı doğrusu, sözel problemler ve kısa zamanlı akıcılık etkinlikleri<sup>[7]</sup>. Açık öğretim, öğrenme güçlüğü olan öğrencilerde en büyük etkiyi (<i>g</i> = 1,22) üreten bileşendir<sup>[8]</sup>. Türkiye'de yürütülen çalışmalar da, matematik güçlüğü riski taşıyan ilkokul öğrencilerinin temel sayı işleme görevlerinde belirgin geride kaldığını ve sayı hissine yönelik kısa süreli programların etkili olabildiğini göstermektedir<sup>[3, 17]</sup>.</p>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3>GalakSay'ın iddiası</h3>
+        <p>GalakSay bir oyun değil, oyun görünümlü bir <strong>öğretim programı</strong>dır. Uzay macerası, bu öğretim tasarımının çocuk diline çevirisidir. Her bileşen, uygulama düzeyinde doğrulanabilir bir ilkeye karşılık gelir:</p>
+        <ul class="tick" style="margin-top:5px">
+          <li><strong>Öğrenme yörüngeleri:</strong> 9 gezegen ve 65 görev modu, Clements–Sarama gelişimsel sırasını izler<sup>[18, 19]</sup>.</li>
+          <li><strong>Somut → görsel → sembolik ipuçları</strong> ve üçlü kod (nicelik – rakam – sayı adı)<sup>[4, 7]</sup>.</li>
+          <li><strong>Sayı doğrusu ve büyüklük karşılaştırma</strong> çekirdekte<sup>[9, 10]</sup>.</li>
+          <li><strong>Anlık, hataya özgü geri bildirim</strong>; ceza ve olumsuz ses yok<sup>[12, 14]</sup>.</li>
+          <li><strong>Uyarlanabilir zorluk</strong> ve yalnızca öğrenilmiş becerilerde kısa akıcılık çalışması<sup>[7, 13]</sup>.</li>
+          <li><strong>Öğretmene veri:</strong> oturum bazlı göstergeler, MEB 2024 eşlemesi, PDF/CSV<sup>[15, 16]</sup>.</li>
+        </ul>
+      </div>
+      <div class="card gold" style="margin-top:4mm">
+        <h4>Neyi iddia etmiyoruz</h4>
+        <p style="font-size:8.8pt">GalakSay tanı koymaz; tarama ve ilerleme verisi uzman değerlendirmesinin yerine geçmez. "Hafıza eğitimi" ya da "diskalkuliye özel yazı tipi" gibi kanıtı zayıf iddialar taşımaz; erişilebilirlikte WCAG ölçütleri esas alınır. GalakSay'ın kendi etkililiğine ilişkin kontrollü bir çalışma henüz yayımlanmamıştır; uygulama, araştırma iş birliklerine açıktır.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">2</span></div>
+</section>
+
+<!-- ════════ SAYFA 3 — NASIL ÇALIŞIR ════════ -->
+<section class="page">
+  <div class="kicker">Nasıl çalışır</div>
+  <h2>Taramadan rapora üç adım</h2>
   <div class="rule"></div>
-  <p>Her gezegen bir matematik alanını temsil eder; çocuk yaş grubuna göre kurgulanmış bir <b>yörünge</b> üzerinde duraktan durağa ilerler, görevleri tamamladıkça gezegen kristallerini toplar.</p>
-  <table style="margin-top:10px">
-    <tr><th style="width:24%">Gezegen</th><th style="width:30%">Alan</th><th>Örnek beceriler</th></tr>
-    <tr><td>🌍 <b>Sayalon</b></td><td>Sayma</td><td>Birebir eşleme, ritmik/atlamalı sayma, geri sayma, kardinalite</td></tr>
-    <tr><td>⚡ <b>Şimşeron</b></td><td>Şipşak sayılama</td><td>Bir bakışta miktar, beşli/onlu çerçeve, görsel bellek</td></tr>
-    <tr><td>⚖️ <b>Terazya</b></td><td>Karşılaştırma</td><td>Büyük-küçük, sayı doğrusu, sıralama, tahmin</td></tr>
-    <tr><td>🧱 <b>Bileşya</b></td><td>Sayı bileşimi</td><td>Parça-bütün, 5 ve 10 oluşturma, sayı bağları</td></tr>
-    <tr><td>🏛️ <b>Basamara</b></td><td>Basamak değeri</td><td>Onluk-birlik, sayı kurma, genişletilmiş yazım</td></tr>
-    <tr><td>➕ <b>Toplarya</b></td><td>Toplama-çıkarma</td><td>Sayarak ekleme, onluk geçme, eksik sayı, sözel problemler</td></tr>
-    <tr><td>✖️ <b>Çarpanya</b></td><td>Çarpma-bölme</td><td>Eşit gruplar, dizi modeli, kat kavramı, paylaştırma</td></tr>
-    <tr><td>🧩 <b>Örünya</b></td><td>Örüntü</td><td>AB örüntüleri, büyüyen örüntüler, kural bulma</td></tr>
+  <p class="lead" style="font-size:10pt">GalakSay tek başına da kullanılabilir; NuMap tarama profiliyle birlikte kullanıldığında çocuğun başlangıç noktasını ve izleme döngüsünü tamamlar. Öğretmen ya da uzman için iki kapı vardır: NuMap hesabı ya da cihazdaki yerel hesap.</p>
+
+  <div class="g3" style="margin-top:5mm;align-items:start">
+    <div class="step"><span class="num">1</span><div><h3>Tarama ve profil</h3><p style="font-size:9.2pt">Öğretmen ya da uzman, çocuğu NuMap ile tarar ya da cihazda yerel bir profil açar. Risk düzeyi ve yaş grubu (okul öncesi, 1. veya 2. sınıf), oyunun başlangıç seviyesini ve görsel destek düzeyini belirler.</p><span class="pill g">NuMap hesabıyla tek oturum açma</span></div></div>
+    <div class="step"><span class="num">2</span><div><h3>Kişiselleştirilmiş görev haritası</h3><p style="font-size:9.2pt">Her görev bir öğrenme yörüngesi düzeyine eşlenir. Çocuk galaksi haritasında ilerlerken zorluk, sayı aralığı ve görsel destek performansa göre ayarlanır; hata türüne özgü ipuçları somut–görsel–sembolik sırayla açılır.</p><span class="pill g">65 görev modu · 5 zorluk seviyesi</span></div></div>
+    <div class="step"><span class="num">3</span><div><h3>İzleme ve rapor</h3><p style="font-size:9.2pt">Sınıf paneli her çocuğun oturumlarını, doğruluk oranını, doz ilerlemesini ve yörünge düzeyini gösterir. PDF sınıf raporu ve CSV dışa aktarımı; rıza verilmişse NuMap paneline eşitleme.</p><span class="pill g">PDF · CSV · anonim CSV</span></div></div>
+  </div>
+  <div class="g3" style="margin-top:4mm;align-items:start">
+    <figure><div class="shot"><img src="shots/teacher-login.png" alt="Öğretmen / Uzman girişi: NuMap hesabı veya yerel hesap"></div><figcaption class="cap"><b>Öğretmen / Uzman girişi</b>NuMap hesabı ya da yerel hesap; paylaşılan okul cihazında yönetici PIN'i</figcaption></figure>
+    <figure><div class="shot"><img src="shots/map.png" alt="Galaksi haritası"></div><figcaption class="cap"><b>Galaksi haritası</b>Yörünge boyunca açılan görev düğümleri; bir üst düzey, alt düzeyde %60 başarı olmadan açılmaz</figcaption></figure>
+    <figure><div class="shot"><img src="shots/class-panel.png" alt="Sınıf İlerlemesi paneli"></div><figcaption class="cap"><b>Sınıf İlerlemesi</b>Dört demo öğrenci; doz 42 oturum hedefi ve haftalık uyum çubuğu</figcaption></figure>
+  </div>
+
+  <h3 style="margin-top:6mm">Dokuz gezegen, dokuz öğrenme yörüngesi</h3>
+  <table style="margin-top:2mm">
+    <tr><th style="width:22%">Gezegen</th><th style="width:24%">Alan</th><th>Örnek görevler (65 modun bir bölümü)</th></tr>
+    <tr><td>🌍 <strong>Sayalon</strong></td><td>Sayma</td><td>Birebir eşleme, sıra sayısı, geri sayma, onluk geçidi, ritmik sayma, sayı korunumu</td></tr>
+    <tr><td>⚡ <strong>Şimşeron</strong></td><td>Şipşak sayılama (subitizing)</td><td>Bir bakışta miktar, beşli ve onlu çerçeve, çift onlu çerçeve, tahmin</td></tr>
+    <tr><td>⚖️ <strong>Terazya</strong></td><td>Karşılaştırma ve sıralama</td><td>Az–çok–eşit, komşu sayılar, sıralama, sayı doğrusunda konum ve yerleştirme</td></tr>
+    <tr><td>🧱 <strong>Bileşya</strong></td><td>Sayı bileşimi</td><td>5 ve 10 yapma, parça–bütün, sayı içindeki sayılar, çubuk bölme</td></tr>
+    <tr><td>🏛️ <strong>Basamara</strong></td><td>Basamak değeri</td><td>Onluk–birlik, sayı kurma, genişletilmiş yazım, onluk yapma</td></tr>
+    <tr><td>🌗 <strong>Toplarya</strong></td><td>Toplama ve çıkarma</td><td>Birleştirme–ayırma, büyükten sayma, fark, ters işlem, sözel problemler</td></tr>
+    <tr><td>✖️ <strong>Çarpanya</strong></td><td>Çarpma ve bölme</td><td>Tekrarlı toplama, dizi modeli, kat kavramı, eşit paylaştırma, yarım–iki kat</td></tr>
+    <tr><td>🧩 <strong>Örünya</strong></td><td>Örüntü ve eşitlik</td><td>Tekrarlayan ve büyüyen örüntüler, eksik sayı, denklem dengesi</td></tr>
+    <tr><td>🍕 <strong>Kesirya</strong></td><td>Kesir</td><td>Kesirleri görsel olarak karşılaştırma</td></tr>
   </table>
-  <div class="shot" style="max-width:150mm;margin:10px auto 0"><img src="shots/journey-map.png" alt="Yörünge haritası"></div>
-  <div class="cap">Yörünge haritası — sınıf düzeyine göre duraklar, kristaller ve ilerleme</div>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>3</span></div>
-</div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">3</span></div>
+</section>
 
-<!-- ════════ SAYFA 4 — OYUN DENEYİMİ ════════ -->
-<div class="page">
-  <div class="eyebrow">Oyun Deneyimi</div>
-  <h2>Hikâyeden göreve: çocuğun yolculuğu</h2>
+<!-- ════════ SAYFA 4 — ÇOCUĞUN YOLCULUĞU ════════ -->
+<section class="page">
+  <div class="kicker">Çocuğun yolculuğu</div>
+  <h2>Hikâye, harita, görev, geri bildirim, ipucu</h2>
   <div class="rule"></div>
-  <div class="grid2">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm">
+    <figure><div class="shot"><img src="shots/story-2.png" alt="Hikâye girişi: NuméraYıldız"></div><figcaption class="cap"><b>1 · Kısa hikâye</b>Sekiz Işık Kristali çalınmıştır; her kristal bir gezegenin matematik sırrında gizlidir. Hikâye atlanabilir, sesli okunur.</figcaption></figure>
+    <figure><div class="shot"><img src="shots/mode-list.png" alt="Gezegen görev listesi"></div><figcaption class="cap"><b>2 · Gezegen ve görevler</b>Her gezegende görevler yörünge düzeyi sırasında açılır; tamamlananlar işaretlenir, sıradaki görev öne çıkar.</figcaption></figure>
+    <figure><div class="shot"><img src="shots/guide-dialog.png" alt="Rehber karakter Sayacık"></div><figcaption class="cap"><b>3 · Rehber karakter</b>Her gezegenin rehberi görevin amacını çocuk diliyle anlatır; yönergeler seslendirilir.</figcaption></figure>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.95fr 1fr;gap:6mm;margin-top:4mm;align-items:start">
     <div>
-      <div class="shot"><img src="shots/story-intro.png" alt="Hikâye girişi"></div>
-      <div class="cap">İlk karşılama: kısa, sade hikâye — "Sayılar Galaksisi karanlığa gömülüyor…"</div>
+      <figure><div class="shot"><img src="shots/question.png" alt="Görev sorusu: enerji kapsülünde kaç yıldız taşı var?"></div><figcaption class="cap"><b>4 · Soru: tek uyarıcı, üç seçenek</b>Soru sesli okunur; seçenekler rakam ve sayı adıyla birlikte gösterilir (üçlü kod: nicelik – rakam – sayı adı)<sup>[4]</sup>. Ekranda tek görev, tek yönerge.</figcaption></figure>
+      <div class="g2" style="margin-top:4mm;gap:4mm">
+        <figure><div class="shot"><img src="shots/concrete.png" alt="Nesnelerle Göster: somut, görsel, sembolik katmanlar"></div><figcaption class="cap"><b>6 · "Nesnelerle Göster"</b>Aynı sayı üç katmanda: somut nesneler, sayı doğrusu, sembol.</figcaption></figure>
+        <figure><div class="shot"><img src="shots/hint-3.png" alt="Kademe 3 ipucu: birlikte sayma animasyonu"></div><figcaption class="cap"><b>7 · Kademeli ipucu</b>Kademe 3: "Birlikte başlayalım: 1, 2, 3… devamını sen say!"</figcaption></figure>
+      </div>
     </div>
     <div>
-      <div class="shot"><img src="shots/mode-select.png" alt="Görev listesi"></div>
-      <div class="cap">Gezegen görevleri — her etkinlik bir görev kartı</div>
+      <figure><div class="shot tall"><img src="shots/phone-feedback-wrong.png" alt="Yanlış yanıt sonrası açıklayıcı geri bildirim şeridi"></div><figcaption class="cap"><b>5 · Hataya özgü geri bildirim</b>"Doğru sayı: 1 — her taşı tek tek say, hiçbirini atlama." Turuncu şerit doğru cevabı ve stratejiyi açıklar; hata tipi (birim sayma, işlem karışıklığı, büyüklük algısı…) kaydedilir. Ceza ve olumsuz ses yoktur<sup>[12, 14]</sup>.</figcaption></figure>
     </div>
   </div>
-  <div class="grid2" style="margin-top:12px">
-    <div>
-      <div class="shot"><img src="shots/game-item.png" alt="Soru ekranı"></div>
-      <div class="cap">Soru ekranı: tek uyarıcı + 3 seçenek — sade, odaklı, sesli</div>
-    </div>
-    <div>
-      <div class="shot"><img src="shots/feedback-correct.png" alt="Dönüt ekranı"></div>
-      <div class="cap">Doğru cevapta kısa kutlama + taşları birlikte sayma (ses-görsel senkron)</div>
-    </div>
-  </div>
-  <ul class="tick" style="font-size:12px;margin-top:10px">
-    <li>Sorular sesli okunur; okul öncesi profillerde tüm akış metinsiz yürütülebilir.</li>
-    <li>Doğru cevapta yıldız taşları <b>tek tek, sesle eş zamanlı</b> sayılır — kardinalite pekişir.</li>
-  </ul>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>4</span></div>
-</div>
 
-<!-- ════════ SAYFA 5 — ADAPTİF ZORLUK ════════ -->
-<div class="page">
-  <div class="eyebrow">Zorluk Sistemi</div>
-  <h2>5 seviye, gerçek zorluk rampası</h2>
-  <div class="rule"></div>
-  <p>Zorluk yalnızca "daha büyük sayı" değildir: her seviye sayı aralığını <b>tabandan ve tavandan</b> ölçekler, çeldiricileri yakınlaştırır, görsel temsili kademeli soyutlaştırır ve flash sürelerini kısaltır.</p>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">
-    <div class="stat"><b>🌱 1</b><span>Başlangıç · 1-5</span></div>
-    <div class="stat"><b>🌿 2</b><span>Kolay · 1-10</span></div>
-    <div class="stat"><b>🌳 3</b><span>Orta · 6-15</span></div>
-    <div class="stat"><b>⭐ 4</b><span>Zor · 11-20</span></div>
-    <div class="stat"><b>👑 5</b><span>Usta · yapısal zorluk</span></div>
+  <div class="card purple" style="margin-top:4mm">
+    <h4>Beş kademeli ipucu sistemi (somut → görsel → sembolik)</h4>
+    <p style="font-size:8.9pt">İpucu cevabı vermez, düşünmeyi yönlendirir; kullanmak puan düşürmez. <strong>1</strong> Yönlendirici soru ("Baştan saysan kaça ulaşırsın?") · <strong>2</strong> Görsel vurgulama · <strong>3</strong> Kısmi animasyon (ilk adımlar birlikte) · <strong>4</strong> Tam animasyon (üç temsil eşzamanlı) · <strong>5</strong> Somut deneyim (yönlendirilmiş sürükle-bırak). CRA dizisi ve temsiller IES/WWC 2021 kılavuzunda "güçlü kanıt" düzeyindedir<sup>[7]</sup>; ipucu kademesi öğretmen raporunda bir gösterge olarak izlenir.</p>
   </div>
-  <ul class="tick" style="font-size:12.5px;margin-top:12px">
-    <li><b>Sınıf kalibrasyonu:</b> 2. sınıf öğrencisi 1. seviyeden değil, sınıfına uygun seviyeden başlar; üst seviyeler %60 başarıyla açılır.</li>
-    <li><b>Numap profili:</b> tarama sonucu riskli alanlarda oyun, uygun başlangıç seviyesini ve somut temsil desteğini otomatik seçer.</li>
-    <li><b>Mikro-adaptasyon:</b> üst üste hatada zorluk bir kademe yumuşar; yüksek performansta alan genişler (%75 optimal başarı hedefi).</li>
-    <li><b>Serpiştirilmiş tekrar:</b> yanlış yapılan sorular aralıklı olarak yeniden sorulur; her 4. soruda kardeş beceriden soru gelir.</li>
-  </ul>
-  <div class="shot" style="max-width:142mm;margin:10px auto 0"><img src="shots/results.png" alt="Sonuç ekranı"></div>
-  <div class="cap">Görev sonucu — yıldızlar, gezegen ilerlemesi ve "Seviye 2'ye Yüksel!" çağrısı</div>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>5</span></div>
-</div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">4</span></div>
+</section>
 
-<!-- ════════ SAYFA 6 — GİRİŞLER & ERİŞİLEBİLİRLİK ════════ -->
-<div class="page">
-  <div class="eyebrow">Kullanım &amp; Erişilebilirlik</div>
-  <h2>Her çocuğa, her cihazda</h2>
+<!-- ════════ SAYFA 5 — UYARLANABİLİR ZORLUK, AKICILIK, KAYGI ════════ -->
+<section class="page">
+  <div class="kicker">Uyarlanabilir zorluk · akıcılık · kaygıya duyarlı tasarım</div>
+  <h2>Çocuğun %70–80 başarı bandında kalması için</h2>
   <div class="rule"></div>
-  <div class="grid2" style="align-items:start">
-    <div>
-      <h3>İki giriş kapısı</h3>
-      <ul class="tick" style="font-size:12.5px">
-        <li><b>Öğrenci girişi:</b> çocuk kendi profilini seçer, PIN'iyle girer, kaldığı yerden devam eder.</li>
-        <li><b>Öğretmen/Uzman girişi:</b> Numap hesabıyla ya da cihazdaki yerel hesapla — Numap'siz okullar için tam yerel mod.</li>
-        <li>Yaş grubu ve hikâye tercihi çocuğa kalıcıdır; her girişte yeniden sorulmaz.</li>
-      </ul>
-      <h3 style="margin-top:12px">Erişilebilirlik</h3>
-      <ul class="tick" style="font-size:12.5px">
-        <li>İki dilli sesli yönerge: <b>Türkçe + Kurmancî</b></li>
-        <li>Disleksi-dostu yazı tipi (Atkinson Hyperlegible)</li>
-        <li>Renk körlüğü modları (desen destekli)</li>
-        <li>Azaltılmış hareket ve sakin mod</li>
-        <li>Büyük dokunma hedefleri (44-64px), klavye desteği</li>
-      </ul>
-      <h3 style="margin-top:12px">Teknik</h3>
-      <ul class="tick" style="font-size:12.5px">
-        <li>Web uygulaması (PWA) — mağaza gerekmez, ana ekrana eklenir</li>
-        <li>Bir kez yüklenince <b>çevrimdışı</b> çalışır</li>
-        <li>Veriler varsayılan olarak cihazda; merkezi senkron öğretmen kontrolünde</li>
+  <p class="lead" style="font-size:10pt">Zorluk, çocuğun performansına göre sayısal mesafe, sayı aralığı ve görsel destek boyutlarında otomatik ayarlanır; bu yaklaşım, diskalkuliye yönelik ilk uyarlanabilir yazılımlardan bu yana kullanılan bir tasarım ilkesidir<sup>[13]</sup>. Hız baskısı ana akışta yoktur; kısa akıcılık çalışması yalnızca öğrenilmiş becerilerde açılır<sup>[7]</sup>.</p>
+
+  <div class="g2" style="margin-top:5mm;align-items:start">
+    <figure><div class="shot"><img src="shots/level-select.png" alt="Seviye seçimi: 5 zorluk seviyesi ve seviye önerisi"></div><figcaption class="cap"><b>Seviye seçimi</b>Beş seviye; bir üst seviye için bu seviyede %60+ başarı gerekir. Son başarıya göre "Sana önerimiz: Seviye 3" kartı; Akıcılık Modu ayrı bir seçenektir.</figcaption></figure>
+    <figure><div class="shot"><img src="shots/results.png" alt="Görev sonucu: 4/5 doğru, yörünge ilerlemesi, seviye önerisi"></div><figcaption class="cap"><b>Görev sonucu</b>Yıldızlar, Sayalon yörüngesindeki konum (Sözel Sayma → Nesne Sayma → Kardinal Sayma → Sayma Stratejileri), "Seviye 3'e Yüksel" çağrısı ve tekrar çalışılacak sorular.</figcaption></figure>
+  </div>
+
+  <div class="g3" style="margin-top:5mm">
+    <div class="card">
+      <h4>Beş zorluk seviyesi</h4>
+      <table style="margin-top:3px">
+        <tr><td class="nw" style="padding:2px 4px"><strong>1</strong> Başlangıç</td><td style="padding:2px 4px">1–5</td></tr>
+        <tr><td class="nw" style="padding:2px 4px"><strong>2</strong> Kolay</td><td style="padding:2px 4px">1–10</td></tr>
+        <tr><td class="nw" style="padding:2px 4px"><strong>3</strong> Orta</td><td style="padding:2px 4px">…15</td></tr>
+        <tr><td class="nw" style="padding:2px 4px"><strong>4</strong> Zor</td><td style="padding:2px 4px">…20</td></tr>
+        <tr><td class="nw" style="padding:2px 4px;border:0"><strong>5</strong> Usta</td><td style="padding:2px 4px;border:0">yakın çeldiriciler, onluk geçişleri</td></tr>
+      </table>
+      <p style="font-size:8.6pt;margin-top:4px">Sınıf düzeyi başlangıç seviyesini kalibre eder; NuMap risk profili varsa başlangıç seviyesi ve somut temsil desteği ondan alınır.</p>
+    </div>
+    <div class="card">
+      <h4>Mikro-adaptasyon ve akıcılık</h4>
+      <ul class="dash" style="margin-top:3px">
+        <li>Son yanıtların doğruluğu ve süresine göre çeldirici yakınlığı ve sayı aralığı ayarlanır; görsel destek ustalaştıkça geri çekilir.</li>
+        <li>Yanlış yapılan maddeler oturum içinde yeniden sorulur; sonuç ekranı "tekrar çalışılacak" soruları listeler.</li>
+        <li><strong>Akıcılık Modu:</strong> kısa, zamanlı alıştırma; yalnızca öğrenilmiş becerilerde, okul öncesinde kapalı<sup>[7]</sup>.</li>
       </ul>
     </div>
-    <div>
-      <div class="shot"><img src="shots/welcome.png" alt="Giriş ekranı"></div>
-      <div class="cap">Giriş — öğrenci ve öğretmen kapıları + Numap yön levhası</div>
-      <div class="shot" style="margin-top:10px"><img src="shots/age-select.png" alt="Yaş grubu seçimi"></div>
-      <div class="cap">Yaş grubu seçimi — yörünge içeriği ve zorluk buna göre kurulur</div>
+    <div class="card rose">
+      <h4>Kaygıya duyarlı tasarım</h4>
+      <ul class="dash" style="margin-top:3px">
+        <li>Diskalkulik çocuklarda yüksek matematik kaygısı iki kat daha yaygındır<sup>[14]</sup>: ceza yok, olumsuz ses yok, hata "tekrar deneme" fırsatı.</li>
+        <li>Hayal kırıklığı algılama (ardışık hata, yanıt süresi örüntüsü) → çeldirici eleme ve rehber karakterden süreç odaklı destek.</li>
+        <li>Ödüller öğrenme eylemine bağlı ve mütevazı; rastgele büyük ödül yok.</li>
+      </ul>
     </div>
   </div>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>6</span></div>
-</div>
 
-<!-- ════════ SAYFA 7 — ÖĞRETMEN ARAÇLARI ════════ -->
-<div class="page">
-  <div class="eyebrow">Öğretmen &amp; Uzman Tarafı</div>
-  <h2>Sınıfın kontrol paneli</h2>
+  <div style="display:grid;grid-template-columns:1fr 1.25fr;gap:6mm;margin-top:5mm;align-items:start">
+    <figure><div class="shot"><img src="shots/settings-a11y.png" alt="Ayarlar: erişilebilirlik ve oturum süresi sınırı"></div><figcaption class="cap"><b>Oturum süresi sınırı</b>Otomatik: okul öncesi 15 dk, ilkokul 20 dk; süre dolunca soru bitiminde nazikçe sonlandırılır, devam yalnız yetişkin onayıyla. Mola hatırlatıcısı korunur.</figcaption></figure>
+    <div class="card green">
+      <h4>Önerilen kullanım dozu</h4>
+      <p>Haftada 3–5 oturum, oturum başına 15–20 dakika. Uyarlanabilir sayı doğrusu yazılımıyla yürütülen bir randomize kontrollü çalışmada 42 oturum × 20 dakikalık doz, diskalkulik çocuklarda aritmetik ve sayı doğrusu becerilerini üç ay sonra da kalıcı olacak biçimde iyileştirmiştir<sup>[11]</sup>. Doğrusal sayı tahtası oyunlarının yaklaşık bir saatlik toplam oynamayla bile okul öncesi çocukların sayı bilgisini geliştirdiği gösterilmiştir<sup>[9]</sup>.</p>
+      <p style="margin-top:5px">GalakSay bu nedenle <strong>42 oturumluk bir doz hedefi</strong> tutar: sınıf paneli ve gelişim paneli her çocuk için tamamlanan oturumu, toplam dakikayı ve haftalık uyumu gösterir. Oturumlar 5, 10 ya da 15 soruluk paketlerdir.</p>
+    </div>
+  </div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">5</span></div>
+</section>
+
+<!-- ════════ SAYFA 6 — ÖĞRETMEN PANOSU VE RAPORLAR ════════ -->
+<section class="page">
+  <div class="kicker">Öğretmen panosu ve raporlar</div>
+  <h2>Sınıfı bir panelden izleyin, çocuğu bir raporda görün</h2>
   <div class="rule"></div>
-  <div class="grid2">
-    <div>
-      <div class="shot"><img src="shots/teacher-hub.png" alt="Öğretmen ana ekranı"></div>
-      <div class="cap">Öğretmen ana ekranı — öğrenci seç, sınıf ilerlemesi, ayarlar</div>
+  <p class="lead" style="font-size:10pt">Erken sayı becerileri için geliştirilmiş kısa müfredata dayalı ölçümlerden<sup>[15]</sup> esinlenen göstergeler: doğruluk, yanıt süresi, ipucu kademesi, hata profili, öğrenme yörüngesi düzeyi ve doz. Veriler cihazda kalır; rıza verilmişse NuMap paneline işlenir.</p>
+
+  <div class="g2" style="margin-top:4mm;align-items:start">
+    <figure><div class="shot"><img src="shots/class-student-detail.png" alt="Sınıf paneli: Yusuf için alan bazlı doğruluk ve risk"></div><figcaption class="cap"><b>Sınıf İlerlemesi — öğrenci satırı</b>Yusuf (demo, diskalkuli risk profili): 310 soru, risk yüksek (6/6), öncelik sayma ve şipşak sayılama; alan bazlı doğruluk çubukları ve sınıf başarı dağılımı.</figcaption></figure>
+    <figure><div class="shot"><img src="shots/dashboard.png" alt="Gelişim Paneli: doğruluk, risk, doz, haftalık hedef"></div><figcaption class="cap"><b>Gelişim Paneli</b>Elif (demo): doğruluk %83, risk düşük (1/6), doz 16/42, bu hafta 4/3; risk değerlendirmesinin sade dille açıklaması ve bildirimler.</figcaption></figure>
+  </div>
+  <div style="display:grid;grid-template-columns:2.5fr 1fr;gap:6mm;margin-top:4mm;align-items:start">
+    <figure><div class="shot"><img src="shots/dashboard-bottom.png" alt="Gelişim Paneli: öğrenme yörüngesi düzeyleri ve öğretmen için sonraki adımlar"></div><figcaption class="cap"><b>Yörünge düzeyleri ve sonraki adımlar</b>Sekiz alan için Clements–Sarama düzeyi (örn. Sayma L4/L18), öğretmen için somut sonraki adım ve doz önerisi, ebeveyn için suçlamayan, süreç odaklı not.</figcaption></figure>
+    <figure><div class="shot" style="background:#fff"><img src="shots/report-child-p1.png" alt="Bireysel Gelişim Raporu PDF, kapak sayfası"></div><figcaption class="cap"><b>Bireysel Gelişim Raporu (PDF)</b>Yönetici özeti, gelişim eğilimi, yörünge düzeyleri, alan bazlı performans, NuMap ön–son karşılaştırması, sonraki adımlar, yöntem ve KVKK notu.</figcaption></figure>
+  </div>
+
+  <div class="g3" style="margin-top:4mm">
+    <div class="card">
+      <h4>Dışa aktarım</h4>
+      <ul class="dash" style="margin-top:2px">
+        <li><strong>Sınıf raporu (PDF):</strong> sınıf geneli performans, risk dağılımı ve müdahale etkisi.</li>
+        <li><strong>Veri (CSV)</strong> ve <strong>anonim CSV:</strong> oturum ve madde düzeyinde kayıt; anonim sürümde ad ve doğum tarihi çıkarılır, takma kimlik kalır.</li>
+      </ul>
     </div>
-    <div>
-      <div class="shot"><img src="shots/child-list.png" alt="Öğrenci listesi"></div>
-      <div class="cap">Öğrenci listesi — arama ve süzgeçlerle (sınıf, okul, tarih)</div>
+    <div class="card sky">
+      <h4>MEB 2024 eşlemesi</h4>
+      <p style="font-size:8.8pt">Her görev modu, Türkiye Yüzyılı Maarif Modeli'nin öğrenme çıktılarıyla etiketlidir<sup>[16]</sup>: okul öncesi matematik alan becerileri (MAB.1–9) ve 1. sınıf "Sayılar ve Nicelikler" ile "İşlemlerden Cebirsel Düşünmeye" çıktıları (MAT.1.1.1–MAT.1.2.4). Rapor, çalışılan becerileri bu kodlarla listeler.</p>
+    </div>
+    <div class="card gold">
+      <h4>Risk göstergesi ve doz önerisi</h4>
+      <p style="font-size:8.8pt">Risk düzeyi (1–6) doğruluk, ipucu kademesi, tutarlılık ve hız bileşenlerinden, alan başına en az 8 soruyla hesaplanır; birden fazla gösterge birleştiğinde "uzman görüşü alınması önerilir" uyarısı verilir. <strong>Bu bir tanı değildir.</strong> Panel, çocuğa özel oturum sıklığı ve süresi önerir (örn. haftada 3–4 gün, 20–25 dk).</p>
     </div>
   </div>
-  <div class="shot" style="max-width:150mm;margin:12px auto 0"><img src="shots/child-hub.png" alt="Çocuk panosu"></div>
-  <div class="cap">Çocuğa özel pano — Oyna + analiz araçları</div>
-  <ul class="tick" style="font-size:12.5px;margin-top:10px">
-    <li><b>Uzay Haritası &amp; Gelişim Paneli:</b> kategori başarıları, eğilimler, seviye geçişleri</li>
-    <li><b>Bireysel PDF raporu:</b> profesyonel düzen, gerçek Türkçe karakterler, öneri ve yönlendirme bölümleri</li>
-    <li><b>Sınıf Paneli:</b> tüm sınıfın tek bakışta durumu; sınıf raporu ve CSV dışa aktarım</li>
-    <li><b>Numap Karşılaştırma:</b> tarama profili ↔ güncel oyun performansı</li>
-  </ul>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>7</span></div>
-</div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">6</span></div>
+</section>
 
-<!-- ════════ SAYFA 8 — NUMAP DÖNGÜSÜ ════════ -->
-<div class="page">
-  <div class="eyebrow">Tarama → Müdahale → İzleme</div>
-  <h2>Numap ile tam döngü</h2>
+<!-- ════════ SAYFA 7 — DİL, ERİŞİLEBİLİRLİK, KVKK ════════ -->
+<section class="page">
+  <div class="kicker">Dil · erişilebilirlik · KVKK</div>
+  <h2>Her çocuğa, kendi dilinde, her cihazda</h2>
   <div class="rule"></div>
-  <p>Galaksay, kardeş platform <b>Numap</b> (getnumap.com) ile bütünleşiktir: tarama sonucu oyunu kişiselleştirir, oyun verisi taramanın yanına döner. Böylece "müdahaleye yanıt" tek panelde izlenir.</p>
-  <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:stretch;margin-top:12px">
-    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">1 · Numap'te tara</b><p style="font-size:11.5px;margin-top:4px">21 alt test, norm temelli risk haritası</p></div>
-    <div style="display:grid;place-items:center;color:var(--brand);font-size:20px">→</div>
-    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">2 · Galaksay'da oyna</b><p style="font-size:11.5px;margin-top:4px">Öğrenciler otomatik listelenir; oyun risk profiline göre başlar</p></div>
-    <div style="display:grid;place-items:center;color:var(--brand);font-size:20px">→</div>
-    <div class="card brand" style="text-align:center"><b style="color:var(--brand)">3 · Numap'te izle</b><p style="font-size:11.5px;margin-top:4px">Oturum, başarı ve kategori ilerlemesi panelde</p></div>
+  <div class="g2" style="align-items:start">
+    <div>
+      <h3>Türkçe ve Kürtçe (Kurmancî)</h3>
+      <p style="font-size:9.4pt">Arayüz, gezegen adları, görevler, hikâyeler, sözel problemler ve sesli yönergeler iki dilde. Ana dili Kürtçe olan çocuklar sayı adlarını kendi dillerinde duyar; Kürtçe için ayrı bir ses paketi vardır ve ilk kullanımda cihaza iner. Öğren modülünün bazı adımları Türkçeye düşer.</p>
+      <h3 style="margin-top:5mm">Okuma bilmeyen çocuk için</h3>
+      <p style="font-size:9.4pt">Soru kökleri, yönergeler ve geri bildirimler seslendirilir; seçenekler rakam ve sayı adıyla birlikte gösterilir; her ekranda "soruyu dinle" düğmesi vardır. Okul öncesi profilinde akış metinsiz yürütülebilir.</p>
+      <h3 style="margin-top:5mm">Erişilebilirlik</h3>
+      <ul class="tick" style="font-size:9.2pt">
+        <li>Dokunma hedefleri en az 44 px; büyük motor hareketler, küçük sürgü yok.</li>
+        <li>Büyük yazı, yüksek kontrast, azaltılmış animasyon ve "sakin mod" (minimal uyaran, sakin geçişler).</li>
+        <li>Renk körü modu: yıldız taşları desenle ayrılır; renk tek başına anlam taşımaz.</li>
+        <li>Ekran okuyucu için sayfa başlıkları, canlı bölgeler ve erişilebilir ad; klavye desteği.</li>
+        <li>Yazı tipleri (Nunito, Atkinson Hyperlegible) uygulamanın kendi sunucusundan; üçüncü tarafa istek yok.</li>
+      </ul>
+    </div>
+    <div>
+      <figure><div class="shot"><img src="shots/map-ku.png" alt="Galaksi haritası Kurmancî arayüzüyle"></div><figcaption class="cap"><b>Kurmancî arayüz</b>"Keşifger Elif — Gerîngeha Pola 1": gezegenler, görevler ve alt çubuk Kürtçe.</figcaption></figure>
+      <figure style="margin-top:4mm"><div class="shot"><img src="shots/settings-a11y.png" alt="Erişilebilirlik ayarları"></div><figcaption class="cap"><b>Erişilebilirlik ayarları</b>Renk körü modu, büyük yazı, azaltılmış animasyon, yüksek kontrast, sakin mod; ayarlara ebeveyn kapısıyla erişilir.</figcaption></figure>
+    </div>
   </div>
-  <ul class="tick" style="font-size:12.5px;margin-top:12px">
-    <li>Tek öğretmen hesabı — Numap kimliği Galaksay'da geçerli; öğrenci verisi yeniden girilmez.</li>
-    <li>Oyun ilerlemesi (oturum, doğruluk, kategori, seviye geçişleri) merkezi havuza işlenir; çok-cihaz birleşik görünüm.</li>
-    <li>Numap zorunlu değildir: Galaksay yerel hesaplarla tek başına da eksiksiz çalışır.</li>
-  </ul>
-  <div class="card amberx" style="margin-top:auto">
-    <b style="color:var(--amber)">Akademik altyapı:</b> <span style="font-size:12px">madde-düzey olay kaydı, ön-son karşılaştırma ve sınıf istatistikleri araştırma kullanımına uygundur (CSV/PDF).</span>
-  </div>
-  <div class="footer"><span>Galaksay — Tanıtım Kitapçığı</span><span>8</span></div>
-</div>
 
-<!-- ════════ SAYFA 9 — ARKA KAPAK ════════ -->
-<div class="page" style="padding:0">
-  <div style="flex:1;background:linear-gradient(160deg,#0b0e2d,#1e1b4b 55%,#4f46e5 140%);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 24mm">
-    <div class="serif" style="font-size:30px;line-height:1.25">Keşfe başlamaya<br/>hazır mısınız?</div>
-    <p style="color:#ddd6fe;margin-top:8mm;max-width:132mm;font-size:13.5px">Tarayıcıda açın, ana ekrana ekleyin, oynamaya başlayın — kurulum yok, mağaza yok. Öğretmenseniz Numap hesabınızla girin; öğrencileriniz sizi bekliyor.</p>
-    <div style="margin-top:12mm;display:flex;gap:10px;flex-wrap:wrap">
-      <div style="background:#fff;color:#4f46e5;font-weight:700;border-radius:999px;padding:9px 22px;font-size:14px">🚀 galaksay.com</div>
-      <div style="border:1.5px solid rgba(255,255,255,.55);border-radius:999px;padding:9px 22px;font-size:14px">🔬 getnumap.com — tarama platformu</div>
+  <div class="g3" style="margin-top:5mm">
+    <div class="card dark">
+      <h4>KVKK: veriler cihazda</h4>
+      <ul class="dash" style="margin-top:2px">
+        <li>Kimlik verisi toplanmaz; çocuk takma adla kaydolur, isteğe bağlı 4 haneli PIN hash'lenerek saklanır (PBKDF2), düz metin tutulmaz.</li>
+        <li>İlerleme cihazda (tarayıcı depolamasında) tutulur; NuMap'e ve platform havuzuna eşitleme yalnızca öğretmen/uzman hesabı ve açık rıza ile yapılır, Ayarlar'dan kapatılabilir.</li>
+        <li>"Verileri sil" çocuğa ait tüm kayıtları tek dokunuşla temizler.</li>
+        <li>Sayfa çerez, izleyici ya da üçüncü taraf betik içermez.</li>
+      </ul>
     </div>
-    <div style="margin-top:16mm;border-top:1px solid rgba(255,255,255,.25);padding-top:6mm;font-size:11px;color:#c7d2fe">
-      <b style="color:#fff">Galaksay</b> — Sayılar evrenin dilidir<br/>
-      Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır · © 2026 Galaksay<br/>
-      Bu kitapçıktaki ekran görüntülerindeki tüm öğrenci ve kullanıcı adları kurgusaldır (demo verisi).
+    <div class="card">
+      <h4>Çevrimdışı çalışan PWA</h4>
+      <ul class="dash" style="margin-top:2px">
+        <li>Uygulama mağazası gerekmez: galaksay.com/oyna adresini açmak yeterli.</li>
+        <li>"Ana ekrana ekle" ile uygulama gibi kurulur; bir kez açıldıktan sonra internet olmadan da çalışır.</li>
+        <li>Telefon, tablet ve bilgisayarda; yatay tablet ve projeksiyon için uygun düzen.</li>
+        <li>Ücretsiz ve reklamsız.</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h4>Yetişkin alanları korunur</h4>
+      <ul class="dash" style="margin-top:2px">
+        <li>Ayarlar ve hesap işlemleri ebeveyn kapısının (yaşa uygun olmayan bir aritmetik sorusu) arkasındadır.</li>
+        <li>Paylaşılan okul cihazında yönetim alanı yönetici PIN'i ile korunur; öğretmen/uzman kullanıcıları yönetici tanımlar.</li>
+        <li>Demo sınıfı (Elif, Yusuf, Zeynep, Mert) tek dokunuşla yüklenir ve iz bırakmadan kaldırılır; gerçek verilerle karışmaz.</li>
+      </ul>
     </div>
   </div>
-</div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">7</span></div>
+</section>
+
+<!-- ════════ SAYFA 8 — PLATFORM VE İLETİŞİM ════════ -->
+<section class="page">
+  <div class="kicker">Platform</div>
+  <h2>Her Çocuk Matematik Öğrenebilir: tarama, somut materyal, dijital müdahale</h2>
+  <div class="rule"></div>
+  <p class="lead" style="font-size:10pt">GalakSay, <strong>Her Çocuk Matematik Öğrenebilir</strong> platformunun oyunlaştırılmış dijital müdahale ayağıdır. Tarama ve profil NuMap'ten, somut materyal DokunSay'dan gelir; GalakSay'daki enerji kapsülü, pul ve yıldız taşı gibi nesneler DokunSay materyallerinin dijital karşılıklarıdır.</p>
+
+  <div class="plat" style="margin-top:5mm">
+    <div class="node" style="border-color:#b8e3ee;background:var(--sky-soft)"><div class="t">NuMap</div><div class="s">getnumap.com · tarama ve değerlendirme</div><p>Risk düzeyi ve alan profili; öğretmen hesabı GalakSay'da geçerli, öğrenciler otomatik listelenir; oyun ilerlemesi NuMap paneline döner.</p></div>
+    <div class="node" style="border-color:#f5dfae;background:var(--gold-soft)"><div class="t">DokunSay</div><div class="s">dokunsay.com · somut materyaller</div><p>Sayı kapsülleri, pullar ve çubuklar; sınıfta ve evde elle deneyim. Uygulamadaki "Materyal Rehberi" dijital nesneleri gerçek materyallerle eşler.</p></div>
+    <div class="node" style="border-color:#d9cffc;background:var(--purple-soft)"><div class="t">GalakSay</div><div class="s">galaksay.com · dijital müdahale</div><p>Öğrenme yörüngeleri, hataya özgü CRA ipuçları, uyarlanabilir zorluk, öğretmen izlemesi ve raporlar; Türkçe ve Kürtçe.</p></div>
+  </div>
+
+  <h3 style="margin-top:6mm">Tarama → müdahale → izleme döngüsü</h3>
+  <div class="loop" style="margin-top:2mm">
+    <div class="card"><h4>1 · NuMap'te tara</h4><p>Risk düzeyi ve alan puanları; yaş grubu.</p></div>
+    <div class="arr">→</div>
+    <div class="card purple"><h4>2 · GalakSay'da oyna</h4><p>Başlangıç seviyesi ve görsel destek profile göre; haftada 3–5 kısa oturum.</p></div>
+    <div class="arr">→</div>
+    <div class="card green"><h4>3 · İzle ve raporla</h4><p>Oturum, doğruluk, yörünge düzeyi, doz; PDF/CSV; "NuMap Karşılaştırma" ile başlangıç–güncel görünüm.</p></div>
+  </div>
+  <p class="refnote" style="margin-top:2mm">NuMap zorunlu değildir: GalakSay yerel hesaplarla tek başına da eksiksiz çalışır; tipik gelişen çocuklarla da kullanılabilir.</p>
+
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:4mm;align-items:start">
+    <figure><div class="shot"><img src="shots/space-map.png" alt="Benim Uzay Haritam: sekiz alanda ilerleme"></div><figcaption class="cap"><b>Benim Uzay Haritam</b>Çocuğun sekiz alandaki ilerlemesi tek bakışta; öğretmen-çocuk panosundan erişilir.</figcaption></figure>
+    <div>
+      <div class="card">
+        <h4>Araştırmacılar ve pilot uygulamalar için</h4>
+        <ul class="dash" style="margin-top:2px">
+          <li>Her mod için yörünge, düzey ve yaş aralığı eşlemesi belgelidir.</li>
+          <li>Yanıt süresi, hata türü, ipucu kademesi ve akıcılık ölçütleri madde düzeyinde kaydedilir; anonim CSV ile kimlik verisi içermeyen veri seti.</li>
+          <li>Etkililik çalışması için gereken oturum bazlı veri üretilir; iş birliklerine açıktır.</li>
+        </ul>
+      </div>
+      <div style="display:flex;gap:5mm;align-items:center;margin-top:4mm">
+        <div class="qr">QR kodu<br/>galaksay.com</div>
+        <div style="font-size:9pt">
+          <b style="font-family:var(--display);font-weight:800;color:var(--ink);font-size:10pt;display:block">İletişim</b>
+          Prof. Dr. Yılmaz Mutlu<br/>Muş Alparslan Üniversitesi, Eğitim Fakültesi<br/>
+          <span style="color:var(--purple-2)">hercocukmatematikogrenebilir.com/yilmaz-mutlu</span><br/>
+          <span style="color:var(--purple-2)">galaksay.com</span> · uygulama: galaksay.com/oyna<br/>
+          <span style="color:var(--ink-3);font-size:8pt">Kurumsal e-posta adresi eklenecek.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:4mm">Sık sorulan sorular</h3>
+  <div class="g3" style="margin-top:1.5mm;gap:4mm">
+    <div class="card"><h4>Hangi yaş grubu için?</h4><p style="font-size:8.8pt">Okul öncesi (5–6 yaş), 1. ve 2. sınıf için ayrı başlangıç yörüngeleri vardır; içerik 10 yaşına kadar kullanılabilir.</p></div>
+    <div class="card"><h4>Tanı ya da NuMap taraması şart mı?</h4><p style="font-size:8.8pt">Hayır. Tipik gelişen çocuklarla da kullanılabilir; NuMap profili varsa başlangıç seviyesi ona göre kalibre edilir.</p></div>
+    <div class="card"><h4>Etkililik çalışması var mı?</h4><p style="font-size:8.8pt">Henüz yayımlanmış bir GalakSay etki çalışması yoktur; tasarım bileşenleri meta-analizlere ve uygulama kılavuzlarına dayanır.</p></div>
+  </div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">8</span></div>
+</section>
+
+<!-- ════════ SAYFA 9 — KAYNAKLAR ════════ -->
+<section class="page">
+  <div class="kicker">Kaynaklar</div>
+  <h2>Kitapçıkta atıf yapılan çalışmalar</h2>
+  <div class="rule"></div>
+  <p class="refnote" style="margin-bottom:4mm">Bu kitapçıktaki bulgular yayımlanmış bağımsız araştırmalara aittir ve GalakSay'ın tasarım ilkelerini gerekçelendirir. Numaralar metindeki köşeli parantezli atıflara karşılık gelir. Ekran görüntülerindeki tüm öğrenci adları kurgusaldır (demo sınıfı).</p>
+  <div class="refs">
+    <ol>
+      <li>Morsanyi, K., van Bers, B. M. C. W., McCormack, T., &amp; McGourty, J. (2018). The prevalence of specific learning disorder in mathematics and comorbidity with other developmental disorders in primary school-age children. <i>British Journal of Psychology, 109</i>(4), 917–940. <a href="https://doi.org/10.1111/bjop.12322">https://doi.org/10.1111/bjop.12322</a></li>
+      <li>Butterworth, B., Varma, S., &amp; Laurillard, D. (2011). Dyscalculia: From brain to education. <i>Science, 332</i>(6033), 1049–1053. <a href="https://doi.org/10.1126/science.1201536">https://doi.org/10.1126/science.1201536</a></li>
+      <li>Olkun, S., Altun, A., Göçer Şahin, S., &amp; Akkurt Denizli, Z. (2015). Deficits in basic number competencies may cause low numeracy in primary school children. <i>Eğitim ve Bilim, 40</i>(177), 141–159. <a href="https://doi.org/10.15390/EB.2015.3287">https://doi.org/10.15390/EB.2015.3287</a></li>
+      <li>Dehaene, S. (1992). Varieties of numerical abilities. <i>Cognition, 44</i>(1–2), 1–42. <a href="https://doi.org/10.1016/0010-0277(92)90049-N">https://doi.org/10.1016/0010-0277(92)90049-N</a></li>
+      <li>Chodura, S., Kuhn, J.-T., &amp; Holling, H. (2015). Interventions for children with mathematical difficulties: A meta-analysis. <i>Zeitschrift für Psychologie, 223</i>(2), 129–144. <a href="https://doi.org/10.1027/2151-2604/a000211">https://doi.org/10.1027/2151-2604/a000211</a></li>
+      <li>Benavides-Varela, S., Zandonella Callegher, C., Fagiolini, B., Leo, I., Altoè, G., &amp; Lucangeli, D. (2020). Effectiveness of digital-based interventions for children with mathematical learning difficulties: A meta-analysis. <i>Computers &amp; Education, 157</i>, 103953. <a href="https://doi.org/10.1016/j.compedu.2020.103953">https://doi.org/10.1016/j.compedu.2020.103953</a></li>
+      <li>Fuchs, L. S., Newman-Gonchar, R., Schumacher, R., Dougherty, B., Bucka, N., Karp, K. S., Woodward, J., Clarke, B., Jordan, N. C., Gersten, R., Jayanthi, M., Keating, B., &amp; Morgan, S. (2021). <i>Assisting students struggling with mathematics: Intervention in the elementary grades</i> (WWC 2021006). National Center for Education Evaluation and Regional Assistance, IES, U.S. Department of Education. <a href="https://ies.ed.gov/ncee/wwc/practiceguide/26">https://ies.ed.gov/ncee/wwc/practiceguide/26</a></li>
+      <li>Gersten, R., Chard, D. J., Jayanthi, M., Baker, S. K., Morphy, P., &amp; Flojo, J. (2009). Mathematics instruction for students with learning disabilities: A meta-analysis of instructional components. <i>Review of Educational Research, 79</i>(3), 1202–1242. <a href="https://doi.org/10.3102/0034654309334431">https://doi.org/10.3102/0034654309334431</a></li>
+      <li>Siegler, R. S., &amp; Ramani, G. B. (2009). Playing linear number board games—but not circular ones—improves low-income preschoolers' numerical understanding. <i>Journal of Educational Psychology, 101</i>(3), 545–560. <a href="https://doi.org/10.1037/a0014239">https://doi.org/10.1037/a0014239</a></li>
+      <li>Schneider, M., Merz, S., Stricker, J., De Smedt, B., Torbeyns, J., Verschaffel, L., &amp; Luwel, K. (2018). Associations of number line estimation with mathematical competence: A meta-analysis. <i>Child Development, 89</i>(5), 1467–1484. <a href="https://doi.org/10.1111/cdev.13068">https://doi.org/10.1111/cdev.13068</a></li>
+      <li>Kohn, J., Rauscher, L., Kucian, K., Käser, T., Wyschkon, A., Esser, G., &amp; von Aster, M. (2020). Efficacy of a computer-based learning program in children with developmental dyscalculia. What influences individual responsiveness? <i>Frontiers in Psychology, 11</i>, 1115. <a href="https://doi.org/10.3389/fpsyg.2020.01115">https://doi.org/10.3389/fpsyg.2020.01115</a></li>
+      <li>Van der Kleij, F. M., Feskens, R. C. W., &amp; Eggen, T. J. H. M. (2015). Effects of feedback in a computer-based learning environment on students' learning outcomes: A meta-analysis. <i>Review of Educational Research, 85</i>(4), 475–511. <a href="https://doi.org/10.3102/0034654314564881">https://doi.org/10.3102/0034654314564881</a></li>
+      <li>Wilson, A. J., Dehaene, S., Pinel, P., Revkin, S. K., Cohen, L., &amp; Cohen, D. (2006). Principles underlying the design of "The Number Race", an adaptive computer game for remediation of dyscalculia. <i>Behavioral and Brain Functions, 2</i>, 19. <a href="https://doi.org/10.1186/1744-9081-2-19">https://doi.org/10.1186/1744-9081-2-19</a></li>
+      <li>Devine, A., Hill, F., Carey, E., &amp; Szűcs, D. (2018). Cognitive and emotional math problems largely dissociate: Prevalence of developmental dyscalculia and mathematics anxiety. <i>Journal of Educational Psychology, 110</i>(3), 431–444. <a href="https://doi.org/10.1037/edu0000222">https://doi.org/10.1037/edu0000222</a></li>
+      <li>Clarke, B., &amp; Shinn, M. R. (2004). A preliminary investigation into the identification and development of early mathematics curriculum-based measurement. <i>School Psychology Review, 33</i>(2), 234–248. <a href="https://doi.org/10.1080/02796015.2004.12086245">https://doi.org/10.1080/02796015.2004.12086245</a></li>
+      <li>MEB. (2024). <i>Türkiye Yüzyılı Maarif Modeli: İlkokul Matematik Dersi Öğretim Programı (1, 2, 3 ve 4. sınıflar)</i>. Millî Eğitim Bakanlığı. <a href="https://tymm.meb.gov.tr/upload/program/2024programmat1234Onayli.pdf">https://tymm.meb.gov.tr/upload/program/2024programmat1234Onayli.pdf</a></li>
+      <li>Mutlu, Y., &amp; Akgün, L. (2020). Developing number sense in students with mathematics learning disability risk. <i>International Online Journal of Primary Education, 9</i>(1). <a href="https://www.iojpe.org/index.php/iojpe/article/view/24">https://www.iojpe.org/index.php/iojpe/article/view/24</a></li>
+      <li>Clements, D. H., &amp; Sarama, J. (2008). Experimental evaluation of the effects of a research-based preschool mathematics curriculum. <i>American Educational Research Journal, 45</i>(2), 443–494. <a href="https://doi.org/10.3102/0002831207312908">https://doi.org/10.3102/0002831207312908</a></li>
+      <li>Clements, D. H., Sarama, J., Spitler, M. E., Lange, A. A., &amp; Wolfe, C. B. (2011). Mathematics learned by young children in an intervention based on learning trajectories: A large-scale cluster randomized trial. <i>Journal for Research in Mathematics Education, 42</i>(2), 127–166. <a href="https://doi.org/10.5951/jresematheduc.42.2.0127">https://doi.org/10.5951/jresematheduc.42.2.0127</a></li>
+    </ol>
+  </div>
+  <div style="margin-top:auto;margin-bottom:5mm;padding-top:5mm;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;gap:6mm">
+    <div style="font-size:8.6pt;color:var(--ink-3);max-width:120mm">
+      <b style="font-family:var(--display);font-weight:800;color:var(--ink);font-size:9.5pt;display:block">GalakSay — Sayılar evrenin dilidir</b>
+      Prof. Dr. Yılmaz Mutlu tarafından tasarlanmış ve geliştirilmiştir · © 2026 GalakSay · Her Çocuk Matematik Öğrenebilir<br/>
+      Ücretsiz ve reklamsız · Türkçe · Kurmancî · galaksay.com · getnumap.com · dokunsay.com
+    </div>
+    <svg viewBox="0 0 100 100" width="46" height="46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="28" y1="26" x2="72" y2="26" stroke="#a5b4c8" stroke-width="2" opacity=".45"/><line x1="28" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity=".45"/><line x1="72" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity=".45"/>
+      <circle cx="28" cy="26" r="20" fill="#4f46e5"/><circle cx="21" cy="25" r="3" fill="#fff" opacity=".9"/><circle cx="28" cy="25" r="3" fill="#fff" opacity=".9"/><circle cx="35" cy="25" r="3" fill="#fff" opacity=".9"/>
+      <circle cx="72" cy="26" r="20" fill="#6d28d9"/><text x="72" y="31" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="12" fill="#fff">üç</text>
+      <circle cx="50" cy="74" r="20" fill="#059669"/><text x="50" y="82" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="24" fill="#fff">3</text>
+    </svg>
+  </div>
+  <div class="footer"><span>GalakSay — Tanıtım Kitapçığı · Eylül 2026</span><span class="pn">9</span></div>
+</section>
 
 </body>
 </html>
