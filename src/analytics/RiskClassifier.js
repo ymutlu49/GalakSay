@@ -28,7 +28,7 @@ import { getChildProfile } from './database.js';
 
 const RISK_LABELS = { 1: 'Düşük', 2: 'Düşük', 3: 'Orta', 4: 'Orta', 5: 'Yüksek', 6: 'Yüksek' };
 const CATEGORY_LABELS = {
-  sayma: 'Sayma', subitizing: 'Subitizing', karsilastirma: 'Karşılaştırma',
+  sayma: 'Sayma', subitizing: 'Anlık Algılama', karsilastirma: 'Karşılaştırma',
   sayi_bilesimi: 'Sayı Bileşimi', basamak_degeri: 'Basamak Değeri',
   toplama_cikarma: 'Toplama/Çıkarma', carpma_bolme: 'Çarpma/Bölme', oruntu: 'Örüntü',
 };
@@ -264,9 +264,9 @@ async function screenDyscalculiaIndicators(childId) {
       indicatorsFound.push({
         indicator: 'sayi_hissi_zayifligi', label: INDICATOR_LABELS.sayi_hissi_zayifligi,
         evidence: { subitizingAccuracy: a, comparisonAccuracy: b, n: st.subitizing.n + st.karsilastirma.n },
-        evidenceText: `Subitizing ${pct(a)} (n=${st.subitizing.n}), karşılaştırma ${pct(b)} (n=${st.karsilastirma.n})`,
+        evidenceText: `Anlık algılama ${pct(a)} (n=${st.subitizing.n}), karşılaştırma ${pct(b)} (n=${st.karsilastirma.n})`,
         confidence: Math.min(1, (1 - a) * 0.5 + (1 - b) * 0.5),
-        recommendation: 'Subitizing ve karşılaştırma etkinliklerinde somut materyallerle (nokta kartları, onluk çerçeve) yoğun çalışma önerilir.',
+        recommendation: 'Anlık algılama (subitizing) ve karşılaştırma etkinliklerinde somut materyallerle (nokta kartları, onluk çerçeve) yoğun çalışma önerilir.',
       });
     }
   } else notScreened.push('sayi_hissi_zayifligi');

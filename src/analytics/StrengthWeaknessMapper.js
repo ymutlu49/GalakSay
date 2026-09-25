@@ -24,7 +24,7 @@ const RELATED_CATEGORIES = {
 
 const CATEGORY_LABELS = {
   sayma: 'Sayma',
-  subitizing: 'Subitizing',
+  subitizing: 'Anlık Algılama',
   karsilastirma: 'Karşılaştırma',
   sayi_bilesimi: 'Sayı Bileşimi',
   basamak_degeri: 'Basamak Değeri',
@@ -133,7 +133,7 @@ function generateCrossInsights(categoryData) {
   }
   if (both('subitizing', 'karsilastirma') && acc('subitizing') < 0.55 && acc('karsilastirma') < 0.60) {
     insights.push({
-      insight: 'Subitizing zayıflığı karşılaştırma becerisini de etkiliyor olabilir. Önce subitizing çalışmasına odaklanın.',
+      insight: 'Anlık algılama (subitizing) zayıflığı karşılaştırma becerisini de etkiliyor olabilir. Önce anlık algılama çalışmasına odaklanın.',
       relatedCategories: ['subitizing', 'karsilastirma'],
       actionable: true,
     });

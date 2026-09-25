@@ -7,7 +7,7 @@ import { CATEGORIES, getCategoryStats } from './PerformanceAnalyzer.js';
 import { screenDyscalculiaIndicators } from './RiskClassifier.js';
 
 const CATEGORY_LABELS = {
-  sayma: 'Sayma', subitizing: 'Subitizing', karsilastirma: 'Karşılaştırma',
+  sayma: 'Sayma', subitizing: 'Anlık Algılama', karsilastirma: 'Karşılaştırma',
   sayi_bilesimi: 'Sayı Bileşimi', basamak_degeri: 'Basamak Değeri',
   toplama_cikarma: 'Toplama/Çıkarma', carpma_bolme: 'Çarpma/Bölme', oruntu: 'Örüntü',
 };
