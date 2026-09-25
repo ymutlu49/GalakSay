@@ -1,6 +1,6 @@
 # GalakSay
 
-> GalakSay (galaksay.com), diskalkuli (matematik öğrenme güçlüğü) riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış bir matematik öğrenme ve müdahale oyunudur. Clements & Sarama öğrenme yörüngeleri temelli 60+ etkinlik içerir; Türkçe ve Kürtçe (Kurmancî) dillerinde sunulur; NuMap tarama platformuyla entegredir. Web tabanlıdır (PWA), telefon, tablet ve bilgisayarda çevrimdışı da çalışır ve ücretsizdir.
+> GalakSay (galaksay.com), diskalkuli (matematik öğrenme güçlüğü) riski taşıyan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli, oyunlaştırılmış bir matematik öğrenme ve müdahale oyunudur. Clements & Sarama öğrenme yörüngeleri temelli 59 görev modu (9 tematik gezegen) içerir; somut–görsel–sembolik (CRA) 5 kademeli ipucu sistemi, uyarlanabilir zorluk, sesli yönergeler, öğretmen sınıf paneli ile PDF/CSV raporu sunar; Türkçe ve Kürtçe (Kurmancî) dillerinde sunulur; NuMap tarama platformuyla entegredir. Web tabanlıdır (PWA), telefon, tablet ve bilgisayarda çevrimdışı da çalışır ve ücretsizdir.
 
 ## Geliştirici
 
@@ -12,7 +12,9 @@
 
 ## Sayfalar
 
-- [Ana sayfa](https://galaksay.com/): Oyunun tanıtımı, özellikler ve kurulum rehberi
+- [Ana sayfa](https://galaksay.com/): Tanıtım, nasıl çalışır, özellikler, kanıt temeli (17 kaynak), kimler için, ekran görüntüleri, SSS
+- [Kanıt temeli](https://galaksay.com/#kanit-temeli): Tasarım ilkelerinin dayandığı meta-analiz ve uygulama kılavuzları
+- [Öğretmenler için](https://galaksay.com/#ogretmenler): Sınıf paneli, PDF/CSV rapor, NuMap entegrasyonu
 - [Oyna](https://galaksay.com/oyna/): Oyunun kendisi (web uygulaması)
 
 ## Kardeş siteler (Her Çocuk Matematik Öğrenebilir ailesi)
@@ -21,3 +23,7 @@
 - [NuMap](https://getnumap.com/): Diskalkuli tarama ve değerlendirme platformu
 - [DokunSay](https://dokunsay.com/): Dokunsal/manipülatif matematik öğretim araçları
 - [ABMATO](https://abmato.com/): Matematik etkinlikleri ve ev destek içerikleri
+
+## Gizlilik
+
+- Tanıtım sayfası çerez, izleyici ve üçüncü taraf betik içermez. Uygulama kimlik verisi toplamaz; ilerleme verileri cihazda saklanır, NuMap'e eşitleme yalnızca öğretmen hesabı ve açık rıza ile yapılır (KVKK).
