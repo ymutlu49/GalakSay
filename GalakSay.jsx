@@ -15694,6 +15694,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   <button onClick={goExplore} style={secondaryStyle}>
                     🚀 {playerName ? `${playerName} ile Keşfet` : "Serbest Keşfet"}
                   </button>
+                </>) : (!placement && ageGroup && (stats.totalGames || 0) === 0) ? (<>
+                  {/* Hiç oynamamış + taraması/yerleştirmesi yok → önerilen ilk adım Keşif Uçuşu (başlangıç düzeyi buna göre seçilir) */}
+                  <button onClick={startCalibration} style={primaryStyle}>
+                    <span style={{ position: "relative", zIndex: 1 }}>🧭 Keşif Uçuşu ile başla <span style={{ fontSize: 12, opacity: .85 }}>(8 kısa soru · ~2 dk)</span></span>
+                  </button>
+                  <button onClick={goExplore} style={secondaryStyle}>
+                    🚀 {playerName ? `${playerName} ile Keşfet` : "Oyuna Başla"} <span style={{ fontSize: 12, opacity: .8 }}>(değerlendirmesiz)</span>
+                  </button>
                 </>) : (<>
                   <button onClick={goExplore} style={primaryStyle}>
                     <span style={{ position: "relative", zIndex: 1 }}>🚀 {playerName ? `${playerName} ile Keşfet` : "Oyuna Başla"}</span>
@@ -21176,7 +21184,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     for (let i = 1; i < N; i++) {
       const a = _allPos[i - 1], b = _allPos[i];
       if (Math.abs(a.x - b.x) < 18 && Math.abs(a.y - b.y) < 10) {
-        b.x = Math.max(10, Math.min(90, a.x + (b.x >= a.x ? 18 : -18)));
+        // İtme yönü kenar payına (16–84) sığmıyorsa karşı yöne it — sağ kenarda kırpılan aktif gezegen (QA: durak 4)
+        const clampX = (v) => Math.max(16, Math.min(84, v));
+        const prefer = clampX(a.x + (b.x >= a.x ? 18 : -18));
+        // Kenar payı itmeyi 11 puandan aza indirdiyse (gezegenler çakışır) karşı yöne it
+        b.x = Math.abs(prefer - a.x) >= 11 ? prefer : clampX(a.x + (b.x >= a.x ? -18 : 18));
       }
     }
     const getPos = (i) => _allPos[i] || { x: 50, y: 50 };
@@ -22474,9 +22486,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 ...(child ? [{ icon: "🔄", label: lang==="ku"?"Zarok biguhêre":"Çocuk Değiştir", active: false, onClick: () => { try { (onSwitchChild || /** @type {any} */(window).__galaksaySwitchChild)?.(); } catch {} }, color: "#A78BFA" }] : []),
                 { icon: "🚪", label: lang==="ku"?"Derketin":"Çıkış", active: false, onClick: handleLogout, color: "#f87171" },
               ] : [
-                // v5.5: Okul öncesi için sadeleştirilmiş navigasyon — tehlikeli butonlar gizli.
-                // Numap akışında "Ana" = öğretmen panosu (childHub); değilse dünya seçimi.
-                { icon: "🏠", label: child ? (lang==="ku"?"Panel":"Pano") : (lang==="ku"?"Mal":"Ana"), active: false, onClick: () => navigateTo(child ? "childHub" : "ageSelect") },
+                // v5.5: Okul öncesi için sadeleştirilmiş navigasyon — tehlikeli butonlar (Çıkış/Ayarlar) gizli.
+                // İlk sekme zaten Pano/Dünya Seç → burada yinelenmez (QA: mobilde "Pano | Galaksi | Pano").
+                // Çocuk profiliyle oynanıyorsa öğretmen/kardeş geçişi için "Çocuk Değiştir" kalır.
+                ...(child ? [{ icon: "🔄", label: lang==="ku"?"Zarok biguhêre":"Çocuk Değiştir", active: false, onClick: () => { try { (onSwitchChild || /** @type {any} */(window).__galaksaySwitchChild)?.(); } catch {} }, color: "#A78BFA" }] : []),
               ]),
             ].map(tab => (
               <button key={tab.label} onClick={tab.onClick} disabled={tab.active} className={tab.active ? "" : "space-btn-hover"} style={{

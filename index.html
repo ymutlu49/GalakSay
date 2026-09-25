@@ -1850,6 +1850,8 @@
         outline-offset: 3px;
         border-radius: 4px;
       }
+      /* HÇMÖ erişilebilirlik düğmesi: dar ekranda alt gezinme çubuğunu ve İpucu/Nesnelerle Göster düğmelerini örtmesin */
+      @media (max-width: 640px) { #hcmo-a11y-btn { bottom: 92px !important; right: 8px !important; width: 42px !important; height: 42px !important; opacity: .85; } }
     </style>
     <!-- HÇMÖ ortak erişilebilirlik widget'ı — defer: portal yavaş/erişilemezse ilk boyamayı ENGELLEMESİN
          (senkron dış betik HTML ayrıştırmayı DNS/TCP zaman aşımı boyunca bloklar); widget DOMContentLoaded'ı kendi bekliyor. -->

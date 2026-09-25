@@ -10,11 +10,12 @@ biçimde göstermek için hazırlanmıştır. Adımlar uygulamanın gerçek akı
 
 | # | Kontrol | Nasıl |
 |---|---------|-------|
-| 1 | **galaksay.com güncel mi?** | GitHub → GalakSay deposu → *Settings → Secrets and variables → Actions* içine `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` girin. Sonraki `main` gönderiminde site otomatik yenilenir. Sırlar girilmezse galaksay.com **eski sürümde** kalır. |
+| 1 | **galaksay.com güncel mi?** | Sürüm kontrolü: uygulamada *Yönetici → Ayarlar → Hakkında* sürüm numarası `package.json` ile aynı olmalı. Otomatik dağıtım için GitHub → GalakSay deposu → *Settings → Secrets and variables → Actions* içine `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` girin; girilene kadar iş akışı "yeşil" görünse de dağıtım adımı **atlanır** (25 Eyl 2026'da bu yüzden site 6 Ağustos sürümünde kalmıştı). Elle dağıtım: `npm run build:cf && npx wrangler pages deploy cf-deploy --project-name galaksay --branch main`. |
 | 2 | Yedek adres | `https://ymutlu49.github.io/GalakSay/` (GitHub Pages aynası; aynı uygulama, tanıtım sayfası yok). |
 | 3 | Çevrimdışı güvence | Sunum cihazında uygulamayı bir kez açıp bir görev oynayın; uygulama kabuğu cihaza önbelleğe alınır, salon interneti kesilse de çalışır. Kürtçe ses paketi ilk kullanımda iner; Kürtçe gösterecekseniz bir kez Kürtçe bir görev oynayın. |
 | 4 | Demo sınıfı | *Öğretmen / Uzman Girişi → Yerel Hesap → Yönetici PIN → Yerel Yönetim* ekranının altındaki **"Demo sınıfını yükle"**. 4 öğrenci ve 24 günlük gerçekçi geçmiş yüklenir; sunum sonrası **"Demo sınıfını kaldır"** ile iz bırakmadan silinir. |
-| 5 | Ses | Cihaz sesi açık; *Ayarlar → Sesli Yönergeler* açık (okuma bilmeyen çocuk deneyimi için). |
+| 5 | Ses | Cihaz sesi açık; *Ayarlar → Sesli Yönergeler* açık (okuma bilmeyen çocuk deneyimi için). Öğretmen başlattığı oturumda Ayarlar ebeveyn kapısı sormaz; çocuğun kendi girişinde sorar. |
+| 5b | Tarayıcı önbelleği | Sunum cihazında galaksay.com daha önce açıldıysa **iki kez yenileyin** (service worker yeni sürümü ikinci yüklemede etkinleştirir) ya da gizli pencere kullanın. |
 | 6 | Ekran | Tablet yatay ya da dizüstü + projeksiyon; tarayıcı tam ekran (F11). Metin büyütme gerekiyorsa *Ayarlar → Büyük metin*. |
 | 7 | Tarayıcı | Güncel Chrome/Safari/Edge. Sekmede başka uygulama açık olmasın. |
 
@@ -37,7 +38,9 @@ oyun değil; oyun görünümlü bir öğretim programı."
 
 - 4 demo öğrenci: **Elif** (güçlü ilerleme), **Yusuf** (diskalkuli risk profili), **Zeynep**
   (okul öncesi), **Mert** (2. sınıf, akıcılık sorunu).
-- Yusuf satırını açın: düşük doğruluk, uzun yanıt süresi, yüksek ipucu bağımlılığı, hata profili.
+- Yusuf satırını açın: düşük doğruluk, yüksek risk (6/6), öncelikli alanlar, kategori çubukları.
+- Satırın altındaki **"📊 Gelişim paneli ve PDF"** düğmesi çocuğun tam analitik panelini doğrudan açar
+  (hub'a uğramadan); **"▶ Yusuf ile oyna"** ise çocuk merkezine götürür.
 - **"Sınıf raporu (PDF)"** ve **"Veri (CSV)"** düğmelerini gösterin (anonim CSV: KVKK).
 
 **Söyle:** "Öğretmen için erken sayı becerilerinde müfredata dayalı ölçmeden esinlenen
@@ -104,7 +107,8 @@ sunduğumuz yazı tipleri. Üçüncü taraf izleme yok."
 
 ## 6. Rapor ve kapanış (2 dk)
 
-**Göster:** Öğretmen panosu → Elif → **Gelişim Paneli** → **PDF**.
+**Göster:** *Sınıf İlerlemesi* → Elif satırı → **"📊 Gelişim paneli ve PDF"** → sağ üstte **PDF rapor**.
+(Alternatif yol: Çocuk Merkezi → Analiz & Takip → Gelişim Paneli.)
 
 **Söyle:** "Öğretmenin cebinde: kategori bazlı doğruluk ve hız eğilimleri, yörünge düzeyi,
 güçlü/zayıf alanlar, risk göstergesi ve somut sonraki adım. MEB 2024 öğrenme çıktılarıyla eşli."

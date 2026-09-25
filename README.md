@@ -64,7 +64,11 @@ anahtarlarıyla birebir eşleşir.
 
 - **galaksay.com (Cloudflare Pages, proje `galaksay`):** `main`'e her gönderimde
   `.github/workflows/deploy-cloudflare.yml` çalışır: lint → test → `build:cf` → wrangler.
-  Depo sırları `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` girilene kadar dağıtım adımı atlanır.
+  Depo sırları `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` girilene kadar dağıtım adımı **atlanır**
+  (iş akışı yeşil görünür ama site güncellenmez — 25 Eyl 2026'ya kadar bu yüzden 6 Ağustos sürümü canlıdaydı).
+- **Tanıtım sayfası SSO yapılandırması:** `site/index.html` içinde `window.HCMO_GATE_MODE="chip"` ve
+  `window.HCMO_SILENT=false` ZORUNLU. Bunlar düşerse hub kapı betiği içeriği gizler ve ziyaretçiyi
+  hub → getnumap `/sso-relay` (artık yok) zincirine gönderir.
 - **GitHub Pages aynası:** `.github/workflows/deploy.yml` (`base=/galaksay/`).
 - Elle: `npm run build:cf && npx wrangler pages deploy cf-deploy --project-name galaksay`.
 
@@ -80,7 +84,10 @@ sıfır çalışma zamanı hatasıyla doğrulanmıştır.
 - `docs/SUNUM_REHBERI.md`: sunum öncesi kontrol listesi, 12 dakikalık gösterim akışı, soru-yanıt ve acil durum planı.
 - `docs/booklet/`: basılabilir A4 tanıtım kitapçığı (HTML + PDF).
 - **Demo sınıfı:** Yerel Yönetim ekranının altındaki "Demo sınıfını yükle" 4 örnek öğrenci ve 24 günlük
-  gerçekçi geçmiş oluşturur (`demo: true` ile işaretli, "Demo sınıfını kaldır" ile izsiz silinir).
+  gerçekçi geçmiş oluşturur (`demo: true` ile işaretli, "Demo sınıfını kaldır" ile izsiz silinir). Kategori içi
+  modlar sırayla (round-robin) oynatılır; böylece yolculuk haritası durakları kanonik sırada tamamlanır.
+- **Sınıf İlerlemesi → çocuk satırı → "📊 Gelişim paneli ve PDF":** oyun `child.initialScreen='dashboard'`
+  ile açılır (çocuk merkezi atlanır). Öğretmenin başlattığı oturumda Ayarlar ebeveyn kapısı sormaz (`directPlay=false`).
 - **Keşif Uçuşu:** Numap taraması olmayan çocuk için 8 maddelik başlangıç değerlendirmesi (sanal mod
   `calibration`, `CALIB_SEQ`); sonuç `ds_placement_<ns>` anahtarında ve roster kaydında (`placement.riskFlag`)
   tutulur, `resolveStartLevel` ilk düzeyi buna göre seçer; oyun istatistiğine/rozete yazılmaz.

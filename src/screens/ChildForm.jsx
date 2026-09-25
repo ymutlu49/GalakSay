@@ -162,6 +162,7 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
                   type="button"
                   onClick={() => setAgeGroup(g.key)}
                   aria-pressed={ageGroup === g.key}
+                  aria-label={`${g.label}${g.age ? ` (${g.age})` : ''}`}
                   style={{
                     padding: '12px 6px',
                     borderRadius: layout.borderRadius.md,
