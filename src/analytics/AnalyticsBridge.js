@@ -2,7 +2,7 @@
 // GalakSay Analytics — Ana uygulama ile analitik sistem arasındaki köprü
 // Bu modül mevcut GalakSay.jsx'e minimal müdahale ile analitik sistemi entegre eder.
 
-import { startSession, endSession, trackEvent, setChildId, flushEvents, createTimer } from './EventCollector.js';
+import { startSession, endSession, trackEvent, setChildId, createTimer } from './EventCollector.js';
 import { onSessionEnd } from './SummaryScheduler.js';
 import { openDB, saveChildProfile, getChildProfile } from './database.js';
 import { classifyAnswer } from '../utils/errorClassifier.js';
@@ -123,10 +123,7 @@ function beginGameSession(childId, metadata = {}) {
   _categoriesVisited = new Set();
   _moduleTimer = createTimer();
 
-  startSession(childId || 'default_child', {
-    ...metadata,
-    appVersion: '5.3.0',
-  });
+  startSession(childId || 'default_child', metadata); // appVersion EventCollector'da package.json'dan
 
   console.log('[GalakSay Analytics] Oturum başlatıldı');
 }

@@ -1,6 +1,10 @@
 // GalakSay Analytics — 2026-03-18 — Merkezi olay toplama modülü
 
 import { STORES, openDB, putBatch, putRecord } from './database.js';
+import pkg from '../../package.json';
+
+// Uygulama sürümü (package.json) — oturum/olay kayıtlarına yazılır (eski sürüm '5.3.0' sabitti).
+const APP_VERSION = pkg?.version || '0.0.0';
 
 let _sessionId = null;
 let _childId = null;
@@ -29,7 +33,7 @@ function startSession(childId, metadata = {}) {
     questionsCorrect: 0,
     categoriesVisited: [],
     deviceType: metadata.deviceType || detectDeviceType(),
-    appVersion: metadata.appVersion || '5.3.0',
+    appVersion: metadata.appVersion || APP_VERSION,
   };
 
   putRecord(STORES.SESSIONS, sessionRecord).catch(console.error);

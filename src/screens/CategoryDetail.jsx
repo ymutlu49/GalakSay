@@ -3,7 +3,7 @@
 // hint_completed olayına bağlı grafik yerine ipucu kademesi dağılımı + hata profili;
 // hata örnekleri okunur biçimde; tasarım jetonları.
 import React, { useEffect, useState } from 'react';
-import { getCategoryStats, getCommonErrors, getRepresentationDistribution, getResponseTimeTrend, getConsistency, getErrorProfile, getAnsweredEvents, MIN_ITEMS_CATEGORY } from '../analytics/PerformanceAnalyzer.js';
+import { getCategoryStats, getCommonErrors, getRepresentationDistribution, getResponseTimeTrend, getConsistency, getErrorProfile, getAnsweredEvents, MIN_ITEMS_CATEGORY, ERROR_TYPE_LABELS } from '../analytics/PerformanceAnalyzer.js';
 import { getCurrentLTLevels, LT_RANGES } from '../analytics/LTProgressEngine.js';
 import { CATEGORY_LABELS } from '../analytics/StrengthWeaknessMapper.js';
 import BarChartComponent from '../components/analytics/BarChartComponent.jsx';
@@ -181,7 +181,7 @@ export default function CategoryDetail({ childId, category, onBack }) {
               )}
               {data.errors.slice(0, 2).map((err, i) => (
                 <div key={i} style={{ marginTop: 8, padding: '6px 10px', background: 'rgba(248,113,113,0.08)', borderRadius: layout.borderRadius.sm }}>
-                  <div style={{ color: colors.accent.tertiary, fontSize: 11, fontWeight: 600 }}>Örnek — {err.errorType.replace(/_/g, ' ')}</div>
+                  <div style={{ color: colors.accent.tertiary, fontSize: 11, fontWeight: 600 }}>Örnek — {ERROR_TYPE_LABELS[err.errorType] || err.errorType.replace(/_/g, ' ')}</div>
                   {err.examples.slice(0, 1).map((ex, j) => (
                     <div key={j} style={{ color: colors.text.primary, fontSize: 12, overflowWrap: 'anywhere' }}>
                       Soru: {fmtQuestion(ex.question)} · Verilen: {ex.given ?? '—'} · Doğru: {ex.correct ?? '—'}
