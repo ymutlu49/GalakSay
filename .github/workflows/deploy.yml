@@ -26,7 +26,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # GitHub Pages yolu büyük/küçük harfe duyarlı: depo adı 'GalakSay' → base /GalakSay/
       - run: npm run build
+        env:
+          VITE_BASE: /GalakSay/
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -946,8 +946,10 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
               // Öğe-bazlı kaynak: Numap modundaki tek liste karışıktır (FAZ B) —
               // meta/rozet/düzenleme kartın kendi kaynağına göre belirlenir.
               const isLocalItem = c.source === 'local';
+              // Yerel çocukta düzey ve sınıf aynı bilgiyi taşıyorsa ("1. Sınıf • 1. sınıf") tek kez göster
+              const _ag = ageGroupLabel(c.ageGroup), _gr = gradeLabel(c.grade);
               const metaLine = isLocalItem
-                ? [ageGroupLabel(c.ageGroup), gradeLabel(c.grade)].filter(Boolean).join(' • ')
+                ? [_ag, _gr].filter(Boolean).filter((x, i, a) => a.findIndex((y) => y.toLocaleLowerCase('tr') === x.toLocaleLowerCase('tr')) === i).join(' • ')
                 : [ageLabel(c.ageMonths), gradeLabel(c.grade), dateLabel(c.savedAt)].filter(Boolean).join(' • ');
               const sub2 = isLocalItem ? '' : [c.school, c.city, genderLabel(c.gender)].filter(Boolean).join(' · ');
               return (
