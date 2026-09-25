@@ -16777,9 +16777,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                     fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: F,
                   }}>🏠 Menüye Dön</button>
                 </div>
-                <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 10 }}>
-                  ⏱️ {screenTimeMinutes} dakikadır oynuyorsun
-                </div>
+                {screenTimeMinutes >= 1 && (
+                  <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 10 }}>
+                    ⏱️ {screenTimeMinutes} dakikadır oynuyorsun
+                  </div>
+                )}
               </div>
             </div>
           )}
