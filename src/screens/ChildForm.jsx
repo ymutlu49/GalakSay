@@ -66,7 +66,7 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
   const handleDelete = useCallback(() => {
     if (!editing) return;
     const wipe = window.confirm(
-      `${child.name} profilini silmek istediğine emin misin?\n\n"Tamam" → profil ve bu cihazdaki tüm oyun verisi (ilerleme, istatistik, kayıtlar) kalıcı olarak silinir.`,
+      `${child.name} profilini silmek istediğinizden emin misiniz?\n\n"Tamam" → profil ve bu cihazdaki tüm oyun verisi (ilerleme, istatistik, kayıtlar) kalıcı olarak silinir.`,
     );
     if (!wipe) return;
     removeChild(child.ns, true); // KVKK: profil + ilerleme + IndexedDB kayıtları (sahipsiz PII kalmasın)
@@ -195,8 +195,8 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
             />
             <p style={{ fontSize: 11.5, color: colors.text.tertiary, fontFamily: F, margin: '6px 2px 0' }}>
               {editing
-                ? 'Boş bırakırsan mevcut şifre korunur. Şifre cihazda güvenli (hash) saklanır.'
-                : 'Boş bırakırsan çocuk şifresiz girer. Şifre, sınıfta çocukların birbirinin profilini açmasını önler.'}
+                ? 'Boş bırakırsanız mevcut şifre korunur. Şifre cihazda güvenli (hash) saklanır.'
+                : 'Boş bırakırsanız çocuk şifresiz girer. Şifre, sınıfta çocukların birbirinin profilini açmasını önler.'}
             </p>
             {editing && child?.pin && (
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: 12.5, fontWeight: 700, color: colors.text.secondary, fontFamily: F, cursor: 'pointer' }}>

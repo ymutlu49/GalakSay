@@ -282,7 +282,7 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
               NuMap girişi açılır, ardından otomatik buraya dönersiniz.
             </p>
             <button type="button" onClick={() => setShowPwForm((v) => !v)} style={linkBtnStyle}>
-              {showPwForm ? 'E-posta formunu gizle ▲' : 'E-posta ve şifreyle gir ▼'}
+              {showPwForm ? 'E-posta formunu gizle ▲' : 'E-posta ve şifreyle girin ▼'}
             </button>
             {showPwForm && (
               <>

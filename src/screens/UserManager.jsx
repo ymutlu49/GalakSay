@@ -38,8 +38,8 @@ export default function UserManager({ onBack }) {
   const handleDelete = useCallback((u) => {
     const n = listChildren(u.id).length;
     const msg = n > 0
-      ? `${u.name} kullanıcısını silmek istediğine emin misin?\n\nBu kullanıcının ${n} öğrencisi cihazda kalır (yalnız yönetici görebilir).`
-      : `${u.name} kullanıcısını silmek istediğine emin misin?`;
+      ? `${u.name} kullanıcısını silmek istediğinizden emin misiniz?\n\nBu kullanıcının ${n} öğrencisi cihazda kalır (yalnız yönetici görebilir).`
+      : `${u.name} kullanıcısını silmek istediğinizden emin misiniz?`;
     if (!window.confirm(msg)) return;
     removeUser(u.id);
     refresh();

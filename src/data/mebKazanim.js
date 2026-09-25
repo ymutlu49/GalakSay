@@ -64,14 +64,14 @@ export const MEB_KAZANIM = {
   groupCount:     { kod: "MAT.2.2.4", kazanim: "Çarpma ve bölme işlemlerini toplama ve çıkarma işlemlerine dayalı olarak çözümleyebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
   divisionBasic:  { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme (n÷1, n÷n, çarpmayı düşün)", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
   mulDivInverse:  { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin ilişkisini yorumlayabilme (ters ilişki)", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
-  katConcept:     { kod: "MAT.3.2.3", kazanim: "Çarpma işleminin kat kavramı ile ilişkisini fark edebilme", sinif: "3. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
+  katConcept:     { kod: "MAT.3.2.3", kazanim: "Çarpma işleminin kat kavramı ile ilişkisini fark edebilme", sinif: "3. Sınıf (uzatma)", alan: "İşlemlerden Cebirsel Düşünmeye" },
   timesTable:     { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
   halfDouble:     { kod: "MAT.2.2.5", kazanim: "Çarpma ve bölme işlemlerinin sonuçlarını muhakeme edebilme", sinif: "2. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
 
   // ─── v5.2 Yeni Modlar ─────────────────────────────────────────────────
   numbersInNumbers: { kod: "MAT.1.2.2", kazanim: "Toplama ve çıkarma işlemlerinin sonuçlarını tahminde bulunarak ve zihinden işlem yaparak muhakeme edebilme", sinif: "1. Sınıf", alan: "İşlemlerden Cebirsel Düşünmeye" },
   patternAB:     { kod: "MAT.1.1.6 / MAT.2.1.5", kazanim: "Artan veya azalan sayı ve şekil örüntülerini çözümleyebilme; tekrar eden desen, 4-elemanlı çekirdek (L5+)", sinif: "1-2. Sınıf", alan: "Sayılar ve Nicelikler" },
-  growingPattern:{ kod: "MAT.2.1.5 / MAT.3.1.7 / MAT.4.1.5", kazanim: "Sayı ve şekil örüntülerine dayalı çıkarım yapabilme; kuralı genelleyebilme (artan/azalan, değişken adım)", sinif: "2-4. Sınıf", alan: "Sayılar ve Nicelikler" },
+  growingPattern:{ kod: "MAT.2.1.5", kazanim: "Sayı ve şekil örüntülerine dayalı çıkarım yapabilme; kuralı genelleyebilme (artan/azalan; değişken adım L5+ uzatma)", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
   patternTranslate:{ kod: "MAT.2.1.5", kazanim: "Sayı ve sayı temsiline dönüşen şekil örüntülerine dayalı çıkarım yapabilme (çeviri/çekirdek)", sinif: "2. Sınıf", alan: "Sayılar ve Nicelikler" },
   counterFromN:  { kod: "MAT.1.1.5", kazanim: "100'e kadar ileriye ve 20'den geriye doğru ritmik sayabilme", sinif: "1. Sınıf", alan: "Sayılar ve Nicelikler" },
 };

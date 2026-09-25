@@ -29,7 +29,7 @@ const CATEGORY_ICON_MAP = {
 
 const PLANET_CONFIGS = {
   sayma:           { color: '#22d3ee', label: 'Sayma', x: 50, y: 15 },
-  subitizing:      { color: colors.feedback.hint, label: 'Subitizing', x: 20, y: 30 },
+  subitizing:      { color: colors.feedback.hint, label: 'Anlık Algılama', x: 20, y: 30 },
   karsilastirma:   { color: colors.accent.secondary, label: 'Karşılaştırma', x: 80, y: 28 },
   sayi_bilesimi:   { color: '#f472b6', label: 'Sayı Bileşimi', x: 15, y: 55 },
   basamak_degeri:  { color: colors.accent.orange, label: 'Basamak Değeri', x: 85, y: 52 },

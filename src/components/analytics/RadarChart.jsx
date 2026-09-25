@@ -4,7 +4,7 @@ import { Radar, RadarChart as RechartsRadar, PolarGrid, PolarAngleAxis, PolarRad
 
 const CATEGORY_LABELS = {
   sayma: 'Sayma',
-  subitizing: 'Subitizing',
+  subitizing: 'Anlık Algılama',
   karsilastirma: 'Karşılaştırma',
   sayi_bilesimi: 'Sayı Bileşimi',
   basamak_degeri: 'Basamak Değeri',

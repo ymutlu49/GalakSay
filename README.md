@@ -1,6 +1,6 @@
-# Galaksay — Diskalkuli için Uzay Temalı Matematik Oyunu
+# GalakSay — Diskalkuli için Uzay Temalı Matematik Oyunu
 
-Galaksay, diskalkuli riski taşıyan ve tipik gelişen okul öncesi / ilkokul çocukları için
+GalakSay, diskalkuli riski taşıyan ve tipik gelişen okul öncesi / ilkokul çocukları için
 öğrenme yörüngelerine (Clements–Sarama) dayalı, oyunlaştırılmış bir erken matematik
 müdahale uygulamasıdır. **Her Çocuk Matematik Öğrenebilir** platformunun oyun/müdahale
 ayağıdır; tarama ve profil NuMap'ten (getnumap.com), somut materyal DokunSay'dan gelir.
@@ -35,7 +35,7 @@ Ortam değişkenleri `.env.example` dosyasında; gerçek değerler `.env.local`'
 ```
 index.html            Kabuk: global CSS (uzay teması, erişilebilirlik sınıfları), HÇMÖ a11y widget'ı
 src/main.jsx          Giriş kapısı: splash → rıza → karşılama → öğrenci/öğretmen girişi → çocuk seçimi → oyun
-GalakSay.jsx          Oyun motoru (tek dosya): 59 mod, soru üretimi, adaptif zorluk, ipucu, TTS, hikâye, ödüller
+GalakSay.jsx          Oyun motoru (tek dosya): 65 mod (9 gezegen, `MODE_COUNT` ile hesaplanır), soru üretimi, adaptif zorluk, ipucu, TTS, hikâye, ödüller
 src/screens/          Karşılama, öğretmen girişi, öğrenci seçici, çocuk formu, sınıf paneli, ayarlar, galaksi haritası
 src/systems/          adaptiveEngine, hintManager, fluencyEngine, frustrationDetection, anxietyTracker, numapProfile
 src/data/             modeStories (TR/KU), ltTrajectories (yörünge eşlemesi), mebKazanim, numWords, wordProblemTemplates

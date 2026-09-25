@@ -186,6 +186,7 @@ export const CGI_TYPE_INFO = {
   ppwPartUnknown:         { op: "−", find: "part",   diff: 2, sinif: [1,2,3], kod: "MAT.1.2.3" },
   compareDiffUnknown:     { op: "−", find: "diff",   diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" },
   compareQuantityUnknown: { op: "+", find: "bigger", diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" },
+  compareQuantityUnknownLess: { op: "−", find: "result", diff: 2, sinif: [1,2,3], kod: "MAT.1.2.4" }, // a − b (daha az) — GalakSay.jsx CGI_TYPE_INFO ile aynı
   compareReferentUnknown: { op: "−", find: "smaller",diff: 3, sinif: [2,3],   kod: "MAT.2.2.1" },
   multiplyProductUnknown: { op: "×", find: "product",diff: 1, sinif: [2,3],   kod: "MAT.2.2.4" },
   multiplyGroupSizeUnknown:{op: "÷", find: "size",   diff: 2, sinif: [2,3],   kod: "MAT.2.2.4" },
@@ -208,6 +209,7 @@ export const CGI_LABELS_TR = {
   ppwPartUnknown:         "Parça-Bütün — Parça Bilinmiyor",
   compareDiffUnknown:     "Karşılaştırma — Fark Bilinmiyor",
   compareQuantityUnknown: "Karşılaştırma — Çokluk Bilinmiyor",
+  compareQuantityUnknownLess: "Karşılaştırma — Çokluk Bilinmiyor (daha az)",
   compareReferentUnknown: "Karşılaştırma — Referans Bilinmiyor",
   multiplyProductUnknown: "Eşit Gruplar — Çarpım Bilinmiyor",
   multiplyGroupSizeUnknown:"Eşit Paylaşma — Grup Büyüklüğü Bilinmiyor",
@@ -231,6 +233,7 @@ export const CGI_LABELS_KU = {
   ppwPartUnknown:         "Parçe-Giştî — Parçe Nediyar",
   compareDiffUnknown:     "Berhevkirin — Ferq Nediyar",
   compareQuantityUnknown: "Berhevkirin — Çendînî Nediyar",
+  compareQuantityUnknownLess: "Berhevkirin — Çendînî Nediyar (kêmtir)",
   compareReferentUnknown: "Berhevkirin — Referans Nediyar",
   multiplyProductUnknown: "Komên Wekhev — Carandok Nediyar",
   multiplyGroupSizeUnknown:"Parkirina Wekhev — Mezinahiya Komê Nediyar",
@@ -301,6 +304,13 @@ export const WORD_PROBLEM_TEMPLATES_KU = {
   compareQuantityUnknown: [
     { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} fîgurên wî/wê hene. ${n[1]} ${nw(b)} hên zêdetir hene. ${n[1]} çend fîgurên wî/wê hene?`,
       icon: "🧸", theme: "lîstik", obj: "fîgur" },
+  ],
+  // "kêmtir" varyantı — TR compareQuantityUnknownLess ile aynı yapı: cevap a − b
+  compareQuantityUnknownLess: [
+    { text: (a,b,_,n,nw) => `Di qutiya sor de ${nw(a)} top hene. Di qutiya şîn de ji wê ${nw(b)} top kêmtir hene. Di qutiya şîn de çend top hene?`,
+      icon: "📦", theme: "lîstik", obj: "top" },
+    { text: (a,b,_,n,nw) => `${n[0]} ${nw(a)} stîkerên wî/wê hene. Stîkerên ${n[1]} ji wan ${nw(b)} heb kêmtir in. ${n[1]} çend stîkerên wî/wê hene?`,
+      icon: "⭐", theme: "lîstik", obj: "stîker" },
   ],
   compareReferentUnknown: [
     { text: (_,b,c,n,nw) => `${n[0]} ${nw(c)} kevirên stêrkan yên wî/wê hene. Ew ji yên ${n[1]} ${nw(b)} heb zêdetir e. ${n[1]} çend kevirên stêrkan yên wî/wê hene?`,

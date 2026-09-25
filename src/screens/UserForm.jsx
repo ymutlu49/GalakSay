@@ -74,7 +74,7 @@ export default function UserForm({ user = null, onSave, onCancel }) {
   const handleDelete = useCallback(() => {
     if (!editing) return;
     const ok = window.confirm(
-      `${user.name} kullanıcısını silmek istediğine emin misin?\n\nBu kullanıcının öğrencileri cihazda kalır (yalnız yönetici görebilir).`,
+      `${user.name} kullanıcısını silmek istediğinizden emin misiniz?\n\nBu kullanıcının öğrencileri cihazda kalır (yalnız yönetici görebilir).`,
     );
     if (!ok) return;
     removeUser(user.id);

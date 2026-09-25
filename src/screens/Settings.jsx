@@ -241,7 +241,7 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
               onSuccess?.();
             });
           } else {
-            setError('PIN eşleşmedi, tekrar dene');
+            setError('PIN eşleşmedi, tekrar deneyin');
             setPin(['', '', '', '']);
             setConfirmPin(null);
             setTimeout(() => inputRefs[0].current?.focus(), 100);
@@ -273,7 +273,7 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
 
   const title = mode === 'setup'
     ? (confirmPin ? 'PIN Onayla' : 'Yeni PIN Belirle')
-    : 'Dashboard PIN';
+    : 'Gelişim Paneli PIN\'i';
 
   return (
     <Modal open={open} onClose={onClose} title={title}>
@@ -287,7 +287,7 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
       }}>
         <p style={{ color: colors.text.secondary, fontSize: 14, textAlign: 'center', margin: 0 }}>
           {mode === 'setup'
-            ? (confirmPin ? 'Aynı PIN kodunu tekrar gir' : '4 haneli bir PIN kodu belirle')
+            ? (confirmPin ? 'Aynı PIN kodunu tekrar girin' : '4 haneli bir PIN kodu belirleyin')
             : '4 haneli PIN kodunu gir'}
         </p>
         <div style={{ display: 'flex', gap: 12 }}>
@@ -609,7 +609,7 @@ export function Settings({ onClose, onOpenDashboard, version = APP_VERSION }) {
 
         {/* Ebeveyn/Öğretmen Erişimi */}
         <Section icon={'\uD83D\uDD12'} title="Ebeveyn/Öğretmen Erişimi">
-          <SettingLink label="Dashboard erişimi (PIN)" onClick={handleDashboardAccess} last />
+          <SettingLink label="Gelişim Paneli erişimi (PIN)" onClick={handleDashboardAccess} last />
         </Section>
 
         {/* PIN Giriş Dialogu */}
@@ -667,7 +667,7 @@ export function Settings({ onClose, onOpenDashboard, version = APP_VERSION }) {
             color: colors.text.tertiary,
             textAlign: 'center',
           }}>
-            © Galaksay — MEB 2024 Türkiye Yüzyılı Maarif Modeli Uyumlu
+            © GalakSay — MEB 2024 Türkiye Yüzyılı Maarif Modeli Uyumlu
           </div>
         </Section>
 

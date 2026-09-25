@@ -26,7 +26,9 @@ import { galaxyCorrect, galaxyStreak, setFeedbackLang } from "./src/data/feedbac
 const DashboardScreen = React.lazy(() => import("./src/screens/Dashboard.jsx"));
 const SpaceMapScreen = React.lazy(() => import("./src/screens/SpaceMap.jsx"));
 const NuMapScreen = React.lazy(() => import("./src/screens/NuMapComparison.jsx"));
-import { CATEGORIES, gmi, getCategories, setCatLang } from "./src/data/categories.js";
+import { CATEGORIES, MODE_COUNT, gmi, getCategories, setCatLang } from "./src/data/categories.js";
+// Kullanıcıya görünen sürüm etiketi — tek kaynak (Hakkında, giriş alt bilgisi)
+const APP_VERSION = "5.9";
 import { generateWordProblemKu } from "./src/data/wordProblemTemplates.js";
 import { LEARN_CONTENT_KU } from "./src/data/learnContent.js";
 
@@ -1083,7 +1085,7 @@ const TTS = {
       multiplyVisual: `${q.a} çarpı ${q.b} kaç eder?`,
       arrayDots: `${q.rows} satır, ${q.cols} sütun. Toplam kaç?`,
       equalShare: `${q.total} taneyi ${q.groups} gruba eşit paylaştır. Her grupta kaç?`,
-      groupCount: `${q.total} taneyi ${q.perGroup}'${q.perGroup > 5 ? "ar" : "er"} gruplara ayır. Kaç grup?`,
+      groupCount: `${q.total} taneyi ${numDist(q.perGroup)} gruplara ayır. Kaç grup?`,
       halfDouble: q.subType === "half" ? `${trGen(q.number)} yarısı kaçtır?` : `${trGen(q.number)} iki katı kaçtır?`,
       patternAB: `Tekrar eden desendeki eksik parçayı bul!`,
     };
@@ -1898,37 +1900,20 @@ const _kuHint = (s) => {
 // ═══ KU SUB sözlüğü — sabit (interpolasyonsuz) soru-altı yönerge metinleri için ═══
 // SUB component (KU): _KU_SUB[children] varsa KU göster, yoksa null (interpolated/kapsamadışı SUB'lar TR sızdırmaz; inkremental).
 const _KU_SUB = {
-  "Yerleştir ve hedef sayıya ulaş!": "Bi cî bike û bigihîje hejmara armanc!",
+  // Yalnız canlı (GalakSay.jsx'te <SUB> ile sabit metin olarak geçen) yönergeler — 2026-09-25 denetimi: 24 ölü anahtar kaldırıldı
   "İki taraf aynı miktardır!": "Her du alî heman mîqdar in!",
-  "Dolu kutuları say!": "Qutiyên tijî bijmêre!",
-  "Üst sıra 5, alt sırayı ekle!": "Rêza jor 5, rêza jêr lê zêde bike!",
-  "Sol 10 + sağdakileri say!": "Çepê 10 + yên rastê bijmêre!",
-  "En büyükten en küçüğe sırala!": "Ji mezin bo biçûk rêz bike!",
-  "En küçükten en büyüğe sırala!": "Ji biçûk bo mezin rêz bike!",
-  "Uzunluğuna bakarak tahmin et!": "Li gorî dirêjahiyê texmîn bike!",
-  "Sayıyı doğru konuma yerleştir!": "Hejmarê li cihê rast bi cî bike!",
-  "İki taraf eşit mi? ⚖️": "Her du alî wekhev in? ⚖️",
   "Bilinen kapsülle karşılaştır!": "Bi kapsula naskirî re berhev bike!",
-  "Hizala ve farkı bul!": "Hev-rêz bike û ferqê bibîne!",
-  "Ters işlemi bul! 🔄": "Kiryara berevajî bibîne! 🔄",
-  "Bir önceki sayı = 1 eksik": "Hejmara berê = 1 kêm",
-  "Bir sonraki sayı = 1 fazla": "Hejmara pêş = 1 zêde",
-  "Ortadaki sayıyı bulmak için sırayla say!": "Ji bo hejmara navîn, bi rêz bijmêre!",
   "Yıldız taşlarını tek tek say!": "Kevirên stêrkan yek bi yek bijmêre!",
-  "Farklı gösterimleri karşılaştır!": "Nîşandanên cuda berhev bike!",
-  "Az mı, eşit mi, çok mu?": "Kêm e, wekhev e, an zêde ye?",
   "Dizilişe aldanma — say!": "Bi rêzkirinê nexapî — bijmêre!",
   "İyi bak — sayı değişti mi?": "Baş binêre — hejmar guherî?",
-  "Yarıla: eşit iki gruba böl!": "Nîv bike: li du komên wekhev par bike!",
-  "İkile: toplam kaç?": "Du car bike: bi giştî çend?",
-  "Onluk ve birlik basamağını oku!": "Mertebeya dehek û yekekan bixwîne!",
-  "Onluk kapsüllerini say!": "Kapsulên dehekan bijmêre!",
   "Onluk + birlik = toplam!": "Dehek + yekek = giştî!",
-  "Kapsülleri seç ve karıştır!": "Kapsulan hilbijêre û tev bike!",
-  "Eksik sayıyı bul! ⚖️": "Hejmara winda bibîne! ⚖️",
-  "Deseni tamamla!": "Nimûneyê temam bike!",
-  "Eksik parçayı bul!": "Perçeya winda bibîne!",
   "Birer birer say!": "Yek bi yek bijmêre!",
+  "Sırayla say": "Bi rêz bijmêre",
+  "Eşit ikiye böl": "Bike du parçeyên wekhev",
+  "Saymaya çalışma, tahmin et!": "Hewl nede bijmêrî, texmîn bike!",
+  "10'arlı grupla": "Bi dehan kom bike",
+  "Onlukların değeri kaç?": "Nirxa dehekan çend e?",
+  "Sadece bir tekrarı yaz": "Tenê dubareyekê binivîse",
 };
 // İnterpolated (sayı-gömülü) SUB kalıpları — children array → birleştirilmiş string'e uygulanır
 const _KU_SUB_RULES = [
@@ -1945,6 +1930,7 @@ const _KU_SUB_RULES = [
   [/^(\d+)['’]den (\d+)['’]er çıkar — kaç kez\?$/, "ji $1'î bi $2'an kêm bike — çend caran?"],
   [/^Toplamı (\d+) yapan ikililer!?$/, "Cotên ku bi giştî $1 dikin!"],
   [/^(\d+) farklı bölme yolu bul!?$/, "$1 awayên cuda yên parkirinê bibîne!"],
+  [/^(\d+) farklı yol$/, "$1 rêyên cuda"],
   [/^soldan başlayarak say:.*$/, "ji çepê dest pê bike bijmêre: yekem, duyem, sêyem..."],
   [/^sağdan başlayarak say:.*$/, "ji rastê dest pê bike bijmêre: yekem, duyem, sêyem..."],
   [/Referans küme: (\d+) yıldız taşı\. Büyük grupta kaç tane\?/, "Koma referansê: $1 kevirên stêrkan. Di koma mezin de çend heb?"],
@@ -1995,7 +1981,7 @@ const PREMIUM = {
   ],
   tiers: [
     { name: "Ücretsiz", price: "₺0", features: "20 mod, temel raporlar, günlük görevler", color: "#a8b2d1" },
-    { name: "Aile", price: "₺99/ay", features: "61 mod, AI rapor, diskalkuli, koleksiyon", color: "#7c3aed" },
+    { name: "Aile", price: "₺99/ay", features: `${MODE_COUNT} mod, AI rapor, diskalkuli, koleksiyon`, color: "#7c3aed" },
     { name: "Okul", price: "₺49/öğrenci/yıl", features: "Tüm modlar, toplu analiz, MEB eşleme", color: "#8b5cf6" },
   ],
 };
@@ -2155,15 +2141,15 @@ const LEARN_CONTENT = {
       },
       {
         title: "Bir Fazla, Bir Eksik",
-        text: "5 yıldız taşlı enerji kapsülüne bak — her yıldız taşının üstünde sıra numarası var. 5'in bir öncesi 4, bir sonrası 6'dır. Yeşil sayı yıldız taşları hangi sırada olduğunu gösterir. Her sayının bir komşusu vardır!",
+        text: "5 yıldız taşlı enerji kapsülüne bak — her yıldız taşının üstünde sıra numarası var. 5'in bir öncesi 4, bir sonrası 6'dır. Yeşil sayılar, yıldız taşlarının hangi sırada olduğunu gösterir. Her sayının bir komşusu vardır!",
         tts: "Beşin bir öncesi dört, bir sonrası altı! Yeşil yıldız taşları sırayı gösterir.",
         visual: "successorPredecessor", rodCount: 5,
         note: "Bir yıldız taşı eklemek veya çıkarmak, toplama ve çıkarma öğrenmenin ilk adımıdır."
       },
       {
-        title: "Sanbil: Saymadan Tanıma",
-        text: "Zarın üstündeki noktaları saymadan kaç tane olduğunu bilirsin! Küçük sayıları bir bakışta tanımaya 'sanbil' denir. 1, 2, 3 ve 4 yıldız taşlı enerji kapsüllerini saymadan tanımayı dene!",
-        tts: "Yıldız taşlarına kısa süre bak ve kaç tane olduğunu hızlıca söyle! Buna sanbil denir.",
+        title: "Anlık Algılama: Saymadan Tanıma",
+        text: "Zarın üstündeki noktaları saymadan kaç tane olduğunu bilirsin! Küçük sayıları bir bakışta tanımaya 'anlık algılama' denir. 1, 2, 3 ve 4 yıldız taşlı enerji kapsüllerini saymadan tanımayı dene!",
+        tts: "Yıldız taşlarına kısa süre bak ve kaç tane olduğunu hızlıca söyle! Buna anlık algılama denir.",
         visual: "subitizing", examples: [2, 3, 4, 5],
         note: "Küçük miktarları saymadan bir bakışta tanı!"
       },
@@ -2197,7 +2183,7 @@ const LEARN_CONTENT = {
       {
         title: "İki Grubu Karşılaştır",
         text: "İki grup yıldız taşını karşılaştırmak için onları alt alta koy. Her yıldız taşını birer birer eşle. Eşi kalmayan tarafta daha çok yıldız taşı vardır!",
-        tts: "İki grubu yan yana koy. Her yıldız taşını birer birer eşle. Eşi kalmayanlar fazlalıktır!",
+        tts: "İki grubu alt alta koy. Her yıldız taşını birer birer eşle. Eşi kalmayanlar fazlalıktır!",
         visual: "compare",
         pairs: [{ a: 3, b: 5, answer: "5 > 3 → 2 fazla" }, { a: 4, b: 4, answer: "4 = 4 → eşit" }],
         note: "Kapsülleri alt alta koy — hangisi uzunsa o daha çok!"
@@ -2314,8 +2300,8 @@ const LEARN_CONTENT = {
         note: "Sayı bağları: Bir sayıyı oluşturan parça çiftlerini bilmek işlemleri hızlandırır."
       },
       {
-        title: "5'lik Kart",
-        text: "5'lik kart 5 kutuluk bir çerçevedir. Yıldız taşlarını kutulara yerleştir. Dolu kutu sayısı kadar yıldız taşı var! 3 yıldız taşı koyarsan 2 kutu boş kalır → 5'e 2 eksik.",
+        title: "5'lik Çerçeve",
+        text: "5'lik çerçeve 5 kutudan oluşur. Yıldız taşlarını kutulara yerleştir. Dolu kutu sayısı kadar yıldız taşı var! 3 yıldız taşı koyarsan 2 kutu boş kalır → 5'e 2 eksik.",
         tts: "Beşlik çerçeveye yıldız taşlarını yerleştir. Kaç dolu, kaç boş?",
         visual: "fivesFrameLearn", examples: [2, 3, 5],
         note: "5'lik çerçeve, bakarak tanımayı güçlendirir ve 5'e tamamlama stratejisini somutlaştırır."
@@ -2607,7 +2593,7 @@ const LEARN_CONTENT = {
         text: "5 ile çarpmak için 5'er ritmik say: 5, 10, 15, 20... 10 ile çarpmak daha da kolay: sayının sonuna sıfır ekle! İkiler, beşler ve onlar çarpım tablosunun yarısından çoğunu kapsar!",
         tts: "Beşer ritmik say: beş, on, on beş, yirmi. On ile çarp: sonuna sıfır ekle!",
         visual: "skipCountLearn", step: 10, count: 5,
-        note: "×2, ×5, ×10 temel gerçekleridir — diğer gerçekleri türetmek için anchor olarak kullanılır."
+        note: "×2, ×5, ×10 temel gerçekleridir — diğer gerçekleri türetmek için dayanak olarak kullanılır."
       },
       {
         title: "Dizi Modeli: Satır ve Sütun",
@@ -2734,8 +2720,8 @@ const LEARN_CONTENT = {
   // Pedagojik yaklaşım: Sayı bağları (number bonds), esneklik
   // ═══════════════════════════════════════════════════════════════════════════
   level6: {
-    title: "⚡ Desen Şifresi",
-    subtitle: "Gizli düzenleri çöz",
+    title: "⚡ Bağlantı Şarjı",
+    subtitle: "Parça-bütün, eksik sayı ve fark",
     icon: "⚡",
     color: "#0891b2",
     steps: [
@@ -2785,7 +2771,7 @@ const LEARN_CONTENT = {
       },
       {
         title: "Tahmin Etme",
-        text: "Her zaman saymamız gerekmez! DokunSay kapsülündeki yıldız taşlarıa bakarak miktarı tahmin et. '5'ten az mı, fazla mı?' Mavi-kırmızı renk ayrımı sana ipucu verir.",
+        text: "Her zaman saymamız gerekmez! DokunSay kapsülündeki yıldız taşlarına bakarak miktarı tahmin et. '5'ten az mı, fazla mı?' Mavi-kırmızı renk ayrımı sana ipucu verir.",
         tts: "Beşten az mı, fazla mı? Ona yakın mı? Referans noktalarıyla tahmin et!",
         visual: "estimateLearn", examples: [3, 7, 11, 5],
         note: "Yaklaşık olarak nerede olduğunu tahmin et!"
@@ -2813,23 +2799,23 @@ const LEARN_CONTENT = {
   // ═══════════════════════════════════════════════════════════════════════════
   level7: {
     title: "⚡ Şimşek Şarjı",
-    subtitle: "Hızlı tanıma gücünü yükle",
+    subtitle: "Anlık algılama gücünü yükle",
     icon: "⚡",
     color: "#c026d3",
     steps: [
       {
         title: "Bir Bakışta Tanıma",
-        text: "Zarın üzerindeki 3 noktayı saymadan tanıyabilirsin! Küçük miktarları bir bakışta tanımaya 'sanbil' denir. Bu beceri pratikle gelişir.",
+        text: "Zarın üzerindeki 3 noktayı saymadan tanıyabilirsin! Küçük miktarları bir bakışta tanımaya 'anlık algılama' denir. Bu beceri pratikle gelişir.",
         tts: "Yıldız taşlarına kısa süre bak. Saymadan kaç tane olduğunu bul!",
         visual: "subitizingLearn", examples: [2, 3, 4],
-        note: "Sanbil: 1-4 arası miktarları saymadan bir bakışta tanıma."
+        note: "Anlık algılama: 1-4 arası miktarları saymadan bir bakışta tanıma."
       },
       {
         title: "Gruplar Halinde Tanıma",
         text: "7 yıldız taşını tek tek saymak yavaştır. Ama '5 ve 2' olarak görürsen hemen tanırsın! Büyük miktarları küçük gruplara bölerek tanımaya 'kavramsal hızlı tanıma' denir.",
         tts: "Yediyi beş ve iki olarak gör. Gruplar halinde tanımak hızlı!",
         visual: "subitizingLearn", examples: [5, 6, 7, 8],
-        note: "Büyük sayılarda sanbil: Parçaları ayrı ayrı tanı, sonra birleştir."
+        note: "Büyük sayılarda anlık algılama: Parçaları ayrı ayrı tanı, sonra birleştir."
       },
       {
         title: "Renk Gruplaması",
@@ -2918,7 +2904,7 @@ const LEARN_CONTENT = {
         note: "10 yıldız taşını tek tek saymak yerine bir grup olarak görmek önemlidir."
       },
       {
-        title: "Sayı Çubuğu ile Onluk",
+        title: "Enerji Kapsülü ile Onluk",
         text: "DokunSay kapsülünde 10 yıldız taşı varsa bu bir onluktur. 10 yıldız taşının hepsi bir arada: tam bir onluk kapsül! Onluk kapsülü bir bütün olarak düşün.",
         tts: "Sayı kapsülünde on yıldız taşı: tam bir onluk! On yıldız taşını bir grup olarak gör.",
         visual: "pvRodLearn", examples: [13, 27, 35],
@@ -2986,9 +2972,9 @@ const LEARN_CONTENT = {
 // CATEGORIES + gmi → src/data/categories.js'den import edildi (refactor 2026-04-27)
 const _CATEGORIES_REMOVED_PLACEHOLDER = {
   level1: { modes: {
-    matching:      { n: "Yıldız Eşle!",    i: "🎯", d: "Rakamı çoklukla eşle (bire-bir)",       c: C.green },
-    quantityMatch: { n: "Göktaşı Eşle!",  i: "🎲", d: "Rakamı doğru çoklukla eşle",             c: "#0891b2" },
-    counting:      { n: "Göktaşı Say!",    i: "🔢", d: "Tek tek sayarak toplamı bul",             c: C.blue },
+    matching:      { n: "Yıldız Eşle!",    i: "🎯", d: "Rakamı çoklukla eşle (birebir)",       c: C.green },
+    quantityMatch: { n: "Yıldız Taşı Eşle!", i: "🎲", d: "Rakamı doğru çoklukla eşle",             c: "#0891b2" },
+    counting:      { n: "Yıldız Taşı Say!", i: "🔢", d: "Tek tek sayarak toplamı bul",             c: C.blue },
     buildNumber:   { n: "Yıldız Taşı Diz!",    i: "🔨", d: "İstenen sayı kadar yıldız taşı yerleştir",        c: "#d97706" },
     ordinalCount:  { n: "Sıra Keşfi!",    i: "🏅", d: "Kaçıncı sırada? Sıra sayısını bul",       c: "#16a34a" },
     backwardCount: { n: "Geri Sayım!",     i: "⏪", d: "Geriye doğru ritmik say (20'ye kadar)",    c: "#e11d48" },
@@ -3001,12 +2987,12 @@ const _CATEGORIES_REMOVED_PLACEHOLDER = {
   // ── KAT2: SANBİL — Subitizing Trajectory (12 düzey) ──────────────────────
   // ltLevel sırası: Perceptual(5-6) → Conceptual(8) → Büyük Koleksiyon Tahmini(9)
   level2: { name: "⚡ Şimşeron", desc: "Bir bakışta gör, şimşek hızında!", learnKey: "level7", modes: {
-    fivesFrame:    { n: "Beşli Radar",     i: "5️⃣", d: "5'lik çerçevede miktarı bir bakışta söyle",  c: "#4f46e5" },
+    fivesFrame:    { n: "Beşlik Radar",     i: "5️⃣", d: "5'lik çerçevede miktarı bir bakışta söyle",  c: "#4f46e5" },
     subitizing:    { n: "Işık Hızı!",      i: "⚡", d: "Saymadan bir bakışta miktarı söyle",         c: "#7c3aed" },
-    tensFrame:     { n: "Onlu Radar",      i: "🔟", d: "10'luk çerçevede miktarı bir bakışta tanı", c: "#7c3aed" },
+    tensFrame:     { n: "Onluk Radar",      i: "🔟", d: "10'luk çerçevede miktarı bir bakışta tanı", c: "#7c3aed" },
     chipGuess:     { n: "Uzay Hafızası",   i: "👀", d: "Yıldız taşlarını bir bakışta gör ve hatırla",     c: "#7c3aed" },
     rodBack:       { n: "Hafıza Şimşeği",  i: "🔄", d: "Farklı gösterimleri bir bakışta gör ve hatırla",        c: "#b45309" },
-    doubleTensFrame:{ n: "Çift Onlu Radar",i: "🔟🔟",d: "Çift 10'luk çerçevede 11-20 arası miktarı bul", c: "#6d28d9" },
+    doubleTensFrame:{ n: "Çift Onluk Radar",i: "🔟🔟",d: "Çift 10'luk çerçevede 11-20 arası miktarı bul", c: "#6d28d9" },
     estimateCount: { n: "Galaktik Tahmin", i: "🎯", d: "Gruptaki nesne sayısını tahmin et",          c: "#b45309" },
   }},
 
@@ -3028,10 +3014,10 @@ const _CATEGORIES_REMOVED_PLACEHOLDER = {
   // ltLevel sırası: Composer to 5(4) → to 7-10(5-6) → Composer to 10(6) → Numbers-in-Numbers(9)
   level4: { name: "🧱 Bileşya", desc: "Sayı bağlarını keşfet!", learnKey: "level3", modes: {
     makeFive:         { n: "5 Yıldız Taşı Topla!",  i: "✋", d: "5'in sayı bağını bul",                  c: "#6d28d9" },
-    partWhole:        { n: "Parça-Bütün Puzzle", i: "🧩", d: "Eksik parçayı bul",                    c: C.purple },
+    partWhole:        { n: "Parça-Bütün Yapbozu", i: "🧩", d: "Eksik parçayı bul",                    c: C.purple },
     makeTen:          { n: "10 Yıldız Taşı Topla!", i: "🎯", d: "10'un arkadaşını bul",                  c: "#059669" },
     numbersInNumbers: { n: "Sayı Galaksisi",    i: "🔢", d: "Bir sayıyı oluşturan ikiliyi bul", c: "#6d28d9" },
-    spaceKitchen:     { n: "Uzay Mutfağı",      i: "🧪", d: "Rod'ları sürükle, hedef sayıyı oluştur — birden fazla çözüm!", c: "#b45309" },
+    spaceKitchen:     { n: "Uzay Mutfağı",      i: "🧪", d: "Kapsülleri sürükle, hedef sayıyı oluştur — birden fazla çözüm!", c: "#b45309" },
     rodSplit:         { n: "İkili Görev",        i: "✂️", d: "Kapsülü kes, tüm bölme yollarını keşfet!", c: "#7c2d12" },
   }},
 
@@ -3096,10 +3082,10 @@ const JOURNEY_PATHS = {
   okuloncesi: {
     label: "Okul Öncesi (5-6 yaş)",
     emoji: "🌱",
-    desc: "Sayma → Sanbil → Karşılaştırma → Bileşim → İlk İşlemler",
+    desc: "Sayma → Anlık Algılama → Karşılaştırma → Bileşim → İlk İşlemler",
     stops: [
       { id: "s1", title: "İlk Yıldızlar",      emoji: "🔢", modes: ["counting", "quantityMatch"],        learn: "level1", unlockReq: null },
-      { id: "s2", title: "Şimşek Bakışı",       emoji: "⚡", modes: ["subitizing", "fivesFrame"],          learn: "level1", unlockReq: { gamesMin: 2, accMin: 50 } },
+      { id: "s2", title: "Şimşek Bakışı",       emoji: "⚡", modes: ["subitizing", "fivesFrame"],          learn: "level7", unlockReq: { gamesMin: 2, accMin: 50 } },
       { id: "s3", title: "Kozmik Terazi",        emoji: "⚖️", modes: ["matching", "comparison", "lessMoreEqual"], learn: "level2", unlockReq: { gamesMin: 2, accMin: 50 } },
       { id: "s4", title: "Yörünge Komşuları",    emoji: "↔️", modes: ["ordering", "beforeAfter", "counterFromN", "ordinalCount"], learn: "level2", unlockReq: { gamesMin: 2, accMin: 55 } },
       { id: "s5", title: "5 Yıldız Taşı Kapısı",     emoji: "🖐️", modes: ["buildNumber", "fiveMore", "makeFive", "spaceKitchen"], learn: "level3", unlockReq: { gamesMin: 3, accMin: 55 } },
@@ -3112,7 +3098,7 @@ const JOURNEY_PATHS = {
   sinif1: {
     label: "1. Sınıf (6-7 yaş)",
     emoji: "📚",
-    desc: "Sayma → Sanbil → Bileşim → Toplama-Çıkarma → Örüntü → Tahmin",
+    desc: "Sayma → Anlık Algılama → Bileşim → Toplama-Çıkarma → Örüntü → Tahmin",
     stops: [
       { id: "s1", title: "Yıldız Keşfi",       emoji: "🔢", modes: ["counting", "subitizing", "quantityMatch", "ordinalCount"], learn: "level1", unlockReq: null },
       { id: "s2", title: "Radar Okuma",         emoji: "🔟", modes: ["fivesFrame", "tensFrame", "doubleTensFrame"], learn: "level3", unlockReq: { gamesMin: 2, accMin: 50 } },
@@ -3171,9 +3157,9 @@ const JOURNEY_PATHS = {
 
 // ═══ YOLCULUK — KÜRTÇE (KURMANCÎ) çeviriler (durak başlıkları + dünya ad/açıklama) ═══
 const JOURNEY_KU = {
-  okuloncesi: { label: "Berî Dibistanê (5-6 sal)", desc: "Jimartin → Sanbîl → Berhevkirin → Pêkanîn → Kirarên Ewil",
+  okuloncesi: { label: "Berî Dibistanê (5-6 sal)", desc: "Jimartin → Tavilzanîn → Berhevkirin → Pêkanîn → Kirarên Ewil",
     stops: { s1: "Stêrkên Ewil", s2: "Nêrîna Birûskê", s3: "Mêzîna Kozmîk", s4: "Cîranên Gerîngehê", s5: "Deriyê 5 Kevirên Stêrkan", s6: "Hêzê Yek Bike!", s7: "Enerjiyê Veqetîne!", s8: "Xapandina Kozmîk", s9: "Nebula Bîrê" } },
-  sinif1: { label: "Pola 1 (6-7 sal)", desc: "Jimartin → Sanbîl → Pêkanîn → Zêdekirin-Kêmkirin → Nimûne → Texmîn",
+  sinif1: { label: "Pola 1 (6-7 sal)", desc: "Jimartin → Tavilzanîn → Pêkanîn → Zêdekirin-Kêmkirin → Nimûne → Texmîn",
     stops: { s1: "Keşfa Stêrkan", s2: "Xwendina Radarê", s3: "Dûeloya Gerstêrkan", s4: "Avahiya Kevirên Stêrkan", s5: "Hêzê Yek Bike!", s6: "Enerjiyê Veqetîne!", s7: "Erkê Çareser Bike!", s8: "Girêdanê Saz Bike", s9: "Nimûneya Galaktîk", s10: "Ji Gerîngehê Bijmêre!", s11: "Texmîna Galaktîk", s12: "Nebula Hişê" } },
   sinif2: { label: "Pola 2 (7-8 sal)", desc: "Mertebe → Kirar → Carkirin-Parkirin → Pirsgirêka Sozdar → Nimûne",
     stops: { s1: "Destpêka Bilez", s2: "Dûeloya Gerstêrkan", s3: "Qatên Merteba", s4: "Hêz & Enerjî", s5: "Tora Girêdanê", s5b: "Nimûneya Galaktîk", s6: "Bingeha Carkirinê", s7: "Hêza Carkirinê!", s8: "Parvekirina Galaktîk!", s9: "Erkê Çareser Bike!", s10: "Texmîna Kozmîk", s11: "Nebula Hişê" } },
@@ -3255,7 +3241,7 @@ const GALAXY_THEME = {
       strong: "Sen artık bir Sayalon kaşifisin! Nehirler senin saymanla akıyor. 🌊",
       master: "Sayalon'un Büyük Nehri senin adını fısıldıyor! Efsanevi kaşif! 🏆",
     },
-    trajectoryLabel: "Sözel Sayma → Nesneden Sayma → Sonuçsal Sayma → Sayma Stratejileri",
+    trajectoryLabel: "Sözel Sayma → Nesne Sayma → Kardinal Sayma → Sayma Stratejileri",
   },
   level2: {
     planet: "Şimşeron", emoji: "⚡", color: "#7c3aed", orbit: "#7c3aed50",
@@ -3277,7 +3263,7 @@ const GALAXY_THEME = {
       strong: "Şimşeron'un yarısı aydınlandı! Sen bir ışık ustasısın! 💡",
       master: "Şimşeron tamamen parlıyor! Galaksinin en hızlı gözü senin! 🌟",
     },
-    trajectoryLabel: "Algısal Sanbil → Kavramsal Sanbil → Yapılandırılmış Sanbil",
+    trajectoryLabel: "Algısal Anlık Algılama → Kavramsal Anlık Algılama → Yapılandırılmış Anlık Algılama",
   },
   level3: {
     planet: "Terazya", emoji: "⚖️", color: "#dc2626", orbit: "#dc262650",
@@ -3335,7 +3321,7 @@ const GALAXY_THEME = {
     missionBriefs: [
       "10 birliği bir onluk olarak oluştur! Basamara'nın temeli bu!",
       "Sayının genişletilmiş formunu bul — onluklar ayrı, birlikler ayrı!",
-      "Onluk enerji kapsülleri ve birlik yıldız taşları birleştir — hangi sayı oluşur?",
+      "Onluk enerji kapsülleri ve birlik yıldız taşlarını birleştir — hangi sayı oluşur?",
     ],
     progressMsgs: {
       first: "Basamara'da ilk piramit temeli atıldı! Katman mutlulukla mırıldanıyor. 🐱",
@@ -3454,7 +3440,7 @@ const GALAXY_THEME_KU = {
       strong: "Nîvê Birûskonê ronî bû! Tu hostayê ronahiyê yî! 💡",
       master: "Birûskon bi tevahî diçirise! Çavê herî bilez ê galaksiyê yê te ye! 🌟",
     },
-    trajectoryLabel: "Sanbila Têgihiştinê → Sanbila Têgehî → Sanbila Avahîdar",
+    trajectoryLabel: "Tavilzanîna Têgihiştinê → Tavilzanîna Têgehî → Tavilzanîna Avahîdar",
   },
   level3: {
     planet: "Mêzînya", crystalName: "Kevirê Stêrkê yê Hevsengiyê", guideName: "Mêzînvan",
@@ -5035,7 +5021,7 @@ const BADGES = [
   { id: "explorer5",   emoji: "🔭", name: "Kaşif",              desc: "5 farklı mod dene",           check: s => Object.keys(s.modeStats).length >= 5 },
   { id: "explorer15",  emoji: "🗺️", name: "Gezgin",            desc: "15 farklı mod dene",          check: s => Object.keys(s.modeStats).length >= 15 },
   { id: "explorer30",  emoji: "🌍", name: "Dünya Gezgini",      desc: "30 farklı mod dene",          check: s => Object.keys(s.modeStats).length >= 30 },
-  { id: "allModes",    emoji: "🎪", name: "Festival!",          desc: "53 modun hepsini dene",       check: s => Object.keys(s.modeStats).length >= 53 },
+  { id: "allModes",    emoji: "🎪", name: "Festival!",          desc: "Tüm modları dene",            check: s => Object.keys(s.modeStats).length >= MODE_COUNT },
   { id: "score500",    emoji: "⭐", name: "Yıldız Toplayıcı",   desc: "500 toplam puan kazan",       check: s => s.totalScore >= 500 },
   { id: "score2000",   emoji: "🌟", name: "Süper Yıldız",       desc: "2000 toplam puan kazan",      check: s => s.totalScore >= 2000 },
   { id: "score8000",   emoji: "✨", name: "Galaktik Yıldız",    desc: "8000 toplam puan kazan",      check: s => s.totalScore >= 8000 },
@@ -5901,7 +5887,7 @@ const calcStarFragments = (acc, streak, level, roundsPerGame) => {
 // Brief mathematical insights shown alongside correct/wrong feedback
 const MATH_INSIGHTS = {
   counting: {
-    correct: ["Bire-bir eşleme ile her nesneyi bir kez saydın!", "Son söylediğin sayı toplam miktarı verir — kardinalite ilkesi!", "Sayma sırasını değiştirsen de sonuç aynıdır — sıra bağımsızlığı!"],
+    correct: ["Birebir eşleme ile her nesneyi bir kez saydın!", "Son söylediğin sayı toplam miktarı verir — kardinalite ilkesi!", "Sayma sırasını değiştirsen de sonuç aynıdır — sıra bağımsızlığı!"],
     wrong: ["Her nesneye bir kez dokun ve bir sayı söyle — atlama!", "Saydığın son sayı = toplam miktar. Tekrar dene!", "Nesneleri bir sıraya diz — böylece hiçbirini atlamazsın!"],
   },
   subitizing: {
@@ -5913,11 +5899,11 @@ const MATH_INSIGHTS = {
     wrong: ["Büyük sayıdan başla ve küçük sayı kadar ileriye say!", "Parmaklarınla da sayabilirsin — büyükten başla!", "10'un arkadaşlarını kullan: 8+5 = 8+2+3 = 10+3 = 13!"],
   },
   subtraction: {
-    correct: ["Çıkarma = ayırma veya geriye sayma — ikisi de geçerli!", "Toplama ile de düşünebilirsin: a - b = ? → b + ? = a", "İleriye sayarak da çıkarma yapabilirsin — süper strateji!"],
-    wrong: ["Geriye doğru say veya toplamayı düşün: eksilen + ? = azalan", "Parmaklarını kullanarak geriye sayabilirsin!", "Çıkarma ve toplama kardeştir: birini bilirsen diğerini bulursun!"],
+    correct: ["Çıkarma = ayırma veya geriye sayma — ikisi de geçerli!", "Toplama ile de düşünebilirsin: 8 − 3 = ? → 3 + ? = 8!", "İleriye sayarak da çıkarma yapabilirsin — süper strateji!"],
+    wrong: ["Geriye doğru say veya toplamayı düşün: çıkan + fark = eksilen (3 + ? = 8)", "Parmaklarını kullanarak geriye sayabilirsin!", "Çıkarma ve toplama kardeştir: birini bilirsen diğerini bulursun!"],
   },
   makeFive: {
-    correct: ["5'in sayı bağlarını öğreniyorsun — çok önemli bir temel!", "5 = 1+4 = 2+3 — bu bağları hatırla!", "Bir elinlerin parmak sayısı 5 — doğal bir referans noktası!"],
+    correct: ["5'in sayı bağlarını öğreniyorsun — çok önemli bir temel!", "5 = 1+4 = 2+3 — bu bağları hatırla!", "Bir elinin parmak sayısı 5 — doğal bir referans noktası!"],
     wrong: ["5'lik çerçevedeki boş kutuları say — boş kalan = cevap!", "5'in her zaman iki parçası var: dolu ve boş!", "Elini düşün: kaç parmak kaldırdın, kaç tane katlı?"],
   },
   makeTen: {
@@ -5925,12 +5911,12 @@ const MATH_INSIGHTS = {
     wrong: ["10'luk çerçevedeki boş kutuları say!", "10'un arkadaşı: dolu kutular + boş kutular = 10!", "İki elini kullan: bir elde kaç tane, diğerinde kaç tane?"],
   },
   comparison: {
-    correct: ["Karşılaştırmayı doğru yaptın — büyüklük ilişkisini görüyorsun!", "Daha fazla, daha az, eşit — üç olasılık!", "Sayı doğrusunda sağdaki her zaman daha büyüktür!"],
-    wrong: ["İki grubu yan yana koy ve bire-bir eşle — fazla kalan büyüktür!", "Sayarak karşılaştır: hangisinin sayısı daha büyük?", "Her iki grubu da say, sonra sayıları karşılaştır!"],
+    correct: ["Karşılaştırmayı doğru yaptın — büyüklük ilişkisini görüyorsun!", "Daha çok, daha az, eşit — üç olasılık!", "Sayı doğrusunda sağdaki her zaman daha büyüktür!"],
+    wrong: ["İki grubu yan yana koy ve birebir eşle — fazla kalan büyüktür!", "Sayarak karşılaştır: hangisinin sayısı daha büyük?", "Her iki grubu da say, sonra sayıları karşılaştır!"],
   },
   placeValue: {
     correct: ["Basamak değeri: rakamın yeri, değerini belirler!", "Onlar basamağındaki 3 = 30, birler basamağındaki 3 = 3!", "Her basamak bir öncekinin 10 katıdır — onluk sistemin gücü!"],
-    wrong: ["Soldaki rakam onlukları, sağdaki birikleri gösterir!", "23 = 20 + 3: '2' aslında 20 değerinde!", "Paketlerle düşün: 10 birim = 1 onluk paketi!"],
+    wrong: ["Soldaki rakam onlukları, sağdaki birlikleri gösterir!", "23 = 20 + 3: '2' aslında 20 değerinde!", "Paketlerle düşün: 10 birim = 1 onluk paketi!"],
   },
   patternAB: {
     correct: ["Tekrar eden çekirdek kalıbı buldun — desenin DNA'sı!", "Desen = kuralın tekrarı. Kuralı gör, devamını bil!", "Müzik de desendir: ritim = tekrar eden kalıp!"],
@@ -5958,7 +5944,7 @@ const MATH_INSIGHTS = {
   },
   halfDouble: {
     correct: ["Yarılama ve ikiye katlama birbirinin tersi — harika bağlantı!", "Bir sayının yarısı = onu 2 eşit parçaya bölmek!", "İkiye katlama doğada çok yaygın: hücreler böyle çoğalır!"],
-    wrong: ["İkiye katlama = sayıyı kendisiyle topla: 6'nın iki katı = 6+6!", "Yarılama = ikiye bölme: 8'in yarısı = 4+4 → 4!", "İki eşit gruba ayır: her gruba aynı sayıda ver!"],
+    wrong: ["İkiye katlama = sayıyı kendisiyle topla: 6'nın iki katı = 6+6!", "8'in yarısı 4, çünkü 4 + 4 = 8! İki eşit gruba ayır.", "İki eşit gruba ayır: her gruba aynı sayıda ver!"],
   },
   divisionBasic: {
     correct: ["Bölme = eşit gruplara ayırma — düşüncen doğru!", "Çarpma ile kontrol: bölüm × bölen = bölünen!", "Bölme günlük hayatta çok var: paylaşma, eşit dağıtma!"],
@@ -5974,7 +5960,7 @@ const MATH_INSIGHTS = {
   },
   numberLine: {
     correct: ["Sayı doğrusu üzerinde konumu doğru buldun!", "Sayılar arasındaki mesafe eşit aralıklıdır!", "Sayı doğrusu bir cetvel gibidir — her sayı sabit bir yerde!"],
-    wrong: ["İki uçtaki sayılara bak, ortası nerede olur?", "Sayı doğrusunda eşit aralıkları say — parmaklarını kullan!", "Ortayı bulmak için iki ucu topla ve yarıla!"],
+    wrong: ["İki uçtaki sayılara bak, ortası nerede olur?", "Sayı doğrusunda eşit aralıkları say — parmaklarını kullan!", "Ortadaki sayıyı bul: 0 ile 10'un ortası 5!"],
   },
   conservation: {
     correct: ["Sayı korunumu: dizilim değişse de miktar aynı kalır!", "Gözünü aldatma — say ve emin ol!", "Yerleştirme değişse de miktar aynıdır — bu çok önemli bir kavram!"],
@@ -5993,7 +5979,7 @@ const MATH_INSIGHTS = {
     wrong: ["Her çerçeveyi ayrı ayrı say, sonra topla!", "İlk çerçevedeki dolu kutular + ikinci çerçevedeki dolu kutular!", "Sol çerçeve 10 doluysa, sağdakileri sayıp 10'a ekle!"],
   },
   beforeAfter: {
-    correct: ["Sayı komşularını bilmek güçlü bir temel!", "Önce ve sonra = bir eksi ve bir artı!", "Sayıların sırasını bilmek tüm matematğin temeli!"],
+    correct: ["Sayı komşularını bilmek güçlü bir temel!", "Önce ve sonra = bir eksi ve bir artı!", "Sayıların sırasını bilmek tüm matematiğin temeli!"],
     wrong: ["Sayıyı sayı doğrusunda düşün: solda bir önceki, sağda bir sonraki!", "Geriye ve ileriye birer sayı say!", "Parmakla say: bulunduğun sayıdan bir geri, bir ileri!"],
   },
   partWhole: {
@@ -6010,7 +5996,7 @@ const MATH_INSIGHTS = {
   },
   decadeCount: {
     correct: ["Onluk geçişini başardın! 29→30 gibi geçişler önemli!", "Onluk geçişleri bilmek sayı sistemini anlamaktır!", "Sınır sayılarda bile hata yapmadın — güçlü sayı hissi!"],
-    wrong: ["9'dan sonra sıfıra döner ama onlar basamağı 1 artar!", "29'dan sonra 30 gelir — 9 birler, 0'a döner, 1 onluk eklenir!", "Birler sıfıra dönünce onlar bir artar: ...18, 19, 20!"],
+    wrong: ["Birler basamağı 9'dan sonra 0'a döner, onlar basamağı 1 artar: 19 → 20!", "29'dan sonra 30 gelir — 9 birler, 0'a döner, 1 onluk eklenir!", "Birler sıfıra dönünce onlar bir artar: ...18, 19, 20!"],
   },
   ordinalCount: {
     correct: ["Sıra sayıları (1., 2., 3.) pozisyonu gösterir!", "Sıralama ve pozisyon bilgisi çok önemli!", "Koşularda 1., 2., 3. — sıra sayıları her yerde kullanılır!"],
@@ -6046,27 +6032,27 @@ const MATH_INSIGHTS = {
   },
   mulDivInverse: {
     correct: ["Çarpma ve bölme ters işlemdir — bu bağlantıyı gördün!", "3×4=12 ise 12÷4=3 — güçlü düşünme!", "Bir işlemi bilirsen diğerini çözebilirsin — matematik simetrisi!"],
-    wrong: ["Çarpma sonucunu biliyorsan bölmeyi de bulabilirsin!", "Çarpma ve bölme kardeştir: birinden diğerine geçiş yap!", "Üçlü aile: a×b=c ↔ c÷b=a ↔ c÷a=b!"],
+    wrong: ["Çarpma sonucunu biliyorsan bölmeyi de bulabilirsin!", "Çarpma ve bölme kardeştir: birinden diğerine geçiş yap!", "Çarpma ailesi: 3×4=12, 12÷4=3, 12÷3=4!"],
   },
   inversePractice: {
     correct: ["Ters işlem yapabilmek güçlü bir matematiksel düşünce!", "Toplama bilirsen çıkarmayı bulursun!", "Sayı ailesi: aynı üç sayı toplama ve çıkarmada kullanılır!"],
     wrong: ["Toplama ve çıkarma kardeştir: 5+3=8 ise 8-3=5!", "İşlemi tersine çevir ve kontrol et!", "Sayı ailelerini düşün: 3, 5, 8 → dört farklı işlem yap!"],
   },
   wpAdd: {
-    correct: ["Sözel problemde doğru işlemi seçtin — harika!", "Birleştirme problemini gördün: iki grup bir araya geldi!", "Hikayedeki ipuçlarını doğru okudun — problem çözme ustası!"],
-    wrong: ["Problemi oku: 'toplam', 'hep birlikte', 'birleştir' = toplama!", "İki grup bir araya geliyorsa toplama yapmalısın!", "Hikayeyi canlandır: parçalar birleşiyor mu? O zaman topla!"],
+    correct: ["Sözel problemde doğru işlemi seçtin — harika!", "Birleştirme problemini gördün: iki grup bir araya geldi!", "Hikâyedeki ipuçlarını doğru okudun — problem çözme ustası!"],
+    wrong: ["Problemi oku: 'toplam', 'hep birlikte', 'birleştir' = toplama!", "İki grup bir araya geliyorsa toplama yapmalısın!", "Hikâyeyi canlandır: parçalar birleşiyor mu? O zaman topla!"],
   },
   wpSub: {
     correct: ["Ayırma problemini doğru çözdün!", "Kalan miktarı bulmak için çıkarma kullandın — süper!", "Uzaklaşan, ayrılan, azalan = çıkarma — bunu gördün!"],
-    wrong: ["Problemi oku: 'kalan', 'verdi', 'gitti' = çıkarma!", "Bir grup azalıyorsa çıkarma yapmalısın!", "Hikayeyi canlandır: bir şey gidiyor mu? O zaman çıkar!"],
+    wrong: ["Problemi oku: 'kalan', 'verdi', 'gitti' = çıkarma!", "Bir grup azalıyorsa çıkarma yapmalısın!", "Hikâyeyi canlandır: bir şey gidiyor mu? O zaman çıkar!"],
   },
   wpCompare: {
     correct: ["Karşılaştırma problemini çözdün!", "Farkı bulmak demek çıkarma yapmak demek!", "'Ne kadar fazla?' sorusunu doğru yanıtladın!"],
     wrong: ["'Ne kadar fazla/az?' sorularında farkı bul!", "İki miktarı çıkararak aradaki farkı hesapla!", "Yan yana koy ve eşle — eşi olmayan kalan farkı verir!"],
   },
   wpMul: {
-    correct: ["Eşit gruplar problemi! Çarpmayı doğru kullandın!", "Kaç grup × her grupta kaçar tane = toplam!", "Hikayedeki eşit grupları fark ettin — çarpma düşüncesi!"],
-    wrong: ["'Her birinde ... tane, ... tane var' = çarpma!", "Eşit gruplarda toplam bulmak için çarp!", "Hikayede eşit gruplar var mı? Tekrarlı toplama yap!"],
+    correct: ["Eşit gruplar problemi! Çarpmayı doğru kullandın!", "Kaç grup × her grupta kaçar tane = toplam!", "Hikâyedeki eşit grupları fark ettin — çarpma düşüncesi!"],
+    wrong: ["'Her birinde ... tane, ... tane var' = çarpma!", "Eşit gruplarda toplam bulmak için çarp!", "Hikâyede eşit gruplar var mı? Tekrarlı toplama yap!"],
   },
   wpDiv: {
     correct: ["Paylaştırma problemini çözdün!", "Eşit dağıtma = bölme — doğru strateji!", "Adil paylaşım = bölme — matematik adaleti sağlar!"],
@@ -6074,7 +6060,7 @@ const MATH_INSIGHTS = {
   },
   lessMoreEqual: {
     correct: ["Az, çok, eşit kavramlarını biliyorsun!", "Karşılaştırma sayı hissinin temelidir!", "Nicelik ilişkisini doğru algıladın — güçlü kavrama!"],
-    wrong: ["İki grubu say: hangisinde daha çok? Hangisinde daha az?", "Bire-bir eşle: fazla kalan taraf 'daha çok'!", "Sayıları karşılaştır: büyük olan = daha çok!"],
+    wrong: ["İki grubu say: hangisinde daha çok? Hangisinde daha az?", "Birebir eşle: fazla kalan taraf 'daha çok'!", "Sayıları karşılaştır: büyük olan = daha çok!"],
   },
   trueFalse: {
     correct: ["Eşitlik ilişkisini doğru değerlendirdin!", "Eşittir = iki taraf da aynı sonucu verir!", "Matematiksel bir yargıyı değerlendirdin — cebirsel düşünce!"],
@@ -6086,7 +6072,7 @@ const MATH_INSIGHTS = {
   },
   matching: {
     correct: ["Birebir eşlemeyi doğru yaptın!", "Her nesne bir sayı ile eşleşir!", "Sayı-nesne bağlantısını kuruyorsun — temel beceri!"],
-    wrong: ["Her nesneye bir sayı ver — bire-bir eşleme!", "Tek tek eşle: her sayıya bir nesne!", "Nesneleri dikkatlice say ve doğru rakamı bul!"],
+    wrong: ["Her nesneye bir sayı ver — birebir eşleme!", "Tek tek eşle: her sayıya bir nesne!", "Nesneleri dikkatlice say ve doğru rakamı bul!"],
   },
   quantityMatch: {
     correct: ["Miktar ve rakamı doğru eşledin!", "Sayı sembolü (rakam) miktar ile eşleşti!", "Somuttan soyuta geçiş yapıyorsun — üçlü kod!"],
@@ -6097,8 +6083,8 @@ const MATH_INSIGHTS = {
     wrong: ["İstenen sayıya ulaşana kadar ekle!", "Sayıyı parça parça oluştur!", "Kaç tane olduğunu say — hedefe ulaşana kadar devam et!"],
   },
   spaceKitchen: {
-    correct: ["Birden fazla yoldan hedef sayıya ulaştın — esnek düşünce!", "Rod'ları birleştirerek sayıyı farklı şekillerde oluşturdun!", "Bir sayıyı parçalara ayırmanın birçok yolu var!"],
-    wrong: ["Rod'ların toplamı hedef sayıya eşit olmalı!", "Daha küçük rod'lar dene — toplamları hedefe ulaşsın!", "Her rod bir parça — parçaların toplamı bütünü vermeli!"],
+    correct: ["Birden fazla yoldan hedef sayıya ulaştın — esnek düşünce!", "Kapsülleri birleştirerek sayıyı farklı şekillerde oluşturdun!", "Bir sayıyı parçalara ayırmanın birçok yolu var!"],
+    wrong: ["Kapsüllerin toplamı hedef sayıya eşit olmalı!", "Daha küçük kapsüller dene — toplamları hedefe ulaşsın!", "Her kapsül bir parça — parçaların toplamı bütünü vermeli!"],
   },
   rodSplit: {
     correct: ["Tüm olası ayrışmaları keşfettin — sistematik düşünce!", "Bir sayının parçalanma yollarını bilmek toplama-çıkarmayı güçlendirir!", "Sayı ayrıştırma = sayıların iç yapısını görmek!"],
@@ -6118,7 +6104,7 @@ const MATH_INSIGHTS_KU = {
   counting: { correct: ["Bi hevkirina yek-bi-yek te her tişt carekê jimart!", "Hejmara dawî ku te got tevahiya hindebûnê dide — prensîba kardînalîteyê!", "Rêza jimartinê biguhere jî encam yek e — serbixwebûna ji rêzê!"], wrong: ["Destê xwe carekê li her tiştî bide û hejmarekê bibêje — qet neqevêre!", "Hejmara dawî ya ku te jimart = tevahiya hindeyê. Dîsa biceribîne!", "Tiştan li ser rêzekê rêz bike — wisa tu yekî jî naqevêrî!"] },
   subitizing: { correct: ["Bê jimartin bi yek nêrînê te dît — ev stratejîyeke bi heybet e!", "Tu komên biçûk di cih de nas dikî!", "Mejîyê te bi komkirinê zû dibîne — zar jî wisa dixebitin!"], wrong: ["Hewl bide komên biçûk bê jimartin nas bikî — 1, 2, 3 bi yek nêrînê tê dîtin!", "Çavên xwe teng bike û bi yek nêrînê bibîne!", "Li nimûneyên naskirî binêre: 3 wek sêgoşe, 4 wek çargoşe tê rêzkirin!"] },
   addition: { correct: ["Ji hejmara mezin dest pê kirin û bi domandinê jimartin stratejîya herî bibandor e!", "Zêdekirin = anîna du koman li ba hev!", "Tu dikarî dorê biguherî: 3 + 7 = 7 + 3 — taybetmendîya guhertinê!"], wrong: ["Ji hejmara mezin dest pê bike û bi qasî hejmara biçûk ber bi pêş ve bijmêre!", "Tu dikarî bi tilîyên xwe jî bijmêrî — ji ya mezin dest pê bike!", "Hevalên 10ê bi kar bîne: 8 + 5 = 8 + 2 + 3 = 10 + 3 = 13!"] },
-  subtraction: { correct: ["Kêmkirin = veqetandin an jî paşvejimartin — herdu jî derbasdar in!", "Tu dikarî bi zêdekirinê jî bifikirî: a - b = ? -> b + ? = a", "Bi pêşvejimartinê jî tu dikarî kêm bikî — stratejîyeke bi heybet!"], wrong: ["Ber bi paş ve bijmêre an jî li zêdekirinê bifikire: ya kêmbûyî + ? = ya zêde", "Tu dikarî bi tilîyên xwe ber bi paş ve bijmêrî!", "Kêmkirin û zêdekirin xwişk û bira ne: heke yekê bizanî ya din jî tu dibînî!"] },
+  subtraction: { correct: ["Kêmkirin = veqetandin an jî paşvejimartin — herdu jî derbasdar in!", "Tu dikarî bi zêdekirinê jî bifikirî: 8 − 3 = ? → 3 + ? = 8!", "Bi pêşvejimartinê jî tu dikarî kêm bikî — stratejîyeke bi heybet!"], wrong: ["Ber bi paş ve bijmêre an jî li zêdekirinê bifikire: kêmker + ferq = kêmkirî (3 + ? = 8)", "Tu dikarî bi tilîyên xwe ber bi paş ve bijmêrî!", "Kêmkirin û zêdekirin xwişk û bira ne: heke yekê bizanî ya din jî tu dibînî!"] },
   makeFive: { correct: ["Tu girêdanên hejmara 5ê hîn dibî — bingehek pir girîng!", "5 = 1 + 4 = 2 + 3 — van girêdanan bi bîr bîne!", "Hejmara tilîyên destekî 5 e — xaleke referansê ya xwezayî!"], wrong: ["Qutîyên vala yên di çarçoveya 5ê de bijmêre — ya vala maye = bersiv!", "5ê her dem du perçe hene: tijî û vala!", "Li destê xwe bifikire: te çend tilî rakirine, çend qatkirî ne?"] },
   makeTen: { correct: ["Zanîna hevalên 10ê zêdekirin û kêmkirinê hêsan dike!", "10 = 1 + 9 = 2 + 8 = 3 + 7 = 4 + 6 = 5 + 5!", "Pergala 10î bingeha hemû matematîkê ye — herdu dest 10 tilî ne!"], wrong: ["Qutîyên vala yên di çarçoveya 10î de bijmêre!", "Hevalê 10ê: qutîyên tijî + qutîyên vala = 10!", "Herdu destên xwe bi kar bîne: di destekî de çend, di ya din de çend?"] },
   comparison: { correct: ["Te berhevkirin rast kir — tu têkilîya mezinahîyê dibînî!", "Zêdetir, kêmtir, wekhev — sê îhtîmal!", "Li ser rêzhejmarê ya rastê her dem mezintir e!"], wrong: ["Du koman li tenişt hev deyne û yek-bi-yek hev bike — ya zêde dimîne mezintir e!", "Bi jimartinê berhev bike: hejmara kîjanî mezintir e?", "Herdu koman jî bijmêre, paşê hejmaran berhev bike!"] },
@@ -6270,13 +6256,13 @@ const getMathInsight = (mode, isCorrect, question, correctAnswer) => {
           ca <= 10 ? `${ca} — 10'luk çerçeveye sığıyor!` : `${ca} = 10 + ${ca - 10} — 10'u aşarak topladın!`,
           // CRA deepening
           craTip(
-            `Somut: ${q.num1} yıldız taşı+ ${q.num2} yıldız taşı= ${ca} yıldız taşı— birleştir ve say!`,
+            `Somut: ${q.num1} yıldız taşı + ${q.num2} yıldız taşı = ${ca} yıldız taşı — birleştir ve say!`,
             `Görsel: Sayı doğrusunda ${trAbl(bigger)} ${smaller} adım ilerle → ${ca}!`,
             `Soyut: ${q.num1} + ${q.num2} = ${ca} — değişme özelliği: ${q.num2} + ${q.num1} de aynı!`
           ),
           // Strategy awareness
           smaller <= 3 ? `Sayarak topladın: ${bigger}... ${Array.from({length: smaller}, (_, i) => bigger + i + 1).join(", ")} → ${ca}!`
-            : ca <= 20 && bigger <= 10 ? `10'un arkadaşını düşün: ${bigger} + ${10 - bigger} = 10, sonra +${smaller - (10 - bigger)} = ${ca}!`
+            : ca <= 20 && bigger <= 10 && smaller >= 10 - bigger ? `10'un arkadaşını düşün: ${bigger} + ${10 - bigger} = 10, sonra +${smaller - (10 - bigger)} = ${ca}!`
             : `Parçala: ${q.num1} + ${q.num2} = ${ca} — zihninden de yapabilirsin!`,
         ];
         return tips[Math.floor(Math.random() * tips.length)];
@@ -6461,7 +6447,7 @@ const MASCOT = {
   wrongTaskTips: {
     counting: "Yıldız taşlarını teker teker say — parmaklarınla takip et! ☝️",
     subitizing: "Bir daha bak — gruplayarak gör! 👀",
-    addition: "Parmaklarınla veya yıldız taşlarıla deneyebilirsin! 🖐️",
+    addition: "Parmaklarınla veya yıldız taşlarıyla deneyebilirsin! 🖐️",
     subtraction: "Büyükten başla ve geriye doğru say! ⬇️",
     comparison: "İkisini yan yana koy ve karşılaştır! 📏",
     makeTen: "10'u doldurmak için kaç eksik? 🎯",
@@ -6986,14 +6972,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     let misconception = null;
     // 1. Off-by-one: 1 fazla/eksik sayma (kardinalite prensibi hatası)
     if (Math.abs(given - correct) === 1 && ["counting","subitizing","chipGuess","rodBack","fivesFrame","tensFrame"].includes(qt)) {
-      misconception = { type: "offByOne", desc: ku ? "Te 1 zêde an kêm jimart — her kevirî yek bi yek bijmêre, hejmara dawî bersiv e 👆" : "1 eksik ya da 1 fazla saydın — her taşı tek tek say, son söylediğin sayı cevaptır 👆", icon: "🔢" };
+      misconception = { type: "offByOne", desc: ku ? "Te kevirek derbas kir an jî du caran jimart. Destê xwe carekê li her kevirî bide; hejmara dawî bersiv e 👆" : "Bir taşı atladın ya da iki kez saydın. Her taşa bir kez dokun; son söylediğin sayı cevaptır 👆", icon: "🔢" };
     }
     // 2. Reversal: Onlar-birler yer değişimi (placeValue hatası)
     else if (["placeValue","bundleTens","composeNumber","expandForm"].includes(qt)) {
       const revGiven = Number(String(given).split("").reverse().join(""));
       if (revGiven === correct) {
         // klinik etiket ("Basamak karışıklığı:") çocuk metninden çıkarıldı — type alanı logda duruyor
-        misconception = { type: "digitReversal", desc: ku ? "Reqemê çepê DEHEK e, yê rastê YEKEK" : "Soldaki rakam ONlukları, sağdaki BİRlikleri gösterir", icon: "🔄" };
+        misconception = { type: "digitReversal", desc: ku ? "Reqemê çepê DEHEK e, yê rastê YEKEK" : "Soldaki rakam onlukları, sağdaki birlikleri gösterir", icon: "🔄" };
       }
     }
     // 3. Operation confusion: Toplama yerine çıkarma veya tersi
@@ -7291,7 +7277,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   setCatLang(lang); setFeedbackLang(lang); setStoryLang(lang); setThemeLang(lang); setInsightLang(lang);
   _ttsKu = (lang === "ku"); if (_ttsKu) initKuAudio(); // KU sesi: gerçek klip varsa çal, yoksa tarayıcı TTS
   // Öğretim içeriği: KU varsa Kürtçe sürümü (TR yapısı korunur), yoksa inline TR
-  const getLC = (cat) => (lang === "ku" && LEARN_CONTENT_KU[cat]) ? LEARN_CONTENT_KU[cat] : LEARN_CONTENT[cat];
+  const getLC = (cat) => (lang === "ku" && LEARN_CONTENT_KU[cat]?.steps?.length) ? LEARN_CONTENT_KU[cat] : LEARN_CONTENT[cat]; // KU modülü boş/eksikse TR modülüne düş (boş ekran yok)
   // v5.9.1: Dil değiştiğinde HTML lang attribute'u güncelle (WCAG ekran okuyucu uyumu)
   useEffect(() => { try { document.documentElement.lang = lang === "ku" ? "ku" : lang === "en" ? "en" : "tr"; } catch {} }, [lang]);
   const [collectedCards, setCollectedCards] = useState([]); // toplanan kartlar
@@ -9258,7 +9244,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         tensFrame: "Onluk çerçevede kaç yıldız taşı var?",
         doubleTensFrame: "İki çerçeveye bak, 10 artı kaç?",
         comparison: `Hangisi daha ${q.askMin ? "az" : "fazla"}?`,
-        lessMoreEqual: "Sol taraf sağ tarafa göre nasıl?",
+        lessMoreEqual: "Solda daha az mı, daha çok mu, eşit mi?",
         // Görünen kökü AYNEN okur (A/B etiketli) — eskiden iki miktarı da sesle açık ediyordu
         // (rodlar solid/sayılamaz = görsel karşılaştırma becerisi; sayıyı okumak beceriyi baypas eder)
         difference: (() => { const bL = q.bigger === q.num1 ? "A" : "B"; const sL = q.smaller === q.num1 ? "A" : "B"; return q.questionType === "more" ? `${bL} kapsülünde, ${sL} kapsülündekinden kaç tane daha fazla yıldız taşı vardır?` : q.questionType === "less" ? `${sL} kapsülünde, ${bL} kapsülündekinden kaç tane daha az yıldız taşı vardır?` : "İki kapsül arasındaki fark kaç?"; })(),
@@ -9281,7 +9267,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         conservation: "İki gruptaki yıldız taşları eşit mi?",
         estimateCount: "Kaç tane var? Tahmin et!",
         beforeAfter: q.subType === "before" ? `${trAbl(q.number)} önce ne gelir?` : q.subType === "after" ? `${trAbl(q.number)} sonra ne gelir?` : `${q.low} ile ${q.high} arasında ne var?`,
-        fiveMore: `Bu kapsül ${q.fmRef || 5}'${trDatSuf(q.fmRef || 5)} göre nasıl?`,
+        fiveMore: `Bu kapsül ${q.fmRef || 5}'${trAblSuf(q.fmRef || 5)} az mı, eşit mi, çok mu?`,
         timesTable: `${q.a} çarpı ${q.b} kaç eder?`,
         divisionBasic: `${q.a} bölü ${q.b} kaç eder?`,
         repeatAdd: `${q.groups} grup var, her grupta ${q.perGroup} yıldız taşı, toplam kaç tane?`,
@@ -9551,7 +9537,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         sembolik = `${q.a} − ? = ${q.c}`;
       } else if (ct === "separateStartUnknown") {
         somut = `Kalan ${nw(q.c)} yıldız taşına, çıkarılan ${nw(q.b)} yıldız taşını geri ekle. Başta kaç yıldız taşı varmış?`;
-        gorsel = `${nw(q.c)} yıldız taşlı enerji kapsülüna ${nw(q.b)} yıldız taşı daha ekle. Oluşan enerji kapsülü başlangıcı gösterir.`;
+        gorsel = `${nw(q.c)} yıldız taşlı enerji kapsülüne ${nw(q.b)} yıldız taşı daha ekle. Oluşan enerji kapsülü başlangıcı gösterir.`;
         sembolik = `? − ${q.b} = ${q.c}  →  ${q.c} + ${q.b} = ?`;
       } else if (ct === "ppwPartUnknown") {
         somut = `${nw(q.c)} yıldız taşı koy. ${nw(q.a)} tanesini mavi yap, kalanları kırmızı yap. Kırmızıları say.`;
@@ -9579,7 +9565,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         sembolik = `${q.c} ÷ ${q.b} = ?`;
       } else {
         somut = `Yıldız taşlarıyla problemi masada canlandır.`;
-        gorsel = `DokunSay kapsül ve yıldız taşlarınıyla modelle.`;
+        gorsel = `DokunSay kapsülü ve yıldız taşlarıyla modelle.`;
         sembolik = q.equation || "?";
       }
       setHintData({ type: "multiRep", reps: [
@@ -10435,7 +10421,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           growingPattern: ["Büyüyen deseni çözdün! 📈", "Kuralı buldun, desen devam ediyor! 🔢"],
           patternTranslate: ["Desen Çevirmen ustası! 🔀", "Çekirdeği keşfettin! 🧩"],
           patternAB: ["Galaktik desen tamamlandı! 🔄", "Dönüşçü desen diyor: Harika! 🦎"],
-          spaceKitchen: ["Uzay mutfağında tarif tamamlandı! 🧪", "Rod'ları karıştırdın, hedefi buldun! 🎯", "Parça-bütün şefi! 👨‍🍳"],
+          spaceKitchen: ["Uzay mutfağında tarif tamamlandı! 🧪", "Kapsülleri karıştırdın, hedefi buldun! 🎯", "Parça-bütün şefi! 👨‍🍳"],
           rodSplit: ["Tüm bölme yollarını keşfettin! ✂️", "İkili görevi tamamladın — sayı ayrıştırma ustası! 🧩"],
           spaceBalance: ["Teraziyi dengeye getirdin! ⚖️", "Eşitlik ilkesini kavradın! 🌟", "İki taraf da eşit — mükemmel! ✓"],
         };
@@ -10668,7 +10654,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         }
         else if (q.type === "difference") { explain = `Fark: ${q.bigger} − ${q.smaller} = ${correctAnswer}`; teachTip = "Kapsülleri yan yana koy — fazla olan kısmı say! 🔍"; }
         else if (q.type === "comparison") {
-          explain = `${correctAnswer} daha ${q.askMin ? "az" : "fazla"}`;
+          explain = `${correctAnswer} daha ${q.askMin ? "az" : "çok"}`;
           const cmpTips = {
             rod: "Kapsülleri alt alta koy ve yıldız taşlarını birer birer eşle — eşi kalmayan taraf fazla! 📏",
             chips: "Her iki gruptaki yıldız taşlarını tek tek say ve karşılaştır! 🔢",
@@ -10699,8 +10685,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         else if (q.type === "numberLine") { explain = `Eksik sayı: ${correctAnswer}`; teachTip = `Sayılar sırayla artar — eksik sayı bir öncekinin 1 fazlası! 🔢`; }
         else if (q.type === "lengthGuess") { explain = `Gizli kapsül: ${correctAnswer} yıldız taşı`; teachTip = "Yanındaki kapsülle boy ölç — gizem çözüldü! 🕵️"; }
         else if (q.type === "beforeAfter") {
-          if (q.subType === "before") { explain = `${trAbl(q.number)} önce ${correctAnswer} gelir`; teachTip = "Bir önceki = 1 eksik. Sayı doğrusunda bir adım sola git! ⬅️"; }
-          else if (q.subType === "after") { explain = `${trAbl(q.number)} sonra ${correctAnswer} gelir`; teachTip = "Bir sonraki = 1 fazla. Sayı doğrusunda bir adım sağa git! ➡️"; }
+          if (q.subType === "before") { explain = `${trAbl(q.number)} önce ${correctAnswer} gelir`; teachTip = "Bir önceki sayı 1 eksiktir — sayı doğrusunda bir adım sola git! ⬅️"; }
+          else if (q.subType === "after") { explain = `${trAbl(q.number)} sonra ${correctAnswer} gelir`; teachTip = "Bir sonraki sayı 1 fazladır — sayı doğrusunda bir adım sağa git! ➡️"; }
           else { explain = `${q.low} ile ${q.high} arasında ${correctAnswer} var`; teachTip = `Sırayla say: ${q.low}, ?, ${q.high} — ortadaki sayıyı bul! 🔎`; }
         }
         else if (q.type === "quantityMatch") { explain = `Doğru sayı: ${correctAnswer}`; teachTip = "Yıldız taşlarını tek tek say ve doğru rakamla eşle! Her yıldız taşı bir birim 🎲"; }
@@ -12931,7 +12917,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         // Tek ortak boyut (büyük operanda göre) → her iki rod aynı ölçek (adil uzunluk karşılaştırması) + dar ekranda taşmaz/kırpılmaz
         const fmSize = capsuleSize(Math.max(fmRef, q.number));
         return (<div style={{ textAlign: "center" }}>
-          <TXT>{lang === "ku" ? <>Ev kapsul li gorî <strong>{fmRef}</strong>'an çawa ye?</> : <>Bu kapsül <strong>{fmRef}</strong>'{trDatSuf(fmRef)} göre nasıl?</>}</TXT>
+          <TXT>{lang === "ku" ? <>Ev kapsul ji <strong>{fmRef}</strong>'an kêmtir e, wekhev e, an zêdetir e?</> : <>Bu kapsül <strong>{fmRef}</strong>'{trAblSuf(fmRef)} az mı, eşit mi, çok mu?</>}</TXT>
           <div style={{ display: "inline-flex", flexDirection: "column", gap: 12, padding: "16px 20px",
             borderRadius: 18, background: "linear-gradient(135deg,rgba(35,32,82,.88),rgba(24,22,58,.88))",
             border: "1px solid rgba(148,163,184,.12)" }}>
@@ -13588,7 +13574,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         };
         const isMixed = lmeDsp[0] !== lmeDsp[1];
         return (<div style={{ textAlign: "center" }}>
-          <TXT>{lang === "ku" ? "Aliyê çepê li gorî yê rastê çawa ye?" : "Sol taraf sağ tarafa göre nasıl?"}</TXT>
+          <TXT>{lang === "ku" ? "Li çepê kêmtir e, zêdetir e, an wekhev e?" : "Solda daha az mı, daha çok mu, eşit mi?"}</TXT>
           {/* Terazi — animasyonlu kefeli tasarım */}
           {(() => {
             const tiltDeg = answered ? (q.group1 > q.group2 ? -8 : q.group1 < q.group2 ? 8 : 0) : 0;
@@ -14851,7 +14837,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {q.subType !== "coreUnit" && (
             <div style={{ display: "flex", gap: 12, justifyContent: "center", alignItems: "center", marginBottom: 8,
               fontSize: 13, fontWeight: 800, color: "#cbd5e1", flexWrap: "wrap" }}>
-              {/* "renk = sayı" değil "renk KODU" — tek taşın 2/3 DEĞERİ taşıması bire-bir sayma ilkesiyle çelişir, kod çerçevesi çelişmez */}
+              {/* "renk = sayı" değil "renk KODU" — tek taşın 2/3 DEĞERİ taşıması birebir sayma ilkesiyle çelişir, kod çerçevesi çelişmez */}
               <span style={{ fontSize: 11, color: "#94a3b8" }}>{lang === "ku" ? "Koda rengan:" : "Renk kodu:"}</span>
               <span>🔵=1</span><span>🔴=2</span><span>🟢=3</span>
             </div>
@@ -15903,7 +15889,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             {/* Footer */}
             <div style={{ textAlign: "center", marginTop: 4, animation: "fadeUp .6s ease" }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: "#a5b4fc", letterSpacing: .3 }}>Prof. Dr. Yılmaz MUTLU</div>
-              <div style={{ fontSize: 10, fontWeight: 600, color: "#cbd5e1" }}>GalakSay v5 — 2026</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: "#cbd5e1" }}>GalakSay v{APP_VERSION} — 2026</div>
             </div>
           </div>
 
@@ -16944,7 +16930,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   if (feedback.ok) return null;
                   // Mathematical insight messages per category
                   const mathInsights = {
-                    counting: ["Say ve keşfet!", "Bire-bir eşle!", "Son sayı = toplam!", "Sayma gücü! 🔢"],
+                    counting: ["Say ve keşfet!", "Birebir eşle!", "Son sayı = toplam!", "Sayma gücü! 🔢"],
                     addition: ["Birleştir! ➕", "Büyükten başla!", "Sıra fark etmez!", "Parça → bütün!"],
                     subtraction: ["Farkı bul! ➖", "İleriye say!", "Toplama kardeşi!", "Kalan ne kadar?"],
                     comparison: ["Hangisi çok? ⚖️", "Karşılaştır!", "Eşleştir!", "Büyük mü küçük mü?"],
@@ -17900,7 +17886,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     // §Beceri alanları — 8 gezegen kategorisiyle 1:1 eşleşir
     const skillAreas = [
       { key: "sayalon",   label: "Sayma",      icon: "🔢", color: "#7c3aed", modes: ["matching", "quantityMatch", "counting", "buildNumber", "ordinalCount", "backwardCount", "counterFromN", "decadeCount", "skipCount", "conservation"] },
-      { key: "simseron",  label: "Sanbil",     icon: "⚡", color: "#7c3aed", modes: ["fivesFrame", "subitizing", "tensFrame", "chipGuess", "rodBack", "doubleTensFrame", "estimateCount"] },
+      { key: "simseron",  label: "Anlık Algılama", icon: "⚡", color: "#7c3aed", modes: ["fivesFrame", "subitizing", "tensFrame", "chipGuess", "rodBack", "doubleTensFrame", "estimateCount"] },
       { key: "terazya",   label: "Karşılaştır", icon: "⚖️", color: "#059669", modes: ["lessMoreEqual", "beforeAfter", "comparison", "fiveMore", "ordering", "numberLineEstimate", "nlPlacement", "numberLine", "lengthGuess"] },
       { key: "bilesya",   label: "Bileşim",    icon: "🧱", color: "#d97706", modes: ["makeFive", "partWhole", "makeTen", "numbersInNumbers"] },
       { key: "basamara",  label: "Basamak",    icon: "🏛️", color: "#ef4444", modes: ["composeNumber", "expandForm", "bundleTens", "placeValue"] },
@@ -18190,7 +18176,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 level1: { realName: "Sayma", mebAlan: "Sayılar ve Nicelikler", trajectory: "Counting", icon: "🔢", color: "#7c3aed",
                   desc: "Birebir eşleme → ileri sayma → sıra sayıları → oluşturma → geriye sayma → onluk geçişi → ritmik sayma → sayı korunumu" },
                 level2: { realName: "Anlık Sayı Algılama (Subitizing)", mebAlan: "Sayılar ve Nicelikler", trajectory: "Subitizing", icon: "⚡", color: "#7c3aed",
-                  desc: "Algısal sanbil → kavramsal sanbil → çift onluk sanbil → miktar tahmini" },
+                  desc: "Algısal anlık algılama → kavramsal anlık algılama → çift onluk → miktar tahmini" },
                 level3: { realName: "Karşılaştırma ve Sıralama", mebAlan: "Sayılar ve Nicelikler", trajectory: "Comparing/Ordering", icon: "⚖️", color: "#059669",
                   desc: "Az-çok-eşit → sayı komşuları → büyüklük karşılaştırma → sıralama → sayı doğrusu → konum tahmini" },
                 level4: { realName: "Sayı Bileşimi (Parça-Bütün)", mebAlan: "İşlemlerden Cebirsel Düşünmeye", trajectory: "Composing Numbers", icon: "🧱", color: "#d97706",
@@ -18315,7 +18301,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 <div style={{ padding: "8px 10px", borderRadius: 8, background: "rgba(30,27,75,.35)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, color: "#cbd5e1" }}>📚 Toplam Kapsam</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{Object.keys(stats.modeStats).length}/61 mod</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{Object.keys(stats.modeStats).length}/{MODE_COUNT} mod</span>
                   </div>
                   <div style={{ height: 6, borderRadius: 3, background: "rgba(148,163,184,.12)", overflow: "hidden" }}>
                     <div style={{ height: "100%", borderRadius: 3, width: `${(Object.keys(stats.modeStats).length / 61) * 100}%`,
@@ -18609,9 +18595,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   if (screen === "learn" && learnCategory && getLC(learnCategory)) {
     const lc = getLC(learnCategory);
     const numWord = (n) => numWordLang(n, lang); // KU-bilinçli shadow: learn bloğundaki tüm numWord çağrıları lang'a uyar (TR'de aynı, KU'da KU kelime)
-    const step = lc.steps[learnStep] || lc.steps[0];
+    const step = lc.steps[learnStep] || LEARN_CONTENT[learnCategory]?.steps?.[learnStep] || lc.steps[0]; // KU'da adım yoksa TR adımı, o da yoksa ilk adım
     const totalSteps = lc.steps.length;
-    const progress = ((learnStep + 1) / totalSteps) * 100;
+    const progress = Math.min(100, ((learnStep + 1) / totalSteps) * 100);
 
     const speakLearnStep = (ns) => { if(!ns) return; TTS.stop(); const txt = ns.tts||ns.text; TTS._scheduleSpeech(()=>{ if(narrationOn) narrateWith(true, "Sayacık", txt); else TTS.speak(txt,"tr-TR",0.88); },400); };
     const goStep = (s) => { setLearnStep(s); setLearnRevealed(0); setLearnTapped(new Set()); setLearnMiniAnswer(null); setLearnCelebrate(false);
@@ -18658,7 +18644,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       "Kapsüle yıldız taşı sürükleyerek sayıyı kur!": "Kevirê stêrkan bikişîne kapsulê, hejmarê ava bike!",
       "Tüm yıldız taşlarını baştan say!": "Hemû kevirên stêrkan ji destpêkê ve bijmêre!",
       "Çiftlere dokun!": "Li cotan dest bide!",
-      "5'lik karta yıldız taşlarıa dokunarak yerleştir!": "Li karta 5'an dest bide, kevirên stêrkan bi cî bike!",
+      "5'lik çerçeveye yıldız taşlarına dokunarak yerleştir!": "Li çarçoveya 5'an dest bide, kevirên stêrkan bi cî bike!",
       "Aynı sayının farklı parçalanışlarını gör!": "Parçekirinên cûda yên heman hejmarê bibîne!",
       "Kapsüldeki yıldız taşlarını say, doğru rakamı bul!": "Kevirên stêrkan ên di kapsulê de bijmêre, reqemê rast bibîne!",
     };
@@ -18690,7 +18676,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       );
 
       switch(st.visual) {
-        // ── Kapsül: yıldız taşlarıa dokun, say ──
+        // ── Kapsül: yıldız taşlarına dokun, say ──
         case "rod": {
           const n = st.rodCount;
           const rs = capsuleSize(n);
@@ -19073,7 +19059,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           </div>);
         }
 
-        // ── Çıkarma: yıldız taşlarıa dokun, çıkar ──
+        // ── Çıkarma: yıldız taşlarına dokun, çıkar ──
         case "subtractionLearn": {
           const kept = st.total - st.remove;
           const allRemoved = learnTapped.size >= st.remove;
@@ -19703,7 +19689,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         }
 
         // ── Onluk Kapsül + Birlik Yıldız Taşı: sayıyı görselleştir ──
-        // ── Ritmik Sayma: 10'ar ritmik sayarak yeşil yıldız taşlarıla say ──
+        // ── Ritmik Sayma: 10'ar ritmik sayarak yeşil yıldız taşlarıyla say ──
         case "rhythmicCountLearn": {
           const step=st.step||10;
           const cnt=st.count||5;
@@ -20053,7 +20039,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
         case "fivesFrameLearn": {
           return (<div style={bx}>
-            {hint("5'lik karta yıldız taşlarıa dokunarak yerleştir!")}
+            {hint("5'lik çerçeveye yıldız taşlarına dokunarak yerleştir!")}
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               {(st.examples||[2,3,5]).map((n,i) => {
                 const rev=learnTapped.has(i);
@@ -20368,11 +20354,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     // Mod bazlı materyal kullanım rehberi
     const modeGuides = [
       { cat: "Sayma (Sayalon)", color: "#7c3aed", modes: [
-        { mode: "Göktaşı Say", mat: "Kapsül + Mavi yıldız taşı", tip: "Her sayılan nesne için bir yıldız taşı kapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsülde de sayar." },
+        { mode: "Yıldız Taşı Say", mat: "Kapsül + Mavi yıldız taşı", tip: "Her sayılan nesne için bir yıldız taşı kapsüle yerleştirilir. Çocuk ekrandaki sayımla paralel kapsülde de sayar." },
         { mode: "Miktar Eşle", mat: "Kapsül + Yıldız taşı", tip: "Ekrandaki miktara eşit sayıda yıldız taşı kapsüle dizilir. Birebir eşleme prensibi pekiştirilir." },
         { mode: "Sıra Sayısı", mat: "Kapsül + Renkli yıldız taşı", tip: "Yıldız taşları sırayla dizilerek 'birinci, ikinci...' sıra kavramı somutlaştırılır." },
       ]},
-      { cat: "Sanbil (Şimşeron)", color: "#7c3aed", modes: [
+      { cat: "Anlık Algılama (Şimşeron)", color: "#7c3aed", modes: [
         { mode: "Şimşek Bakışı", mat: "Yıldız taşı düzeni (kartlar)", tip: "Zar düzeni, domino düzeni gibi yıldız taşı dizilimleri hazırlayıp çocuğa kısa süre gösterin." },
         { mode: "Beşli/Onlu Çerçeve", mat: "Beşlik + Onluk çerçeve", tip: "Çerçevenin oyuklarına yıldız taşı yerleştirilir. 5+n yapısı görsel bellekte kalıcılaşır (ör. 7 = 5 dolu + 2 dolu)." },
       ]},
@@ -20487,7 +20473,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 </div>
                 <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   Yıldız taşı kapsülün oyuğuna yerleştirildiğinde <strong style={{ color: "#cbd5e1" }}>dokunsal geri bildirim</strong> sağlar.
-                  Çocuk yıldız taşını tutma, yerleştirme ve çıkarma eylemlerini yaparken bire-bir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
+                  Çocuk yıldız taşını tutma, yerleştirme ve çıkarma eylemlerini yaparken birebir eşleme, kardinalite ve sayı korunumu kavramlarını bedensel olarak deneyimler.
                 </div>
               </div>
 
@@ -20497,7 +20483,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#7c3aed,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🔲</div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#a78bfa" }}>Beşlik & Onluk Çerçevelar (Frames)</div>
-                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Yapılandırılmış sanbil (subitizing) destekçisi</div>
+                    <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600 }}>Yapılandırılmış anlık algılama (subitizing) destekçisi</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, marginBottom: 10 }}>
@@ -20511,7 +20497,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   </div>
                 </div>
                 <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
-                  Kartların düzenli yapısı çocuğun <strong style={{ color: "#cbd5e1" }}>bir bakışta algılamasını</strong> (sanbil) destekler.
+                  Kartların düzenli yapısı çocuğun <strong style={{ color: "#cbd5e1" }}>bir bakışta algılamasını</strong> (anlık algılama) destekler.
                   Dolu ve boş gözler arasındaki ilişki tamamlama stratejisinin temelini oluşturur. "7 = 5 dolu + 2 dolu" veya "7'nin tamamlayıcısı 3 boş göz" gibi yapılar.
                 </div>
               </div>
@@ -20527,7 +20513,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 </div>
                 <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
                   Her fiziksel kapsülün altında <strong style={{ color: "#cbd5e1" }}>DOKUNSAY-</strong> ön ekli QR kod bulunur.
-                  Çocuk kapsülü taratarak ilgili dijital etkinliğe anında geçer. 13 farklı QR komutu desteklenir: sayma, toplama, çıkarma, sanbil, karşılaştırma, parça-bütün, örüntü ve daha fazlası.
+                  Çocuk kapsülü taratarak ilgili dijital etkinliğe anında geçer. 13 farklı QR komutu desteklenir: sayma, toplama, çıkarma, anlık algılama, karşılaştırma, parça-bütün, örüntü ve daha fazlası.
                 </div>
               </div>
             </>)}
@@ -20566,12 +20552,12 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <div style={{ ...DS.card, padding: "16px" }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#a78bfa", marginBottom: 8 }}>📐 Clements & Sarama Öğrenme Yörüngeleri</div>
                 <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6, marginBottom: 10 }}>
-                  GalakSay'ın 18 öğrenme yörüngesi, Clements & Sarama'nın [LT]² çerçevesinden haritalanmıştır.
+                  GalakSay'ın 8 öğrenme yörüngesi, Clements & Sarama'nın [LT]² çerçevesindeki 18 yörüngeden haritalanmıştır.
                   Her yörünge, çocuğun gelişimsel basamağına uygun somut etkinlikler önerir.
                 </div>
                 {[
                   { lt: "Sayma Yörüngesi", desc: "Sözel sayma → Birebir eşlemeli sayma → Kardinal sayma → İleri-geri sayma", mat: "Kapsül + sıralı yıldız taşı yerleştirme" },
-                  { lt: "Sanbil Yörüngesi", desc: "Algısal sanbil (1-4) → Algısal sanbil (5) → Kavramsal sanbil (5+n) → Onluk kart sanbil", mat: "Yıldız taşı düzenleri, beşlik/onluk kartlar" },
+                  { lt: "Anlık Algılama Yörüngesi", desc: "Algısal anlık algılama (1-4) → Algısal anlık algılama (5) → Kavramsal anlık algılama (5+n) → Onluk çerçevede anlık algılama", mat: "Yıldız taşı düzenleri, beşlik/onluk kartlar" },
                   { lt: "Toplama/Çıkarma", desc: "Somut birleştirme → Üzerine sayma → Türetilmiş olgular → Akıcı hesap", mat: "2 kapsül yan yana, yıldız taşı aktarma" },
                   { lt: "Parça-Bütün", desc: "Sezgisel ayrıştırma → Yapılandırılmış ayrıştırma → Esnek ayrıştırma", mat: "1 kapsül + 2 renk yıldız taşı" },
                 ].map(lt => (
@@ -20669,7 +20655,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   {[
                     { when: "Her zaman", ctx: "Sayma, parça-bütün, toplama-çıkarma", color: "#34d399" },
                     { when: "Özellikle", ctx: "Çocuk zorlandığında veya hata yaptığında", color: "#fbbf24" },
-                    { when: "Azaltılabilir", ctx: "Sanbil veya zihinsel strateji geliştiğinde", color: "#60a5fa" },
+                    { when: "Azaltılabilir", ctx: "Anlık algılama veya zihinsel strateji geliştiğinde", color: "#60a5fa" },
                     { when: "Diskalkuli riski", ctx: "Her aşamada, geçiş olmadan", color: "#f87171" },
                   ].map(w => (
                     <div key={w.when} style={{ padding: "8px", borderRadius: 10, background: `${w.color}08`, border: `1px solid ${w.color}12`, textAlign: "center" }}>
@@ -20769,7 +20755,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // ═══ YAŞ SEÇİM EKRANI — İlk giriş, tam sayfa ═══
   if (screen === "ageSelect") {
     const ageOpts = [
-      { key: "okuloncesi", icon: "🪐", label: lang==="ku"?"Berî Dibistanê":"Okul Öncesi", sub: lang==="ku"?"5-6 sal":"5-6 yaş", color: "#059669", gradA: "#059669", gradB: "#34d399", desc: lang==="ku"?"Jimartin, sanbîl, berhevkirin":"Sayma, sanbil, karşılaştırma", stops: 9 },
+      { key: "okuloncesi", icon: "🪐", label: lang==="ku"?"Berî Dibistanê":"Okul Öncesi", sub: lang==="ku"?"5-6 sal":"5-6 yaş", color: "#059669", gradA: "#059669", gradB: "#34d399", desc: lang==="ku"?"Jimartin, tavilzanîn, berhevkirin":"Sayma, anlık algılama, karşılaştırma", stops: 9 },
       { key: "sinif1",     icon: "⭐", label: lang==="ku"?"Pola 1":"1. Sınıf",    sub: lang==="ku"?"6-7 sal":"6-7 yaş", color: "#7c3aed", gradA: "#6d28d9", gradB: "#38bdf8", desc: lang==="ku"?"Avahiya hejmaran, zêdekirin-kêmkirin, nimûne":"Sayı yapısı, toplama-çıkarma, örüntü", stops: 12 },
       { key: "sinif2",     icon: "🚀", label: lang==="ku"?"Pola 2":"2. Sınıf",    sub: lang==="ku"?"7-8 sal":"7-8 yaş", color: "#8b5cf6", gradA: "#7c3aed", gradB: "#a78bfa", desc: lang==="ku"?"Mertebe, carkirin-parkirin, çareserkirina pirsgirêkan":"Basamak, çarpma-bölme, problem çözme", stops: 12 },
     ];
@@ -22769,7 +22755,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>🧠 Adaptif Öğrenme</div>
               <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
-                GalakSay, performansını takip ederek sana en uygun zorluk seviyesini önerir. Her oyun sonrası öğrenme motorumuz güncellenir.
+                GalakSay, çocuğunuzun performansını takip ederek ona en uygun zorluk seviyesini önerir. Her oyun sonrası öğrenme motorumuz güncellenir.
               </div>
               {Object.keys(adaptivePerf).length > 0 && (
                 <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -22858,9 +22844,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             <div style={{ ...DS.card, padding: "14px 16px" }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 6 }}>ℹ️ Hakkında</div>
               <div style={{ fontSize: 10, color: "#a8b2d1", fontWeight: 600, lineHeight: 1.6 }}>
-                GalakSay v5.9 — Prof. Dr. Yılmaz MUTLU, 2026<br/>
-                61 mod, 8 öğrenme yörüngesi, Clements & Sarama [LT]² entegrasyonu<br/>
-                Öğrenme yörüngesi haritalaması (18 yörünge × 61 mod)<br/>
+                GalakSay v{APP_VERSION} — Prof. Dr. Yılmaz MUTLU, 2026<br/>
+                {MODE_COUNT} mod, 8 öğrenme yörüngesi, Clements & Sarama [LT]² entegrasyonu<br/>
+                Öğrenme yörüngesi haritalaması ([LT]²'nin 18 yörüngesinden 8'i × {MODE_COUNT} mod)<br/>
                 11 AR modu, diskalkuli tarama, 5 erişilebilirlik seçeneği<br/>
                 Frustrasyon algılama, ekran süresi, kaygı takibi, büyüme zihniyeti<br/>
                 <span style={{ opacity: .75 }}>Her Çocuk Matematik Öğrenebilir platformunun bir parçası</span>

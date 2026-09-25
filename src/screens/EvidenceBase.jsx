@@ -1,4 +1,4 @@
-// Galaksay — Bilimsel Temel (öğretmen/uzman için kanıt sayfası)
+// GalakSay — Bilimsel Temel (öğretmen/uzman için kanıt sayfası)
 // İçerik: scratchpad/research/kanit-temeli.md (25 Eylül 2026 kaynak taraması) — her ilke,
 // uygulamadaki karşılığıyla birlikte verilir; sayısal iddialar yalnızca hakemli kaynaklara dayanır.
 import React from 'react';
@@ -93,7 +93,7 @@ export function EvidenceBaseContent() {
   return (
     <div style={{ fontFamily: F }}>
       <p style={p}>
-        Galaksay bir oyun değil, oyun görünümlü bir <strong style={{ color: colors.text.primary }}>öğretim programıdır</strong>.
+        GalakSay bir oyun değil, oyun görünümlü bir <strong style={{ color: colors.text.primary }}>öğretim programıdır</strong>.
         Tasarımı, matematik öğrenme güçlüğü olan çocuklar için meta-analizlerde ve uygulama kılavuzlarında
         etkili bulunan bileşenleri uygulama düzeyinde doğrulanabilir biçimde içerir. Aşağıda her ilke,
         uygulamadaki karşılığı ve temel kaynağıyla verilmiştir.
@@ -117,7 +117,7 @@ export function EvidenceBaseContent() {
               <span style={{ fontSize: 20 }} aria-hidden="true">{it.icon}</span>
               <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: colors.text.primary, fontFamily: F }}>{it.title}</h4>
             </div>
-            <p style={{ ...p, margin: '0 0 6px' }}><strong style={{ color: colors.text.primary }}>Galaksay'da:</strong> {it.app}</p>
+            <p style={{ ...p, margin: '0 0 6px' }}><strong style={{ color: colors.text.primary }}>GalakSay'da:</strong> {it.app}</p>
             <p style={{ ...p, margin: 0, fontSize: 12.5 }}><strong style={{ color: colors.text.primary }}>Kanıt:</strong> {it.evidence} <span style={{ color: colors.text.tertiary }}>({it.ref})</span></p>
           </article>
         ))}
@@ -132,7 +132,7 @@ export function EvidenceBaseContent() {
 
       <h3 style={h3}>Neyi iddia etmiyoruz</h3>
       <p style={p}>
-        Galaksay tanı koymaz; tarama ve ilerleme verisi uzman değerlendirmesinin yerine geçmez. "Hafıza eğitimi"
+        GalakSay tanı koymaz; tarama ve ilerleme verisi uzman değerlendirmesinin yerine geçmez. "Hafıza eğitimi"
         ya da "diskalkuliye özel yazı tipi" gibi kanıtı zayıf iddialar taşımaz; erişilebilirlikte WCAG ölçütleri
         esas alınır.
       </p>

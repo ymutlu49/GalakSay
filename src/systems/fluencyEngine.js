@@ -6,7 +6,7 @@
 // ── Streak Ödül Tanımları ─────────────────────────────────────────────────────
 export const STREAK_REWARDS = {
   3:  { title: "Kuyruklu Yıldız!",   emoji: "☄️",  color: "#60a5fa" },
-  5:  { title: "Süper Nova!",         emoji: "💥",  color: "#f59e0b" },
+  5:  { title: "Süpernova!",         emoji: "💥",  color: "#f59e0b" },
   7:  { title: "Galaksi Kaptanı!",    emoji: "🌟",  color: "#ef4444" },
   10: { title: "Evren Kahramanı!",    emoji: "🚀",  color: "#a855f7" },
   15: { title: "Kozmik Efsane!",      emoji: "✨",  color: "#ec4899" },
@@ -100,7 +100,7 @@ export const getFluencySummary = (session) => {
 
   const BADGES = {
     lightning: { emoji: "⚡", label: "Şimşek Hızı!", color: "#f59e0b" },
-    star:      { emoji: "🌟", label: "Yıldız Kaşif!", color: "#6366f1" },
+    star:      { emoji: "🌟", label: "Yıldız Kaşifi!", color: "#6366f1" },
     growing:   { emoji: "🌱", label: "Büyüyen Güç!", color: "#22c55e" },
     explorer:  { emoji: "🔭", label: "Cesur Kaşif!", color: "#60a5fa" },
   };

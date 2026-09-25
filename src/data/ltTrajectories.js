@@ -22,23 +22,23 @@ export const LT_TRAJECTORIES = {
   ordinalCount:  { trajectory: "Comparing/Ordering",  level: "First-Second Ordinal Counter → Ordinal Counter", ltLevel: [4,13], primary: 13, ageRange: "3-5", desc: "Nesnelerin sıra pozisyonunu belirler (birinci, ikinci, üçüncü...)" }, // GS-M01 — Sayalon kategorisinde kalır; yalnız yörünge etiketi değişti
   decadeCount:   { trajectory: "Counting",            level: "Counter to 100",                           ltLevel: 12,     ageRange: "6",   desc: "Onluk geçişlerini (29→30, 99→100) doğru yapar" }, // GS-M02
 
-  // ── SUBITIZING (Sanbil Yörüngesi — 12 düzey) ─────────────────────────────
+  // ── SUBITIZING (Anlık Algılama Yörüngesi — 12 düzey) ─────────────────────────────
   subitizing:    { trajectory: "Subitizing",           level: "Perceptual Subitizer to 4 → Conceptual Subitizer to 10", ltLevel: [5,9], ageRange: "4-6", desc: "Saymadan anlık miktar algılama, alt-grup birleştirme" }, // GS-M16
   fivesFrame:    { trajectory: "Subitizing",           level: "Perceptual Subitizer to 5",                ltLevel: 6,      ageRange: "4-5", desc: "5'lik çerçevede yapılandırılmış koleksiyon tanıma" },
-  tensFrame:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 7 → Conceptual Subitizer to 10", ltLevel: [8,9], primary: 9, ageRange: "5-6", desc: "10'luk çerçevede kavramsal sanbil" }, // GS-M03
-  doubleTensFrame:{ trajectory: "Subitizing",          level: "Conceptual Subitizer to 20",               ltLevel: 10,     ageRange: "6-7", desc: "Çift 10'luk çerçevede 10+n kavramsal sanbil" },
-  chipGuess:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 7 → Conceptual Subitizer to 10", ltLevel: [8,9], ageRange: "5-6", desc: "Yapılandırılmış diziyi bir bakışta görüp hatırlama" }, // GS-M04
-  rodBack:       { trajectory: "Subitizing",           level: "Conceptual Subitizer to 7 → Conceptual Subitizer to 10", ltLevel: [8,9], ageRange: "5-6", desc: "Çeşitli yapılandırılmış temsilleri bir bakışta görüp hatırlama" }, // GS-M05
-  // GS-M06: estimateCount sanbil DEĞİL, karşılaştırma yörüngesinin tahmin kolu. Çapraz-kategori etiketi:
-  // categories.js onu Şimşeron (sanbil) gezegenine, AnalyticsBridge MODE_TO_CATEGORY 'sayma'ya koyar; ikisi de yörüngeyle örtüşmez.
+  tensFrame:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 5 → Conceptual Subitizer to 10", ltLevel: [8,9], primary: 9, ageRange: "5-6", desc: "10'luk çerçevede kavramsal anlık algılama" }, // GS-M03
+  doubleTensFrame:{ trajectory: "Subitizing",          level: "Conceptual Subitizer to 20",               ltLevel: 10,     ageRange: "6-7", desc: "Çift 10'luk çerçevede 10+n kavramsal anlık algılama" },
+  chipGuess:     { trajectory: "Subitizing",           level: "Conceptual Subitizer to 5 → Conceptual Subitizer to 10", ltLevel: [8,9], ageRange: "5-6", desc: "Yapılandırılmış diziyi bir bakışta görüp hatırlama" }, // GS-M04
+  rodBack:       { trajectory: "Subitizing",           level: "Conceptual Subitizer to 5 → Conceptual Subitizer to 10", ltLevel: [8,9], ageRange: "5-6", desc: "Çeşitli yapılandırılmış temsilleri bir bakışta görüp hatırlama" }, // GS-M05
+  // GS-M06: estimateCount anlık algılama DEĞİL, karşılaştırma yörüngesinin tahmin kolu. Çapraz-kategori etiketi:
+  // categories.js onu Şimşeron (anlık algılama) gezegenine, AnalyticsBridge MODE_TO_CATEGORY 'sayma'ya koyar; ikisi de yörüngeyle örtüşmez.
   estimateCount: { trajectory: "Comparing/Ordering",   level: "Spatial Extent Estimator → Benchmarks Estimator", ltLevel: [17,22], ageRange: "6-7", desc: "Yapılandırılmamış koleksiyonun büyüklüğünü tahmin etme (5/10 referans küme)" }, // GS-M06
 
   // ── COMPARING AND ORDERING (Karşılaştırma ve Sıralama — 23 düzey) ────────
   comparison:    { trajectory: "Comparing/Ordering",   level: "Counting Comparer (5) → Counting Comparer (10)", ltLevel: [10,14], ageRange: "5-6", desc: "Çeşitli temsillerle iki çokluğu karşılaştırır" },
-  lessMoreEqual: { trajectory: "Comparing/Ordering",   level: "Early Comparer → Matching Comparer",       ltLevel: [5,7],  ageRange: "4-5", desc: "Az-çok-eşit ilişkilerini belirler" },
-  ordering:      { trajectory: "Comparing/Ordering",   level: "Serial Orderer to 5 → Serial Orderer to 6+", ltLevel: [12,16], ageRange: "5-6", desc: "Sayıları küçükten büyüğe sıralar" },
+  lessMoreEqual: { trajectory: "Comparing/Ordering",   level: "Perceptual Comparer → Matching Comparer",       ltLevel: [5,7],  ageRange: "4-5", desc: "Az-çok-eşit ilişkilerini belirler" },
+  ordering:      { trajectory: "Comparing/Ordering",   level: "Counting Comparer (10) → Serial Orderer to 6+", ltLevel: [12,16], ageRange: "5-6", desc: "Sayıları küçükten büyüğe sıralar" },
   beforeAfter:   { trajectory: "Counting",            level: "Counter (10) → Counter from N (N + 1, N − 1)", ltLevel: [6,10], primary: 10, ageRange: "4-5", desc: "Bir sayının hemen öncesini ve sonrasını bilir" }, // GS-M07 — Terazya kategorisinde kalır; yörünge etiketi Counting
-  fiveMore:      { trajectory: "Comparing/Ordering",   level: "Mental Number Line to 5 → Mental Number Line to 10", ltLevel: [11,15], ageRange: "5-7", desc: "5/10 referans noktasına göre büyüklük yargısı" }, // GS-M08
+  fiveMore:      { trajectory: "Comparing/Ordering",   level: "Counting Comparer (5) → Mental Number Line to 10", ltLevel: [11,15], ageRange: "5-7", desc: "5/10 referans noktasına göre büyüklük yargısı" }, // GS-M08
   numberLineEstimate: { trajectory: "Comparing/Ordering", level: "Mental Number Line to 10",              ltLevel: 15,     ageRange: "6-7", desc: "Sayı doğrusunda konumdan büyüklük tahmini" },
   nlPlacement:   { trajectory: "Comparing/Ordering",   level: "Mental Number Line to 10 → Mental Number Line to 100 (partial, ≤40)", ltLevel: [15,19], ageRange: "6-7", desc: "Sayıyı zihinsel sayı doğrusunda konumlandırır" }, // GS-M09 — nlRange yaş uyumu için bilinçli olarak ≤40; 100'e genişletilmedi
   numberLine:    { trajectory: "Counting",            level: "Counter (10) → Counter from N (N + 1, N − 1)", ltLevel: [6,10], primary: 10, ageRange: "6-7", desc: "Etiketli ardışık sayı doğrusunda eksik (ara) sayıyı bulur" }, // GS-M10 — counterFromN ile örtüşür
@@ -61,8 +61,8 @@ export const LT_TRAJECTORIES = {
   makeTen:       { trajectory: "Composing Numbers",    level: "Composer to 10",                           ltLevel: 6,      ageRange: "5-6", desc: "10'un parça-bütün kombinasyonlarını bilir" },
   partWhole:     { trajectory: "Composing Numbers",    level: "Composer to 7 → Composer to 10",           ltLevel: [5,6],  ageRange: "5-6", desc: "Bütünün parçalarını ve parçalardan bütünü bilir" },
   numbersInNumbers: { trajectory: "Composing Numbers", level: "Composer to 4, then 5 → Composer to 10",  ltLevel: [4,6],  ageRange: "6-7", desc: "Bir sayının tüm parça kombinasyonlarını görür (7=3+4=5+2=6+1)" }, // GS-M11
-  composeNumber: { trajectory: "Composing Numbers",    level: "Composer Using Tens and Ones",             ltLevel: 7,      ageRange: "7",   desc: "İki basamaklı sayıları onluk+birlik olarak oluşturur", secondary: { trajectory: "Counting", level: "Counter of Quantitative Units/Place Value", ltLevel: 16 } }, // GS-M12 — ikincil etiket: oyun L5 yüzlükleri (100-399)
-  expandForm:    { trajectory: "Composing Numbers",    level: "Composer Using Tens and Ones",             ltLevel: 7,      ageRange: "7",   desc: "Genişletilmiş gösterimle sayı yapısını çözümler" }, // GS-M12
+  composeNumber: { trajectory: "Composing Numbers",    level: "Composer with Tens and Ones",             ltLevel: 7,      ageRange: "7",   desc: "İki basamaklı sayıları onluk+birlik olarak oluşturur", secondary: { trajectory: "Counting", level: "Counter of Quantitative Units/Place Value", ltLevel: 16 } }, // GS-M12 — ikincil etiket: oyun L5 yüzlükleri (100-399)
+  expandForm:    { trajectory: "Composing Numbers",    level: "Composer with Tens and Ones",             ltLevel: 7,      ageRange: "7",   desc: "Genişletilmiş gösterimle sayı yapısını çözümler" }, // GS-M12
 
   // ── MULTIPLYING / DIVIDING (Çarpma-Bölme — 9 düzey) ──────────────────────
   repeatAdd:     { trajectory: "Multiplying/Dividing", level: "Concrete Modeler ×/÷ → Skip Counter ×/÷",  ltLevel: [4,6],  ageRange: "5-6", desc: "Eşit grupları tekrarlı toplamayla çarpmaya geçiş" }, // GS-M17
@@ -83,10 +83,10 @@ export const LT_TRAJECTORIES = {
   placeValue:    { trajectory: "Counting",             level: "Counter of Quantitative Units/Place Value", ltLevel: 16,    ageRange: "6-7", desc: "Basamak değerini anlama" },
 
   // ── PATTERNS & ALGEBRAIC THINKING (Örüntü — 11 düzey) ────────────────────
-  patternAB:     { trajectory: "Patterning",           level: "Patterner AB → Patterner (4-unit cores L5+)",  ltLevel: [3,4],  ageRange: "3-5", desc: "Tekrar eden örüntüleri tanır, tamamlar ve genişletir; L5+ ABBC/AABB 4-elemanlı çekirdek" },
-  growingPattern:{ trajectory: "Patterning",           level: "Numeric Patterner → Beg. Arithmetic Patterner", ltLevel: [6,7], ageRange: "5-7", desc: "Artan/azalan sayı örüntülerinde kural bulma; L5+ değişken adım (MAT.4.1.5)" },
-  patternTranslate:{ trajectory: "Patterning",         level: "Pattern Translator & Unit Recognizer",     ltLevel: 5,      ageRange: "4-5", desc: "Örüntüyü farklı temsile çevirme ve çekirdek birim tanıma" },
-  trueFalse:     { trajectory: "Patterning",           level: "Beginning Arithmetic Patterner → Relational Thinker +/-", ltLevel: [7,8], ageRange: "5-7", desc: "Eşitlik ilkeleri: değişme özelliği, etkisiz eleman, denge" },
+  patternAB:     { trajectory: "Patterning",           level: "Pattern Duplicator AB → Pattern Extender",  ltLevel: [3,4],  ageRange: "3-5", desc: "Tekrar eden örüntüleri tanır, tamamlar ve genişletir; L5+ ABBC/AABB 4-elemanlı çekirdek" },
+  growingPattern:{ trajectory: "Patterning",           level: "Numeric Patterner → Beginning Arithmetic Patterner", ltLevel: [6,7], ageRange: "5-7", desc: "Artan/azalan sayı örüntülerinde kural bulma; L5+ değişken adım (uzatma)" },
+  patternTranslate:{ trajectory: "Patterning",         level: "Pattern Unit Recognizer",     ltLevel: 5,      ageRange: "4-5", desc: "Örüntüyü farklı temsile çevirme ve çekirdek birim tanıma" },
+  trueFalse:     { trajectory: "Patterning",           level: "Numeric Patterner → Beginning Arithmetic Patterner", ltLevel: [7,8], ageRange: "5-7", desc: "Eşitlik ilkeleri: değişme özelliği, etkisiz eleman, denge" },
   missingNumber: { trajectory: "Adding/Subtracting",   level: "Find Result +/- → Numbers-in-Numbers +/-", ltLevel: [4,9], primary: 6, ageRange: "6-7", desc: "Denklemde bilinmeyen terimi bulur (sonuç/değişim/başlangıç bilinmeyen)", secondary: { trajectory: "Patterning", level: "Beginning Arithmetic Patterner", ltLevel: 7 } }, // GS-M19 — ikincil: ters biçim (c = a+b), eşittir işaretinin anlamı
 
   // ── NUMBER CONSERVATION (Sayı Korunumu — Counting yörüngesi) ─────────────

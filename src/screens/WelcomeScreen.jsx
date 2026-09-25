@@ -61,7 +61,7 @@ export default function WelcomeScreen({ onStudent, onAdult }) {
         <div style={{ textAlign: 'center', marginBottom: 30 }}>
           <div style={{ fontSize: 60, marginBottom: 10, lineHeight: 1 }}>🪐</div>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: colors.text.primary, fontFamily: typography.fontFamily.display, margin: '0 0 6px' }}>
-            Galaksay'a Hoş Geldin!
+            GalakSay'a Hoş Geldin!
           </h1>
           {/* Değer önerisi tek cümlede (onboarding pratiği: değeri ilk ekranda söyle) */}
           <p style={{ fontSize: 14.5, lineHeight: 1.5, color: colors.text.secondary, fontFamily: typography.fontFamily.display, margin: 0 }}>
@@ -81,7 +81,7 @@ export default function WelcomeScreen({ onStudent, onAdult }) {
             tone="teal"
             icon="🧑‍🏫"
             title="Öğretmen / Uzman Girişi"
-            desc="Numap hesabınla (getnumap.com) ya da bu cihazdaki hesapla gir"
+            desc="Numap hesabınızla (getnumap.com) ya da bu cihazdaki hesapla girin"
             onClick={onAdult}
           />
         </div>
@@ -91,9 +91,9 @@ export default function WelcomeScreen({ onStudent, onAdult }) {
           marginTop: 18, fontSize: 12, lineHeight: 1.5, textAlign: 'center',
           color: colors.text.tertiary, fontFamily: typography.fontFamily.display,
         }}>
-          🔗 Numap, tarama ve raporlama platformudur — orada değerlendirdiğin öğrenciler
-          Galaksay'da otomatik listelenir ve oyun ilerlemeleri Numap'e işlenir.
-          Numap hesabın yoksa tüm oyunu yerel hesapla kullanabilirsin.
+          🔗 Numap, tarama ve raporlama platformudur — orada değerlendirdiğiniz öğrenciler
+          GalakSay'da otomatik listelenir ve oyun ilerlemeleri Numap'e işlenir.
+          Numap hesabınız yoksa tüm oyunu yerel hesapla kullanabilirsiniz.
         </p>
       </div>
     </div>

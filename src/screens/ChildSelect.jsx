@@ -661,15 +661,15 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
               {!loading && children.length === 0 && isLocal ? (
                 <HubCard
                   icon="➕" primary
-                  title="İlk Öğrencini Ekle"
+                  title="İlk Öğrencinizi Ekleyin"
                   desc="1 dakika sürer — ad ve avatar yeterli"
                   onClick={openAddChild}
                 />
               ) : (
               <HubCard
                 icon="👧" primary
-                title={isLocal ? 'Öğrenci Seç & Oynat' : 'Öğrenci Seç & Başla'}
-                desc={`Bir çocuk seç, oyuna başla${!loading && children.length > 0 ? ` · ${children.length} çocuk` : ''}`}
+                title={isLocal ? 'Öğrenci Seçin ve Oynatın' : 'Öğrenci Seçin ve Başlayın'}
+                desc={`Bir çocuk seçin, oyunu başlatın${!loading && children.length > 0 ? ` · ${children.length} çocuk` : ''}`}
                 onClick={() => setView('list')}
               />
               )}
@@ -757,7 +757,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             {isLocal ? 'Öğrenciler' : 'Hangi çocukla çalışacaksınız?'}
           </h1>
           <p style={{ fontSize: 14, color: colors.text.secondary, fontFamily: typography.fontFamily.display, margin: 0 }}>
-            {isLocal ? 'Bir öğrenciye dokun, oyunu başlat • ✏️ ile düzenle' : `${user?.name ? `${user.name} • ` : ''}🛰️ Numap taramalarınız + 🏠 eklediğiniz profiller tek listede`}
+            {isLocal ? 'Bir öğrenciye dokunun, oyunu başlatın • ✏️ ile düzenleyin' : `${user?.name ? `${user.name} • ` : ''}🛰️ Numap taramalarınız + 🏠 eklediğiniz profiller tek listede`}
           </p>
         </div>
 
@@ -909,7 +909,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
             <EmptyState
               icon="🧒"
               title="Henüz öğrenci yok"
-              description="Yeni bir öğrenci profili ekleyerek başla — çocuk sonra kendi profiliyle girip oyununa devam eder."
+              description="Yeni bir öğrenci profili ekleyerek başlayın — çocuk sonra kendi profiliyle girip oyununa devam eder."
               actionLabel="➕ Yeni Öğrenci"
               onAction={openAddChild}
             />
@@ -921,7 +921,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                 icon="🧒"
                 title="Henüz öğrenci yok"
                 description="Hemen bir profil ekleyip oynamaya başlayabilirsiniz. Numap'te tarama tamamlarsanız çocuk bu listeye otomatik gelir ve oyun ona göre kalibre edilir."
-                actionLabel="➕ İlk Öğrencini Ekle"
+                actionLabel="➕ İlk Öğrencinizi Ekleyin"
                 onAction={openAddChild}
               />
               <div style={{ textAlign: 'center', marginTop: -20 }}>
