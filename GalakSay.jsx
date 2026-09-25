@@ -8256,7 +8256,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           const nlRange = isPreReader ? 10 : lp(level, [10, 15, 20, 30, 40]); // ön-okur ≤10; asıl kitle yaş-uygun (L7≤40, eskiden 100)
           const nlTarget = R(1, nlRange - 1);
           // 4 konum seçeneği: doğru + 3 distractor (yakın ama farklı)
-          const step = Math.max(1, Math.round(nlRange * 0.08));
+          // Balon dokunma hedefi 44px, doğru genişliği ≤260px → komşu konumlar en az aralık/6 birim ayrık olsun
+          // (eskiden step=1: 10'luk doğruda balonlar 26px aralıkla üst üste biniyordu — QA OVERLAPPING_TARGETS)
+          const step = Math.max(1, Math.ceil(nlRange / 6));
           let nlOpts = [nlTarget];
           const candidates = [nlTarget - step * 2, nlTarget - step, nlTarget + step, nlTarget + step * 2]
             .filter(v => v >= 0 && v <= nlRange && v !== nlTarget);
@@ -16832,6 +16834,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 <span style={{ fontSize: 18 }}>{mi?.i}</span>
                 <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(300px, 38vw)" }}>{mi?.n}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,.92)" }} aria-label={`Soru ${round + 1} / ${roundsPerGame}`}>{round + 1}/{roundsPerGame}</span>
+                {question?.isRetry && !answered && (
+                  <span title={lang === "ku" ? "Ev pirs dubare tê pirsîn" : "Bu soru yeniden soruluyor"} style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(251,191,36,.22)", color: "#fde68a", border: "1px solid rgba(251,191,36,.45)", whiteSpace: "nowrap" }}>🔁 {lang === "ku" ? "Dîsa" : "Tekrar"}</span>
+                )}
               </div>
               <div style={{ display: "flex", gap: 4 }}>
                 {/* Her soruda görünür (eskiden yalnız narrationOn||isPreReader): diskalkulide sesli tekrar temel destek */}
