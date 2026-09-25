@@ -11,8 +11,9 @@ import { initKuAudio, trySpeakKu } from "./src/audio/kuAudio.js";
 // GalakSay Revizyon — 2026-03-18 — DokunSay Kit entegrasyonu
 import { setAudioCallback } from "./src/core/DokunSayKit/MateryalFizik.js";
 import { ParentalGate } from "./src/components/ui/ParentalGate.jsx"; // oturum-süresi +10 dk yetişkin kapısı
+import { updateChild } from "./src/services/localProfiles.js"; // Keşif Uçuşu yerleştirme bayrağı roster kaydına
 // GalakSay Analytics — 2026-03-18 — Analitik ve raporlama sistemi entegrasyonu
-import { initAnalytics, beginGameSession, finishGameSession, onQuestionPresented, onQuestionAnswered, onHintRequested, onRepresentationSwitched, onModuleCompleted, onConcreteSupport, onFluencySessionEnd, setCurrentModule } from "./src/analytics/AnalyticsBridge.js";
+import { initAnalytics, beginGameSession, finishGameSession, onQuestionPresented, onQuestionAnswered, onHintRequested, onRepresentationSwitched, onModuleCompleted, onConcreteSupport, onFluencySessionEnd, setCurrentModule, MODE_TO_CATEGORY } from "./src/analytics/AnalyticsBridge.js";
 // Merkezi senkron rızası (KVKK) — Numap akışı Ayarlar'ında dataSync toggle için.
 import { loadConsent, saveConsent } from "./src/utils/consent.js";
 // 2026-04-27 — Statik veri ekstraktları (refactor adımı)
@@ -2054,6 +2055,18 @@ const SESSION_OPTIONS = [
   { value: 15, label: 'Uzun',  icon: '🏆' },
 ];
 // 5 seviye (2026-06: 7→5; üst-seviye farkı SAYI değil YAPI — Faz 2). maxNum: 5/10/15/20/20.
+// ═══ KEŞİF UÇUŞU (kalibrasyon): yaş grubuna göre 8 kısa madde — alanlar dengeli, etkileşimli
+// modlar (spaceKitchen/rodSplit vb.) dışarıda. Sonuç: alan bazlı yerleştirme + öğretmen risk bayrağı.
+// (Kısa uyarlanabilir başlangıç değerlendirmesi ve CBM tarama ölçülerinden — miktar ayrımı, eksik sayı, sayma — esinlenir.)
+const CALIB_SEQ = {
+  okuloncesi: ["counting", "quantityMatch", "subitizing", "comparison", "lessMoreEqual", "matching", "ordinalCount", "fivesFrame"],
+  sinif1: ["counting", "subitizing", "comparison", "lessMoreEqual", "numberLine", "backwardCount", "beforeAfter", "tensFrame"],
+  sinif2: ["subitizing", "tensFrame", "comparison", "decadeCount", "bundleTens", "addition", "subtraction", "skipCount"],
+};
+const CALIB_LEVEL = { okuloncesi: 1, sinif1: 2, sinif2: 3 };
+const CALIB_CAT_LABEL = { sayma: "Sayma", subitizing: "Anlık Algılama", karsilastirma: "Karşılaştırma", sayi_bilesimi: "Sayı Bileşimi", basamak_degeri: "Basamak Değeri", toplama_cikarma: "Toplama/Çıkarma", carpma_bolme: "Çarpma/Bölme", oruntu: "Örüntü" };
+const CALIB_CAT_LABEL_KU = { sayma: "Jimartin", subitizing: "Tavilzanîn", karsilastirma: "Berawirdkirin", sayi_bilesimi: "Pêkhatina Hejmaran", basamak_degeri: "Nirxa Cihê", toplama_cikarma: "Zêdekirin/Kêmkirin", carpma_bolme: "Carandin/Parvekirin", oruntu: "Nimûne" };
+
 const LEVELS = {
   1: { name: "Başlangıç", maxNum: 5, icon: "🌱" },
   2: { name: "Kolay", maxNum: 10, icon: "🌿" },
@@ -7301,6 +7314,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const countActiveRef = useRef(false); // count-along sürüyor mu? (otomatik geçiş bunu BEKLER → sayım kesilmez)
   const questionRegionRef = useRef(null); // odak yönetimi (K1)
   const usedKeys = useRef(new Set());
+  const calibRef = useRef([]); // Keşif Uçuşu madde sonuçları {mode, ok}
+  const calibPrevRoundsRef = useRef(null);
+  const [calibSummary, setCalibSummary] = useState(null);
+  const [placement, setPlacement] = useState(null); // ds_placement_<ns>: alan bazlı yerleştirme + risk bayrağı
   const recentKeysRef = useRef([]); // oyunlar-arası kayan pencere (son ~8 soru) — durak tekrar/ardışık oynamada aynı soruları önler (oyun başında SIFIRLANMAZ)
   const lastQKeyRef = useRef(""); // son sorunun key'i — ard arda tekrar engeli
   const soundRef = useRef(true); // tracks soundOn for callbacks
@@ -7556,6 +7573,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         beginGameSession(ns, { nuMapProfileId: child.childMeta?.nuMapProfileId || null });
         _activeSessionChildNs = ns;
       } catch {}
+      try { const pl = localStorage.getItem(`ds_placement_${ns}`); setPlacement(pl ? JSON.parse(pl) : null); } catch { setPlacement(null); }
       loadAdaptiveData(ns);
       // KALDIĞI YERDEN DEVAM: çocuğun kayıtlı stats/lastPlayed/round'unu yükle
       // (ds_*_<ns> + dokunsay-user-<ns>). İlk kez oynayanda no-op. Hem Numap hem
@@ -7780,7 +7798,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     // ═══ v5.5: Leitner/Duolingo Retry — yanlış soruları tekrar sor ═══
     // Her 3. soruda retryQueue'dan bir soru çek (varsa)
-    if (retryQueue.length > 0 && round > 0 && round % 3 === 2) {
+    if (retryQueue.length > 0 && round > 0 && round % 3 === 2 && gameMode !== "calibration") {
       const retryQ = retryQueue[0];
       setRetryQueue(q => q.slice(1));
       const rAns = (retryQ._ans !== undefined && retryQ._ans !== null) ? retryQ._ans
@@ -7839,6 +7857,12 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       }
     }
 
+    // ═══ KEŞİF UÇUŞU: her tur farklı alandan bir madde (kalibrasyon) ═══
+    if (gameMode === "calibration") {
+      // Sıra, yanıtlanan madde sayısına bağlı (round state'i üretim anında bir tur geride kalabiliyor)
+      const seq = CALIB_SEQ[ageGroup] || CALIB_SEQ.sinif1;
+      interleavedMode = seq[calibRef.current.length % seq.length];
+    }
     const gen = () => {
       const level = effectiveLevel; _g3Level = level; // §Mikro-adaptasyon: tüm zorluk hesapları adaptif seviyeyi kullanır (gen3 çeldirici yakınlığı dahil)
       switch (interleavedMode || gameMode) {
@@ -9308,6 +9332,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       };
       q.ttsText = (lang === "ku" && KU_TTS[q.type]) ? KU_TTS[q.type](q, round) : (_tts[q.type] || null);
     }
+    if (gameMode === "calibration") q.calibMode = interleavedMode; // sonuç eşlemesi için
     q._ans = ans; setQuestion(q); setCorrectAnswer(ans); setOptions(opts); // _ans: retry'da doğru cevabı kesin sakla (number≠cevap olan modlarda — beforeAfter vb. — retry yanlış cevap işaretliyordu)
     // v5.5: Frustrasyon seviyesi yüksekse bir yanlış seçeneği otomatik ele
     if (frustrationLevel >= 2 && opts.length >= 3) {
@@ -9925,6 +9950,27 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const finishGame = useCallback((fc, fs) => {
     stopCounting(); // #3: son soru cevaplanıp bitişe geçince count-along results'a taşmasın
     const mode = gameMode, acc = Math.round((fc / roundsPerGame) * 100);
+    if (mode === "calibration") {
+      // Keşif Uçuşu: oyun istatistiğine/rozete yazılmaz; alan bazlı yerleştirme + risk bayrağı üretir
+      const byMode = {};
+      for (const r of calibRef.current) { const m = r.mode || "?"; byMode[m] = byMode[m] || { ok: 0, n: 0 }; byMode[m].n++; if (r.ok) byMode[m].ok++; }
+      const byCat = {};
+      for (const [m, v] of Object.entries(byMode)) { const c = MODE_TO_CATEGORY[m] || "diger"; byCat[c] = byCat[c] || { ok: 0, n: 0 }; byCat[c].ok += v.ok; byCat[c].n += v.n; }
+      const total = calibRef.current.length, okTotal = calibRef.current.filter(r => r.ok).length;
+      const overall = total > 0 ? okTotal / total : 0;
+      const pl = { at: Date.now(), ageGroup, level, total, ok: okTotal, overall, byCat, byMode, riskFlag: total >= 6 && overall < 0.5 };
+      const uKey = currentUser?.username || "guest";
+      try { localStorage.setItem(`ds_placement_${uKey}`, JSON.stringify(pl)); } catch {}
+      try { if (child?.ns) updateChild(child.ns, { placement: { at: pl.at, overall, riskFlag: pl.riskFlag } }); } catch {}
+      setPlacement(pl); setCalibSummary(pl);
+      if (bgmOn) BGM.stop();
+      try { onModuleCompleted(mode, level, overall, null, null, null); } catch (_) {}
+      setSessionErrors(0); setSessionCorrects(0);
+      sfx("gameComplete", Math.round(overall * 100));
+      // Soru sayısı sonuç ekranından çıkarken eski değerine döner (oyun ekranı 8/10'a uzamasın)
+      navigateTo("results", "page-zoom");
+      return;
+    }
     setLastPlayed({ mode, level }); // E2.5
     sfx("gameComplete", acc);
     const maxStreakThisGame = maxStreakGameRef.current;
@@ -10185,10 +10231,21 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // risk + adaptif geçmiş harmanı (calibrateDifficulty: ≥3 oyun varsa performansa,
   // yoksa risk düzeyine göre); yoksa sınıf-tabanlı gradeStartLevel (mevcut davranış).
   const resolveStartLevel = useCallback((modeId) => {
-    if (!numapProfile) return gradeStartLevel;
-    const base = NumapProfile.getStartLevel(numapProfile);
-    return NumapProfile.calibrateDifficulty(numapProfile, adaptivePerf?.[modeId], base);
-  }, [numapProfile, adaptivePerf, gradeStartLevel]);
+    if (numapProfile) {
+      const base = NumapProfile.getStartLevel(numapProfile);
+      return NumapProfile.calibrateDifficulty(numapProfile, adaptivePerf?.[modeId], base);
+    }
+    // Keşif Uçuşu yerleştirmesi (Numap yoksa): alanda tam başarı → bir üst düzey; hiç doğru yok → bir alt düzey.
+    // Yalnız o modda henüz oyun verisi yokken uygulanır; sonrasında adaptif motor devralır.
+    const cat = MODE_TO_CATEGORY[modeId];
+    const st = cat && placement?.byCat?.[cat];
+    if (st && st.n > 0 && !adaptivePerf?.[modeId]) {
+      const r = st.ok / st.n;
+      if (r >= 0.75) return Math.min(5, gradeStartLevel + 1);
+      if (r === 0) return Math.max(1, gradeStartLevel - 1);
+    }
+    return gradeStartLevel;
+  }, [numapProfile, adaptivePerf, gradeStartLevel, placement]);
 
   // ═══ UZAY GEÇIŞ: Warp + Rehber diyaloğu ile oyun başlatma ═══
   const launchFromJourney = useCallback((modeId) => {
@@ -10448,6 +10505,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         const responseTimeMs = Date.now() - (questionStartTimeRef.current || Date.now());
         // GalakSay Analytics — 2026-03-18 — Doğru cevap kaydı
         onQuestionAnswered(gameMode, true, answer, correctAnswer, hintKademe, showTripleCode ? "somut" : "sembolik", question);
+        if (gameMode === "calibration") calibRef.current.push({ mode: question?.calibMode || gameMode, ok: true });
         // Akıcılık modu: oturum güncelle
         if (fluencyMode && fluencySession) {
           setFluencySession(prev => recordFluencyAnswer(prev, { correct: true, responseTime: responseTimeMs, hintLevel: hintKademe }));
@@ -10888,6 +10946,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         const responseTimeMs = Date.now() - (questionStartTimeRef.current || Date.now());
         // GalakSay Analytics — 2026-03-18 — Yanlış cevap kaydı
         onQuestionAnswered(gameMode, false, answer, correctAnswer, hintKademe, showTripleCode ? "somut" : "sembolik", question);
+        if (gameMode === "calibration") calibRef.current.push({ mode: question?.calibMode || gameMode, ok: false });
         if (fluencyMode && fluencySession) {
           setFluencySession(prev => recordFluencyAnswer(prev, { correct: false, responseTime: responseTimeMs, hintLevel: hintKademe }));
         }
@@ -11057,6 +11116,26 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     navigateTo("game", "page-hyperspace");
     // Otomatik kapanma yok — çocuk butona basarak ilerler
   }, [createQuestion, sfx, bgmOn, gameMode]);
+
+  // ═══ KEŞİF UÇUŞU (kalibrasyon): 8 kısa madde → alan bazlı yerleştirme + risk bayrağı ═══
+  const calibStartPendingRef = useRef(false);
+  const startCalibration = useCallback(() => {
+    const seq = CALIB_SEQ[ageGroup] || CALIB_SEQ.sinif1;
+    calibRef.current = [];
+    calibPrevRoundsRef.current = roundsPerGame;
+    calibStartPendingRef.current = true;
+    setRetryQueue([]);
+    setRoundsPerGame(seq.length);
+    setGameMode("calibration");
+    setLevel(CALIB_LEVEL[ageGroup] || 2);
+  }, [ageGroup, roundsPerGame]);
+  useEffect(() => {
+    if (!calibStartPendingRef.current || gameMode !== "calibration") return;
+    const seq = CALIB_SEQ[ageGroup] || CALIB_SEQ.sinif1;
+    if (roundsPerGame !== seq.length) return;
+    calibStartPendingRef.current = false;
+    startGame();
+  }, [gameMode, roundsPerGame, ageGroup, startGame]);
 
   // ═══ RENDER QUESTION ══════════════════════════════════════════════════════
   const renderQ = () => {
@@ -15585,11 +15664,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   <button onClick={goExplore} style={secondaryStyle}>
                     🚀 {playerName ? `${playerName} ile Keşfet` : "Serbest Keşfet"}
                   </button>
-                </>) : (
+                </>) : (<>
                   <button onClick={goExplore} style={primaryStyle}>
                     <span style={{ position: "relative", zIndex: 1 }}>🚀 {playerName ? `${playerName} ile Keşfet` : "Oyuna Başla"}</span>
                   </button>
-                )}
+                  {!placement && ageGroup && (
+                    <button onClick={startCalibration} style={secondaryStyle}>🧭 Keşif Uçuşu ile başla <span style={{ fontSize: 12, opacity: .8 }}>(8 kısa soru)</span></button>
+                  )}
+                </>)}
               </>);
             })()}
             {/* Analiz araçları — yalnız öğretmen/uzman görünümünde, VARSAYILAN KAPALI akordeon:
@@ -17205,6 +17287,37 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   }
 
   // ─── 5. RESULTS ──────────────────────────────────────────────────────────
+  if (screen === "results" && gameMode === "calibration") {
+    const pl = calibSummary || placement || { byCat: {}, total: 0, ok: 0, overall: 0 };
+    const CL = lang === "ku" ? CALIB_CAT_LABEL_KU : CALIB_CAT_LABEL;
+    const cats = Object.entries(pl.byCat || {});
+    const strong = cats.filter(([, v]) => v.n > 0 && v.ok / v.n >= 0.75).map(([c]) => CL[c] || c);
+    const work = cats.filter(([, v]) => v.n > 0 && v.ok / v.n < 0.5).map(([c]) => CL[c] || c);
+    return (
+      <div className={"page space-bg " + pageAnim + a11yCls} style={{ fontFamily: F }}>
+        <h1 className="sr-only">{lang === "ku" ? "Encama Firîna Vedîtinê" : "Keşif Uçuşu sonucu"}</h1>
+        <SpaceDecor variant="progress" />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto", width: "100%", padding: "24px 16px", gap: 12, overflow: "auto" }}>
+          <div style={{ textAlign: "center", animation: "fadeUp .4s ease" }}>
+            <div style={{ fontSize: 48 }} aria-hidden="true">🧭</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{lang === "ku" ? "Firîna Vedîtinê temam bû!" : "Keşif Uçuşu tamamlandı!"}</div>
+            <div style={{ fontSize: 14, color: "#cbd5e1", marginTop: 4 }}>{pl.ok}/{pl.total} {lang === "ku" ? "rast" : "doğru"} · {lang === "ku" ? "Xala destpêkê hate danîn" : "Başlangıç noktan ayarlandı"}</div>
+          </div>
+          <div style={{ ...DS.card, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {cats.map(([c, v]) => { const pct = v.n ? Math.round(v.ok / v.n * 100) : 0; const col = pct >= 75 ? "#34d399" : pct >= 50 ? "#fbbf24" : "#f87171"; return (
+              <div key={c}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 800, color: "#e2e8f0" }}><span>{CL[c] || c}</span><span style={{ color: col }}>{v.ok}/{v.n}</span></div>
+                <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`${CL[c] || c}: ${v.ok} / ${v.n}`} style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,.1)", marginTop: 4 }}><div style={{ width: `${pct}%`, height: "100%", borderRadius: 4, background: col, transition: "width .6s ease" }} /></div>
+              </div>); })}
+          </div>
+          {strong.length > 0 && <div style={{ ...DS.card, padding: "12px 16px", fontSize: 14, color: "#d1fae5" }}>⭐ {lang === "ku" ? "Qadên te yên bihêz" : "Güçlü olduğun alanlar"}: {strong.join(", ")}</div>}
+          {work.length > 0 && <div style={{ ...DS.card, padding: "12px 16px", fontSize: 14, color: "#fde68a" }}>🤝 {lang === "ku" ? "Em ê bi hev re bixebitin" : "Birlikte çalışacağımız alanlar"}: {work.join(", ")}</div>}
+          {pl.riskFlag && !child?.directPlay && <div style={{ ...DS.card, padding: "12px 16px", fontSize: 13, color: "#fecaca", border: "1px solid rgba(248,113,113,.4)" }}>⚠️ Öğretmen notu: Keşif Uçuşu'nda doğruluk %50'nin altında. İlk haftalarda somut materyalle kısa oturumlar ve yakın izleme önerilir; bu bir tanı değildir.</div>}
+          <button onClick={() => { setCalibSummary(null); if (calibPrevRoundsRef.current) { setRoundsPerGame(calibPrevRoundsRef.current); calibPrevRoundsRef.current = null; } navigateTo("journey"); }} className="space-btn-hover" style={{ marginTop: 6, padding: 16, borderRadius: 16, border: "none", background: "linear-gradient(135deg,#4f46e5,#8b5cf6)", color: "#fff", fontSize: 16, fontWeight: 900, cursor: "pointer", fontFamily: F, minHeight: 52 }}>🚀 {lang === "ku" ? "Biçe nexşeyê" : "Haritaya git"}</button>
+        </div>
+      </div>
+    );
+  }
   if (screen === "results") {
     const mi = gmi(gameMode), acc = Math.round((correctCnt / roundsPerGame) * 100);
     const title = lang === "ku"
@@ -21211,6 +21324,20 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               </div>
             );
           })()}
+
+          {/* ═══ KEŞİF UÇUŞU daveti — yerleştirme yapılmadıysa ve çocuk yeni ise ═══ */}
+          {!placement && (stats.totalGames || 0) < 3 && (
+            <button onClick={startCalibration} className="space-btn-hover" style={{
+              margin: "6px 10px 0", padding: "10px 14px", borderRadius: 12, minHeight: 44,
+              border: "1px solid rgba(34,211,238,.45)", background: "linear-gradient(135deg, rgba(8,145,178,.4), rgba(34,211,238,.18))",
+              color: "#e0f2fe", fontFamily: F, fontWeight: 800, fontSize: 13, cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+            }}>
+              <span style={{ fontSize: 22 }} aria-hidden="true">🧭</span>
+              <span style={{ flex: 1 }}>{lang === "ku" ? "Firîna Vedîtinê — 8 pirsên kurt, em xala destpêkê bibînin" : "Keşif Uçuşu — 8 kısa soru, başlangıç noktanı bulalım"}</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          )}
 
           {/* ═══ KAPTAN KÖŞESİ — Günlük + Görev Arkı + Eserler (katlanabilir) ═══ */}
           <button onClick={() => setKaptanOpen(o => !o)} style={{

@@ -319,6 +319,14 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
                               DEMO
                             </span>
                           )}
+                          {r.child?.placement?.riskFlag && (
+                            <span
+                              title="Keşif Uçuşu: doğruluk %50'nin altında — somut materyalle kısa oturumlar ve yakın izleme önerilir (tanı değildir)"
+                              style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, fontFamily: font, padding: '2px 7px', borderRadius: 999, background: 'rgba(248,113,113,.15)', color: '#fca5a5', border: '1px solid rgba(248,113,113,.4)' }}
+                            >
+                              🧭 destek
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: 12, color: colors.text.tertiary, fontFamily: font, marginTop: 2 }}>
                           {r.played

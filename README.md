@@ -81,6 +81,9 @@ sıfır çalışma zamanı hatasıyla doğrulanmıştır.
 - `docs/booklet/`: basılabilir A4 tanıtım kitapçığı (HTML + PDF).
 - **Demo sınıfı:** Yerel Yönetim ekranının altındaki "Demo sınıfını yükle" 4 örnek öğrenci ve 24 günlük
   gerçekçi geçmiş oluşturur (`demo: true` ile işaretli, "Demo sınıfını kaldır" ile izsiz silinir).
+- **Keşif Uçuşu:** Numap taraması olmayan çocuk için 8 maddelik başlangıç değerlendirmesi (sanal mod
+  `calibration`, `CALIB_SEQ`); sonuç `ds_placement_<ns>` anahtarında ve roster kaydında (`placement.riskFlag`)
+  tutulur, `resolveStartLevel` ilk düzeyi buna göre seçer; oyun istatistiğine/rozete yazılmaz.
 - **Bilimsel temel:** Yönetici Ayarlar › Hakkında › "Bilimsel temel ve kaynaklar" (`src/screens/EvidenceBase.jsx`);
   araştırma dayanağı `site/index.html` "Kanıt temeli" bölümünde de yayımlanır.
 

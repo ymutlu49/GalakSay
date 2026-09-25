@@ -225,7 +225,11 @@ let _kuCatsCache = null;
 export const setCatLang = (lang) => { if (lang !== _catLang) { _catLang = lang; _kuCatsCache = null; } };
 
 /** Mod ID'sinden bilgi nesnesini döndüren lookup (aktif dile göre yerelleştirilmiş). */
+// Keşif Uçuşu (kalibrasyon) sanal modu — haritada gezegen değil; gmi() ile başlık/ikon sağlar.
+export const CALIBRATION_MODE = { n: "Keşif Uçuşu", i: "🧭", d: "Kısa keşif turu: başlangıç noktanı birlikte bulalım", c: "#22d3ee" };
+const CALIBRATION_MODE_KU = { n: "Firîna Vedîtinê", d: "Gera kurt a vedîtinê: em xala destpêkê bi hev re bibînin" };
 export const gmi = (id) => {
+  if (id === "calibration") return _catLang === "ku" ? { ...CALIBRATION_MODE, ...CALIBRATION_MODE_KU } : CALIBRATION_MODE;
   for (const cat of Object.values(CATEGORIES)) if (cat.modes[id]) {
     const m = cat.modes[id];
     if (_catLang === "ku" && CAT_KU[id]) return { ...m, n: CAT_KU[id].n, d: CAT_KU[id].d };

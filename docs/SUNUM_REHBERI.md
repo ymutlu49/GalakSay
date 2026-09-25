@@ -67,6 +67,18 @@ Haritası.
 
 ---
 
+## 3b. Keşif Uçuşu — 90 saniyelik başlangıç değerlendirmesi (isteğe bağlı, 2 dk)
+
+**Göster:** Yeni bir öğrenci ekleyin (ör. "Ada") → Çocuk Merkezi → **"🧭 Keşif Uçuşu ile başla"**
+(ya da haritadaki davet). 8 kısa soru: sayma, anlık algılama, karşılaştırma, sayı doğrusu, geriye
+sayma, komşu sayı, onluk çerçeve. Sonuç ekranı alan bazlı çubuklar, "güçlü olduğun alanlar" ve
+"birlikte çalışacağımız alanlar" gösterir; başlangıç düzeyleri buna göre ayarlanır, %50 altı
+doğrulukta öğretmen panosunda "🧭 destek" bayrağı çıkar.
+
+**Söyle:** "Kısa uyarlanabilir başlangıç değerlendirmesi, erken sayı becerileri için tarama
+literatüründeki en yordayıcı görevlere (miktar ayrımı, eksik sayı, sayma) dayanır; tanı koymaz,
+başlangıç noktasını belirler."
+
 ## 4. Uyarlanabilirlik ve kaygıya duyarlılık (2 dk)
 
 **Göster:** Aynı görevi **Yusuf** ile açın (risk profili). Üst üste iki yanlış yapın.
