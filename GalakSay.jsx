@@ -5054,13 +5054,13 @@ const getUnlockedBadges = (stats) => BADGES.filter(b => b.check(stats)).map(b =>
 // ═══ YILDIZ PARÇASI & GEMİ SİSTEMİ ═══════════════════════════════════════════
 // Star fragments are earned during gameplay — collectible currency for ship upgrades
 const SHIP_LEVELS = [
-  { min: 0,    name: "Keşif Kapsülü",       emoji: "🛸", color: "#a8b2d1", desc: "İlk uzay aracın — küçük ama cesur!", hull: 1, speed: 1, shape: "capsule" },
-  { min: 25,   name: "Yıldız Kaşifi",       emoji: "🚀", color: "#60a5fa", desc: "Hızlı ve çevik bir keşif gemisi", hull: 2, speed: 2, shape: "scout" },
-  { min: 75,   name: "Nebula Gemisi",        emoji: "🛰️", color: "#a78bfa", desc: "Nebulalar arasında süzülen zarif gemi", hull: 3, speed: 3, shape: "nebula" },
-  { min: 150,  name: "Galaksi Kruvazörü",    emoji: "🚢", color: "#34d399", desc: "Galaksiler arası yolculuk gemisi", hull: 4, speed: 4, shape: "cruiser" },
-  { min: 300,  name: "Kozmik Savaş Gemisi",  emoji: "⚔️", color: "#fbbf24", desc: "Güçlü zırh ve lazer silahlar", hull: 5, speed: 5, shape: "warship" },
-  { min: 500,  name: "Süpernova Destroyeri", emoji: "💫", color: "#f472b6", desc: "Yıldızların gücüyle çalışan efsanevi gemi", hull: 6, speed: 6, shape: "destroyer" },
-  { min: 1000, name: "Galaktik İmparator",   emoji: "👑", color: "#f59e0b", desc: "Evrenin en güçlü gemisi — efsane!", hull: 7, speed: 7, shape: "emperor" },
+  { min: 0,    name: "Keşif Kapsülü", nameKu: "Kapsûla Vedîtinê",       emoji: "🛸", color: "#a8b2d1", desc: "İlk uzay aracın — küçük ama cesur!", hull: 1, speed: 1, shape: "capsule" },
+  { min: 25,   name: "Yıldız Kaşifi", nameKu: "Vedîtkerê Stêrkan",       emoji: "🚀", color: "#60a5fa", desc: "Hızlı ve çevik bir keşif gemisi", hull: 2, speed: 2, shape: "scout" },
+  { min: 75,   name: "Nebula Gemisi", nameKu: "Keştiya Nebulayê",        emoji: "🛰️", color: "#a78bfa", desc: "Nebulalar arasında süzülen zarif gemi", hull: 3, speed: 3, shape: "nebula" },
+  { min: 150,  name: "Galaksi Kruvazörü", nameKu: "Kruvazora Galaksiyê",    emoji: "🚢", color: "#34d399", desc: "Galaksiler arası yolculuk gemisi", hull: 4, speed: 4, shape: "cruiser" },
+  { min: 300,  name: "Kozmik Savaş Gemisi", nameKu: "Keştiya Şerê Kozmîk",  emoji: "⚔️", color: "#fbbf24", desc: "Güçlü zırh ve lazer silahlar", hull: 5, speed: 5, shape: "warship" },
+  { min: 500,  name: "Süpernova Destroyeri", nameKu: "Destroyera Supernovayê", emoji: "💫", color: "#f472b6", desc: "Yıldızların gücüyle çalışan efsanevi gemi", hull: 6, speed: 6, shape: "destroyer" },
+  { min: 1000, name: "Galaktik İmparator", nameKu: "Împaratorê Galaktîk",   emoji: "👑", color: "#f59e0b", desc: "Evrenin en güçlü gemisi — efsane!", hull: 7, speed: 7, shape: "emperor" },
 ];
 
 // ═══ GEZEGEN HİKÂYE SAHNELERİ — SVG İLLÜSTRASYONLAR (PRO) ═══
@@ -5873,6 +5873,7 @@ const ShipModel = ({ shape = "capsule", color = "#94a3b8", size = 80, guideEmoji
     </div>
   );
 };
+const shipName = (ship, lang) => (lang === "ku" && ship?.nameKu) ? ship.nameKu : (ship?.name || "");
 const getShipLevel = (fragments) => {
   let ship = SHIP_LEVELS[0];
   for (const s of SHIP_LEVELS) { if (fragments >= s.min) ship = s; }
@@ -17734,7 +17735,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "8px 12px", borderRadius: 12, background: "rgba(30,27,75,.4)", border: "1px solid rgba(148,163,184,.08)" }}>
               <span style={{ fontSize: 20 }}>{ship.emoji}</span>
               <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: ship.color }}>{ship.name}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: ship.color }}>{shipName(ship, lang)}</span>
                 <span style={{ fontSize: 11, color: "#a8b2d1", marginLeft: 6 }}>• {totalFrags} {lang === "ku" ? "parçe" : "parça"}</span>
               </div>
               {newBadges.length > 0 && <span style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", padding: "2px 8px", borderRadius: 6, background: "rgba(251,191,36,.12)" }}>{lang === "ku" ? "🏅 Nîşana Nû!" : "🏅 Yeni Rozet!"}</span>}
@@ -21281,7 +21282,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                       minWidth: 56,
                     }}>
                       <span style={{ fontSize: 14 }}>{ship.emoji}</span>
-                      <span style={{ fontSize: 10, fontWeight: 900, color: ship.color, whiteSpace: "nowrap", letterSpacing: .3 }}>{ship.name.split(" ").pop()}</span>
+                      <span style={{ fontSize: 10, fontWeight: 900, color: ship.color, whiteSpace: "nowrap", letterSpacing: .3 }}>{shipName(ship, lang).split(" ").pop()}</span>
                       {nextShip && (
                         <div style={{ width: "100%", height: 3, background: "rgba(255,255,255,.08)", borderRadius: 2, overflow: "hidden" }}>
                           <div style={{ height: "100%", width: `${shipPct}%`, background: `linear-gradient(90deg,${ship.color}88,${ship.color})`, borderRadius: 2, transition: "width .5s ease" }} />
@@ -22287,7 +22288,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                   }}>
                     <ShipModel shape={ship.shape} color={gd.color} size={52} guideEmoji={gd.guide.emoji} />
                     <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.6)", marginTop: 2, textAlign: "center" }}>
-                      {ship.name}
+                      {shipName(ship, lang)}
                     </div>
                   </div>
                   {/* Gezegen adı — sahne altında */}
