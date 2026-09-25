@@ -75,6 +75,25 @@ dataExport, errorClassifier, numWords, useAutoSave, ParentalGate). Tarayıcı du
 Playwright ile karşılama → yönetici PIN → öğrenci ekle → hikâye → gezegen → görev akışı
 sıfır çalışma zamanı hatasıyla doğrulanmıştır.
 
+## Sunum ve demo
+
+- `docs/SUNUM_REHBERI.md`: sunum öncesi kontrol listesi, 12 dakikalık gösterim akışı, soru-yanıt ve acil durum planı.
+- `docs/booklet/`: basılabilir A4 tanıtım kitapçığı (HTML + PDF).
+- **Demo sınıfı:** Yerel Yönetim ekranının altındaki "Demo sınıfını yükle" 4 örnek öğrenci ve 24 günlük
+  gerçekçi geçmiş oluşturur (`demo: true` ile işaretli, "Demo sınıfını kaldır" ile izsiz silinir).
+- **Bilimsel temel:** Yönetici Ayarlar › Hakkında › "Bilimsel temel ve kaynaklar" (`src/screens/EvidenceBase.jsx`);
+  araştırma dayanağı `site/index.html` "Kanıt temeli" bölümünde de yayımlanır.
+
+## Analitik ve raporlama ilkeleri
+
+- Risk ölçeği 1–6 (1–2 düşük, 3–4 orta, 5–6 yüksek); bir alan en az 8 madde, genel düzey en az 15 madde
+  ile hesaplanır; altındaki durumlar "yetersiz veri" olarak raporlanır.
+- Doz hedefi 42 oturum / haftada 3 oturum (Kohn ve ark., 2020); ilerleme grafiğinde hedef çizgisi ve
+  NCII 4-nokta kuralı (≥6 oturum) uygulanır.
+- CSV dışa aktarımı uzun formatta, BOM'lu ve formül enjeksiyonuna karşı korumalıdır; `events.csv`
+  madde düzeyinde `moduleId`, `questionType`, `errorType`, `localDate`; `sessions.csv` `isRealSession`
+  (soru yanıtlanmamış <1 dk oturumlar 0) taşır. Anonim CSV takma kimlik kullanır.
+
 ## Sürüm
 
-`package.json` içindeki sürüm 5.x; değişiklik notları commit geçmişindedir.
+`package.json` içindeki sürüm tek kaynaktır (`__APP_VERSION__` → `src/version.js`, sw.js damgası, PDF altbilgisi, olay kayıtları); değişiklik notları commit geçmişindedir.
