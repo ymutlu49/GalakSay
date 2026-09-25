@@ -98,7 +98,9 @@ export default function TeacherLogin({ onSuccess, onLocalUser, onLocalAdmin, onB
   const [error, setError] = useState('');
 
   // ── Yerel hesap: kullanıcı (öğretmen/uzman) girişi ↔ yönetici (PIN) ──
-  const [localView, setLocalView] = useState('user'); // 'user' | 'admin'
+  // İlk kurulum / tek yönetici: cihazda hiç yerel kullanıcı yoksa kullanıcı-adı formu anlamsız →
+  // doğrudan yönetici (PIN) görünümü açılır (yeni cihazda "Bu cihazı kur" akışı tek dokunuş).
+  const [localView, setLocalView] = useState(() => (userCount() === 0 ? 'admin' : 'user')); // 'user' | 'admin'
   // Yerel kullanıcı girişi (kullanıcı adı + şifre)
   const [username, setUsername] = useState('');
   const [userPass, setUserPass] = useState('');

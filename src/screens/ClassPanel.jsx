@@ -25,6 +25,7 @@ import { getChildProfile, getSessionsByChild } from '../analytics/database.js';
 import { getFullPerformanceProfile, CATEGORIES, MIN_ITEMS_CATEGORY, computeDose, realSessions } from '../analytics/PerformanceAnalyzer.js';
 import { calculateRiskLevel } from '../analytics/RiskClassifier.js';
 import { CATEGORY_LABELS } from '../analytics/StrengthWeaknessMapper.js';
+import { AGE_GROUPS } from '../services/localProfiles.js';
 
 const AVATARS = ['🚀', '🪐', '⭐', '🌟', '🛸', '☄️', '🌙', '🌍'];
 function avatarFor(name) {
@@ -35,6 +36,11 @@ function avatarFor(name) {
 function gradeLabel(g) {
   if (!g) return '';
   return /^\d+$/.test(String(g)) ? `${g}. sınıf` : g;
+}
+// Sınıf bilgisi boşsa (okul öncesi) düzey etiketi gösterilir — "12 oturum" tek başına kalmasın.
+function ageGroupLabel(key) {
+  const g = AGE_GROUPS.find((x) => x.key === key);
+  return g ? g.label : '';
 }
 function dateLabel(ts) {
   if (!ts) return '';
@@ -330,8 +336,8 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
                         </div>
                         <div style={{ fontSize: 12, color: colors.text.tertiary, fontFamily: font, marginTop: 2 }}>
                           {r.played
-                            ? [gradeLabel(r.grade), `${r.sessionCount} oturum`, r.lastPlayed ? `son: ${dateLabel(r.lastPlayed)}` : ''].filter(Boolean).join(' • ')
-                            : [gradeLabel(r.grade), 'henüz oynamadı'].filter(Boolean).join(' • ')}
+                            ? [gradeLabel(r.grade) || ageGroupLabel(r.child?.ageGroup), `${r.sessionCount} oturum`, r.lastPlayed ? `son: ${dateLabel(r.lastPlayed)}` : ''].filter(Boolean).join(' • ')
+                            : [gradeLabel(r.grade) || ageGroupLabel(r.child?.ageGroup), 'henüz oynamadı'].filter(Boolean).join(' • ')}
                         </div>
                         {r.played && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
@@ -419,9 +425,14 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
                             </div>
                           );
                         })()}
-                        <Button variant="primary" size="sm" onClick={() => onSelectChild?.(r.child)}>
-                          ▶ {r.name} ile oyna
-                        </Button>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          <Button variant="primary" size="sm" onClick={() => onSelectChild?.(r.child, { screen: 'dashboard' })}>
+                            📊 Gelişim paneli ve PDF
+                          </Button>
+                          <Button variant="secondary" size="sm" onClick={() => onSelectChild?.(r.child)}>
+                            ▶ {r.name} ile oyna
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </Card>

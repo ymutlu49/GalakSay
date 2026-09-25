@@ -6839,7 +6839,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (!el) { el = document.createElement("style"); el.id = "galaksay-game-css"; el.textContent = CSS; document.head.appendChild(el); }
     return () => { try { el.remove(); } catch { /* yok say */ } };
   }, []);
-  const [screen, setScreen] = useState(() => (child ? "childHub" : "login"));
+  // child.initialScreen: öğretmen Sınıf Paneli'nden doğrudan "Gelişim Paneli"ni açabilir (hub atlanır).
+  const [screen, setScreen] = useState(() => (child ? (child.initialScreen || "childHub") : "login"));
   const [parentGatePassed, setParentGatePassed] = useState(false); // §Araştırma: Ebeveyn kapısı (Parent Gate)
   const [pageAnim, setPageAnim] = useState("page-fade");
   const navigateTo = useCallback((target, anim = "page-enter") => {
@@ -21165,7 +21166,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const amplitude = 34; // yatay salınım genişliği (%)
       const spiralTurns = N <= 9 ? 1.5 : N <= 12 ? 2 : 2.5;
       const angle = t * Math.PI * 2 * spiralTurns - Math.PI / 2;
-      const x = 50 + Math.sin(angle) * amplitude;
+      // Kenar sınırı: aktif (büyütülmüş) gezegen + etiketi sağ/sol kenarda kırpılmasın (QA: durak 4 "Yıldız Taşı…")
+      const x = Math.max(16, Math.min(84, 50 + Math.sin(angle) * amplitude));
       const y = 8 + t * 82; // üstten alta yayıl
       return { x, y };
     };
@@ -22537,7 +22539,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const settingsRole = currentUser?.role || "student";
     const isStudent = settingsRole === "student" || currentUser?.username === "misafir";
     // §Araştırma: Ebeveyn Kapısı — öğrenciler ayarlara erişmeden önce doğrulama (Gapsy 2026, bitskingdom 2024)
-    if (isStudent && ageGroup && !parentGatePassed) {
+    // Öğretmen/yönetici çocuğu kendi panelinden başlattıysa (directPlay=false) yetişkin zaten
+    // kimliğini kanıtlamıştır (PIN/Numap) → kapı sorulmaz. Çocuğun kendi girişinde (directPlay) kapı kalır.
+    const adultLaunched = !!(child && !child.directPlay);
+    if (isStudent && ageGroup && !parentGatePassed && !adultLaunched) {
       const gateA = 14 + (round % 15); // deterministic from round
       const gateB = 17 + (level % 12);
       const gateCorrect = gateA + gateB;
@@ -22642,12 +22647,12 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             {/* Gizlilik — Merkezi Senkron (yalnız Numap akışı: çocuk verisinin getnumap.com'a aktarımı) */}
             {child && (
               <div style={{ ...DS.card, padding: "14px 16px" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>🔒 Gizlilik ve Veri</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>🔒 {lang === "ku" ? "Nepenîtî û Dane" : "Gizlilik ve Veri"}</div>
                 <div style={{ padding: "5px 0" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 14 }}>☁️</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#cbd5e1" }}>Merkezi Senkron</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#cbd5e1" }}>{lang === "ku" ? "Hevdemkirina Navendî" : "Merkezi Senkron"}</span>
                     </div>
                     <button onClick={() => {
                       const cur = loadConsent() || { dataProcessing: true, analytics: false, decision: "accept" };
@@ -22661,14 +22666,16 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                       if (next && child?.ns) {
                         import("./src/services/syncEngine.js").then((m) => m.syncChild(child.ns)).catch(() => {});
                       }
-                    }} role="switch" aria-checked={dataSyncOn} aria-label="Merkezi Senkron" style={{
+                    }} role="switch" aria-checked={dataSyncOn} aria-label={lang === "ku" ? "Hevdemkirina Navendî" : "Merkezi Senkron"} style={{
                       padding: "5px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: F,
                       background: dataSyncOn ? "#059669" : "rgba(148,163,184,.2)", color: dataSyncOn ? "#fff" : "#94a3b8",
                       fontSize: 10, fontWeight: 800, transition: "all .2s",
-                    }}>{dataSyncOn ? "✓ Açık" : "Kapalı"}</button>
+                    }}>{dataSyncOn ? (lang === "ku" ? "✓ Vekirî" : "✓ Açık") : (lang === "ku" ? "Girtî" : "Kapalı")}</button>
                   </div>
                   <div style={{ fontSize: 10, color: "#a8b2d1", marginTop: 2, marginLeft: 22, lineHeight: 1.3 }}>
-                    Çocuğun oyun ilerlemesini getnumap.com'a (kurumsal raporlama, akademik analiz) güvenli aktarır. Kapalıyken veriler yalnız bu cihazda kalır.
+                    {lang === "ku"
+                      ? "Pêşveçûna lîstika zarok bi ewlehî ji getnumap.com re tê şandin (raporkirina sazûmanî, analîza akademîk). Dema girtî be, dane tenê li ser vê amûrê dimînin."
+                      : "Çocuğun oyun ilerlemesini getnumap.com'a (kurumsal raporlama, akademik analiz) güvenli aktarır. Kapalıyken veriler yalnız bu cihazda kalır."}
                   </div>
                 </div>
               </div>
@@ -22797,8 +22804,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>🌍 {t("language")}</div>
               <div style={{ display: "flex", gap: 6 }}>
                 {[
+                  // Yalnız tam yerelleştirilmiş diller sunulur (TR + Kurmancî). I18N.en sözlüğü
+                  // yalnız arayüz etiketlerini kapsar; görev/hikâye içeriği İngilizce değil → seçenek gizli.
                   { code: "tr", label: "Türkçe", flag: "🇹🇷" },
-                  { code: "en", label: "English", flag: "🇬🇧" },
                   { code: "ku", label: "Kurmancî", flag: "🏔️" },
                 ].map(l => (
                   <button key={l.code} onClick={() => {
@@ -22820,14 +22828,20 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
             {/* Erişilebilirlik */}
             <div style={{ ...DS.card, padding: "14px 16px" }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>♿ Erişilebilirlik</div>
-              {[
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#c4b5fd", marginBottom: 10 }}>♿ {t("accessibility")}</div>
+              {(lang === "ku" ? [
+                { key: "colorBlind", label: t("colorBlind"), desc: "Cudakirina kevirên stêrkan bi nexşan: şîn=xêzkirî, sor=xalkirî", emoji: "🎨" },
+                { key: "largeText", label: t("largeText"), desc: "Tevahiya ekranê %15 mezin dike (zoom)", emoji: "🔤" },
+                { key: "reducedMotion", label: t("reducedMotion"), desc: "Hemû anîmasyon û konfetiyan digire", emoji: "✨" },
+                { key: "highContrast", label: t("highContrast"), desc: "Reng û sînor zelaltir dibin", emoji: "🔳" },
+                { key: "calmMode", label: "Moda Aram", desc: "Li gorî dîskalkulî: kêm-teşwîq, bê anîmasyon, derbasbûnên aram", emoji: "🧘" },
+              ] : [
                 { key: "colorBlind", label: "Renk Körü Modu", desc: "Desen tabanlı yıldız taşı ayrımı: mavi=çizgili, kırmızı=noktalı", emoji: "🎨" },
                 { key: "largeText", label: "Büyük Yazı", desc: "Tüm ekranı %15 yakınlaştırır (zoom)", emoji: "🔤" },
                 { key: "reducedMotion", label: "Azaltılmış Animasyon", desc: "Tüm animasyonları ve konfetileri kapatır", emoji: "✨" },
                 { key: "highContrast", label: "Yüksek Kontrast", desc: "Renkler ve kenarlıklar daha belirgin hale gelir", emoji: "🔳" },
                 { key: "calmMode", label: "Sakin Mod", desc: "Diskalkuli-uyumlu: minimal uyaran, animasyonsuz, sakin geçişler", emoji: "🧘" },
-              ].map(opt => (
+              ]).map(opt => (
                 <div key={opt.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0" }}>{opt.emoji} {opt.label}</div>

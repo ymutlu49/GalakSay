@@ -261,6 +261,10 @@ function generateHistory(p, ns, now) {
   const rng = mulberry32(p.seed);
   const cats = Object.keys(p.plan);
   const modeLevel = {}; // mode → {level, hi}
+  // Kategori icindeki modlar SIRAYLA (round-robin) oynatilir: rastgele secimde bir mod hic
+  // oynanmayabiliyordu -> yolculuk haritasinda durak 1 acikken durak 3 "tamamlandi" gorunuyordu.
+  // Sirali donus, yorunge duraklarini KANONIK sirada tamamlatir (rastgele baslangic ofseti korunur).
+  const modeCursor = {}; // cat -> siradaki mod indeksi
   const stats = { totalGames: 0, totalScore: 0, totalCorrect: 0, totalQ: 0, modeStats: {}, recent: [], starFragments: 0, _maxStreak: 0, _lastEarnedFrags: 0 };
   let adaptive = {};
   const cards = [];
@@ -301,7 +305,9 @@ function generateHistory(p, ns, now) {
     const games = [];
     for (let g = 0; g < nGames; g++) {
       const cat = weighted(rng, Object.fromEntries(available.map((c) => [c, p.plan[c].weight])));
-      games.push({ cat, mode: pick(rng, p.plan[cat].modes) });
+      const catModes = p.plan[cat].modes;
+      if (modeCursor[cat] == null) modeCursor[cat] = Math.floor(rng() * catModes.length);
+      games.push({ cat, mode: catModes[modeCursor[cat]++ % catModes.length] });
     }
     let cursor = irand(rng, 20, 60) * 1000; // menü/gezegen seçimi
     const catsVisited = new Set();

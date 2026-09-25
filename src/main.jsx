@@ -471,7 +471,8 @@ function App() {
   const handleSelectChild = useCallback((child) => { setSelectedChild(child); setShowResume(true) }, [])
   // Yerel (Numap'siz) çocuk → oyun child prop'una çevir. directPlay=true: çocuk
   // self-login (öğretmen panel araçları gizli); false: yerel hub'dan öğretmen başlattı.
-  const handleSelectLocalChild = useCallback((rec, { directPlay = true } = {}) => {
+  // initialScreen: Sınıf Paneli "Gelişim paneli" düğmesi çocuğu doğrudan analitik ekranda açar.
+  const handleSelectLocalChild = useCallback((rec, { directPlay = true, initialScreen = null } = {}) => {
     if (!rec) return
     setSelectedChild({
       ns: rec.ns,
@@ -484,6 +485,7 @@ function App() {
       childMeta: { name: rec.name, gradeLevel: rec.grade || '' },
       local: true,
       directPlay,
+      initialScreen,
     })
     setShowResume(true)
   }, [])
@@ -585,7 +587,7 @@ function App() {
         <ChildSelect
           source="local"
           user={identity}
-          onSelect={(rec) => handleSelectLocalChild(rec, { directPlay: false })}
+          onSelect={(rec, opts) => handleSelectLocalChild(rec, { directPlay: false, initialScreen: opts?.screen || null })}
           onLogout={() => { setLocalSession(null); setEntryView('welcome') }}
         />
       )

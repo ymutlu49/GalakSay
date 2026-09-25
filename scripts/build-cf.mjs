@@ -84,7 +84,7 @@ const SECURITY_HEADERS = [
   '  Referrer-Policy: strict-origin-when-cross-origin',
   '  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
   '  Strict-Transport-Security: max-age=31536000; includeSubDomains',
-  "  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://hercocukmatematikogrenebilir.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' blob: data:; connect-src 'self' https://getnumap.com https://hercocukmatematikogrenebilir.com; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+  "  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://hercocukmatematikogrenebilir.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' blob: data:; connect-src 'self' https://getnumap.com https://hercocukmatematikogrenebilir.com https://cloudflareinsights.com; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
   '',
 ];
 writeFileSync(

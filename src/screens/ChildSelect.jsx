@@ -421,11 +421,13 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
     !!filters.q || !!filters.grade || !!filters.school || !!filters.city ||
     !!filters.gender || !!filters.dateFrom || !!filters.dateTo;
 
+  // opts.screen: oyunun açılacağı ilk ekran (ör. Sınıf Paneli → 'dashboard'); yoksa çocuk merkezi.
   const handleSelect = useCallback(
-    (item) => {
+    (item, opts = null) => {
+      const initialScreen = opts?.screen || null;
       // Yerel mod: item zaten localProfiles kaydı — main.jsx oyun prop'una çevirir.
       if (source === 'local') {
-        onSelect?.(item);
+        onSelect?.(item, opts);
         return;
       }
       // FAZ B: Numap modundaki YEREL kayıt (öğretmenin eklediği profil) — main.jsx
@@ -462,6 +464,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
           childMeta,
           local: true,
           directPlay: false,
+          initialScreen,
         });
         return;
       }
@@ -478,6 +481,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
         // çevrimiçi ilk yenilemede payload roster'a geri yazılır.
         numapProfile: session ? sessionToNumapProfile(session, ns) : null,
         childMeta: session ? sessionToChildMeta(session) : { name: item.name || null, gradeLevel: item.grade || null },
+        initialScreen,
       });
     },
     [onSelect, source],

@@ -164,7 +164,11 @@ describe('localProfiles — numap roster (Faz A)', () => {
   it('roster yazılamazsa upsert false döner ve HİÇBİR payload yazılmaz (orphan PII yok)', () => {
     // jsdom Storage'ında örnek üzerine tanımlanan özellik metodu geçersiz kılmaz
     // (WebIDL adlı-özellik ayarlayıcısı onu bir anahtar olarak saklar); prototipte casusla.
-    const proto = Object.getPrototypeOf(localStorage);
+    // Ortama göre setItem ya Storage prototipinde (gerçek jsdom) ya da bellek şimi
+    // üzerinde kendi özelliğidir (src/test/setup.js) → sahibi olan nesnede casusla.
+    const proto = Object.prototype.hasOwnProperty.call(localStorage, 'setItem')
+      ? localStorage
+      : Object.getPrototypeOf(localStorage);
     const orig = proto.setItem;
     const spy = vi.spyOn(proto, 'setItem').mockImplementation(function (k, v) {
       if (k === 'galaksay_local_children') throw new Error('QuotaExceeded');
