@@ -1,7 +1,7 @@
 // GalakSay — Sınıf Paneli (öğretmenin Numap çocuklarının oyun ilerleme özeti).
 //
 // ChildSelect'in alt-görünümü (view==='classPanel'). Öğretmenin Numap'te
-// tanıladığı çocukların (children prop) Galaksay'da OYNADIĞI oyunların
+// tanıladığı çocukların (children prop) GalakSay'da OYNADIĞI oyunların
 // ilerlemesini IndexedDB'den (child_profiles + game_sessions + question_answered
 // olayları) toplar — Dashboard.jsx'in tek-çocuk desenini N çocuğa uygular.
 // Tanılama Numap'te kalır; bu panel onu TAMAMLAYAN müdahale-takibidir (oyun
@@ -205,7 +205,7 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
               📊 Sınıf İlerlemesi
             </h1>
             <p style={{ fontSize: 13, color: colors.text.secondary, fontFamily: font, margin: 0 }}>
-              {teacher?.name ? `${teacher.name} • ` : ''}Galaksay oyun ilerlemesi
+              {teacher?.name ? `${teacher.name} • ` : ''}GalakSay oyun ilerlemesi
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -362,7 +362,7 @@ export default function ClassPanel({ roster = [], teacher, onBack, onSelectChild
                       <div style={{ padding: '0 14px 14px', borderTop: `1px solid ${colors.surface.divider}`, marginTop: -2, paddingTop: 12 }}>
                         {!r.played ? (
                           <p style={{ fontSize: 13, color: colors.text.secondary, fontFamily: font, margin: '4px 0 12px' }}>
-                            Bu çocuk henüz Galaksay'da oyun oynamadı. "Oyna" ile değerlendirme sonucuna göre kişiselleştirilmiş oyuna başlayabilirsiniz.
+                            Bu çocuk henüz GalakSay'da oyun oynamadı. "Oyna" ile değerlendirme sonucuna göre kişiselleştirilmiş oyuna başlayabilirsiniz.
                           </p>
                         ) : full === 'loading' || full === undefined ? (
                           <p style={{ fontSize: 13, color: colors.text.tertiary, fontFamily: font, margin: '4px 0 12px' }} aria-busy="true">Kategori verisi yükleniyor…</p>

@@ -197,7 +197,7 @@ function renderReport(doc, data, options = {}) {
   [[28, 22, 1.3], [180, 30, 1], [150, 16, 0.8], [45, 50, 0.9], [172, 54, 1.1], [120, 24, 0.7]].forEach(([sx, sy, r]) => doc.circle(sx, sy, r, 'F'));
   drawGalaksayMark(doc, M + 13, 35, 27, { onDark: true, fontName: hasFont ? 'Roboto' : 'helvetica' });
   fnt('bold'); fs(30); tc(P.white);
-  doc.text('Galaksay', M + 30, 38);
+  doc.text('GalakSay', M + 30, 38);
   fnt('normal'); fs(11); tc([199, 210, 254]);
   doc.text('Matematik Öğrenme Platformu', M + 30, 48);
   fnt('bold'); fs(9); tc(P.white);
@@ -253,7 +253,7 @@ function renderReport(doc, data, options = {}) {
 
   fnt('normal'); fs(8.5); tc(P.faint);
   doc.text('Bu rapor bir tanı aracı değildir; eğitsel izleme amaçlıdır. Tanı için uzman görüşü gereklidir.', M, 252);
-  doc.text('Galaksay Değerlendirme Sistemi  ·  galaksay.com', M, 258);
+  doc.text('GalakSay Değerlendirme Sistemi  ·  galaksay.com', M, 258);
 
   // ════════════════════ SAYFA 2: YÖNETİCİ ÖZETİ ════════════════════
   const T2 = 'Yönetici Özeti';
@@ -567,7 +567,7 @@ function renderReport(doc, data, options = {}) {
   if (nuMapComp) {
     const T6 = 'Numap Ön–Son Karşılaştırması';
     contentPage(T6);
-    para('Numap taramasındaki başlangıç risk düzeyi (ön) ile Galaksay oyun verisinden hesaplanan güncel risk düzeyi (son) aynı 1–6 ölçeğinde karşılaştırılır. Düşüş = iyileşme.', { title: T6 });
+    para('Numap taramasındaki başlangıç risk düzeyi (ön) ile GalakSay oyun verisinden hesaplanan güncel risk düzeyi (son) aynı 1–6 ölçeğinde karşılaştırılır. Düşüş = iyileşme.', { title: T6 });
     const changeInfo = nuMapComp.change === 'improved' ? { t: 'İyileşme', c: P.green }
       : nuMapComp.change === 'worsened' ? { t: 'Gerileme', c: P.red }
         : nuMapComp.change === 'stable' ? { t: 'Sabit', c: P.faint } : { t: 'Yetersiz veri', c: P.faint };
@@ -575,7 +575,7 @@ function renderReport(doc, data, options = {}) {
     doc.roundedRect(M, y, CW, 30, 2.5, 2.5, 'FD');
     fnt('normal'); fs(9.5); tc(P.sub);
     doc.text(`Başlangıç (Numap) risk düzeyi:  ${nuMapComp.nuMapRiskLevel} / 6  (${riskLabel(nuMapComp.nuMapRiskLevel)})`, M + 6, y + 9);
-    doc.text(`Güncel (Galaksay) risk düzeyi:  ${nuMapComp.currentRiskLevel == null ? 'henüz hesaplanamadı' : `${nuMapComp.currentRiskLevel} / 6  (${riskLabel(nuMapComp.currentRiskLevel)})`}`, M + 6, y + 17);
+    doc.text(`Güncel (GalakSay) risk düzeyi:  ${nuMapComp.currentRiskLevel == null ? 'henüz hesaplanamadı' : `${nuMapComp.currentRiskLevel} / 6  (${riskLabel(nuMapComp.currentRiskLevel)})`}`, M + 6, y + 17);
     doc.text(`Tarama tarihi:  ${nuMapComp.assessmentDate ? fmtDate(nuMapComp.assessmentDate) : '—'}${nuMapComp.timeElapsed_days != null ? `  ·  geçen süre ${nuMapComp.timeElapsed_days} gün` : ''}`, M + 6, y + 25);
     fc(changeInfo.c); doc.roundedRect(W - M - 44, y + 8, 38, 14, 2, 2, 'F');
     fnt('bold'); fs(changeInfo.t.length > 9 ? 8.5 : 11); tc(P.white);
@@ -689,7 +689,7 @@ function renderReport(doc, data, options = {}) {
   const T8 = 'Yöntem, Sözlük ve KVKK';
   contentPage(T8);
   sectionTitle('Yöntem Notu', P.brand);
-  para(`Bu rapor yalnız bu cihazda kayıtlı Galaksay oyun oturumlarından üretilir. Bir alan hakkında yargı için en az ${MIN_ITEMS_CATEGORY} cevaplanmış soru, genel risk için en az ${MIN_ITEMS_OVERALL} soru gerekir; daha azında ilgili bölüm "yetersiz veri" olarak bırakılır. Risk puanı dört bileşenden oluşur: doğruluk (öğretimsel düzey geleneği: ≥%80 bağımsız, %60–79 öğretimsel, <%60 engellenme), ortalama ipucu kademesi (0–5), son 20 maddedeki tutarlılık ve çocuğun kendi medyanına göre yanıt hızı. Öğrenme yörüngesi düzeyleri Clements & Sarama (2009/2014) çerçevesine dayanır.`, { title: T8 });
+  para(`Bu rapor yalnız bu cihazda kayıtlı GalakSay oyun oturumlarından üretilir. Bir alan hakkında yargı için en az ${MIN_ITEMS_CATEGORY} cevaplanmış soru, genel risk için en az ${MIN_ITEMS_OVERALL} soru gerekir; daha azında ilgili bölüm "yetersiz veri" olarak bırakılır. Risk puanı dört bileşenden oluşur: doğruluk (öğretimsel düzey geleneği: ≥%80 bağımsız, %60–79 öğretimsel, <%60 engellenme), ortalama ipucu kademesi (0–5), son 20 maddedeki tutarlılık ve çocuğun kendi medyanına göre yanıt hızı. Öğrenme yörüngesi düzeyleri Clements & Sarama (2009/2014) çerçevesine dayanır.`, { title: T8 });
   y += 2;
   sectionTitle('Sözlük', P.brand);
   const glossary = [
@@ -722,13 +722,13 @@ function renderReport(doc, data, options = {}) {
   para('Bu rapor bir çocuğa ait kişisel veri (ad, sınıf, performans kayıtları) içerir ve 6698 sayılı KVKK kapsamındadır. Yalnız velisi ve eğitiminden sorumlu kişilerle paylaşılmalı, üçüncü kişilere aktarılmamalı, gereksiz kopyaları silinmelidir. Veriler cihazda yerel olarak saklanır; anonim (adsız) rapor seçeneği ile kimlik alanları kaldırılabilir.', { title: T8, size: 8.5 });
   y += 2;
   fnt('normal'); fs(8.5); tc(P.faint);
-  doc.text('Galaksay: diskalkuli riski taşıyan çocuklar için matematik öğrenme platformu — galaksay.com', M, y); y += 5;
+  doc.text('GalakSay: diskalkuli riski taşıyan çocuklar için matematik öğrenme platformu — galaksay.com', M, y); y += 5;
   doc.text('Numap: Sayısal Beceriler Haritalama Platformu — başlangıç profilini oluşturur — getnumap.com', M, y);
   void screening;
 
   // ════════════════════ ALTBİLGİ (tüm sayfalar) ════════════════════
   const pageCount = doc.internal.getNumberOfPages();
-  const stamp = `${fmtDate(now)} · Galaksay v${APP_VERSION}`;
+  const stamp = `${fmtDate(now)} · GalakSay v${APP_VERSION}`;
   for (let i = 2; i <= pageCount; i++) {
     doc.setPage(i);
     dc(P.line); doc.setLineWidth(0.3); doc.line(M, H - 14, W - M, H - 14);

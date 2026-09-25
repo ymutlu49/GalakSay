@@ -159,16 +159,19 @@ export async function exportAcademicCSV({ childId = null, childIds = null, anony
   const key = (cid) => (anonymous ? '' : cid || '');
 
   // events.csv — madde-düzey
-  const evHeaders = ['childKey', 'pseudoId', 'sessionId', 'timestamp', 'category', 'eventType',
-    'isCorrect', 'responseTime_ms', 'hintLevel', 'representation', 'errorType', 'errorSeverity',
+  const evHeaders = ['childKey', 'pseudoId', 'sessionId', 'timestamp', 'localDate', 'category', 'moduleId', 'questionType', 'eventType',
+    'isCorrect', 'responseTime_ms', 'attemptNumber', 'hintLevel', 'representation', 'errorType', 'errorSeverity',
     'ltLevel', 'difficulty', 'num1', 'num2', 'targetAnswer', 'givenAnswer'];
+  // Yerel gün anahtarı (analitik motoruyla aynı: UTC değil, cihaz saati)
+  const localDate = (ts) => { const d = new Date(ts); if (Number.isNaN(d.getTime())) return ''; const p2 = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
   const evRows = fEvents.map((e) => {
     const d = e.data || {};
     const q = d.questionContent || {};
     return {
       childKey: key(e.childId), pseudoId: pseudo[e.childId] || '',
-      sessionId: e.sessionId, timestamp: isoTs(e.timestamp), category: e.category, eventType: e.eventType,
-      isCorrect: d.isCorrect ? 1 : 0, responseTime_ms: d.responseTime_ms, hintLevel: d.hintLevelUsed,
+      sessionId: e.sessionId, timestamp: isoTs(e.timestamp), localDate: localDate(e.timestamp), category: e.category,
+      moduleId: e.moduleId, questionType: q.type, eventType: e.eventType,
+      isCorrect: d.isCorrect ? 1 : 0, responseTime_ms: d.responseTime_ms, attemptNumber: d.attemptNumber, hintLevel: d.hintLevelUsed,
       representation: d.representationUsed, errorType: d.errorType, errorSeverity: d.errorSeverity,
       ltLevel: e.ltLevel, difficulty: e.difficulty, num1: q.num1, num2: q.num2,
       targetAnswer: d.targetAnswer, givenAnswer: d.givenAnswer,
@@ -176,26 +179,29 @@ export async function exportAcademicCSV({ childId = null, childIds = null, anony
   });
 
   // sessions.csv
-  const sHeaders = ['childKey', 'pseudoId', 'sessionId', 'startTime', 'endTime', 'durationMs',
+  // isRealSession: çocuk seçiminde açılıp hiç soru yanıtlanmadan kapanan (<1 dk) oturumlar 0 ile işaretlenir
+  const sHeaders = ['childKey', 'pseudoId', 'sessionId', 'startTime', 'endTime', 'durationMs', 'isRealSession',
     'questionsAttempted', 'questionsCorrect', 'accuracy', 'categoriesVisited', 'deviceType', 'appVersion'];
   const sRows = fSessions.map((s) => ({
     childKey: key(s.childId), pseudoId: pseudo[s.childId] || '',
     sessionId: s.sessionId, startTime: isoTs(s.startTime), endTime: isoTs(s.endTime),
-    durationMs: s.durationMs, questionsAttempted: s.questionsAttempted, questionsCorrect: s.questionsCorrect,
+    durationMs: s.durationMs,
+    isRealSession: (s.questionsAttempted > 0 || (s.durationMs || 0) >= 60000) ? 1 : 0,
+    questionsAttempted: s.questionsAttempted, questionsCorrect: s.questionsCorrect,
     accuracy: s.questionsAttempted > 0 ? +(s.questionsCorrect / s.questionsAttempted).toFixed(4) : '',
     categoriesVisited: s.categoriesVisited, deviceType: s.deviceType, appVersion: s.appVersion,
   }));
 
   // daily_summary.csv
   const dHeaders = ['childKey', 'pseudoId', 'date', 'category', 'questionsAttempted', 'questionsCorrect',
-    'accuracy', 'avgResponseTimeMs', 'avgHintLevel', 'hintDependencyRate', 'concreteSupportRate',
-    'ltLevel', 'sessionCount'];
+    'accuracy', 'avgResponseTimeMs', 'medianResponseTimeMs', 'avgHintLevel', 'hintDependencyRate', 'concreteSupportRate',
+    'ltLevel', 'sessionCount', 'totalTimeMs'];
   const dRows = fDaily.map((x) => ({
     childKey: key(x.childId), pseudoId: pseudo[x.childId] || '',
     date: x.date, category: x.category, questionsAttempted: x.questionsAttempted, questionsCorrect: x.questionsCorrect,
-    accuracy: x.accuracy, avgResponseTimeMs: x.avgResponseTimeMs, avgHintLevel: x.avgHintLevel,
-    hintDependencyRate: x.hintDependencyRate, concreteSupportRate: x.concreteSupportRate,
-    ltLevel: x.ltLevel, sessionCount: x.sessionCount,
+    accuracy: x.accuracy, avgResponseTimeMs: x.avgResponseTimeMs, medianResponseTimeMs: x.medianResponseTimeMs ?? '',
+    avgHintLevel: x.avgHintLevel, hintDependencyRate: x.hintDependencyRate, concreteSupportRate: x.concreteSupportRate,
+    ltLevel: x.ltLevel, sessionCount: x.sessionCount, totalTimeMs: x.totalTimeMs ?? '',
   }));
 
   // child_meta.csv — demografik + baseline (anonimde ad/doğum tarihi çıkar; demografik değişkenler kalır)

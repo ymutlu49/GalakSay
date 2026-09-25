@@ -1,8 +1,8 @@
-// Galaksay Analytics — Sınıf-geneli (çok-çocuklu) profesyonel PDF rapor.
+// GalakSay Analytics — Sınıf-geneli (çok-çocuklu) profesyonel PDF rapor.
 // 2026-06-11: Bireysel raporla AYNI kimlik — açık tema, çizilen üçlü-kod logosu,
 // gömülü Roboto (gerçek Türkçe; eski sürüm ASCII'ye siliyordu).
 // Veri: roster × N (Promise.all). Ön-son müdahale etkisi Numap baseline risk (ön)
-// ↔ Galaksay güncel risk (son) üzerinden Cohen's d ile.
+// ↔ GalakSay güncel risk (son) üzerinden Cohen's d ile.
 
 // 2026-09-25: yetersiz veri (risk=null) "—", Roboto'da olmayan ▲▼● glifleri kaldırıldı,
 // doz sütunu (n/42), eşleştirilmiş Cohen's d (d_z), sürüm + KVKK altbilgisi.
@@ -91,7 +91,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
   [[28, 22, 1.3], [180, 30, 1], [150, 16, 0.8], [45, 50, 0.9], [172, 54, 1.1]].forEach(([sx, sy, r]) => doc.circle(sx, sy, r, 'F'));
   drawGalaksayMark(doc, M + 13, 35, 27, { onDark: true });
   fnt('bold'); fs(30); tc(P.white);
-  doc.text('Galaksay', M + 30, 38);
+  doc.text('GalakSay', M + 30, 38);
   fnt('normal'); fs(11); tc([199, 210, 254]);
   doc.text('Matematik Öğrenme Platformu', M + 30, 48);
   fnt('bold'); fs(9); tc(P.white);
@@ -118,7 +118,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
 
   fnt('normal'); fs(8.5); tc(P.faint);
   doc.text('Bu rapor bir tanı aracı değildir; eğitsel müdahale takibi amaçlıdır.', M, 250);
-  doc.text('Galaksay Değerlendirme Sistemi  ·  galaksay.com', M, 256);
+  doc.text('GalakSay Değerlendirme Sistemi  ·  galaksay.com', M, 256);
 
   // ════════ SINIF ÖZETİ ════════
   contentPage('Sınıf Özeti');
@@ -274,7 +274,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
     ['Doğruluk', 'Çocuğun cevapladığı sorularda doğru oranı.'],
     ['Risk (1-6)', 'Düşük = daha az eğitsel risk (Numap başlangıç değerlendirmesiyle aynı ölçek); en az 15 soru gerektirir.'],
     ['Doz', '42 oturum × 20 dk (≈14 saat) hedefine göre tamamlanan oturum; haftada ≥3 oturum önerilir.'],
-    ['Ön-Son', 'Numap tarama (ön) ile Galaksay güncel performans (son) karşılaştırması.'],
+    ['Ön-Son', 'Numap tarama (ön) ile GalakSay güncel performans (son) karşılaştırması.'],
     ['Kapsam', 'Veriler yalnız bu cihazda oynanan oturumlardan derlenmiştir.'],
   ];
   for (const [term, def] of glossary) {
@@ -299,7 +299,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
 
   // ════════ ALTBİLGİ + SAYFA NUMARALARI ════════
   const pageCount = doc.internal.getNumberOfPages();
-  const stamp = `${new Date().toLocaleDateString('tr-TR')} · Galaksay v${APP_VERSION}`;
+  const stamp = `${new Date().toLocaleDateString('tr-TR')} · GalakSay v${APP_VERSION}`;
   for (let i = 2; i <= pageCount; i++) {
     doc.setPage(i);
     dc(P.line); doc.setLineWidth(0.3); doc.line(M, H - 14, W - M, H - 14);

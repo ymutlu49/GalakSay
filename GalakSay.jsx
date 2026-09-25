@@ -28,7 +28,7 @@ const SpaceMapScreen = React.lazy(() => import("./src/screens/SpaceMap.jsx"));
 const NuMapScreen = React.lazy(() => import("./src/screens/NuMapComparison.jsx"));
 import { CATEGORIES, MODE_COUNT, gmi, getCategories, setCatLang } from "./src/data/categories.js";
 // Kullanıcıya görünen sürüm etiketi — tek kaynak (Hakkında, giriş alt bilgisi)
-const APP_VERSION = "5.9";
+import { APP_VERSION } from "./src/version.js";
 import { generateWordProblemKu } from "./src/data/wordProblemTemplates.js";
 import { LEARN_CONTENT_KU } from "./src/data/learnContent.js";
 
@@ -641,15 +641,18 @@ const VoiceSelector = {
 // Sayfa yüklendiğinde sesleri ön-yükle
 if (typeof window !== "undefined") VoiceSelector.init();
 
+// Aktif analitik oturumunun çocuk kimliği (beforeunload'da doğru oturumu kapatmak için)
+let _activeSessionChildNs = null;
+
 // ═══ SEKME DEĞİŞİKLİĞİNDE TTS DURDURMA ═══
 // Kullanıcı başka sekmeye geçtiğinde seslendirmeyi durdur
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { try { TTS.stop(); } catch {} }
   });
-  // GalakSay Analytics — 2026-03-18 — Sayfa kapanırken oturumu sonlandır
+  // GalakSay Analytics — 2026-03-18 — Sayfa kapanırken oturumu sonlandır (aktif çocuk ns'i ile)
   window.addEventListener("beforeunload", () => {
-    try { finishGameSession(null); } catch (_) {}
+    try { finishGameSession(_activeSessionChildNs); } catch (_) {}
   });
 }
 
@@ -7551,6 +7554,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       try {
         initAnalytics(ns, child.childMeta || { name: child.name });
         beginGameSession(ns, { nuMapProfileId: child.childMeta?.nuMapProfileId || null });
+        _activeSessionChildNs = ns;
       } catch {}
       loadAdaptiveData(ns);
       // KALDIĞI YERDEN DEVAM: çocuğun kayıtlı stats/lastPlayed/round'unu yükle
@@ -15470,7 +15474,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     const hubTools = [
       { icon: "🌌", label: "Uzay Haritası", desc: "Çocuğun ilerleme haritası", color: "#a78bfa", onClick: () => navigateTo("spaceMap") },
       { icon: "📊", label: "Gelişim Paneli", desc: "Detaylı performans analizi", color: "#22d3ee", onClick: () => navigateTo("dashboard") },
-      { icon: "🔬", label: "Numap Karşılaştırma", desc: "Başlangıç vs güncel performans", color: "#7c3aed", onClick: () => navigateTo("nuMapReport") },
+      { icon: "🔬", label: "Numap Karşılaştırma", desc: child?.childMeta?.nuMapRiskLevel != null ? "Başlangıç vs güncel performans" : "Numap taraması olan çocuklar için", color: "#7c3aed", onClick: () => navigateTo("nuMapReport") },
       { icon: "📈", label: "İstatistik", desc: "Performans", color: "#10b981", onClick: () => navigateTo("progress") },
     ];
     return (
@@ -15745,7 +15749,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 {[
                   { icon: "📊", label: "Gelişim Paneli", desc: "Detaylı performans analizi", color: "#22d3ee", onClick: () => navigateTo("dashboard") },
                   { icon: "🌌", label: "Uzay Haritası", desc: "Çocuğun ilerleme haritası", color: "#a78bfa", onClick: () => navigateTo("spaceMap") },
-                  { icon: "🔬", label: "Numap Karşılaştırma", desc: "Başlangıç vs güncel performans", color: "#7c3aed", onClick: () => navigateTo("nuMapReport") },
+                  { icon: "🔬", label: "Numap Karşılaştırma", desc: child?.childMeta?.nuMapRiskLevel != null ? "Başlangıç vs güncel performans" : "Numap taraması olan çocuklar için", color: "#7c3aed", onClick: () => navigateTo("nuMapReport") },
                 ].map(c => (
                   <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 14px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{c.icon}</div>

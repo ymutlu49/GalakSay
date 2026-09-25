@@ -80,7 +80,7 @@ export default function NuMapComparison({ childId, onBack }) {
         <EmptyState
           icon="🔬"
           title="Numap tarama verisi yok"
-          description="Bu çocuk için Numap tarama verisi yok. Numap'ta (getnumap.com) yapılan taramayla eşleştirildiğinde başlangıç–güncel karşılaştırması burada görünür. Galaksay oyun verisi Gelişim Paneli'nde izlenebilir."
+          description="Bu çocuk için Numap tarama verisi yok. Numap'ta (getnumap.com) yapılan taramayla eşleştirildiğinde başlangıç–güncel karşılaştırması burada görünür. GalakSay oyun verisi Gelişim Paneli'nde izlenebilir."
           actionLabel="← Geri dön"
           onAction={onBack}
         />
@@ -117,7 +117,7 @@ export default function NuMapComparison({ childId, onBack }) {
         {/* Özet */}
         <div style={{ ...cardStyle, borderLeft: `4px solid ${changeInfo.c}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
-            <h3 style={{ ...sectionTitle, margin: 0 }}>Numap başlangıç ↔ Galaksay güncel</h3>
+            <h3 style={{ ...sectionTitle, margin: 0 }}>Numap başlangıç ↔ GalakSay güncel</h3>
             <span style={{ color: changeInfo.c, fontWeight: 800, fontSize: 13, fontFamily: font }}>{changeInfo.t}</span>
           </div>
           <div style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 1.6, marginTop: 8 }}>
@@ -143,7 +143,7 @@ export default function NuMapComparison({ childId, onBack }) {
                   <div title="Numap başlangıç" style={{ position: 'absolute', top: -4, left: '50%', transform: `translateX(calc(-50% ${cur === level ? '- 6px' : ''}))`, width: 8, height: 32, borderRadius: 4, background: '#a78bfa', border: '2px solid #e2e8f0' }} />
                 )}
                 {cur === level && (
-                  <div title="Galaksay güncel" style={{ position: 'absolute', top: -4, left: '50%', transform: `translateX(calc(-50% ${comparison.nuMapRiskLevel === level ? '+ 6px' : ''}))`, width: 8, height: 32, borderRadius: 4, background: '#22d3ee', border: '2px solid #e2e8f0' }} />
+                  <div title="GalakSay güncel" style={{ position: 'absolute', top: -4, left: '50%', transform: `translateX(calc(-50% ${comparison.nuMapRiskLevel === level ? '+ 6px' : ''}))`, width: 8, height: 32, borderRadius: 4, background: '#22d3ee', border: '2px solid #e2e8f0' }} />
                 )}
                 <div style={{ textAlign: 'center', color: colors.text.secondary, fontSize: 11, fontWeight: 700, marginTop: 4 }}>{level}</div>
               </div>
@@ -151,7 +151,7 @@ export default function NuMapComparison({ childId, onBack }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, fontSize: 11, flexWrap: 'wrap' }}>
             <span style={{ color: '#a78bfa' }}>● Numap başlangıç</span>
-            <span style={{ color: '#22d3ee' }}>● Galaksay güncel{curSufficient ? '' : ' (henüz yok)'}</span>
+            <span style={{ color: '#22d3ee' }}>● GalakSay güncel{curSufficient ? '' : ' (henüz yok)'}</span>
           </div>
         </div>
 

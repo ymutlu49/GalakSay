@@ -10,14 +10,14 @@ import { getSessionsByChild } from './database.js';
 
 // Kategori → öğretmen için somut sınıf-içi adım (somut → görsel → sembolik sırası).
 const TEACHER_STEPS = {
-  sayma: 'Birebir eşleme ile 1–20 arası nesne sayma; ileri/geri sayma ve "kaç tane?" (kardinalite) sorusu. Galaksay: Sayma gezegeni, düşük düzeyden başlayın.',
-  subitizing: 'Nokta kartları / onluk çerçeve ile 1–5 (sonra 6–10) çokluğu saymadan tanıma; 1–2 saniyelik gösterimler. Galaksay: Subitizing gezegeni.',
-  karsilastirma: '"Hangisi daha çok / daha az?" — önce nesnelerle, sonra sayı kartlarıyla; sayı doğrusunda yer bulma. Galaksay: Karşılaştırma gezegeni.',
-  sayi_bilesimi: 'Parça-bütün: 5\'i ve 10\'u oluşturan çiftler (birleştirme kartları, onluk çerçeve). Galaksay: Sayı Bileşimi gezegeni.',
-  basamak_degeri: 'Birlik/onluk bloklarla 10\'lu gruplama; "3 onluk 4 birlik" = 34 dönüşümleri (iki yönlü). Galaksay: Basamak Değeri gezegeni.',
-  toplama_cikarma: 'Somut nesnelerle ekleme/çıkarma, ardından sayma-üstüne-sayma stratejisi; işlem sembolünü sesli okuma. Galaksay: Toplama/Çıkarma gezegeni.',
-  carpma_bolme: 'Eşit gruplar ve dizi (array) modeli ile tekrarlı toplama; eşit paylaştırma etkinlikleri. Galaksay: Çarpma/Bölme gezegeni.',
-  oruntu: 'AB / ABB örüntülerini nesnelerle sürdürme ve kendi örüntüsünü kurma; büyüyen örüntülerde kuralı söyletme. Galaksay: Örüntü gezegeni.',
+  sayma: 'Birebir eşleme ile 1–20 arası nesne sayma; ileri/geri sayma ve "kaç tane?" (kardinalite) sorusu. GalakSay: Sayma gezegeni, düşük düzeyden başlayın.',
+  subitizing: 'Nokta kartları / onluk çerçeve ile 1–5 (sonra 6–10) çokluğu saymadan tanıma; 1–2 saniyelik gösterimler. GalakSay: Subitizing gezegeni.',
+  karsilastirma: '"Hangisi daha çok / daha az?" — önce nesnelerle, sonra sayı kartlarıyla; sayı doğrusunda yer bulma. GalakSay: Karşılaştırma gezegeni.',
+  sayi_bilesimi: 'Parça-bütün: 5\'i ve 10\'u oluşturan çiftler (birleştirme kartları, onluk çerçeve). GalakSay: Sayı Bileşimi gezegeni.',
+  basamak_degeri: 'Birlik/onluk bloklarla 10\'lu gruplama; "3 onluk 4 birlik" = 34 dönüşümleri (iki yönlü). GalakSay: Basamak Değeri gezegeni.',
+  toplama_cikarma: 'Somut nesnelerle ekleme/çıkarma, ardından sayma-üstüne-sayma stratejisi; işlem sembolünü sesli okuma. GalakSay: Toplama/Çıkarma gezegeni.',
+  carpma_bolme: 'Eşit gruplar ve dizi (array) modeli ile tekrarlı toplama; eşit paylaştırma etkinlikleri. GalakSay: Çarpma/Bölme gezegeni.',
+  oruntu: 'AB / ABB örüntülerini nesnelerle sürdürme ve kendi örüntüsünü kurma; büyüyen örüntülerde kuralı söyletme. GalakSay: Örüntü gezegeni.',
 };
 
 // Ebeveyn için günlük yaşam önerileri
@@ -159,7 +159,7 @@ async function generateRecommendations(childId) {
   // Kısa ebeveyn notu (rapor için tek paragraf)
   let parentNote;
   if (insufficient) {
-    parentNote = 'Çocuğunuz Galaksay ile çalışmaya yeni başladı. Birkaç kısa oturum daha tamamlandığında güçlü ve gelişime açık alanlar netleşecek. Şimdilik en iyi destek: haftada birkaç gün 15 dakika, birlikte ve keyifle.';
+    parentNote = 'Çocuğunuz GalakSay ile çalışmaya yeni başladı. Birkaç kısa oturum daha tamamlandığında güçlü ve gelişime açık alanlar netleşecek. Şimdilik en iyi destek: haftada birkaç gün 15 dakika, birlikte ve keyifle.';
   } else {
     const s = profile.strengths.slice(0, 2).map(x => x.area).join(' ve ');
     const w = profile.weaknesses.slice(0, 2).map(x => x.area).join(' ve ');
