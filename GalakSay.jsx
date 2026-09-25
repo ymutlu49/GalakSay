@@ -22360,7 +22360,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     transition: "all .2s",
                   }}>
-                    <span style={{ fontSize: 18 }}>🚀</span> Göreve Başla!
+                    <span style={{ fontSize: 18 }}>🚀</span> {lang === "ku" ? "Dest bi Erkê Bike!" : "Göreve Başla!"}
                   </button>
                 </div>
               </div>
