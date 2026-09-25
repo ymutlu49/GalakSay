@@ -81,8 +81,8 @@ const PROFILES = [
     },
     ltUps: [['sayma', 2, 3, 14], ['sayma', 3, 4, 5], ['subitizing', 2, 3, 9], ['karsilastirma', 3, 4, 7]],
     alerts: [
-      ['positive', 'sayma', 'Yüksek Doğruluk!', 'sayma kategorisinde %94 doğruluğa ulaştı!', 'Bu kategoride bir üst düzeye geçmeyi değerlendirin.', 2],
-      ['positive', 'sayma', 'Düzey Yükseldi!', 'sayma kategorisinde L4 düzeyine yükseldi!', 'Bu başarıyı kutlayın ve bir sonraki düzeye geçişi teşvik edin.', 5],
+      ['positive', 'sayma', 'Yüksek Doğruluk!', 'Sayma alanında %94 doğruluğa ulaştı.', 'Bu kategoride bir üst düzeye geçmeyi değerlendirin.', 2],
+      ['positive', 'sayma', 'Düzey Yükseldi!', 'Sayma alanında 4. yörünge düzeyine yükseldi.', 'Bu başarıyı kutlayın ve bir sonraki düzeye geçişi teşvik edin.', 5],
     ],
   },
   {
@@ -98,9 +98,9 @@ const PROFILES = [
     },
     ltUps: [],
     alerts: [
-      ['attention', 'subitizing', 'Zorlanma Tespit Edildi', 'subitizing kategorisinde son hafta %42 doğruluk.', 'Bu kategoride zorluk düzeyini azaltmayı ve somut materyallerle çalışmayı değerlendirin.', 1],
-      ['attention', 'sayma', 'Yüksek İpucu Bağımlılığı', 'sayma kategorisinde sürekli Kademe 3 ipucuna ihtiyaç duyuyor.', 'İpucu kademesini kademeli olarak azaltmayı ve bağımsız deneme fırsatları oluşturmayı değerlendirin.', 1],
-      ['critical', null, 'Diskalkuli Göstergeleri', 'Birden fazla diskalkuli göstergesi tespit edildi: sayı_hissi_zayıflığı, sayma_ilkeleri_eksikliği, çalışma_belleği_göstergesi', 'Profesyonel değerlendirme için uzman görüşü alınması önerilir. Bu bir tanı değildir.', 3],
+      ['attention', 'subitizing', 'Zorlanma Tespit Edildi', 'Anlık algılama (subitizing) alanında son hafta %42 doğruluk.', 'Bu kategoride zorluk düzeyini azaltmayı ve somut materyallerle çalışmayı değerlendirin.', 1],
+      ['attention', 'sayma', 'Yüksek İpucu Bağımlılığı', 'Sayma alanında sürekli 3. kademe ipucuna ihtiyaç duyuyor.', 'İpucu kademesini kademeli olarak azaltmayı ve bağımsız deneme fırsatları oluşturmayı değerlendirin.', 1],
+      ['critical', null, 'Diskalkuli Göstergeleri', 'Birden fazla gösterge bir arada: zayıf sayı hissi, sayma ilkelerinde eksiklik, çalışma belleği yükü.', 'Profesyonel değerlendirme için uzman görüşü alınması önerilir. Bu bir tanı değildir.', 3],
     ],
   },
   {
@@ -116,7 +116,7 @@ const PROFILES = [
     },
     ltUps: [['sayma', 2, 3, 8]],
     alerts: [
-      ['positive', 'sayma', 'Düzey Yükseldi!', 'sayma kategorisinde L3 düzeyine yükseldi!', 'Bu başarıyı kutlayın ve bir sonraki düzeye geçişi teşvik edin.', 8],
+      ['positive', 'sayma', 'Düzey Yükseldi!', 'Sayma alanında 3. yörünge düzeyine yükseldi.', 'Bu başarıyı kutlayın ve bir sonraki düzeye geçişi teşvik edin.', 8],
     ],
   },
   {
@@ -134,8 +134,8 @@ const PROFILES = [
     },
     ltUps: [['subitizing', 2, 3, 15], ['subitizing', 3, 4, 4], ['sayma', 2, 3, 12], ['karsilastirma', 3, 4, 9], ['basamak_degeri', 5, 6, 10]],
     alerts: [
-      ['positive', 'subitizing', 'Yüksek Doğruluk!', 'subitizing kategorisinde %93 doğruluğa ulaştı!', 'Bu kategoride bir üst düzeye geçmeyi değerlendirin.', 4],
-      ['attention', 'carpma_bolme', 'Zorlanma Tespit Edildi', 'carpma_bolme kategorisinde son hafta %48 doğruluk.', 'Bu kategoride zorluk düzeyini azaltmayı ve somut materyallerle çalışmayı değerlendirin.', 6],
+      ['positive', 'subitizing', 'Yüksek Doğruluk!', 'Anlık algılama (subitizing) alanında %93 doğruluğa ulaştı.', 'Bu kategoride bir üst düzeye geçmeyi değerlendirin.', 4],
+      ['attention', 'carpma_bolme', 'Zorlanma Tespit Edildi', 'Çarpma/bölme alanında son hafta %48 doğruluk.', 'Bu kategoride zorluk düzeyini azaltmayı ve somut materyallerle çalışmayı değerlendirin.', 6],
     ],
   },
 ];
