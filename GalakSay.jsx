@@ -15495,14 +15495,19 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         <div style={{ flex: 1, display: "flex", flexDirection: "column", maxWidth: dashW, margin: "0 auto", width: "100%", minHeight: 0 }}>
           {/* Header — öğretmen + seçili çocuk */}
           <div style={{ background: "linear-gradient(135deg,#059669,#047857)", padding: "14px 18px", borderRadius: "0 0 24px 24px", boxShadow: "0 4px 20px rgba(0,0,0,.2)", flexShrink: 0, position: "relative", zIndex: 2 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <GalaksayLogo height={30} dark />
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {child?.directPlay ? (
+                /* Çocuk kendi girişi: logo/öğretmen yerine avatar + selamlama (5–8 yaş) */
+                <div aria-hidden="true" style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{child?.avatar || "🚀"}</div>
+              ) : (
+                <GalaksayLogo height={30} dark />
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: "#fff", fontSize: 15, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{playerName || "Çocuk"}</div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.85)" }}>📚 {teacher?.name || "Öğretmen"}</span>
+                <div style={{ color: "#fff", fontSize: 15, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{child?.directPlay ? `Merhaba, ${playerName || "Kaşif"}!` : (playerName || "Çocuk")}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.85)" }}>{child?.directPlay ? `🚀 ${({ okuloncesi: "Okul Öncesi Yörüngesi", sinif1: "1. Sınıf Yörüngesi", sinif2: "2. Sınıf Yörüngesi" })[ageGroup] || "Keşif Yörüngesi"}` : `📚 ${teacher?.name || "Öğretmen"}`}</span>
               </div>
-              <button onClick={() => { try { (onSwitchChild || window.__galaksaySwitchChild)?.(); } catch {} }} style={{ padding: "6px 10px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", gap: 4 }}>🔄 <span>Çocuk</span></button>
-              <button onClick={handleLogout} style={{ padding: "6px 10px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", gap: 4 }}>🚪 <span>Çıkış</span></button>
+              <button onClick={() => { try { (onSwitchChild || window.__galaksaySwitchChild)?.(); } catch {} }} aria-label="Çocuk değiştir" style={{ padding: "6px 10px", minHeight: 44, borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>🔄 <span>{child?.directPlay ? "Değiştir" : "Çocuk"}</span></button>
+              <button onClick={handleLogout} style={{ padding: "6px 10px", minHeight: 44, borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: F, display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>🚪 <span>Çıkış</span></button>
             </div>
           </div>
           {/* İçerik */}
@@ -21488,9 +21493,9 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
             {/* ══ NuméraYıldız — Galaksinin kalbi (haritanın tepesinde) ══ */}
             <div style={{
-              position: "absolute", left: "50%", top: "2%",
+              position: "absolute", left: "50%", top: "0%",
               transform: "translateX(-50%)", zIndex: 0,
-              display: "flex", flexDirection: "column", alignItems: "center",
+              display: "flex", flexDirection: "column-reverse", alignItems: "center", gap: 2,
             }}>
               {/* Dış ışık halkası */}
               <div style={{
@@ -21515,7 +21520,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               </div>
               {/* Yıldız etiketi */}
               <div style={{
-                marginTop: 4, fontSize: 12, fontWeight: 900,
+                marginBottom: 2, fontSize: 12, fontWeight: 900,
                 color: "#fde68a", opacity: 1,
                 textShadow: "0 1px 4px rgba(0,0,0,.9), 0 0 10px rgba(251,191,36,.45)",
                 letterSpacing: .6,
