@@ -4,13 +4,24 @@
 // Veri: roster × N (Promise.all). Ön-son müdahale etkisi Numap baseline risk (ön)
 // ↔ Galaksay güncel risk (son) üzerinden Cohen's d ile.
 
+// 2026-09-25: yetersiz veri (risk=null) "—", Roboto'da olmayan ▲▼● glifleri kaldırıldı,
+// doz sütunu (n/42), eşleştirilmiş Cohen's d (d_z), sürüm + KVKK altbilgisi.
+
 import jsPDF from 'jspdf';
-import { getFullPerformanceProfile, getOverallAccuracy, CATEGORIES } from './PerformanceAnalyzer.js';
+import { getFullPerformanceProfile, CATEGORIES, MIN_ITEMS_CATEGORY, computeDose, realSessions } from './PerformanceAnalyzer.js';
 import { calculateRiskLevel, compareWithNuMapBaseline } from './RiskClassifier.js';
 import { CATEGORY_LABELS } from './StrengthWeaknessMapper.js';
 import { getChildProfile, getSessionsByChild } from './database.js';
-import { mean, cohensD, effectBand } from '../utils/stats.js';
-import { P, asciiSafe, loadRobotoFonts, applyRoboto, drawGalaksayMark } from './pdfBrand.js';
+import { mean, sd, effectBand } from '../utils/stats.js';
+import { P, APP_VERSION, asciiSafe, loadRobotoFonts, applyRoboto, drawGalaksayMark } from './pdfBrand.js';
+
+/** Eşleştirilmiş Cohen's d (d_z = ortalama fark / farkların SD'si); n<2 veya SD=0 → null. */
+function pairedD(pre, post) {
+  const diffs = pre.map((x, i) => post[i] - x).filter(Number.isFinite);
+  if (diffs.length < 2) return null;
+  const s = sd(diffs);
+  return s > 0 ? mean(diffs) / s : null;
+}
 
 /**
  * Sınıf-geneli PDF raporu üretir ve indirir.
@@ -24,18 +35,18 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
   // Her çocuk için veri (paralel; oynamamışlar boş/null ile gelir).
   const data = await Promise.all((roster || []).map(async (c) => {
     try {
-      const [childInfo, profile, risk, sessions, nuMapComp, overallAcc] = await Promise.all([
+      const [childInfo, profile, risk, rawSessions, nuMapComp] = await Promise.all([
         getChildProfile(c.ns),
         getFullPerformanceProfile(c.ns),
         calculateRiskLevel(c.ns),
         getSessionsByChild(c.ns),
         compareWithNuMapBaseline(c.ns),
-        getOverallAccuracy(c.ns),
       ]);
-      const played = (sessions || []).length > 0;
-      return { c, childInfo, profile, risk, sessions: sessions || [], nuMapComp, overallAcc, played };
+      const sessions = realSessions(rawSessions);
+      const played = sessions.length > 0 || (profile?.totalAnswered || 0) > 0;
+      return { c, childInfo, profile, risk, sessions: sessions || [], nuMapComp, overallAcc: profile?.overallAccuracyOrNull ?? null, n: profile?.totalAnswered || 0, dose: computeDose(sessions || []), played };
     } catch {
-      return { c, childInfo: null, profile: null, risk: null, sessions: [], nuMapComp: null, overallAcc: 0, played: false };
+      return { c, childInfo: null, profile: null, risk: null, sessions: [], nuMapComp: null, overallAcc: null, n: 0, dose: computeDose([]), played: false };
     }
   }));
 
@@ -111,11 +122,13 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
 
   // ════════ SINIF ÖZETİ ════════
   contentPage('Sınıf Özeti');
-  const classAcc = played.length ? Math.round(mean(played.map((d) => d.overallAcc)) * 100) : 0;
+  const withAcc = played.filter((d) => Number.isFinite(d.overallAcc));
+  const classAcc = withAcc.length ? Math.round(mean(withAcc.map((d) => d.overallAcc)) * 100) : null;
+  const doseMet = data.filter((d) => d.dose.weekStatus === 'met').length;
   const kpis = [
-    { label: 'Ortalama Doğruluk', val: `%${classAcc}`, c: P.cyan },
+    { label: 'Ortalama Doğruluk', val: classAcc == null ? '—' : `%${classAcc}`, c: P.cyan },
     { label: 'Toplam Oturum', val: String(totalSessions), c: P.brand },
-    { label: 'Toplam Süre', val: `${totalMin} dk`, c: P.green },
+    { label: 'Haftalık hedefi (3) karşılayan', val: `${doseMet} / ${data.length}`, c: P.green },
   ];
   const kpiW = (CW - 8) / 3;
   kpis.forEach((k, i) => {
@@ -136,7 +149,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
     ['Gelişmeli (%40-59)', 0, P.amber], ['Destek (<%40)', 0, P.red], ['Başlamadı', 0, P.faint],
   ];
   for (const d of data) {
-    if (!d.played) { bands[4][1]++; continue; }
+    if (!d.played || !Number.isFinite(d.overallAcc)) { bands[4][1]++; continue; }
     const p = d.overallAcc * 100;
     if (p >= 80) bands[0][1]++; else if (p >= 60) bands[1][1]++; else if (p >= 40) bands[2][1]++; else bands[3][1]++;
   }
@@ -155,11 +168,13 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
   // ════════ ÖĞRENCİ KARŞILAŞTIRMA ════════
   contentPage('Öğrenci Karşılaştırma');
   const cols = [
-    { x: M, w: 62, label: 'Öğrenci', align: 'left' },
-    { x: M + 62, w: 26, label: 'Doğruluk', align: 'right' },
-    { x: M + 88, w: 24, label: 'Oturum', align: 'right' },
-    { x: M + 112, w: 22, label: 'Risk', align: 'right' },
-    { x: M + 134, w: CW - 134, label: 'Değişim', align: 'right' },
+    { x: M, w: 50, label: 'Öğrenci', align: 'left' },
+    { x: M + 50, w: 22, label: 'Doğruluk', align: 'right' },
+    { x: M + 72, w: 18, label: 'Soru', align: 'right' },
+    { x: M + 90, w: 26, label: 'Doz (n/42)', align: 'right' },
+    { x: M + 116, w: 22, label: 'Hafta', align: 'right' },
+    { x: M + 138, w: 16, label: 'Risk', align: 'right' },
+    { x: M + 154, w: CW - 154, label: 'Değişim', align: 'right' },
   ];
   const cellX = (c) => (c.align === 'right' ? c.x + c.w - 2 : c.x + 2);
   const thead = () => {
@@ -176,27 +191,36 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
     if (rowi % 2 === 1) { fc(P.cardBg); doc.rect(M, y, CW, rh, 'F'); }
     const name = anonymous ? `Öğrenci #${(d.c.ns || '').slice(-4)}` : (d.c.name || d.childInfo?.name || '—');
     const ch = d.played && d.nuMapComp
-      ? ({ improved: { t: '▲ İyileşme', c: P.green }, worsened: { t: '▼ Gerileme', c: P.red }, stable: { t: '● Sabit', c: P.faint } }[d.nuMapComp.change] || { t: '—', c: P.faint })
+      ? ({ improved: { t: 'İyileşme', c: P.green }, worsened: { t: 'Gerileme', c: P.red }, stable: { t: 'Sabit', c: P.faint }, insufficient: { t: 'az veri', c: P.faint } }[d.nuMapComp.change] || { t: '—', c: P.faint })
       : { t: '—', c: P.faint };
+    const wk = d.dose;
+    const wkC = wk.weekStatus === 'met' ? P.green : wk.weekStatus === 'partial' ? P.amber : wk.weekStatus === 'early' ? P.faint : (d.played ? P.red : P.faint);
     fnt('normal'); fs(9); tc(P.ink);
-    doc.text(String(name).slice(0, 30), cellX(cols[0]), y + 5.8, { align: 'left' });
+    doc.text(doc.splitTextToSize(String(name), cols[0].w - 4)[0], cellX(cols[0]), y + 5.8, { align: 'left' });
     tc(P.sub);
-    doc.text(d.played ? `%${Math.round(d.overallAcc * 100)}` : '—', cellX(cols[1]), y + 5.8, { align: 'right' });
-    doc.text(String(d.sessions.length), cellX(cols[2]), y + 5.8, { align: 'right' });
-    doc.text(d.played && d.risk?.overallRisk != null ? `${d.risk.overallRisk}/6` : '—', cellX(cols[3]), y + 5.8, { align: 'right' });
+    doc.text(Number.isFinite(d.overallAcc) ? `%${Math.round(d.overallAcc * 100)}` : '—', cellX(cols[1]), y + 5.8, { align: 'right' });
+    doc.text(String(d.n), cellX(cols[2]), y + 5.8, { align: 'right' });
+    doc.text(`${wk.sessionsDone}/${wk.targetSessions}`, cellX(cols[3]), y + 5.8, { align: 'right' });
+    tc(wkC);
+    doc.text(d.played ? `${wk.weekSessions}/${wk.weekTarget}` : '—', cellX(cols[4]), y + 5.8, { align: 'right' });
+    tc(P.sub);
+    doc.text(d.risk?.overallRisk != null ? `${d.risk.overallRisk}/6` : '—', cellX(cols[5]), y + 5.8, { align: 'right' });
     fnt('bold'); fs(8.5); tc(ch.c);
-    doc.text(ch.t, cellX(cols[4]), y + 5.8, { align: 'right' });
+    doc.text(ch.t, cellX(cols[6]), y + 5.8, { align: 'right' });
     fnt('normal');
     y += rh; rowi++;
   }
+  y += 4;
+  fnt('normal'); fs(7.5); tc(P.faint);
+  doc.text(doc.splitTextToSize('Doz: tamamlanan oturum / 42 oturum hedefi (Kohn ve ark., 2020: 42 × 20 dk, ≤13 hafta). Hafta: bu haftaki oturum / haftalık hedef 3. Risk: 1 (düşük) – 6 (yüksek); "—" = en az 15 soru cevaplanmadan hesaplanmaz. Değişim: Numap başlangıç riskine göre.', CW), M, y);
 
   // ════════ KATEGORİ SINIF ORTALAMALARI ════════
   contentPage('Kategori Sınıf Ortalamaları');
   fnt('normal'); fs(9.5); tc(P.sub);
-  doc.text('Her kategoride, o kategoriyi oynamış öğrencilerin ortalama doğruluğu.', M, y);
+  doc.text(`Her kategoride, o kategoride en az ${MIN_ITEMS_CATEGORY} soru cevaplamış öğrencilerin ortalama doğruluğu.`, M, y);
   y += 9;
   for (const cat of CATEGORIES) {
-    const accs = played.map((d) => d.profile?.categoryMetrics?.[cat]?.accuracy).filter((x) => Number.isFinite(x) && x > 0);
+    const accs = played.map((d) => d.profile?.categoryMetrics?.[cat]).filter((m) => m && m.sufficient).map((m) => m.accuracyOrNull).filter((x) => Number.isFinite(x));
     const pct = accs.length ? Math.round(mean(accs) * 100) : null;
     checkBreak(14, 'Kategori Sınıf Ortalamaları');
     fnt('bold'); fs(10); tc(P.ink);
@@ -218,7 +242,7 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
   } else {
     const pre = paired.map((d) => d.nuMapComp.nuMapRiskLevel);
     const post = paired.map((d) => d.nuMapComp.currentRiskLevel);
-    const dEff = cohensD(pre, post); // negatif = risk azaldı = iyileşme
+    const dEff = pairedD(pre, post); // eşleştirilmiş d_z; negatif = risk azaldı = iyileşme
     const delta = (mean(post) - mean(pre)).toFixed(2);
     const improved = paired.filter((p) => p.nuMapComp.change === 'improved').length;
 
@@ -234,21 +258,22 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
     fc(dc2[0] === P.green[0] ? P.greenL : P.amberL);
     doc.roundedRect(W - M - 52, y + 8, 46, 22, 2.5, 2.5, 'F');
     fnt('bold'); fs(8); tc(dc2);
-    doc.text("COHEN'S d", W - M - 29, y + 15, { align: 'center' });
+    doc.text("COHEN'S d (eşleştirilmiş)", W - M - 29, y + 15, { align: 'center' });
     fs(14);
     doc.text(dEff == null ? '—' : dEff.toFixed(2), W - M - 29, y + 23, { align: 'center' });
     fnt('normal'); fs(7.5);
     doc.text(`${effectBand(dEff)} etki`, W - M - 29, y + 28.5, { align: 'center' });
     y += 58;
     fnt('normal'); fs(8.5); tc(P.faint);
-    doc.text(doc.splitTextToSize("Not: Risk azalması (negatif d) müdahalenin olumlu etkisini gösterir. Cohen's d yorumu: 0.2 küçük, 0.5 orta, 0.8 büyük.", CW), M, y);
+    doc.text(doc.splitTextToSize("Not: Aynı çocukların ön–son risk düzeyleri eşleştirilmiş olduğundan d_z = ortalama fark / farkların standart sapması kullanılır. Risk azalması (negatif d) olumlu etkidir. Yorum: 0,2 küçük, 0,5 orta, 0,8 büyük (Cohen, 1988). Kontrol grubu olmadığı için nedensel çıkarım yapılamaz.", CW), M, y);
   }
 
   // ════════ AÇIKLAMA NOTLARI ════════
   contentPage('Açıklama Notları');
   const glossary = [
     ['Doğruluk', 'Çocuğun cevapladığı sorularda doğru oranı.'],
-    ['Risk (1-6)', 'Düşük = daha az diskalkuli riski (Numap başlangıç değerlendirmesiyle aynı ölçek).'],
+    ['Risk (1-6)', 'Düşük = daha az eğitsel risk (Numap başlangıç değerlendirmesiyle aynı ölçek); en az 15 soru gerektirir.'],
+    ['Doz', '42 oturum × 20 dk (≈14 saat) hedefine göre tamamlanan oturum; haftada ≥3 oturum önerilir.'],
     ['Ön-Son', 'Numap tarama (ön) ile Galaksay güncel performans (son) karşılaştırması.'],
     ['Kapsam', 'Veriler yalnız bu cihazda oynanan oturumlardan derlenmiştir.'],
   ];
@@ -267,19 +292,23 @@ export async function generateClassPDFReport(roster, teacher = null, options = {
   doc.text('Bu rapor bir tanı aracı değildir.', M + 8, y + 9);
   fnt('normal'); fs(9); tc(P.sub);
   doc.text('Eğitsel müdahale takibi amaçlıdır; kesin değerlendirme için uzman görüşü gereklidir.', M + 8, y + 15.5);
+  y += 28;
+  sectionTitle('Kişisel Verilerin Korunması (KVKK)', P.faint);
+  fnt('normal'); fs(8.5); tc(P.sub);
+  doc.text(doc.splitTextToSize('Bu rapor öğrencilere ait kişisel veri içerir (6698 sayılı KVKK). Yalnız ilgili öğretmen, okul yönetimi ve velilerle paylaşılmalı; üçüncü kişilere aktarılmamalı, gereksiz kopyaları silinmelidir. Araştırma amaçlı paylaşım için anonim CSV/raporu kullanın.', CW), M, y);
 
   // ════════ ALTBİLGİ + SAYFA NUMARALARI ════════
   const pageCount = doc.internal.getNumberOfPages();
+  const stamp = `${new Date().toLocaleDateString('tr-TR')} · Galaksay v${APP_VERSION}`;
   for (let i = 2; i <= pageCount; i++) {
     doc.setPage(i);
     dc(P.line); doc.setLineWidth(0.3); doc.line(M, H - 14, W - M, H - 14);
     fnt('normal'); fs(7.5); tc(P.faint);
-    doc.text('Galaksay Değerlendirme Sistemi  ·  Sınıf Raporu', M, H - 9);
+    doc.text(`${stamp}  ·  Sınıf raporu  ·  Kişisel veri içerir (KVKK)  ·  Tanı aracı değildir`, M, H - 9);
     doc.text(`Sayfa ${i} / ${pageCount}`, W - M, H - 9, { align: 'right' });
   }
 
-  const stamp = new Date().toISOString().slice(0, 10);
-  doc.save(asciiSafe(`Galaksay_Sinif_Raporu_${stamp}.pdf`));
+  doc.save(asciiSafe(`Galaksay_Sinif_Raporu_${new Date().toISOString().slice(0, 10)}.pdf`));
 }
 
 export default { generateClassPDFReport };

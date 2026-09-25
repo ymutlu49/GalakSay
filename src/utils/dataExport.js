@@ -29,8 +29,6 @@ const DB_NAME = 'galaksay_analytics';
 // 2026-09-24 KVKK: ds_* (mod/streak/adaptif), dokunsay-* (çocuk adı + istatistik, oturum),
 // portal_student_* (HÇMÖ çocuk jetonu) da 'tüm veriyi sil' ve dışa aktarma kapsamına alındı.
 const LS_PREFIXES = ['galaksay_', 'numap_', 'ds_', 'dokunsay-', 'portal_student_'];
-// Geriye uyumluluk için tek prefix değişkeni de korundu (yeni kodda LS_PREFIXES kullanın)
-const LS_PREFIX = 'galaksay_';
 const _hasManagedPrefix = (k) => !!k && LS_PREFIXES.some(p => k.startsWith(p));
 
 async function readLocalStorage() {

@@ -2,12 +2,10 @@
 
 import {
   getEventsByChildCategoryType,
-  getEventsByChildAndType,
   getLTHistoryByChild,
   putRecord,
   STORES,
 } from './database.js';
-import { getCategoryAccuracy, getAvgHintLevel, getConcreteSupportRate } from './PerformanceAnalyzer.js';
 
 const CATEGORIES = [
   'sayma', 'subitizing', 'karsilastirma', 'sayi_bilesimi',
@@ -26,11 +24,14 @@ const LT_RANGES = {
   oruntu:          { min: 2, max: 10 },
 };
 
-// Modül sayıları (kategori başına)
+// Kategori başına OYUN MODU sayısı — AnalyticsBridge.MODE_TO_CATEGORY ile birebir
+// (2026-09-25: eski sayılar uydurmaydı; module_completed olayı `${mode}_L${level}` taşıdığı
+// için "tamamlanan modül" = o kategoride en az bir kez bitirilen FARKLI oyun modu sayısı).
 const MODULE_COUNTS = {
-  sayma: 10, subitizing: 6, karsilastirma: 7, sayi_bilesimi: 8,
-  basamak_degeri: 8, toplama_cikarma: 9, carpma_bolme: 6, oruntu: 5,
+  sayma: 7, subitizing: 6, karsilastirma: 10, sayi_bilesimi: 10,
+  basamak_degeri: 4, toplama_cikarma: 13, carpma_bolme: 12, oruntu: 3,
 };
+const moduleBase = (id) => String(id || '').replace(/_L\d+$/, '');
 
 // ── LT düzey yönetimi ──────────────────────
 
@@ -61,6 +62,9 @@ async function calculateInLevelProgress(childId, category, currentLevel) {
   if (!criteria.criteria) return 0;
 
   const c = criteria.criteria;
+  // Hiç madde yokken "ipucu ≤2" ve "somut ≤%20" ölçütleri boş yere sağlanıp %50 görünüyordu.
+  if (!c.questionsCompleted) return 0;
+  void currentLevel;
   let totalCriteria = 4;
   let metCriteria = 0;
 
@@ -73,7 +77,6 @@ async function calculateInLevelProgress(childId, category, currentLevel) {
 }
 
 async function checkLevelUpCriteria(childId, category) {
-  const levels = {};
   const history = await getLTHistoryByChild(childId, category);
   const lastEntry = history.sort((a, b) =>
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -271,20 +274,23 @@ async function getLearningMap(childId) {
     const range = LT_RANGES[cat];
     const current = levels[cat];
 
-    // Modül tamamlama sayısı
+    // Tamamlanan farklı oyun modu sayısı (tavan: kategorideki mod sayısı)
     const moduleCompleted = await getEventsByChildCategoryType(childId, cat, 'module_completed');
-    const uniqueModules = new Set(moduleCompleted.map(e => e.moduleId)).size;
+    const modulesTotal = MODULE_COUNTS[cat] || 8;
+    const uniqueModules = Math.min(modulesTotal, new Set(moduleCompleted.map(e => moduleBase(e.moduleId || e.data?.moduleId))).size);
 
     let status = 'not_started';
     const answered = await getEventsByChildCategoryType(childId, cat, 'question_answered');
     if (answered.length === 0) status = 'not_started';
     else if (current.level >= range.max) status = 'mastered';
     else {
-      const recentAccuracy = await getCategoryAccuracy(childId, cat, {
-        start: Date.now() - 7 * 86400000,
-        end: Date.now(),
-      });
-      status = recentAccuracy < 0.5 ? 'struggling' : 'in_progress';
+      // Son 7 günde madde varsa onlara, yoksa tüm maddelere bak (eski sürüm boş haftayı %0
+      // sayıp "zorlanıyor" diyordu). En az 5 madde olmadan "zorlanıyor" etiketi verilmez.
+      const weekStart = Date.now() - 7 * 86400000;
+      const recentEvents = answered.filter(e => e.timestamp >= weekStart);
+      const pool = recentEvents.length >= 5 ? recentEvents : answered;
+      const acc = pool.filter(e => e.data?.isCorrect).length / pool.length;
+      status = pool.length >= 5 && acc < 0.5 ? 'struggling' : 'in_progress';
     }
 
     categories.push({
@@ -294,8 +300,9 @@ async function getLearningMap(childId) {
       currentLevel: current.level,
       progressInLevel: current.progress,
       status,
+      questionsAnswered: answered.length,
       modulesCompleted: uniqueModules,
-      modulesTotal: MODULE_COUNTS[cat] || 8,
+      modulesTotal,
     });
   }
 

@@ -2,6 +2,11 @@
 // Palet + ASCII-güvenli dosya adı + Roboto yükleme + jsPDF ile çizilen ÜÇLÜ-KOD logosu.
 // Bireysel (PDFReportGenerator) ve Sınıf (ClassReportGenerator) raporları bunu kullanır.
 
+import pkg from '../../package.json';
+
+/** Uygulama sürümü (package.json) — rapor altbilgisi. */
+export const APP_VERSION = pkg?.version || '5.4.0';
+
 // ── Profesyonel renk paleti (açık tema) ──
 export const P = {
   ink:    [30, 41, 59],    // ana metin   #1E293B
@@ -50,7 +55,7 @@ export function applyRoboto(doc, fonts) {
 // Uygulama logosuyla aynı geometri (100'lük kutu): somut ●●● (indigo), sözel "üç"
 // (mor), sembolik "3" (yeşil), üçgen bağlantı. (cx,cy)=merkez, size=kutu yüksekliği mm.
 // onDark: koyu zeminde bağlantı çizgileri daha açık.
-export function drawGalaksayMark(doc, cx, cy, size = 24, { onDark = false } = {}) {
+export function drawGalaksayMark(doc, cx, cy, size = 24, { onDark = false, fontName = 'Roboto' } = {}) {
   const f = size / 100;
   const X = (v) => cx + (v - 50) * f;
   const Y = (v) => cy + (v - 50) * f;
@@ -76,7 +81,7 @@ export function drawGalaksayMark(doc, cx, cy, size = 24, { onDark = false } = {}
   doc.setFillColor(109, 40, 217); // #6D28D9
   doc.circle(X(72), Y(26), 20 * f, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFont('Roboto', 'bold');
+  doc.setFont(fontName, 'bold');
   doc.setFontSize(12 * PT_PER_UNIT);
   doc.text('üç', X(72), Y(31), { align: 'center' });
 
@@ -85,5 +90,5 @@ export function drawGalaksayMark(doc, cx, cy, size = 24, { onDark = false } = {}
   doc.circle(X(50), Y(74), 20 * f, 'F');
   doc.setFontSize(24 * PT_PER_UNIT);
   doc.text('3', X(50), Y(82), { align: 'center' });
-  doc.setFont('Roboto', 'normal');
+  doc.setFont(fontName, 'normal');
 }

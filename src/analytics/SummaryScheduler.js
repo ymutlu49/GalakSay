@@ -1,17 +1,18 @@
-// GalakSay Analytics — 2026-03-18 — Günlük/haftalık özet hesaplama zamanlayıcısı
+// GalakSay Analytics — Günlük/haftalık özet hesaplama zamanlayıcısı
+// 2026-09-25: yerel takvim günü (UTC kayması düzeltildi), aynı gün×kategori satırı
+// güncellenir (her oturumda kopya satır üretilmiyor), totalTimeMs oturum sürelerinden.
 
-import { STORES, putRecord, getDailySummaries, getWeeklySummaries, getEventsBySession, queryByIndex } from './database.js';
-import { CATEGORIES, getCategoryAccuracy, getAvgResponseTime, getAvgHintLevel, getHintDependencyRate, getConcreteSupportRate } from './PerformanceAnalyzer.js';
+import { STORES, putRecord, getDailySummaries, getSessionsByChild, queryByIndex } from './database.js';
+import { CATEGORIES, localDateKey, localDayRange, getCategoryStats, getConcreteSupportRate } from './PerformanceAnalyzer.js';
 import { getCurrentLTLevels, checkLevelUpCriteria, checkLevelDownCriteria, updateLTLevel } from './LTProgressEngine.js';
-import { calculateRiskLevel } from './RiskClassifier.js';
 import { checkAlerts } from './AlertSystem.js';
 import { trackEvent } from './EventCollector.js';
 
 // Her oturum sonunda çağrılır
 async function onSessionEnd(childId, sessionId, sessionSummary = {}) {
   try {
-    // 1. Günlük özet güncelle
-    const today = new Date().toISOString().slice(0, 10);
+    // 1. Günlük özet güncelle (yerel gün)
+    const today = localDateKey(new Date());
     await calculateDailySummary(childId, today);
 
     // 2. LT düzeyi geçiş kontrolü
@@ -44,12 +45,9 @@ async function onSessionEnd(childId, sessionId, sessionSummary = {}) {
       ltLevelDowns,
     });
 
-    // 4. Haftalık özet (pazar günü ise veya 7 oturumda bir)
-    const dayOfWeek = new Date().getDay();
-    if (dayOfWeek === 0) {
-      const weekStart = getWeekStart(new Date());
-      await calculateWeeklySummary(childId, weekStart);
-    }
+    // 4. Haftalık özet — her oturum sonunda içinde bulunulan haftayı güncelle
+    const weekStart = getWeekStart(new Date());
+    await calculateWeeklySummary(childId, weekStart);
 
     return { ltLevelUps, ltLevelDowns, alerts };
   } catch (err) {
@@ -58,49 +56,50 @@ async function onSessionEnd(childId, sessionId, sessionSummary = {}) {
   }
 }
 
-// Günlük özet hesapla
+// Günlük özet hesapla — date: yerel gün anahtarı (YYYY-MM-DD)
 async function calculateDailySummary(childId, date) {
-  const dayStart = new Date(date + 'T00:00:00').getTime();
-  const dayEnd = new Date(date + 'T23:59:59').getTime();
+  const { start: dayStart, end: dayEnd } = localDayRange(date);
   const timeRange = { start: dayStart, end: dayEnd };
 
   const ltLevels = await getCurrentLTLevels(childId);
+  const sessions = await getSessionsByChild(childId).catch(() => []);
+  const sessionById = new Map((sessions || []).map(s => [s.sessionId, s]));
 
   for (const cat of CATEGORIES) {
-    const [accuracy, avgRT, avgHint, hintDep, concreteRate] = await Promise.all([
-      getCategoryAccuracy(childId, cat, timeRange),
-      getAvgResponseTime(childId, cat, timeRange),
-      getAvgHintLevel(childId, cat, timeRange),
-      getHintDependencyRate(childId, cat, timeRange),
+    const [st, concreteRate] = await Promise.all([
+      getCategoryStats(childId, cat, timeRange),
       getConcreteSupportRate(childId, cat, timeRange),
     ]);
+    if (st.n === 0) continue;
 
-    // Soru sayısı hesapla
     const events = await queryByIndex(STORES.EVENTS, 'byChildCategory', [childId, cat, 'question_answered']);
     const dayEvents = events.filter(e => e.timestamp >= dayStart && e.timestamp <= dayEnd);
-    const questionsAttempted = dayEvents.length;
-    const questionsCorrect = dayEvents.filter(e => e.data.isCorrect).length;
+    const uniqueSessions = new Set(dayEvents.map(e => e.sessionId).filter(Boolean));
+    // Bu güne düşen oturumların toplam süresi (oturum birden çok kategori içerebilir;
+    // kategori satırları arasında paylaştırılmaz — "o gün bu kategoriyi içeren oturumların süresi").
+    const totalTimeMs = [...uniqueSessions].reduce((s, id) => s + (Number(sessionById.get(id)?.durationMs) || 0), 0);
 
-    if (questionsAttempted === 0) continue;
-
-    // Oturum sayısı ve süre
-    const sessionEvents = events.filter(e => e.timestamp >= dayStart && e.timestamp <= dayEnd);
-    const uniqueSessions = new Set(sessionEvents.map(e => e.sessionId));
+    // Aynı çocuk×gün×kategori satırı varsa güncelle (autoIncrement id korunur)
+    const existing = await queryByIndex(STORES.DAILY_SUMMARY, 'byChildDateCategory', [childId, date, cat]).catch(() => []);
+    const prev = existing && existing.length ? existing[0] : null;
 
     const summary = {
+      ...(prev && prev.id !== undefined ? { id: prev.id } : {}),
       childId,
       date,
       category: cat,
-      questionsAttempted,
-      questionsCorrect,
-      accuracy,
-      avgResponseTimeMs: Math.round(avgRT),
-      avgHintLevel: Number(avgHint.toFixed(2)),
-      hintDependencyRate: Number(hintDep.toFixed(2)),
-      concreteSupportRate: Number(concreteRate.toFixed(2)),
+      questionsAttempted: st.n,
+      questionsCorrect: st.correct,
+      accuracy: Number((st.accuracy ?? 0).toFixed(4)),
+      avgResponseTimeMs: Math.round(st.avgRT ?? 0),
+      medianResponseTimeMs: Math.round(st.medianRT ?? 0),
+      avgHintLevel: Number((st.avgHint ?? 0).toFixed(2)),
+      hintDependencyRate: Number((st.hintDep ?? 0).toFixed(2)),
+      concreteSupportRate: Number((concreteRate ?? 0).toFixed(2)),
       ltLevel: ltLevels[cat]?.level || 0,
       sessionCount: uniqueSessions.size,
-      totalTimeMs: 0, // oturum sürelerinden hesaplanabilir
+      totalTimeMs,
+      updatedAt: new Date().toISOString(),
     };
 
     await putRecord(STORES.DAILY_SUMMARY, summary);
@@ -109,9 +108,11 @@ async function calculateDailySummary(childId, date) {
 
 // Haftalık özet hesapla
 async function calculateWeeklySummary(childId, weekStart) {
-  const weekEnd = new Date(new Date(weekStart).getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  const [y, m, d] = String(weekStart).split('-').map(Number);
+  const weekEnd = localDateKey(new Date(y, m - 1, d + 6)); // Pazartesi..Pazar (dahil)
 
   const dailySummaries = await getDailySummaries(childId, weekStart, weekEnd);
+  const existingWeekly = await queryByIndex(STORES.WEEKLY_SUMMARY, 'byChildWeek', [childId, weekStart]).catch(() => []);
 
   // Kategoriye göre grupla
   const byCat = {};
@@ -121,10 +122,13 @@ async function calculateWeeklySummary(childId, weekStart) {
   }
 
   for (const [cat, summaries] of Object.entries(byCat)) {
+    summaries.sort((a, b) => String(a.date).localeCompare(String(b.date)));
     const totalQ = summaries.reduce((s, d) => s + d.questionsAttempted, 0);
     const totalC = summaries.reduce((s, d) => s + d.questionsCorrect, 0);
+    const prev = (existingWeekly || []).find(w => w.category === cat);
 
     const weekly = {
+      ...(prev && prev.id !== undefined ? { id: prev.id } : {}),
       childId,
       weekStart,
       category: cat,
@@ -141,11 +145,12 @@ async function calculateWeeklySummary(childId, weekStart) {
   }
 }
 
+// Haftanın Pazartesi'si (yerel gün anahtarı)
 function getWeekStart(date) {
   const d = new Date(date);
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Pazartesi başlangıç
-  return new Date(d.setDate(diff)).toISOString().slice(0, 10);
+  return localDateKey(new Date(d.getFullYear(), d.getMonth(), diff));
 }
 
-export { onSessionEnd, calculateDailySummary, calculateWeeklySummary };
+export { onSessionEnd, calculateDailySummary, calculateWeeklySummary, getWeekStart };

@@ -1,6 +1,13 @@
-// GalakSay Analytics — 2026-03-18 — Güçlü ve zayıf alan haritalama modülü
+// GalakSay Analytics — Güçlü ve zayıf alan haritalama modülü
+// 2026-09-25: örneklem eşiği — n < MIN_ITEMS_CATEGORY olan alanlar "değerlendirilmedi"
+// (notAssessed) listesine gider; eskiden boş kategori "%0 doğruluk → zayıf" sayılıyordu.
+//
+// Sınıflandırma (öğretimsel düzey geleneği + Galaksay ipucu merdiveni):
+//  • Güçlü:   doğruluk ≥ %80 ve ortalama ipucu < 1,5 (bağımsız düzey)
+//  • Gelişim: doğruluk < %60 veya ortalama ipucu ≥ 3 (engellenme düzeyi / yoğun destek)
+//  • Gelişmekte: aradaki alanlar (öğretimsel düzey)
 
-import { CATEGORIES, getCategoryAccuracy, getAvgResponseTime, getAvgHintLevel, getResponseTimeTrend } from './PerformanceAnalyzer.js';
+import { CATEGORIES, getCategoryStats, getResponseTimeTrend } from './PerformanceAnalyzer.js';
 import { getCurrentLTLevels } from './LTProgressEngine.js';
 
 // Kategori arası ilişki haritası
@@ -26,124 +33,133 @@ const CATEGORY_LABELS = {
   oruntu: 'Örüntü',
 };
 
+const STRENGTH_ACC = 0.80;
+const STRENGTH_HINT = 1.5;
+const WEAKNESS_ACC = 0.60;
+const WEAKNESS_HINT = 3;
+
+const pct = (x) => `%${Math.round((x || 0) * 100)}`;
+
+/** Saf sınıflandırıcı (test edilebilir). */
+function classifyCategory({ n, sufficient, accuracy, avgHint }) {
+  if (!sufficient || accuracy == null) return 'not_assessed';
+  if (accuracy >= STRENGTH_ACC && avgHint < STRENGTH_HINT) return 'strength';
+  if (accuracy < WEAKNESS_ACC || avgHint >= WEAKNESS_HINT) return 'weakness';
+  void n;
+  return 'emerging';
+}
+
 async function getStrengthWeaknessProfile(childId) {
   const strengths = [];
   const weaknesses = [];
   const emergingSkills = [];
+  const notAssessed = [];
 
   const ltLevels = await getCurrentLTLevels(childId);
 
   const categoryData = {};
   for (const cat of CATEGORIES) {
-    const [accuracy, avgRT, avgHint, rtTrend] = await Promise.all([
-      getCategoryAccuracy(childId, cat),
-      getAvgResponseTime(childId, cat),
-      getAvgHintLevel(childId, cat),
+    const [st, rtTrend] = await Promise.all([
+      getCategoryStats(childId, cat),
       getResponseTimeTrend(childId, cat),
     ]);
-    categoryData[cat] = { accuracy, avgRT, avgHint, rtTrend, ltLevel: ltLevels[cat]?.level || 0 };
+    categoryData[cat] = { ...st, rtTrend, ltLevel: ltLevels[cat]?.level || 0 };
   }
 
-  // Sınıflandırma
   for (const cat of CATEGORIES) {
     const d = categoryData[cat];
     const label = CATEGORY_LABELS[cat];
-    const metrics = { accuracy: d.accuracy, avgResponseTime: d.avgRT, hintUsage: d.avgHint };
+    const kind = classifyCategory(d);
+    const metrics = { n: d.n, accuracy: d.accuracy ?? 0, avgResponseTime: d.avgRT ?? 0, medianResponseTime: d.medianRT ?? 0, hintUsage: d.avgHint ?? 0 };
 
-    if (d.accuracy >= 0.80 && d.avgHint < 1.5) {
+    if (kind === 'not_assessed') {
+      notAssessed.push({ category: cat, area: label, n: d.n, ltLevel: d.ltLevel });
+      continue;
+    }
+    if (kind === 'strength') {
       strengths.push({
+        category: cat,
         area: label,
-        evidence: `${label} kategorisinde %${Math.round(d.accuracy * 100)} doğruluk, düşük ipucu kullanımı`,
+        evidence: `${pct(d.accuracy)} doğruluk, ortalama ipucu ${d.avgHint.toFixed(1)} (n=${d.n})`,
         ltLevel: d.ltLevel,
         metrics,
       });
-    } else if (d.accuracy < 0.60 || d.avgHint >= 3) {
-      const suggestedFocus = d.avgHint >= 3
-        ? 'İpucu bağımlılığını azaltmak için somut materyallerle bağımsız çalışma önerilir'
-        : 'Bu alanda daha fazla somut materyalle çalışma önerilir';
-
+    } else if (kind === 'weakness') {
+      const suggestedFocus = d.avgHint >= WEAKNESS_HINT
+        ? 'İpucu bağımlılığını azaltmak için önce somut materyalle, sonra ipucusuz kısa denemeler önerilir'
+        : 'Bu alanda somut materyal destekli, kısa ve sık tekrar önerilir';
       weaknesses.push({
+        category: cat,
         area: label,
-        evidence: `${label} kategorisinde %${Math.round(d.accuracy * 100)} doğruluk, ortalama ipucu kademesi ${d.avgHint.toFixed(1)}`,
+        evidence: `${pct(d.accuracy)} doğruluk, ortalama ipucu ${d.avgHint.toFixed(1)} (n=${d.n})`,
         ltLevel: d.ltLevel,
         metrics,
         suggestedFocus,
         relatedSkills: (RELATED_CATEGORIES[cat] || []).map(c => CATEGORY_LABELS[c]),
       });
     } else {
-      // Gelişmekte olan beceri
       let trend = 'stable';
-      if (d.rtTrend.direction === 'improving') trend = 'improving';
-      else if (d.rtTrend.direction === 'declining') trend = 'declining';
-
-      // Tahmini ustalık süresi
-      const gapToMastery = 0.80 - d.accuracy;
-      const estimatedDays = gapToMastery > 0 ? Math.ceil(gapToMastery * 30 / 0.1) : 0;
-
+      if (d.rtTrend?.direction === 'improving') trend = 'improving';
+      else if (d.rtTrend?.direction === 'declining') trend = 'declining';
       emergingSkills.push({
+        category: cat,
         area: label,
         currentAccuracy: d.accuracy,
+        n: d.n,
         trend,
-        estimatedMastery_days: estimatedDays,
+        evidence: `${pct(d.accuracy)} doğruluk, ortalama ipucu ${d.avgHint.toFixed(1)} (n=${d.n})`,
+        ltLevel: d.ltLevel,
+        metrics,
       });
     }
   }
 
-  // Kategoriler arası ilişki analizi
   const crossCategoryInsights = generateCrossInsights(categoryData);
 
-  return { strengths, weaknesses, emergingSkills, crossCategoryInsights };
+  return { strengths, weaknesses, emergingSkills, notAssessed, crossCategoryInsights };
 }
 
 function generateCrossInsights(categoryData) {
   const insights = [];
+  const acc = (cat) => (categoryData[cat]?.sufficient ? categoryData[cat].accuracy : null);
+  const both = (a, b) => acc(a) != null && acc(b) != null;
 
-  // Sayı bileşimi → toplama etkisi
-  if (categoryData.sayi_bilesimi.accuracy >= 0.75 && categoryData.toplama_cikarma.accuracy < 0.70) {
+  if (both('sayi_bilesimi', 'toplama_cikarma') && acc('sayi_bilesimi') >= 0.75 && acc('toplama_cikarma') < 0.70) {
     insights.push({
-      insight: 'Sayı bileşimi becerisi gelişiyor, bu toplama/çıkarma performansını da artırabilir. Toplama etkinliklerinde parça-bütün ilişkisini vurgulayın.',
+      insight: 'Sayı bileşimi becerisi gelişiyor; toplama/çıkarma etkinliklerinde parça-bütün ilişkisini vurgulamak bu alanı da hızlandırabilir.',
       relatedCategories: ['sayi_bilesimi', 'toplama_cikarma'],
       actionable: true,
     });
   }
-
-  // Subitizing → karşılaştırma etkisi
-  if (categoryData.subitizing.accuracy < 0.55 && categoryData.karsilastirma.accuracy < 0.60) {
+  if (both('subitizing', 'karsilastirma') && acc('subitizing') < 0.55 && acc('karsilastirma') < 0.60) {
     insights.push({
       insight: 'Subitizing zayıflığı karşılaştırma becerisini de etkiliyor olabilir. Önce subitizing çalışmasına odaklanın.',
       relatedCategories: ['subitizing', 'karsilastirma'],
       actionable: true,
     });
   }
-
-  // Sayma güçlülüğü → temel oluşturuyor
-  if (categoryData.sayma.accuracy >= 0.85) {
+  if (acc('sayma') != null && acc('sayma') >= 0.85) {
     insights.push({
-      insight: 'Sayma becerisindeki güçlülük diğer kategoriler için sağlam temel oluşturuyor.',
+      insight: 'Sayma becerisindeki güçlülük diğer alanlar için sağlam bir temel oluşturuyor.',
       relatedCategories: ['sayma'],
       actionable: false,
     });
   }
-
-  // Basamak değeri → toplama etkisi
-  if (categoryData.basamak_degeri.accuracy < 0.55 && categoryData.toplama_cikarma.accuracy < 0.65) {
+  if (both('basamak_degeri', 'toplama_cikarma') && acc('basamak_degeri') < 0.55 && acc('toplama_cikarma') < 0.65) {
     insights.push({
-      insight: 'Basamak değeri zorluğu, çok basamaklı toplama/çıkarma işlemlerini de etkileyebilir. 10\'lu gruplama etkinliklerine öncelik verin.',
+      insight: 'Basamak değeri zorluğu çok basamaklı toplama/çıkarmayı da etkileyebilir. 10\'lu gruplama etkinliklerine öncelik verin.',
       relatedCategories: ['basamak_degeri', 'toplama_cikarma'],
       actionable: true,
     });
   }
-
-  // Çarpma ← sayı bileşimi
-  if (categoryData.sayi_bilesimi.accuracy < 0.60 && categoryData.carpma_bolme.accuracy < 0.55) {
+  if (both('sayi_bilesimi', 'carpma_bolme') && acc('sayi_bilesimi') < 0.60 && acc('carpma_bolme') < 0.55) {
     insights.push({
-      insight: 'Sayı bileşimi eksikliği çarpma/bölme becerisini de etkiliyor olabilir. Eşit gruplar kavramı için önce parça-bütün çalışması yapın.',
+      insight: 'Sayı bileşimi eksikliği çarpma/bölmeyi de etkiliyor olabilir. Eşit gruplar kavramı için önce parça-bütün çalışması yapın.',
       relatedCategories: ['sayi_bilesimi', 'carpma_bolme'],
       actionable: true,
     });
   }
-
   return insights;
 }
 
-export { getStrengthWeaknessProfile, CATEGORY_LABELS };
+export { getStrengthWeaknessProfile, classifyCategory, CATEGORY_LABELS, RELATED_CATEGORIES };
