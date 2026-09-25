@@ -2,6 +2,15 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { useAutoSave, getResumeInfo } from './useAutoSave.js';
 
+// Debounce (100 ms) + asenkron şifreleme: sabit bekleme yerine anahtar görünene kadar yokla (yük altında flake önlemi)
+const waitSaved = async (timeout = 5000) => {
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeout) {
+    if (localStorage.getItem('galaksay_session_progress')) return;
+    await new Promise(r => setTimeout(r, 25));
+  }
+};
+
 describe('useAutoSave', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -11,8 +20,7 @@ describe('useAutoSave', () => {
     const { result } = renderHook(() => useAutoSave());
     await act(async () => {
       result.current.saveProgress({ category: 'sayma', mode: 'counting', currentQuestion: 3, totalQuestions: 10 });
-      // 100ms debounce + crypto async — bekleyelim
-      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
+      await waitSaved();
     });
 
     const raw = localStorage.getItem('galaksay_session_progress');
@@ -29,7 +37,7 @@ describe('useAutoSave', () => {
     const { result } = renderHook(() => useAutoSave());
     await act(async () => {
       result.current.saveProgress({ category: 'a' });
-      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
+      await waitSaved();
     });
     expect(localStorage.getItem('galaksay_session_progress')).toBeTruthy();
     act(() => result.current.clearProgress());
@@ -41,7 +49,7 @@ describe('useAutoSave', () => {
     expect(await result.current.hasResumableSession()).toBe(false);
     await act(async () => {
       result.current.saveProgress({ category: 'a' });
-      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
+      await waitSaved();
     });
     expect(await result.current.hasResumableSession()).toBe(true);
   });
@@ -50,7 +58,7 @@ describe('useAutoSave', () => {
     const { result } = renderHook(() => useAutoSave());
     await act(async () => {
       result.current.saveProgress({ category: 'subitizing', mode: 'fivesFrame', currentQuestion: 5, totalQuestions: 10 });
-      await new Promise(r => setTimeout(r, 600)); // 100ms debounce + async crypto; yük altında 250 ms yetmiyordu (flake)
+      await waitSaved();
     });
     const info = await getResumeInfo();
     expect(info.category).toBe('subitizing');
