@@ -3854,6 +3854,8 @@ button,.option-btn,[role="button"]{min-height:44px}
   .option-btn{min-height:64px;font-size:18px!important}
   .answer-option{min-width:120px;padding:20px 14px!important}
 }
+/* Numpad tuşları: ızgara hücresi 60px — geniş ekran answer-option kuralları tuşları üst üste bindiriyordu */
+.numpad-key,.answer-option.numpad-key{min-width:60px!important;width:60px!important;padding:0!important;min-height:48px}
 `;
 
 // ═══ SPACE THEME COMPONENTS ══════════════════════════════════════════════════
@@ -4708,15 +4710,15 @@ const Frame = ({ total, filled = 0, cols = 5, label, chipColor = "blue", size = 
 // (eskiden iki farklı düzen/boyut/renk vardı = tutarsız görünüm). Saf sunum: durum yok,
 // ses/sayaç mantığı çağıran taraftadır.
 const NumPadGrid = ({ onDigit, onBack, onSubmit, submitEnabled, backEnabled = true, lang = "tr" }) => {
-  const keyStyle = { width: 60, height: 52, borderRadius: 14, border: "1px solid rgba(255,255,255,.12)", background: C.uiBlue, color: "#fff", fontSize: 24, fontWeight: 900, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 4px 14px ${C.uiBlue}40`, transition: "transform .1s" };
+  const keyStyle = { width: 60, height: 48, minWidth: 0, padding: 0, borderRadius: 14, border: "1px solid rgba(255,255,255,.12)", background: C.uiBlue, color: "#fff", fontSize: 24, fontWeight: 900, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 4px 14px ${C.uiBlue}40`, transition: "transform .1s" };
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 60px)", gap: 8, justifyContent: "center" }}>
+    <div className="numpad-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 60px)", gap: 6, justifyContent: "center" }}>
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(d => (
-        <button key={d} className="answer-option" aria-label={String(d)} onClick={() => onDigit(d)} style={keyStyle}>{d}</button>
+        <button key={d} className="answer-option numpad-key" aria-label={String(d)} onClick={() => onDigit(d)} style={keyStyle}>{d}</button>
       ))}
-      <button aria-label={lang === "ku" ? "Jê bibe" : "Sil"} onClick={onBack} style={{ ...keyStyle, background: "rgba(148,163,184,.25)", fontSize: 22, opacity: backEnabled ? 1 : .4 }}>⌫</button>
-      <button aria-label="0" onClick={() => onDigit(0)} style={keyStyle}>0</button>
-      <button aria-label={lang === "ku" ? "Kontrol bike" : "Kontrol Et"} onClick={onSubmit} disabled={!submitEnabled} style={{ ...keyStyle, background: submitEnabled ? C.uiGreen : "rgba(16,185,129,.3)", fontSize: 26, cursor: submitEnabled ? "pointer" : "default", opacity: submitEnabled ? 1 : .55 }}>✓</button>
+      <button className="numpad-key" aria-label={lang === "ku" ? "Jê bibe" : "Sil"} onClick={onBack} style={{ ...keyStyle, background: "rgba(148,163,184,.25)", fontSize: 22, opacity: backEnabled ? 1 : .4 }}>⌫</button>
+      <button className="numpad-key" aria-label="0" onClick={() => onDigit(0)} style={keyStyle}>0</button>
+      <button className="numpad-key" aria-label={lang === "ku" ? "Kontrol bike" : "Kontrol Et"} onClick={onSubmit} disabled={!submitEnabled} style={{ ...keyStyle, background: submitEnabled ? C.uiGreen : "rgba(16,185,129,.3)", fontSize: 26, cursor: submitEnabled ? "pointer" : "default", opacity: submitEnabled ? 1 : .55 }}>✓</button>
     </div>
   );
 };
@@ -7313,6 +7315,17 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const countAudioStopRef = useRef(null); // speakCountSequence iptal fonksiyonu
   const countActiveRef = useRef(false); // count-along sürüyor mu? (otomatik geçiş bunu BEKLER → sayım kesilmez)
   const questionRegionRef = useRef(null); // odak yönetimi (K1)
+  const gameCardRef = useRef(null); // oyun kartı (iç kaydırma)
+  const [cardScrollHint, setCardScrollHint] = useState(false); // kart alta doğru kayabiliyorsa "⌄" ipucu
+  useEffect(() => {
+    if (screen !== "game") { setCardScrollHint(false); return; }
+    const el = gameCardRef.current; if (!el) return;
+    const check = () => setCardScrollHint(el.scrollHeight - el.clientHeight > 8 && el.scrollTop + el.clientHeight < el.scrollHeight - 8);
+    const t = setTimeout(check, 120);
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => { clearTimeout(t); el.removeEventListener("scroll", check); window.removeEventListener("resize", check); };
+  }, [screen, question, answered, hintData, showTripleCode]);
   const usedKeys = useRef(new Set());
   const calibRef = useRef([]); // Keşif Uçuşu madde sonuçları {mode, ok}
   const calibPrevRoundsRef = useRef(null);
@@ -7728,6 +7741,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (t === "fracCompare") return `${t}-${q.f1?.a}/${q.f1?.b}-${q.f2?.a}/${q.f2?.b}-${q.askMin ? 1 : 0}`;
     if (t === "nlPlacement") return `${t}-${q.target}-${q.range}`;
     if (t === "rodSplit") return `${t}-${q.target}`;
+    if (t === "buildNumber") return `${t}-${q.target}-${q.slotCount}`;
+    if (t === "addChips") return `${t}-${q.start}-${q.toAdd}`;
+    if (t === "removeChips") return `${t}-${q.start}-${q.toRemove}`;
+    if (t === "partWhole") return `${t}-${q.whole}-${q.part1}`;
     if (t === "countOnAdd") return `${t}-${q.bigNum}-${q.addOn}`;
     if (t === "inversePractice") return `${t}-${q.num1}-${q.num2}-${q.direction || ""}-${q.askPart || ""}`;
     if (t === "ordinalCount") return `${t}-${q.count}-${q.highlightIdx}-${q.fromRight ? 1 : 0}`;
@@ -15042,10 +15059,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const npRight = answered && userAnswer === correctAnswer;
       const npWrong = answered && userAnswer !== correctAnswer;
       return (
-        <div style={{ marginTop: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>{/* boşluk: sarmalayıcı gap 14 */}
+        <div style={{ marginTop: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>{/* boşluk: sarmalayıcı gap 14 */}
           {/* Cevap kutusu — yazılan sayı canlı görünür */}
           <div style={{
-            minWidth: 110, height: 64, padding: "0 20px", borderRadius: 18,
+            minWidth: 100, height: 54, padding: "0 18px", borderRadius: 16,
             border: `3px ${npEntered || answered ? "solid" : "dashed"} ${npRight ? C.correct : npWrong ? C.wrong : C.uiBlue}`,
             background: npRight ? "rgba(5,150,105,.15)" : npWrong ? "rgba(249,115,22,.12)" : "rgba(49,46,129,.4)",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -16812,7 +16829,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ fontSize: 18 }}>{mi?.i}</span>
-                <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 130 }}>{mi?.n}</span>
+                <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(300px, 38vw)" }}>{mi?.n}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,.92)" }} aria-label={`Soru ${round + 1} / ${roundsPerGame}`}>{round + 1}/{roundsPerGame}</span>
               </div>
               <div style={{ display: "flex", gap: 4 }}>
@@ -16920,7 +16937,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             boxShadow: `0 4px 24px rgba(0,0,0,.25), 0 0 30px ${modeColor}10, inset 0 1px 0 rgba(255,255,255,.1)`,
             display: "flex", flexDirection: "column",
             overflow: "auto", minHeight: 0, position: "relative",
-          }}>
+          }} ref={gameCardRef}>
             {/* Seviye rozeti kaldırıldı — minimalist */}
             {/* ("🔀 Tekrar" serpiştirme etiketi kaldırıldı — çocuğa anlam ifade etmeyen meta-bilgi;
                 interleaved verisi analitik loglarında zaten var) */}
@@ -17216,6 +17233,12 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               </div>
             )}
             </div>{/* end ortalanan görev bloğu (feedback dahil) */}
+            {/* Kart içi kaydırma ipucu: içerik görünür alandan taşıyorsa (numpad/tahta) alta ok — dokununca kaydırır */}
+            {cardScrollHint && (
+              <button type="button" onClick={() => { try { gameCardRef.current?.scrollTo({ top: gameCardRef.current.scrollHeight, behavior: "smooth" }); } catch {} }}
+                aria-label={lang === "ku" ? "Jêr bikişîne" : "Aşağı kaydır"}
+                style={{ position: "sticky", bottom: 4, alignSelf: "flex-end", marginTop: -44, marginRight: 2, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.25)", background: "rgba(15,15,42,.85)", color: "#fde68a", fontSize: 22, fontWeight: 900, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.45)", animation: "float 1.6s ease-in-out infinite", flexShrink: 0, zIndex: 3 }}>⌄</button>
+            )}
 
           </div>
 
