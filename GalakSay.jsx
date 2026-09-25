@@ -6914,6 +6914,12 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const [devTab, setDevTab] = useState(0); // gelişim sayfası tab: 0=genel, 1=detay, 2=müfredat
   const [settingsTab, setSettingsTab] = useState(0); // ayarlar tab: 0=tercihler, 1=modüller, 2=takip
   const [expandedStop, setExpandedStop] = useState(null);
+  const stopPopupRef = useRef(null); // durak paneli — açılınca görünür alana kaydır (QA K-02, mobil)
+  useEffect(() => {
+    if (expandedStop == null) return;
+    const t = setTimeout(() => { try { stopPopupRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch {} }, 80);
+    return () => clearTimeout(t);
+  }, [expandedStop]);
   // Galaksi haritası: Kaptan Köşesi (Günlük + Görev Arkı + Eserler) — varsayılan: katlı
   const [kaptanOpen, setKaptanOpen] = useState(false);
   const journeyMapRef = React.useRef(null);
@@ -7756,6 +7762,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   // ═══ QUESTION GENERATION ══════════════════════════════════════════════════
   const createQuestion = useCallback(() => {
     clearTimeout(timerRef.current); stopCounting(); // E4.1: timer + count-along cleanup
+    clearTimeout(spaceEventTimerRef.current); setSpaceEvent(null); // QA K-10: kutlama katmanı yeni soruya taşmasın
 
     // Tip-bazlı SUNUM kurulumu (interaktif slot'lar + flash göster-gizle zamanlayıcıları).
     // Hem normal üretim hem RETRY yolundan çağrılır — retry eskiden bunu atladığı için
@@ -9274,7 +9281,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
     if (recentKeysRef.current.length > 8) recentKeysRef.current = recentKeysRef.current.slice(-8);
     lastQKeyRef.current = newKey;
     // v5.4: Serpiştirilmiş soru etiketi
-    if (interleavedMode && q) q.interleaved = true;
+    if (interleavedMode && q) { q.interleaved = true; q.interleavedMode = interleavedMode; }
 
     // Slot + flash kurulumu (ortak yardımcı — retry yoluyla paylaşılır)
     initPresentation(q);
@@ -10271,6 +10278,8 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const launchFromJourney = useCallback((modeId) => {
     const planet = getModePlanet(modeId);
     if (!planet) { setGameMode(modeId); setLevel(resolveStartLevel(modeId)); navigateTo("levelSelect"); return; }
+    // Rehber diyaloğu yalnız Galaksi Haritası ekranında render edilir → hub/başka ekrandan çağrılınca önce haritaya geç (QA K-01)
+    if (screen !== "journey") navigateTo("journey");
     // Warp animasyonu başlat
     sfx("warp");
     setShowWarp(true);
@@ -10298,7 +10307,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
         TTS.stop(); TTS._scheduleSpeech(() => narrateWith(narrationOn, planet.guide.name, introTexts), 600);
       }
     }, 1200);
-  }, [sfx, navigateTo, narrationOn, resolveStartLevel]);
+  }, [sfx, navigateTo, narrationOn, resolveStartLevel, screen]);
 
   // Rehber diyaloğu kapatıp oyuna geç
   const dismissGuideAndPlay = useCallback(() => {
@@ -16832,8 +16841,11 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ fontSize: 18 }}>{mi?.i}</span>
-                <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(300px, 38vw)" }}>{mi?.n}</span>
+                <span style={{ color: "#fff", fontWeight: 900, fontSize: 13, textShadow: "0 1px 3px rgba(0,0,0,.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "min(300px, 38vw)" }}>{(question?.interleaved && question?.interleavedMode && gameMode !== "calibration") ? (gmi(question.interleavedMode)?.n || mi?.n) : mi?.n}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,.92)" }} aria-label={`Soru ${round + 1} / ${roundsPerGame}`}>{round + 1}/{roundsPerGame}</span>
+                {question?.interleaved && gameMode !== "calibration" && !answered && (
+                  <span title={lang === "ku" ? "Pirsa tevlihev — ji erkeke din" : "Karışık soru — başka bir görevden"} style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(34,211,238,.18)", color: "#a5f3fc", border: "1px solid rgba(34,211,238,.4)", whiteSpace: "nowrap" }}>🔀 {lang === "ku" ? "Tevlihev" : "Karışık"}</span>
+                )}
                 {question?.isRetry && !answered && (
                   <span title={lang === "ku" ? "Ev pirs dubare tê pirsîn" : "Bu soru yeniden soruluyor"} style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(251,191,36,.22)", color: "#fde68a", border: "1px solid rgba(251,191,36,.45)", whiteSpace: "nowrap" }}>🔁 {lang === "ku" ? "Dîsa" : "Tekrar"}</span>
                 )}
@@ -21147,7 +21159,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
     // ═══ UZAY YÖRÜNGE HESAPLAMASI — Spiral galaksi haritası ═══
     // Gezegenler merkezden dışa doğru spiral yörüngede konumlanır
-    const getPos = (i) => {
+    const _basePos = (i) => {
       const t = N > 1 ? i / (N - 1) : 0.5; // 0..1
       // Spiral: yukarıdan aşağı inerken sağa-sola salınım
       const amplitude = 34; // yatay salınım genişliği (%)
@@ -21157,6 +21169,15 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
       const y = 8 + t * 82; // üstten alta yayıl
       return { x, y };
     };
+    // Ardışık duraklar spiral geçişinde üst üste binebiliyordu (QA K-07: 6↔7) → yakınsa x'te it
+    const _allPos = Array.from({ length: N }, (_, i) => _basePos(i));
+    for (let i = 1; i < N; i++) {
+      const a = _allPos[i - 1], b = _allPos[i];
+      if (Math.abs(a.x - b.x) < 18 && Math.abs(a.y - b.y) < 10) {
+        b.x = Math.max(10, Math.min(90, a.x + (b.x >= a.x ? 18 : -18)));
+      }
+    }
+    const getPos = (i) => _allPos[i] || { x: 50, y: 50 };
 
     return (
       <div className={"page " + pageAnim + a11yCls} style={{ background: `linear-gradient(180deg,${theme.bg1} 0%,${theme.bg2} 35%,${theme.bg3} 70%,${theme.land} 100%)`, fontFamily: F, position: "relative", overflow: "hidden" }}>
@@ -21822,10 +21843,10 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
 
                   {/* ── Açılan detay popup — Uzay konsol ── */}
                   {isExp && !isLocked && (
-                    <div style={{
+                    <div ref={stopPopupRef} style={{
                       position: "absolute",
-                      top: pos.y > 50 ? "auto" : sz + 20,
-                      bottom: pos.y > 50 ? sz + 20 : "auto",
+                      top: pos.y > 78 ? "auto" : sz + 20,
+                      bottom: pos.y > 78 ? sz + 20 : "auto",
                       // Stop sola/sağa yakınsa popup'ı içeri it (dar viewportta taşmayı önler)
                       left: "50%",
                       transform: `translateX(calc(-50% + ${pos.x < 30 ? Math.round((30 - pos.x) * 3) : pos.x > 70 ? Math.round(-(pos.x - 70) * 3) : 0}px))`,
@@ -21856,7 +21877,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                         </div>
                       </div>
                       {/* Mod listesi — görev kartları */}
-                      <div style={{ padding: "8px 10px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
+                      <div style={{ padding: "8px 10px 10px", display: "flex", flexDirection: "column", gap: 4, maxHeight: "min(44vh, 320px)", overflowY: "auto", overscrollBehavior: "contain" }}>
                         {stop.modes.map(m => {
                           const mi = gmi(m);
                           if (!mi) return null;
@@ -21927,7 +21948,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
             {/* Galaksi kurtarıldı kutlaması */}
             {jp.allComplete && (
               <div style={{
-                position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
+                position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", pointerEvents: "none",
                 background: "rgba(10,14,39,.95)", backdropFilter: "blur(20px)",
                 borderRadius: 28, padding: "24px 32px", textAlign: "center", zIndex: 50,
                 boxShadow: `0 0 80px ${theme.accent}40, 0 20px 80px rgba(0,0,0,.5), 0 0 0 2px ${theme.accent}30`,
