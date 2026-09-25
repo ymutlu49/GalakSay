@@ -20,6 +20,7 @@ import {
   listChildren, AGE_GROUPS, upsertNumapChildren, listNumapChildren,
   linkNumapToChild, unlinkNumapFromChild, refreshNumapLinks, readNumapSessionPayload,
 } from '../services/localProfiles.js';
+import { loadDemoClass, removeDemoClass, isDemoLoaded } from '../services/demoData.js';
 import ClassPanel from './ClassPanel.jsx';
 import ChildForm from './ChildForm.jsx';
 import UserManager from './UserManager.jsx';
@@ -183,6 +184,9 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
   // closure-bazlı iptal yalnız useEffect cleanup'ında çalışıyordu; geç dönen bayat
   // istek listeyi/rozeti ezebiliyordu (Faz B doğrulama bulgusu).
   const reqSeq = useRef(0);
+  // Demo sınıfı (yalnız yerel yönetici): sunum için örnek öğrenciler; demo:true bayrağıyla ayrışır.
+  const [demoLoaded, setDemoLoaded] = useState(() => (isAdmin ? isDemoLoaded() : false));
+  const [demoBusy, setDemoBusy] = useState(false);
 
   const load = useCallback(() => {
     // Yerel mod: localProfiles roster'ından oku (ağ yok, senkron). Sahibe göre süz
@@ -318,6 +322,22 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
     setView('childForm');
   }, [isLocal, user]);
   const openEditChild = useCallback((rec) => { setFormChild(rec); setView('childForm'); }, []);
+
+  // Demo sınıfını yükle/kaldır → roster tazelenir. Yükleme IndexedDB yazımı içerir (async).
+  const toggleDemo = useCallback(async () => {
+    if (demoBusy) return;
+    setDemoBusy(true);
+    try {
+      if (isDemoLoaded()) await removeDemoClass();
+      else await loadDemoClass({ ownerId: ownerId || null });
+    } catch (e) {
+      console.error('[ChildSelect] demo sınıfı hatası:', e);
+    } finally {
+      setDemoLoaded(isDemoLoaded());
+      setDemoBusy(false);
+      load();
+    }
+  }, [demoBusy, ownerId, load]);
 
   // ── FAZ C: eşleme eylemleri ──
   const openLinkPicker = useCallback((rec) => { setLinkChild(rec); setLinkError(''); setView('linkPicker'); }, []);
@@ -661,6 +681,36 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                 {isAdmin && <HubCard vertical icon="👥" title="Kullanıcılar" desc="Öğretmen/uzman ekle" onClick={() => setView('users')} />}
                 <HubCard vertical icon="⚙️" title="Ayarlar" desc="Erişim · veri · dil" onClick={() => setView('settings')} />
               </div>
+              {/* Demo sınıfı — sunum/tanıtım için örnek öğrenciler (yalnız yerel yönetici, sade kart) */}
+              {isAdmin && (
+                <div
+                  style={{
+                    marginTop: 4,
+                    background: 'rgba(255,217,61,.06)',
+                    border: '1px dashed rgba(255,217,61,.35)',
+                    borderRadius: layout.borderRadius.lg,
+                    padding: '12px 14px',
+                    fontFamily: typography.fontFamily.display,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
+                  }}
+                >
+                  <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: colors.text.primary }}>🎓 Demo sınıfı</div>
+                    <div style={{ fontSize: 12, lineHeight: 1.4, color: colors.text.tertiary, marginTop: 2 }}>
+                      Sunum ve tanıtım için örnek öğrenciler; gerçek verilerle karışmaz.
+                    </div>
+                  </div>
+                  <Button
+                    variant={demoLoaded ? 'ghost' : 'secondary'}
+                    size="sm"
+                    disabled={demoBusy || loading}
+                    onClick={toggleDemo}
+                    aria-label={demoLoaded ? 'Demo sınıfını kaldır' : 'Demo sınıfını yükle'}
+                  >
+                    {demoBusy ? 'Hazırlanıyor…' : demoLoaded ? 'Demo sınıfını kaldır' : 'Demo sınıfını yükle'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -945,6 +995,26 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                         >
                           {c.name}
                         </span>
+                        {c.demo && (
+                          <span
+                            aria-label="Demo öğrenci"
+                            title="Demo sınıfı — sunum için örnek öğrenci"
+                            style={{
+                              flexShrink: 0,
+                              fontSize: 10,
+                              fontWeight: 800,
+                              letterSpacing: 0.6,
+                              fontFamily: typography.fontFamily.display,
+                              padding: '2px 7px',
+                              borderRadius: layout.borderRadius.full,
+                              background: 'rgba(255,217,61,.14)',
+                              border: '1px solid rgba(255,217,61,.45)',
+                              color: colors.accent.gold,
+                            }}
+                          >
+                            DEMO
+                          </span>
+                        )}
                         {/* Kaynak rozeti — yalnız karışık listede (Numap modu) anlamlı.
                             FAZ C: bağlı yerel çocuk '🔗 Numap bağlı' rozetini taşır. */}
                         {!isLocal && (

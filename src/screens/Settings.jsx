@@ -4,8 +4,10 @@ import { colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
 import { spacing, layout } from '../design-system/spacing.js';
 import { Toggle } from '../design-system/components/Toggle.jsx';
+import { APP_VERSION } from '../version.js';
 import { Button } from '../design-system/components/Button.jsx';
 import { Modal } from '../design-system/components/Modal.jsx';
+import { EvidenceBaseModal } from './EvidenceBase.jsx';
 import { ParentalGate } from '../components/ui/ParentalGate.jsx';
 import { exportAllData, eraseAllData } from '../utils/dataExport.js';
 import { hashPin, verifyPin } from '../utils/crypto.js';
@@ -334,7 +336,7 @@ function PinDialog({ open, onClose, onSuccess, mode = 'verify' }) {
 }
 
 // ═══ ANA AYARLAR EKRANI ═════════════════════════════════════════════════════
-export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
+export function Settings({ onClose, onOpenDashboard, version = APP_VERSION }) {
   // Ayar durumları — localStorage'dan yükle
   const load = (key, def) => {
     try { const v = localStorage.getItem(`galaksay_${key}`); return v !== null ? JSON.parse(v) : def; }
@@ -367,6 +369,8 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
   const [parentalGateOpen, setParentalGateOpen] = useState(false);
   const [pendingPrivacyAction, setPendingPrivacyAction] = useState(null); // 'export' | 'erase' | 'revoke'
   const [confirmEraseOpen, setConfirmEraseOpen] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const [licensesOpen, setLicensesOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [consentSnapshot, setConsentSnapshot] = useState(() => loadConsent());
@@ -654,7 +658,8 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
           <SettingLink label="Versiyon" value={version} />
           <SettingLink label="Geliştirici" value="Jimaro Eğitim" />
           <SettingLink label="Akademik Danışman" value="Prof. Dr. Yılmaz Mutlu" />
-          <SettingLink label="Lisanslar" onClick={() => {}} />
+          <SettingLink label="Bilimsel temel ve kaynaklar" value="📚" onClick={() => setEvidenceOpen(true)} />
+          <SettingLink label="Açık kaynak lisansları" onClick={() => setLicensesOpen(true)} />
           <div style={{
             padding: '10px 16px',
             borderTop: `1px solid ${colors.surface.divider}`,
@@ -665,6 +670,20 @@ export function Settings({ onClose, onOpenDashboard, version = '5.9.0' }) {
             © Galaksay — MEB 2024 Türkiye Yüzyılı Maarif Modeli Uyumlu
           </div>
         </Section>
+
+        <EvidenceBaseModal open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
+        <Modal open={licensesOpen} onClose={() => setLicensesOpen(false)} title="Açık kaynak lisansları" maxWidth={460}>
+          <ul style={{ margin: 0, paddingLeft: 18, color: colors.text.secondary, fontSize: 13, lineHeight: 1.7 }}>
+            <li>React, React DOM — MIT</li>
+            <li>Vite — MIT</li>
+            <li>Framer Motion — MIT</li>
+            <li>Recharts — MIT</li>
+            <li>jsPDF — MIT</li>
+            <li>Nunito (Vernon Adams) — SIL Open Font License 1.1</li>
+            <li>Atkinson Hyperlegible (Braille Institute) — SIL Open Font License 1.1</li>
+          </ul>
+          <p style={{ color: colors.text.tertiary, fontSize: 12, margin: '12px 0 0' }}>Uygulama üçüncü taraf izleme betiği içermez; yazı tipleri ve ses paketi uygulamayla birlikte sunulur.</p>
+        </Modal>
 
         {/* Bottom spacer */}
         <div style={{ height: 40 }} />

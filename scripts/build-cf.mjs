@@ -10,7 +10,7 @@
 //
 // Çalıştır:  npm run build:cf
 import { execSync } from 'node:child_process';
-import { rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, copyFileSync } from 'node:fs';
+import { rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, copyFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 
@@ -51,6 +51,23 @@ execSync(`node "${viteEntry}" build --outDir cf-deploy/oyna --emptyOutDir`, {
 console.log('3/4  Tanıtım sayfası + PWA varlıkları köke kopyalanıyor (site/*)');
 copyDir(site, out);
 
+console.log('3b   sw.js: sürüm damgası + /oyna/ varlıklarının önbellek listesi');
+{
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const stamp = `v${pkg.version}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+  const assetsDir = join(out, 'oyna', 'assets');
+  // Uygulama kabuğu ilk ziyarette tamamen önbelleğe alınır (sunum/çevrimdışı güvencesi);
+  // ses paketi (audio/) isteğe bağlı → stale-while-revalidate ile sonradan dolar.
+  const precache = existsSync(assetsDir)
+    ? readdirSync(assetsDir).filter((f) => /\.(js|css|woff2)$/.test(f)).map((f) => `/oyna/assets/${f}`)
+    : [];
+  const swPath = join(out, 'sw.js');
+  let sw = readFileSync(swPath, 'utf8');
+  sw = sw.replace('galaksay-__BUILD__', `galaksay-${stamp}`);
+  sw = sw.replace('/*__PRECACHE__*/', precache.map((u) => `'${u}',`).join('\n  '));
+  writeFileSync(swPath, sw);
+  console.log(`     ${precache.length} varlık önbellek listesine eklendi (${stamp})`);
+}
 console.log('4/4  Cloudflare yapılandırması (_redirects, _headers)');
 // /oyna/ SPA fallback (derin link güvenliği) — uygulama URL yönlendirmesi
 // kullanmasa da zararsız ve ileriye dönük güvenli.

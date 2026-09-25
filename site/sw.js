@@ -4,7 +4,7 @@
      diğer aynı-köken GET'lerde stale-while-revalidate.
    - Uygulama varlıkları hash'li olduğu için cache büyümesi kontrollüdür;
      yeni sürümde VERSION bump'la → eski cache temizlenir. */
-const VERSION = 'galaksay-v3-20260611';
+const VERSION = 'galaksay-__BUILD__'; // build-cf.mjs derlemede sürüm+tarih yazar
 
 // İlk yüklemede çevrimdışı çalışması için önbelleğe alınan çekirdek kabuk.
 const CORE = [
@@ -17,6 +17,7 @@ const CORE = [
   '/icons/icon-maskable-512.png',
   '/icons/apple-touch-icon.png',
   '/icons/favicon-32.png',
+  /*__PRECACHE__*/
 ];
 
 self.addEventListener('install', (event) => {

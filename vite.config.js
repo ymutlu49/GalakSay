@@ -3,6 +3,8 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
+import { readFileSync } from 'node:fs'
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 // galaksay.com (Cloudflare Pages) build'i için PWA <head> etiketleri + SW kaydı.
 // Yalnızca VITE_PWA=1 ile aktif olur → Her Çocuk Matematik Öğrenebilir umbrella (/galaksay/ alt yolu) build'i etkilenmez.
@@ -34,6 +36,8 @@ function pwaTags() {
 }
 
 export default defineConfig({
+  // Tek sürüm kaynağı: package.json → __APP_VERSION__ (src/version.js)
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [react(), pwaTags()].filter(Boolean),
   // VITE_BASE ile override edilir. Varsayılan /galaksay/ (Her Çocuk Matematik Öğrenebilir umbrella deploy'u).
   // galaksay.com build'i VITE_BASE=/oyna/ kullanır.

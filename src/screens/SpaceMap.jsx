@@ -33,8 +33,8 @@ const PLANET_CONFIGS = {
   karsilastirma:   { color: colors.accent.secondary, label: 'Karşılaştırma', x: 80, y: 28 },
   sayi_bilesimi:   { color: '#f472b6', label: 'Sayı Bileşimi', x: 15, y: 55 },
   basamak_degeri:  { color: colors.accent.orange, label: 'Basamak Değeri', x: 85, y: 52 },
-  toplama_cikarma: { color: '#60a5fa', label: 'Toplama/Çıkarma', x: 35, y: 72 },
-  carpma_bolme:    { color: colors.accent.gold, label: 'Çarpma/Bölme', x: 68, y: 75 },
+  toplama_cikarma: { color: '#60a5fa', label: 'Toplama / Çıkarma', x: 35, y: 72 },
+  carpma_bolme:    { color: colors.accent.gold, label: 'Çarpma / Bölme', x: 68, y: 75 },
   oruntu:          { color: colors.accent.tertiary, label: 'Örüntü', x: 50, y: 90 },
 };
 
@@ -225,8 +225,9 @@ export default function SpaceMap({ childId, onBack }) {
                 fontFamily: typography.fontFamily.display,
                 /* opacity sabit: gezegen silik olsa bile etiket okunsun */
                 textAlign: 'center',
-                maxWidth: 'min(100px, 24vw)',
-                wordBreak: 'break-word',
+                maxWidth: 'min(120px, 30vw)',
+                overflowWrap: 'normal',
+                hyphens: 'manual',
                 textShadow: '0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.7)',
                 marginTop: 2,
               }}>

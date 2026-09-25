@@ -2,6 +2,7 @@
 // GalakSay Pro — Otomatik kaydetme hook'u (KVKK için şifreli saklama)
 // Her soru sonrası ilerlemeyi cihazda AES-GCM ile şifreleyerek kaydeder.
 import { useCallback, useEffect, useRef } from 'react';
+import { APP_VERSION } from '../version.js';
 import { encryptJSON, decryptJSON } from '../utils/crypto.js';
 
 /** @typedef {import('../types').SessionProgress} SessionProgress */
@@ -52,7 +53,7 @@ export function useAutoSave() {
         const payload = {
           ...data,
           timestamp: Date.now(),
-          version: '5.9.0',
+          version: APP_VERSION,
         };
         const blob = await encryptJSON(payload);
         localStorage.setItem(STORAGE_KEY, blob);

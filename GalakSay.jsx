@@ -3776,7 +3776,7 @@ button,.option-btn,[role="button"]{min-height:44px}
 @keyframes subtitleGlow{0%,100%{text-shadow:0 1px 6px rgba(167,139,250,.3)}50%{text-shadow:0 1px 12px rgba(167,139,250,.6),0 0 20px rgba(167,139,250,.2)}}
 .large-text{zoom:1.15}
 .page.game-screen.large-text{zoom:1.38} /* oyun sayfası tabanı 1.2 × 1.15 — eskiden 1.15 tabanı EZİYOR, büyütmüyordu */
-@media (max-width:480px){.planet-label--locked{display:none}}
+@media (max-width:480px){.planet-label--locked{display:none}.numera-star-label{display:none}}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .option-btn:focus-visible{outline:4px solid #fbbf24;outline-offset:3px}
 /* zoom 100dvh sayfayı viewport'tan taşırır (alt çubuk kaybolur) → yükseklik telafisi */
@@ -7241,7 +7241,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
   const sessionGraceRef = useRef(0);         // yetişkin onaylı ek süre (sn)
   const [sessionWindDown, setSessionWindDown] = useState(false);
   const [sessionGateOpen, setSessionGateOpen] = useState(false);
-  const [hubToolsOpen, setHubToolsOpen] = useState(false); // childHub: Analiz & Takip akordeonu (varsayılan kapalı — iniş oyun-öncelikli)
+  const [hubToolsOpen, setHubToolsOpen] = useState(() => typeof window !== "undefined" && window.innerWidth >= 768); // childHub: Analiz & Takip akordeonu (dar ekranda kapalı — iniş oyun-öncelikli; geniş ekranda açık)
   const sessionLimitSec = useCallback(() => {
     let raw = NaN;
     try { raw = parseInt(localStorage.getItem("galaksay_session_limit_min") || "", 10); } catch {} // storage engelliyse varsayılana düş
@@ -15511,7 +15511,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, animation: "fadeUp .25s ease" }}>
                 {[
                   { val: stats.totalGames, label: "Oyun", color: "#60a5fa" },
-                  { val: stats.totalScore, label: "✨", color: "#fbbf24" },
+                  { val: stats.totalScore, label: "Puan", color: "#fbbf24" },
                   { val: stats.totalCorrect, label: "Doğru", color: "#34d399" },
                   { val: stats.totalQ > 0 ? Math.round((stats.totalCorrect / stats.totalQ) * 100) + "%" : "—", label: "Başarı", color: "#a78bfa" },
                 ].map((s, i) => (
@@ -15522,6 +15522,23 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 ))}
               </div>
             )}
+            {stats.recent?.length > 0 && (() => {
+              const g = stats.recent[0]; const gm = gmi(g.mode);
+              const accColor = g.acc >= 80 ? "#34d399" : g.acc >= 60 ? "#fbbf24" : "#f87171";
+              return (
+                <div style={{ ...DS.card, padding: "10px 14px", display: "flex", alignItems: "center", gap: 12, animation: "fadeUp .3s ease" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: `${gm?.c || "#818cf8"}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{gm?.i || "🎮"}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1 }}>Son görev</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#e2e8f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{gm?.n || g.mode} · Sv.{g.level}</div>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: accColor }}>%{g.acc}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1" }}>{g.correct}/{g.total} doğru</div>
+                  </div>
+                </div>
+              );
+            })()}
             {/* ── EYLEM SIRASI (kullanıcı akış kararı 2026-06-12) ──
                 İLK giriş (devam noktası yok): Numap önerisi varsa BİRİNCİL (tanılamadan gelen
                 kişisel başlangıç noktası bir kez net sorulur) → Keşfet ikincil.
@@ -15592,7 +15609,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>{hubToolsOpen ? "▲ Gizle" : "▼ Aç"}</span>
             </button>
             {hubToolsOpen && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp .25s ease" }}>
+            <div style={{ display: "grid", gridTemplateColumns: typeof window !== "undefined" && window.innerWidth >= 600 ? "1fr 1fr" : "1fr", gap: 8, animation: "fadeUp .25s ease" }}>
               {hubTools.map(c => (
                 <button key={c.label} onClick={c.onClick} style={{ ...DS.card, padding: "12px 14px", border: `1px solid ${c.color}15`, cursor: "pointer", fontFamily: F, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: `${c.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{c.icon}</div>
@@ -15672,7 +15689,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, animation: "fadeUp .25s ease" }}>
                 {[
                   { val: stats.totalGames, label: "Oyun", color: "#60a5fa" },
-                  { val: stats.totalScore, label: "✨", color: "#fbbf24" },
+                  { val: stats.totalScore, label: "Puan", color: "#fbbf24" },
                   { val: stats.totalCorrect, label: "Doğru", color: "#34d399" },
                   { val: stats.totalQ > 0 ? Math.round((stats.totalCorrect / stats.totalQ) * 100) + "%" : "—", label: "Başarı", color: "#a78bfa" },
                 ].map((s, i) => (
@@ -17819,7 +17836,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           <div style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)", padding: "12px 16px 14px", borderRadius: "0 0 20px 20px", boxShadow: "0 4px 16px rgba(124,58,237,.2)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <button onClick={goMenu} style={{ padding: "8px 16px", borderRadius: 10, border: "none", background: "rgba(255,255,255,.2)", color: "#fff", fontSize: 12, minHeight: 44, fontWeight: 700, cursor: "pointer", fontFamily: F }} aria-label={lang === "ku" ? "Vegere" : "Geri dön"}><span style={{fontSize:16}}>◀</span>{!isPreReader && (lang === "ku" ? " Vegere" : " Geri")}</button>
-            <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>📈 İlerlemem</span>
+            <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>📈 {child && !child.directPlay ? `${playerName || "Çocuk"} — İstatistik` : "İlerlemem"}</span>
             <BrandMini />
             </div>
           </div>
@@ -17828,14 +17845,14 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {/* Summary stats */}
           <div style={{ ...DS.card, padding: "10px 8px", flexShrink: 0 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, textAlign: "center" }}>
-              {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "✨", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
+              {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "Puan", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
                 <div key={s.l} style={{ borderRadius: 8, padding: "6px 2px", background: "rgba(30,27,75,.35)" }}><div style={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</div><div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1", textTransform: "uppercase" }}>{s.l}</div></div>
               ))}
             </div>
           </div>
           {/* Mode stats */}
-          <div style={{ ...DS.card, padding: "10px 10px 8px", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-            <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Modlar</h3>
+          <div style={{ ...DS.card, padding: "10px 10px 8px", display: "flex", flexDirection: "column", minHeight: 0, maxHeight: "48vh" }}>
+            <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a8b2d1", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: .5 }}>Görevler ({Object.keys(stats.modeStats).length}/{Object.values(CATEGORIES).reduce((a, c) => a + Object.keys(c.modes).length, 0)})</h3>
             {Object.keys(stats.modeStats).length === 0
               ? <p style={{ color: "#a8b2d1", textAlign: "center", fontSize: 13, padding: 10 }}>Henüz oyun oynamadın</p>
               : <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
@@ -17978,7 +17995,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
           {devTab === 0 && (<>
             {/* Compact summary row */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6, textAlign: "center" }}>
-              {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "✨", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
+              {[{ v: stats.totalGames, l: "Oyun", c: "#7c3aed" }, { v: stats.totalCorrect, l: "Doğru", c: "#059669" }, { v: stats.totalScore, l: "Puan", c: "#ca8a04" }, { v: `%${oa}`, l: "Başarı", c: "#7c3aed" }].map(s => (
                 <div key={s.l} style={{ borderRadius: 10, padding: "8px 2px", background: "rgba(49,46,129,.35)", border: "1px solid rgba(148,163,184,.08)" }}>
                   <div style={{ fontSize: 18, fontWeight: 900, color: s.c }}>{s.v}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#a8b2d1", textTransform: "uppercase" }}>{s.l}</div>
@@ -21504,7 +21521,7 @@ function GalaksayGameInner({ teacher = null, child = null, numapPlan = null, onE
                 letterSpacing: .6,
                 background: "rgba(12,14,32,.62)", padding: "2px 10px", borderRadius: 8,
                 border: "1px solid rgba(251,191,36,.25)",
-              }}>NuméraYıldız</div>
+              }} className="numera-star-label">NuméraYıldız</div>
             </div>
 
             {/* ── Gezegen düğümleri (duraklar) ── */}
