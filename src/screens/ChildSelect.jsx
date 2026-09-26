@@ -652,7 +652,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
                 {[
                   ['1', 'İlk öğrencinizi ekleyin (ad/rumuz + avatar yeter)'],
                   ['2', 'İsterseniz 4 haneli giriş şifresi belirleyin'],
-                  ['3', 'Çocuk, karşılama ekranındaki "Öğrenci Girişi"nden kendi resmine dokunarak oynar'],
+                  ['3', 'Çocuk, açılış ekranındaki "Kaptanlar" listesinden kendi resmine dokunarak oynar'],
                 ].map(([n, t]) => (
                   <div key={n} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 5 }}>
                     <span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: '50%', background: 'rgba(108,99,255,.35)', color: '#fff', fontSize: 11.5, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n}</span>

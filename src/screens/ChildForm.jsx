@@ -116,11 +116,11 @@ export default function ChildForm({ child = null, ownerId = null, onSave, onCanc
               Gerçek ad yerine rumuz da kullanabilirsiniz — soyad, fotoğraf veya doğum tarihi istenmez.
             </p>
             {/* FAZ B aydınlatması: Numap öğretmeninin eklediği profil CİHAZDA yaşar —
-                Numap çıkışında silinmez ve Öğrenci Girişi listesinde görünür (KVKK şeffaflık). */}
+                Numap çıkışında silinmez ve Kaptanlar listesinde görünür (KVKK şeffaflık). */}
             {String(ownerId || '').startsWith('numap:') && (
               <p style={{ fontSize: 11.5, color: colors.text.tertiary, fontFamily: F, margin: '4px 2px 0' }}>
                 ℹ️ Bu profil bu cihazda saklanır: Numap çıkışınızda silinmez ve karşılama
-                ekranındaki "Öğrenci Girişi" listesinde görünür — bu yüzden rumuz önerilir.
+                ekranındaki "Kaptanlar" listesinde görünür — bu yüzden rumuz önerilir.
               </p>
             )}
           </div>

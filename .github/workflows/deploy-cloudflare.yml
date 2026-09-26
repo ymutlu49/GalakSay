@@ -6,9 +6,10 @@ name: Deploy to Cloudflare Pages (galaksay.com)
 # Hesap kimliği sır değildir; aşağıdaki env.CF_ACCOUNT_ID ile sabitlenmiştir.
 # Elle çalıştırma: Actions sekmesi → bu iş akışı → "Run workflow".
 
+# 26 Eyl 2026: otomatik (push) dağıtım DURDURULDU. galaksay.com'daki son sürüm masaüstündeki
+# (Jimaro) çalışma kopyasından yayımlanmış açık renkli v5.10.0'dır ve bu kaynak henüz GitHub'da
+# yok; iki kod tabanı birleştirilene kadar dağıtım yalnızca elle ("Run workflow") yapılır.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
