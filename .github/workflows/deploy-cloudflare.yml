@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Cloudflare hesap kimliği gizli bir değer değildir (wrangler whoami çıktısı); yalnız API token sırdır.
+  CF_ACCOUNT_ID: 0eec8b88e11ef882d9269249ad00e331
+
 concurrency:
   group: cloudflare-pages
   cancel-in-progress: true
@@ -53,10 +57,12 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
           command: pages project list
       - if: steps.cf.outputs.enabled == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
           # Proje adı depo değişkeni CLOUDFLARE_PAGES_PROJECT ile değiştirilebilir (varsayılan: galaksay)
           command: pages deploy cf-deploy --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }} --branch main
