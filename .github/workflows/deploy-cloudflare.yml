@@ -40,9 +40,18 @@ jobs:
         run: echo "enabled=${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}" >> "$GITHUB_OUTPUT"
       - if: steps.cf.outputs.enabled != 'true'
         run: echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID tanımlı değil — galaksay.com dağıtımı atlandı."
+      # Teşhis: token hangi hesabı görüyor, hangi Pages projeleri var (sır yazdırmaz)
+      - if: steps.cf.outputs.enabled == 'true'
+        name: Cloudflare hesabı ve Pages projeleri
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project list
       - if: steps.cf.outputs.enabled == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy cf-deploy --project-name galaksay --branch main
+          # Proje adı depo değişkeni CLOUDFLARE_PAGES_PROJECT ile değiştirilebilir (varsayılan: galaksay)
+          command: pages deploy cf-deploy --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }} --branch main
