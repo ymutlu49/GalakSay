@@ -3,7 +3,7 @@ name: Deploy to Cloudflare Pages (galaksay.com)
 # main'e her push'ta galaksay.com (Cloudflare Pages) otomatik güncellenir.
 # Gerekli depo sırları (Settings → Secrets and variables → Actions):
 #   CLOUDFLARE_API_TOKEN   — "Cloudflare Pages: Edit" izinli API token
-#   CLOUDFLARE_ACCOUNT_ID  — Cloudflare hesap kimliği
+# Hesap kimliği sır değildir; aşağıdaki env.CF_ACCOUNT_ID ile sabitlenmiştir.
 # Elle çalıştırma: Actions sekmesi → bu iş akışı → "Run workflow".
 
 on:
@@ -44,9 +44,8 @@ jobs:
         run: echo "enabled=${{ secrets.CLOUDFLARE_API_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
       - if: steps.cf.outputs.enabled != 'true'
         run: echo "::warning::CLOUDFLARE_API_TOKEN tanımlı değil — galaksay.com dağıtımı atlandı."
-      # Teşhis: token hangi hesapları görüyor (wrangler whoami) ve hangi Pages projeleri var.
-      # accountId bilerek verilmiyor: token tek hesaba erişiyorsa wrangler hesabı kendisi seçer;
-      # birden fazlaysa hata mesajında hesap adları ve kimlikleri listelenir.
+      # Teşhis: token hangi hesabı görüyor (wrangler whoami) ve hangi Pages projeleri var.
+      # whoami'ye accountId verilmez; böylece token yanlış hesaba bağlıysa günlükte doğru kimlik görünür.
       - if: steps.cf.outputs.enabled == 'true'
         name: Cloudflare hesabı ve Pages projeleri
         uses: cloudflare/wrangler-action@v3
