@@ -14,10 +14,12 @@ import { useAccessibility } from './hooks/useAccessibility.js'
 const GalaksayGame = lazy(() => import('../GalakSay.jsx'))
 const TeacherLogin = lazy(() => import('./screens/TeacherLogin.jsx'))
 const ChildSelect = lazy(() => import('./screens/ChildSelect.jsx'))
-const WelcomeScreen = lazy(() => import('./screens/WelcomeScreen.jsx'))
-const StudentPicker = lazy(() => import('./screens/StudentPicker.jsx'))
+const TitleScreen = lazy(() => import('./screens/TitleScreen.jsx'))
+const CaptainPicker = lazy(() => import('./screens/CaptainPicker.jsx'))
+const CaptainCreate = lazy(() => import('./screens/CaptainCreate.jsx'))
 
 import { loadConsent, saveConsent } from './utils/consent.js'
+import { childCount, touchChild } from './services/localProfiles.js'
 import {
   getToken,
   clearToken,
@@ -372,9 +374,10 @@ function App() {
   // Seçili çocuk: { ns, name, grade, ageMonths, numapProfile, childMeta } | null
   const [selectedChild, setSelectedChild] = useState(null)
 
-  // ── Giriş-yolu (Numap'siz front door) ──
-  // Galaksay artık yalnız Numap'le sınırlı değil: çocuk self-login + yerel yönetim.
-  const [entryView, setEntryView] = useState('welcome') // 'welcome' | 'adultLogin' | 'student'
+  // ── Giriş-yolu (müstakil oyun ön kapısı) ──
+  // Çocuk hesapsız/öğretmensiz girer: açılış → kaptan seç ya da kaptan oluştur → oyun.
+  // Öğretmen · Ebeveyn girişi (NuMap / yerel yönetim) açılıştaki küçük bağlantıdan.
+  const [entryView, setEntryView] = useState('title') // 'title' | 'captains' | 'create' | 'adultLogin'
   // Yerel (Numap'siz) oturum: null | { kind: 'admin' } | { kind: 'user', user }
   // admin = cihaz yöneticisi (PIN) — öğrenci + kullanıcı yönetir; user = tanımlı öğretmen/uzman.
   const [localSession, setLocalSession] = useState(null)
@@ -518,7 +521,7 @@ function App() {
     // HÇMÖ çocuk jetonu/bağı her çıkışta temizlenir (12 saatlik jeton başka çocuğa yazmasın)
     try { const pb = await import('./services/portalBridge.js'); pb.clearPortalStudent() } catch { /* yok say */ }
     setSelectedChild(null); setTeacher(null); setAuthStatus('unauthed')
-    setLocalSession(null); setEntryView('welcome')
+    setLocalSession(null); setEntryView('title')
   }, [authStatus])
 
   // Oyun-içi menüden çağrılacak köprüler (çıkış / çocuk değiştir).
@@ -588,34 +591,49 @@ function App() {
           source="local"
           user={identity}
           onSelect={(rec, opts) => handleSelectLocalChild(rec, { directPlay: false, initialScreen: opts?.screen || null })}
-          onLogout={() => { setLocalSession(null); setEntryView('welcome') }}
+          onLogout={() => { setLocalSession(null); setEntryView('title') }}
         />
       )
     }
 
-    // Front door (oturum yok): iki yol — Öğrenci / Öğretmen-Uzman.
+    // Ön kapı (oturum yok): açılış → kaptanlar / kaptan oluştur; yetişkin girişi ayrı.
     if (entryView === 'adultLogin') {
       return (
         <TeacherLogin
           onSuccess={handleLoginSuccess}
           onLocalUser={(u) => setLocalSession({ kind: 'user', user: u })}
           onLocalAdmin={() => setLocalSession({ kind: 'admin' })}
-          onBack={() => setEntryView('welcome')}
+          onBack={() => setEntryView('title')}
         />
       )
     }
-    if (entryView === 'student') {
+    if (entryView === 'captains') {
       return (
-        <StudentPicker
+        <CaptainPicker
           onPick={(rec) => handleSelectLocalChild(rec, { directPlay: true })}
-          onBack={() => setEntryView('welcome')}
-          onManage={() => setEntryView('adultLogin')}
+          onNew={() => setEntryView('create')}
+          onBack={() => setEntryView('title')}
+          onAdult={() => setEntryView('adultLogin')}
+        />
+      )
+    }
+    if (entryView === 'create') {
+      return (
+        <CaptainCreate
+          onDone={(rec) => {
+            // Oyundan "Değiştir" ile dönüldüğünde sihirbaz değil kaptan listesi görünsün.
+            setEntryView('captains')
+            handleSelectLocalChild(rec, { directPlay: true })
+          }}
+          onCancel={() => setEntryView(childCount() > 0 ? 'captains' : 'title')}
         />
       )
     }
     return (
-      <WelcomeScreen
-        onStudent={() => setEntryView('student')}
+      <TitleScreen
+        onResume={(rec) => { touchChild(rec.ns); setEntryView('captains'); handleSelectLocalChild(rec, { directPlay: true }) }}
+        onCaptains={() => setEntryView('captains')}
+        onNew={() => setEntryView('create')}
         onAdult={() => setEntryView('adultLogin')}
       />
     )

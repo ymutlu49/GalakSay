@@ -34,9 +34,9 @@ Ortam değişkenleri `.env.example` dosyasında; gerçek değerler `.env.local`'
 
 ```
 index.html            Kabuk: global CSS (uzay teması, erişilebilirlik sınıfları), HÇMÖ a11y widget'ı
-src/main.jsx          Giriş kapısı: splash → rıza → karşılama → öğrenci/öğretmen girişi → çocuk seçimi → oyun
+src/main.jsx          Giriş kapısı: splash → açılış (TitleScreen) → kaptan seç / kaptan oluştur → oyun; Öğretmen · Ebeveyn girişi ayrı
 GalakSay.jsx          Oyun motoru (tek dosya): 65 mod (9 gezegen, `MODE_COUNT` ile hesaplanır), soru üretimi, adaptif zorluk, ipucu, TTS, hikâye, ödüller
-src/screens/          Karşılama, öğretmen girişi, öğrenci seçici, çocuk formu, sınıf paneli, ayarlar, galaksi haritası
+src/screens/          Açılış, kaptan oluşturma sihirbazı, kaptan seçici, öğretmen girişi, çocuk formu, sınıf paneli, ayarlar, galaksi haritası
 src/systems/          adaptiveEngine, hintManager, fluencyEngine, frustrationDetection, anxietyTracker, numapProfile
 src/data/             modeStories (TR/KU), ltTrajectories (yörünge eşlemesi), mebKazanim, numWords, wordProblemTemplates
 src/services/         localProfiles (yerel çocuk/kullanıcı, PBKDF2 PIN), numapApi, portalBridge, syncEngine

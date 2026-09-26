@@ -74,7 +74,7 @@ export const colors = {
   // ── GRADIENT'LER ──────────────────────────────────────────
   gradient: {
     background:  'linear-gradient(180deg, #0B0E2D 0%, #141852 50%, #1E2470 100%)',
-    // Çocuğa dönük giriş ekranları (Welcome/StudentPicker): oyunun yeni "alacakaranlık" zeminiyle uyumlu,
+    // Çocuğa dönük giriş ekranları (TitleScreen/CaptainPicker/CaptainCreate): oyunun yeni "alacakaranlık" zeminiyle uyumlu,
     // sıcak nebula ışımalı canlı ton. Öğretmen ekranları koyu-profesyonel `background`ı kullanmaya devam eder.
     backgroundKids: 'radial-gradient(120% 80% at 85% 8%, rgba(251,113,133,.14), transparent 55%), radial-gradient(110% 75% at 10% 90%, rgba(251,146,60,.13), transparent 55%), linear-gradient(180deg, #312e81 0%, #4338ca 55%, #3b3a9d 100%)',
     card:        'linear-gradient(135deg, #1A1F5E 0%, #222878 100%)',

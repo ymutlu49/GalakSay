@@ -13,7 +13,7 @@ biçimde göstermek için hazırlanmıştır. Adımlar uygulamanın gerçek akı
 | 1 | **galaksay.com güncel mi?** | Sürüm kontrolü: uygulamada *Yönetici → Ayarlar → Hakkında* sürüm numarası `package.json` ile aynı olmalı. Otomatik dağıtım kuruludur: `main` dalına her gönderimde GitHub Actions siteyi Cloudflare Pages'e yayımlar (26 Eyl 2026'dan itibaren; depo sırrı `CLOUDFLARE_API_TOKEN`, hesap kimliği iş akışında sabit). Durum: GitHub → *Actions → Deploy to Cloudflare Pages*. Token süresi dolarsa iş akışı "yeşil" görünse de dağıtım **atlanır**; bu durumda yeni bir "Cloudflare Pages: Edit" izinli token üretip aynı sırrı güncelleyin. Elle dağıtım: `npm run build:cf && npx wrangler pages deploy cf-deploy --project-name galaksay --branch main`. |
 | 2 | Yedek adres | `https://ymutlu49.github.io/GalakSay/` (GitHub Pages aynası; aynı uygulama, tanıtım sayfası yok). |
 | 3 | Çevrimdışı güvence | Sunum cihazında uygulamayı bir kez açıp bir görev oynayın; uygulama kabuğu cihaza önbelleğe alınır, salon interneti kesilse de çalışır. Kürtçe ses paketi ilk kullanımda iner; Kürtçe gösterecekseniz bir kez Kürtçe bir görev oynayın. |
-| 4 | Demo sınıfı | *Öğretmen / Uzman Girişi → Yerel Hesap → Yönetici PIN → Yerel Yönetim* ekranının altındaki **"Demo sınıfını yükle"**. 4 öğrenci ve 24 günlük gerçekçi geçmiş yüklenir; sunum sonrası **"Demo sınıfını kaldır"** ile iz bırakmadan silinir. |
+| 4 | Demo sınıfı | Açılış ekranının altındaki *Öğretmen · Ebeveyn → Yerel Hesap → Yönetici PIN → Yerel Yönetim* ekranının altındaki **"Demo sınıfını yükle"**. 4 öğrenci ve 24 günlük gerçekçi geçmiş yüklenir; sunum sonrası **"Demo sınıfını kaldır"** ile iz bırakmadan silinir. |
 | 5 | Ses | Cihaz sesi açık; *Ayarlar → Sesli Yönergeler* açık (okuma bilmeyen çocuk deneyimi için). Öğretmen başlattığı oturumda Ayarlar ebeveyn kapısı sormaz; çocuğun kendi girişinde sorar. |
 | 5b | Tarayıcı önbelleği | Sunum cihazında galaksay.com daha önce açıldıysa **iki kez yenileyin** (service worker yeni sürümü ikinci yüklemede etkinleştirir) ya da gizli pencere kullanın. |
 | 6 | Ekran | Tablet yatay ya da dizüstü + projeksiyon; tarayıcı tam ekran (F11). Metin büyütme gerekiyorsa *Ayarlar → Büyük metin*. |
@@ -34,7 +34,7 @@ oyun değil; oyun görünümlü bir öğretim programı."
 
 ## 2. Öğretmen girişi ve sınıf panosu (2 dk)
 
-**Göster:** *Öğretmen / Uzman Girişi → Yerel Hesap → Yönetici → Sınıf İlerlemesi*.
+**Göster:** Açılış ekranı altındaki *Öğretmen · Ebeveyn → Yerel Hesap → Yönetici → Sınıf İlerlemesi*.
 
 - 4 demo öğrenci: **Elif** (güçlü ilerleme), **Yusuf** (diskalkuli risk profili), **Zeynep**
   (okul öncesi), **Mert** (2. sınıf, akıcılık sorunu).
@@ -51,8 +51,9 @@ cihazda kalır; rıza verilirse NuMap'e eşitlenir."
 
 ## 3. Çocuk gözünden bir görev (5 dk) — sunumun kalbi
 
-**Göster:** Ana ekran → *Öğrenci Girişi* → **Elif**'e dokun → *Elif ile Keşfet* → Galaksi
-Haritası.
+**Göster:** Açılış ekranı → **Kaptanlar** → **Elif**'e dokun → *Elif ile Keşfet* → Galaksi
+Haritası. (Açılışta en son oynayan kaptan "Devam et" kartı olarak öne çıkar; başka bir kaptan
+için **Kaptanlar** listesi.)
 
 1. **Harita:** "Yıldız Keşfi" tamamlanmış, "Gezegen Düellosu" açık. Kilitli gezegenler
    Clements–Sarama sırasını temsil eder: sayma → nicelik → karşılaştırma → parça-bütün → işlem.
@@ -72,13 +73,17 @@ Haritası.
 
 ## 3b. Keşif Uçuşu — 90 saniyelik başlangıç değerlendirmesi (isteğe bağlı, 2 dk)
 
-**Göster:** Yeni bir öğrenci ekleyin (ör. "Ada") → Çocuk Merkezi → **"🧭 Keşif Uçuşu ile başla"**
+**Göster:** Açılış ekranı → **Yeni Kaptan** (ya da **Yolculuğa Başla**) → çocuk üç adımda
+kendi kaptanını oluşturur: *Kaptanını seç* (resim) → *Adın ne?* (takma ad olabilir) →
+*Kaç yaşındasın?* (Okul öncesi / 1. sınıf / 2. sınıf). Her adım sesli yönergeyle desteklenir;
+öğretmen, hesap ya da internet gerekmez. → Çocuk Merkezi → **"🧭 Keşif Uçuşu ile başla"**
 (ya da haritadaki davet). 8 kısa soru: sayma, anlık algılama, karşılaştırma, sayı doğrusu, geriye
 sayma, komşu sayı, onluk çerçeve. Sonuç ekranı alan bazlı çubuklar, "güçlü olduğun alanlar" ve
 "birlikte çalışacağımız alanlar" gösterir; başlangıç düzeyleri buna göre ayarlanır, %50 altı
 doğrulukta öğretmen panosunda "🧭 destek" bayrağı çıkar.
 
-**Söyle:** "Kısa uyarlanabilir başlangıç değerlendirmesi, erken sayı becerileri için tarama
+**Söyle:** "Çocuk oyuna bir oyun gibi girer: kaptanını yaratır, gemisine biner. Kısa
+uyarlanabilir başlangıç değerlendirmesi, erken sayı becerileri için tarama
 literatüründeki en yordayıcı görevlere (miktar ayrımı, eksik sayı, sayma) dayanır; tanı koymaz,
 başlangıç noktasını belirler."
 

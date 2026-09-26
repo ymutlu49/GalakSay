@@ -52,10 +52,10 @@ function genNs(existing) {
 }
 
 // Yerel çocuklar. ownerId verilirse YALNIZ o kullanıcının (öğretmenin) öğrencileri
-// döner (izolasyon); verilmezse (StudentPicker self-login) tüm cihaz roster'ı döner.
+// döner (izolasyon); verilmezse (CaptainPicker self-login) tüm cihaz roster'ı döner.
 // ownerId === null → sahipsiz/yönetici-öğrencileri (eski kayıtlar ve admin'in eklediği).
 // FAZ A (2026-08-05): Numap-kaynaklı roster kayıtları (source==='numap') yerel
-// yüzeylerde GÖRÜNMEZ — StudentPicker/yerel hub davranışı değişmez; Numap listesi
+// yüzeylerde GÖRÜNMEZ — CaptainPicker/yerel hub davranışı değişmez; Numap listesi
 // için listNumapChildren kullanılır. (Birleşik liste UI'ı Faz B'nin işi.)
 export function listChildren(ownerId) {
   let arr = readAll().filter((c) => c.source !== 'numap');
@@ -150,7 +150,7 @@ export function wipeChildData(ns) {
   try { import('../analytics/database.js').then((m) => m.deleteChildRecords(ns)).catch(() => {}); } catch { /* yok say */ }
 }
 
-/** Son giriş zamanını güncelle (StudentPicker sıralaması için). */
+/** Son giriş zamanını güncelle (CaptainPicker/TitleScreen sıralaması için). */
 export function touchChild(ns) {
   return updateChild(ns, { lastSeenAt: new Date().toISOString() });
 }
@@ -491,7 +491,7 @@ export function clearAdminPin() {
 }
 
 // "Kaldığı yer" özeti — oyunun yazdığı `dokunsay-user-<ns>` kaydından okunur
-// (window.storage = senkron localStorage sarmalayıcı). StudentPicker kartında
+// (window.storage = senkron localStorage sarmalayıcı). CaptainPicker kartında
 // "devam" ipucu göstermek için; oyun resume'u bundan bağımsız çalışır.
 export function getResumeInfo(ns) {
   try {

@@ -1,6 +1,6 @@
 // FAZ A (birleşik roster) — numap-kaynaklı roster kayıtları sözleşme testleri.
 // Kritik değişmezler: (1) ns ASLA değişmez, (2) yerel yüzeyler (listChildren /
-// childCount / StudentPicker) numap kayıtlarını GÖRMEZ, (3) upsert öğretmen-başına
+// childCount / CaptainPicker) numap kayıtlarını GÖRMEZ, (3) upsert öğretmen-başına
 // otoriterdir (budar) ama yerel kayıtlara ve DİĞER öğretmenin kayıtlarına dokunmaz,
 // (4) çıkış temizliği payload anahtarlarını da siler, oyun verisine dokunmaz.
 import { describe, expect, it, beforeEach, vi } from 'vitest';
@@ -99,7 +99,7 @@ describe('localProfiles — numap roster (Faz A)', () => {
   it('YEREL yüzeyler numap kayıtlarını görmez: listChildren + childCount', () => {
     const local = addChild({ name: 'Yerel Deniz', ownerId: null });
     upsertNumapChildren('u1', [item('a'), item('b')]);
-    expect(listChildren().map((c) => c.ns)).toEqual([local.ns]);      // StudentPicker (tümü)
+    expect(listChildren().map((c) => c.ns)).toEqual([local.ns]);      // CaptainPicker (tümü)
     expect(listChildren(null).map((c) => c.ns)).toEqual([local.ns]);  // yerel yönetici görünümü
     expect(childCount()).toBe(1);
   });
@@ -292,7 +292,7 @@ describe('localProfiles — numap roster (Faz A)', () => {
     expect(readNumapSessionPayload(c.ns)?.id).toBe('s_k1');
   });
 
-  it('numap:<id> sahipli yerel profil: sahibine görünür, yönetici listesine sızmaz, StudentPicker\'da yaşar', () => {
+  it('numap:<id> sahipli yerel profil: sahibine görünür, yönetici listesine sızmaz, CaptainPicker\'da yaşar', () => {
     const mine = addChild({ name: 'Elle Eklenen', ownerId: 'numap:u1' });
     addChild({ name: 'Yönetici Çocuğu', ownerId: null });
     expect(listChildren('numap:u1').map((c) => c.ns)).toEqual([mine.ns]); // öğretmenin tek listesi

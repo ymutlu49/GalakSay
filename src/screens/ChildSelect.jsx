@@ -350,7 +350,7 @@ export default function ChildSelect({ user, onSelect, onLogout, source = 'numap'
       session: numapItem.session || null,
     });
     if (!r.ok) { setLinkError(r.error); return; }
-    // Türetilmiş müdahale planı link ANINDA ns-anahtarına yazılır → StudentPicker
+    // Türetilmiş müdahale planı link ANINDA ns-anahtarına yazılır → CaptainPicker
     // self-login yolunda da (numapPlan prop'suz) oyun mount'u planı bulur.
     // Ad HEP yerel rumuz — gerçek ad cihazda plan içinde tutulmaz.
     if (numapItem.session) {

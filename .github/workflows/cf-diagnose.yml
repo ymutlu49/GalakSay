@@ -1,0 +1,24 @@
+name: Cloudflare Pages teşhis (dağıtım geçmişi)
+
+# Elle çalıştırılır (Actions → bu iş akışı → Run workflow). galaksay.com Pages projesinin
+# dağıtım geçmişini listeler: her satırda dağıtım kimliği, tarih ve önizleme adresi
+# (<id>.galaksay.pages.dev) bulunur. Eski bir dağıtımın içeriğini karşılaştırmak için kullanılır.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CF_ACCOUNT_ID: 0eec8b88e11ef882d9269249ad00e331
+
+jobs:
+  list-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
+          command: pages deployment list --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }}
