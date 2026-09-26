@@ -64,8 +64,8 @@ anahtarlarıyla birebir eşleşir.
 
 - **galaksay.com (Cloudflare Pages, proje `galaksay`):** `main`'e her gönderimde
   `.github/workflows/deploy-cloudflare.yml` çalışır: lint → test → `build:cf` → wrangler.
-  Depo sırları `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` girilene kadar dağıtım adımı **atlanır**
-  (iş akışı yeşil görünür ama site güncellenmez — 25 Eyl 2026'ya kadar bu yüzden 6 Ağustos sürümü canlıdaydı).
+  Depo sırrı `CLOUDFLARE_API_TOKEN` girilene kadar dağıtım adımı **atlanır** (hesap kimliği iş akışında sabittir)
+  (iş akışı yeşil görünür ama site güncellenmez). İlk başarılı otomatik dağıtım: 26 Eyl 2026, v6.0.0.
 - **Tanıtım sayfası SSO yapılandırması:** `site/index.html` içinde `window.HCMO_GATE_MODE="chip"` ve
   `window.HCMO_SILENT=false` ZORUNLU. Bunlar düşerse hub kapı betiği içeriği gizler ve ziyaretçiyi
   hub → getnumap `/sso-relay` (artık yok) zincirine gönderir.
