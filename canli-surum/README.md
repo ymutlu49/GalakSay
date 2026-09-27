@@ -14,3 +14,11 @@ buradan yayımlanır. Masaüstü kaynağı depoya geldiğinde bu klasör kaldır
 |---|---|---|
 | 27 Eyl 2026 | `site/oyna/index.html` | `.space-btn-hover` için `position: relative`, `::after` için `pointer-events: none`. Basma efekti katmanı tüm ekranı kaplayıp "Öğrenci Girişi" ve öğrenci kartı tıklamalarını yutuyordu; "Devam et" çalışmıyordu. |
 | 27 Eyl 2026 | `site/sw.js` | Sürüm etiketi `galaksay-v5.10.1-20260927-tiklama`: tarayıcılar yeni sürümü hemen alır. |
+| 27 Eyl 2026 | `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` | Karşılama parçası **hesapsız kaptan girişiyle** değiştirildi (okunur kaynak: `kaynak/WelcomeScreen.captain.js`). Açılış: "Yolculuğa Başla" ya da "Devam et · son kaptan"; 3 adımlı kaptan oluşturma (avatar → ad → yaş); "Kaptanlar" listesi ve "Yeni Kaptan"; TR/KU/EN dil döngüsü; sesli yönergeler. Şifreli profiller kilit korumalı eski seçiciye yönlenir. |
+| 27 Eyl 2026 | `site/oyna/assets/index-pKper_0i.js` | Karşılama bileşenine `onPick` bağlantısı eklendi (`Pe(_,{directPlay:!0})`): kaptan seçimi/oluşturma çocuğu doğrudan oyuna alır. Tek ifade değişikliği. |
+| 27 Eyl 2026 | `site/sw.js` | Sürüm etiketi `galaksay-v5.11.0-20260927-kaptan`. |
+
+## Doğrulama (yerel, gerçek fare ve dokunuş tıklamasıyla)
+
+- Masaüstü, telefon ve tablette 45 denetim: kaptan oluşturma, doğrudan oyuna geçiş, harita, çocuk değiştirme, "Devam et", kaptan listesi, TR/KU/EN, öğretmen girişi, sayfa hatası yok.
+- 20 öğrencili liste: her kart kendi çocuğunu açıyor; "Kaldığın yerden devam" görevi açıyor; şifreli profil kilit korumalı seçiciye gidiyor.
