@@ -399,8 +399,11 @@
       }
 
       /* ═══ ENHANCED BUTTON PRESS FEEDBACK ═══ */
+      /* pointer-events:none → basma efekti katmanı hiçbir koşulda tıklamayı çalamaz
+         (27 Eyl 2026: position:relative eksik olan sürümde bu katman tüm ekranı kaplayıp
+         "Öğrenci Girişi" ve öğrenci kartlarına yapılan tıklamaları yutuyordu). */
       .space-btn-hover::after {
-        content: ''; position: absolute; inset: 0; border-radius: inherit;
+        content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
         background: radial-gradient(circle at center, rgba(255,255,255,.15), transparent 70%);
         opacity: 0; transition: opacity .2s;
       }
