@@ -63,9 +63,21 @@ git push https://github.com/ymutlu49/GalakSay.git HEAD:jimaro
 
 Git kullanılmayacaksa klasör `node_modules` olmadan zip'lenip Google Drive'a yüklenir.
 
+## 27 Eylül 2026 durumu
+
+- galaksay.com, masaüstü v5.10.0 derlemesinin `canli-surum/` klasöründeki kopyasından yayımlanıyor
+  (sürüm etiketi `galaksay-v5.11.0-20260927-kaptan`).
+- Bu kopyada iki değişiklik var: öğrenci kartı/öğrenci girişi tıklamalarını yutan CSS hatası
+  düzeltildi ve karşılama ekranı hesapsız kaptan girişiyle değiştirildi. Ayrıntı:
+  `canli-surum/README.md`.
+- Kesirya, Keşif Uçuşu, analitik ve demo sınıfı gibi büyük özellikler derlenmiş (küçültülmüş)
+  oyun dosyasının içine güvenle eklenemez; bunlar için masaüstü kaynağı gereklidir.
+
 ## Dağıtım
 
-- `main` dalına gönderim artık galaksay.com'u güncellemez. Birleştirme bitene kadar dağıtım
-  yalnız elle yapılır: GitHub, Actions, "Deploy to Cloudflare Pages", Run workflow.
+- `main` dalına gönderim galaksay.com'u güncellemez.
+- Canlı kopya "Canlı kopyayı yayınla" iş akışıyla yayımlanır: önce `onizleme`, sonra `main`.
+- GitHub çizgisinin kendi derlemesi "Deploy to Cloudflare Pages" iş akışıyla elle yayımlanabilir;
+  bu, canlıdaki masaüstü sürümünün yerine geçer.
 - "Cloudflare Pages teşhis" iş akışı dağıtım geçmişini listeler.
 - "Cloudflare Pages geri alma" iş akışı üretimi seçilen bir dağıtıma döndürür.
