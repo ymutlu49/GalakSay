@@ -85,3 +85,23 @@ Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.16.0-20260927-hesap`. |
 
 Etkinleştirme: `docs/HESAP_KURULUMU.md`.
+
+## 27 Eylül 2026 (gece, 4): çocuk girişinin yetişkine bağlanması, dikey ortalama
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js`, `kaynak/cocuk_baglama.py` | Yeni kaptanı yetişkin kurar ve kaptan o yetişkinin hesabına bağlanır. Yetişkin panelinde oluşturulan çocuklar da bağlanır. |
+| `site/oyna/index.html` | Kaydırılabilir sütun düzenlerinde içerik dikeyde ortalanır (giriş ekranları ve oyunlar). |
+
+## 27 Eylül 2026 (gece, 5): görüntü düzeyinde madde denetimi ve isteğe bağlı seslendirme
+
+73 görevin her seviyesi gerçek oyun ekranında, Türkçe ve Kurmancî olarak oynatıldı. Kaydedilenler: kök, şıklar, 🗣️ ile okunan metin, geri bildirim ve ipucu. Yöntem, bulgular ve önce/sonra ölçümü `docs/MADDE_GORUNTU_DENETIMI.md` dosyasındadır.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | `kaynak/madde_denetimi_duzeltmeleri.py` ile metin, ses, geri bildirim ve Kurmancî düzeltmeleri. Başlıcaları: çıkarmada görünmeyen işlenen, saat düzeltme satırı, ad ve renk ekleri, desen sesi, şekil alt yazısı, 7 görevin Kurmancî/İngilizce açıklaması, Kurmancî düzeltme satırları, "Soruyu dinle" düğmesinin her çocukta görünmesi. |
+| `site/oyna/galaksay-ek.js` | Bölümler: 0 seslendirme yalnız istenince; 3 göreve ve sorunun sayılarına uygun ipucu; 4 göreve uygun maskot öyküsü; 5 Kurmancî oyunda Türkçe kalan maskot cümleleri; 6 şık yazısının düğmeye sığması. |
+| `site/oyna/index.html` | `galaksay-ek.js?v=4`. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.17.0-20260927-madde`. |
+
+Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py` → `giris_merkezi.py` → `cocuk_baglama.py` → `madde_denetimi_duzeltmeleri.py`.
