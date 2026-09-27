@@ -138,7 +138,11 @@ function Captains({ kids, onPick, onNew, onBack, onAdult }) {
         ] }),
       ] }),
       h('div', { style: { flex: 1 } }),
-      h('div', { style: { marginTop: 22, textAlign: 'center' }, children: h('button', { type: 'button', 'data-testid': 'picker-adult', onClick: onAdult, style: { minHeight: 44, padding: '0 14px', borderRadius: 12, border: 'none', background: 'transparent', color: C.text.secondary, fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: 'pointer' }, children: '👩‍🏫 ' + tt('Öğretmen · Ebeveyn', 'Mamoste · Dê û bav', 'Teacher · Parent') }) }),
+      h('p', { 'data-testid': 'backup-hint', style: { margin: '22px auto 0', maxWidth: 460, textAlign: 'center', fontSize: 12.5, lineHeight: 1.5, fontWeight: 700, color: C.text.secondary }, children: tt(
+        '💾 İlerleme yalnız bu cihazda saklanır. Yedek almak ya da başka cihaza taşımak için: Öğretmen · Ebeveyn → Ayarlar → Verileri dışa aktar.',
+        '💾 Pêşveçûn tenê li vê cîhazê tê tomarkirin. Ji bo paşekê: Mamoste · Dê û bav → Mîheng → Daneyan derxe.',
+        '💾 Progress is stored only on this device. To back up or move it: Teacher · Parent → Settings → Export data.') }),
+      h('div', { style: { marginTop: 8, textAlign: 'center' }, children: h('button', { type: 'button', 'data-testid': 'picker-adult', onClick: onAdult, style: { minHeight: 44, padding: '0 14px', borderRadius: 12, border: 'none', background: 'transparent', color: C.text.secondary, fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: 'pointer' }, children: '👩‍🏫 ' + tt('Öğretmen · Ebeveyn', 'Mamoste · Dê û bav', 'Teacher · Parent') }) }),
     ] }),
   ] });
 }

@@ -42,3 +42,17 @@ buradan yayımlanır. Masaüstü kaynağı depoya geldiğinde bu klasör kaldır
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.13.0-20260927-secenek`. |
 
 Betik yörünge düzeltmelerinden sonra uygulanır: önce `yorunge_duzeltmeleri.py`, sonra `secenek_duzeltmeleri.py`.
+
+## 27 Eylül 2026 (gece): kullanılabilirlik ve ölçme iyileştirmeleri
+
+Ayrıntı ve gerekçeler `docs/IYILESTIRMELER.md` dosyasındadır.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/galaksay-ek.js` (yeni) | Okunur ek betik. Kurmancîde oyun artık Türkçe sesle okumuyor. Cihazda Kurmancî ses varsa onu kullanıyor, yoksa sessiz kalıp konuşma zamanlamasını koruyor. |
+| `site/oyna/index.html` | Ek betik oyundan önce yükleniyor. |
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | `kaynak/iyilestirmeler.py`: tek dokunuşla Bugünün Görevi düğmesi, günlük tekrar görevinin en zayıf üç görev arasında dönmesi, iki seçenekli görevlerde 8 soruluk Kaptan Sınavı. |
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` | Kaptan listesinde yedekleme yolunu gösteren not (`kaynak/WelcomeScreen.captain.js`). |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.14.0-20260927-iyilestirme`. |
+
+Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py`.
