@@ -294,6 +294,32 @@
       }
       .space-btn-hover:active::after { opacity: 1; }
 
+      /* ═══ GALAKSAY 27 EYL 2026 — TELEFON/TABLET SIĞDIRMA VE GÖREV SEÇİMİ CİLASI ═══
+         Canlı kopya üzerinde: süsler içeriğe binmez, gezegen sırası taşmaz, görev kartları
+         açık temada net görünür. Yalnız görsel; davranışa dokunmaz. */
+      @media (max-width: 1024px) {
+        /* Yüzen süs gezegenleri, ay ve matematik simgeleri içeriğin üstüne biniyordu */
+        [style*="nebulaFloat"]:not(.nebula-glow), [style*="moonFloat"], [style*="mathFloat"] { display: none !important; }
+        .nebula-glow { opacity: .08 !important; }
+      }
+      /* Çocuk merkezi gezegen sırası: kaydırmalı tek satır yerine 4+4 ızgara */
+      [role="list"][style*="overflow-x: auto"] { flex-wrap: wrap !important; justify-content: center !important; row-gap: 10px !important; overflow-x: visible !important; }
+      [role="list"][style*="overflow-x: auto"] > [role="listitem"] { flex: 0 0 23% !important; min-width: 0 !important; }
+      /* Görev seçimi kartları: koyu temadan kalan yarı saydam lacivert zemin yerine beyaz kart */
+      div[style*="grid-template-columns: repeat(3, 1fr)"] > button[style*="rgba(17, 20, 48"] {
+        background: #FFFFFF !important;
+        border: 1.5px solid rgba(99, 102, 241, .22) !important;
+        box-shadow: 0 2px 10px rgba(30, 27, 75, .07) !important;
+      }
+      div[style*="grid-template-columns: repeat(3, 1fr)"] > button[style*="linear-gradient(135deg, rgba(99, 102, 241"] {
+        background: linear-gradient(135deg, #EEF0FF 0%, #FFFFFF 100%) !important;
+        border: 2px solid #6366F1 !important;
+        box-shadow: 0 6px 18px rgba(99, 102, 241, .25) !important;
+      }
+      div[style*="grid-template-columns: repeat(3, 1fr)"] > button[style*="rgba(17, 20, 48"]:active,
+      div[style*="grid-template-columns: repeat(3, 1fr)"] > button[style*="linear-gradient(135deg, rgba(99, 102, 241"]:active { transform: scale(.97); }
+
+
       /* ═══ PLANET/MODE CARD HOVER ═══ */
       .planet-card { transition: all .3s cubic-bezier(.4,0,.2,1); }
       .planet-card:hover {

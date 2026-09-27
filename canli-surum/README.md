@@ -22,3 +22,12 @@ buradan yayımlanır. Masaüstü kaynağı depoya geldiğinde bu klasör kaldır
 
 - Masaüstü, telefon ve tablette 45 denetim: kaptan oluşturma, doğrudan oyuna geçiş, harita, çocuk değiştirme, "Devam et", kaptan listesi, TR/KU/EN, öğretmen girişi, sayfa hatası yok.
 - 20 öğrencili liste: her kart kendi çocuğunu açıyor; "Kaldığın yerden devam" görevi açıyor; şifreli profil kilit korumalı seçiciye gidiyor.
+
+## 27 Eylül 2026 (öğleden sonra): sığdırma, görev seçimi, yörünge denetimi, tanıtım görselleri
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/index.html` | Telefon/tablet (≤1024 px): içeriğe binen yüzen süs gezegenleri, ay ve matematik simgeleri gizlendi; nebula lekeleri soluklaştırıldı. Çocuk merkezindeki gezegen sırası taşıyordu → 4+4 ızgara. Görev seçim kartları koyu temadan kalan yarı saydam lacivert zeminden beyaz karta; "Sıradaki" kart vurgulu. |
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | Öğrenme yörüngesi düzeltmeleri (19 veri değişikliği; `kaynak/yorunge_duzeltmeleri.py`, gerekçeler `docs/YORUNGE_DENETIMI.md`). |
+| `site/index.html`, `site/img/ekran/*.webp` | "Uygulamadan Görüntüler" galerisi (7 telefon ekranı), menüde "Görüntüler"; "Nasıl Çalışır" 1. adım yeni hesapsız girişe göre güncellendi. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.12.0-20260927-yorunge`. |

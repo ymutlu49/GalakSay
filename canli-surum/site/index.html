@@ -583,7 +583,18 @@
         *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         html { scroll-behavior: auto; }
       }
-    </style>
+    
+      /* ═══ Uygulamadan görüntüler (27 Eyl 2026) ═══ */
+      .shots { position: relative; }
+      .shots-track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 4px 18px; margin: 0 -4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+      .shots-track figure { flex: 0 0 auto; width: clamp(170px, 42vw, 230px); margin: 0; scroll-snap-align: center; text-align: center; }
+      .shots-track img { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 24px rgba(30, 27, 75, .16)); }
+      .shots-track figcaption { margin-top: 10px; font-size: 14px; line-height: 1.35; color: var(--muted); }
+      .shots-track figcaption b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
+      .shots-hint { text-align: center; font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+      @media (min-width: 1100px) { .shots-track { justify-content: center; flex-wrap: wrap; overflow: visible; max-width: 1040px; margin: 0 auto; row-gap: 28px; } .shots-track figure { width: 230px; } .shots-hint { display: none; } }
+      @media (prefers-reduced-motion: no-preference) { .shots-track { scroll-behavior: smooth; } }
+</style>
   </head>
   <body>
     <a class="skip-link" href="#top">İçeriğe geç</a>
@@ -597,6 +608,7 @@
         </a>
         <nav class="nav" aria-label="Sayfa içi gezinme">
           <a class="nav-link" href="#ozellikler">Özellikler</a>
+          <a class="nav-link" href="#goruntuler">Görüntüler</a>
           <a class="nav-link" href="#nasil-calisir">Nasıl Çalışır?</a>
           <a class="nav-link" href="#egitimciler">Eğitimciler</a>
           <a class="nav-link" href="#yukle">Yükle</a>
@@ -752,17 +764,35 @@
         </div>
       </section>
 
+
+      <!-- UYGULAMADAN GÖRÜNTÜLER -->
+      <section id="goruntuler" class="shots" aria-labelledby="goruntuler-baslik">
+        <span class="kicker">Uygulamadan Görüntüler</span>
+        <h2 class="section-title" id="goruntuler-baslik">Telefonda, tablette, bilgisayarda</h2>
+        <p class="section-sub">Çocuğun yolculuğu: açılıştan görev sonucuna kadar gerçek ekranlar.</p>
+        <div class="shots-track" tabindex="0" aria-label="Uygulama ekran görüntüleri">
+            <figure><img src="/img/ekran/acilis.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Açılış ekranı: Galaksay logosu, Devam et kartı ve Kaptanlar düğmesi"><figcaption><b>Açılış</b>Hesap gerekmez: çocuk kendi kaptanıyla kaldığı yerden devam eder.</figcaption></figure>
+            <figure><img src="/img/ekran/kaptan-olustur.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Kaptan oluşturma: Kaç yaşındasın? sorusu ve yaş grubu kartları"><figcaption><b>Kaptanını oluştur</b>Resim, ad ve yaş: üç dokunuşta, sesli yönergeyle.</figcaption></figure>
+            <figure><img src="/img/ekran/cocuk-merkezi.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Çocuk merkezi: Hızlı Keşif, Bugünün görevi, Kaldığın yerden devam ve gezegenler"><figcaption><b>Çocuk merkezi</b>Kaldığı yerden devam, günün görevi ve sekiz gezegen.</figcaption></figure>
+            <figure><img src="/img/ekran/galaksi-haritasi.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Galaksi haritası: yörünge durakları"><figcaption><b>Galaksi haritası</b>Yaş grubuna özel, öğrenme yörüngesine göre sıralı duraklar.</figcaption></figure>
+            <figure><img src="/img/ekran/gorev-secimi.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Görev seçimi: Sayalon gezegeninin numaralı görev kartları"><figcaption><b>Görev seçimi</b>Her gezegende gelişim sırasına göre numaralı görevler.</figcaption></figure>
+            <figure><img src="/img/ekran/gorev-sorusu.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Görev sorusu: Enerji kapsülünde kaç yıldız taşı var?"><figcaption><b>Görev</b>Somut temsil, rakam ve sayı adı birlikte.</figcaption></figure>
+            <figure><img src="/img/ekran/geri-bildirim.webp" width="828" height="1736" loading="lazy" decoding="async" alt="Geri bildirim: doğru sayı ve sayma stratejisi açıklaması"><figcaption><b>Açıklayıcı geri bildirim</b>Yanlış yanıtta ceza yok: doğru strateji gösterilir.</figcaption></figure>
+        </div>
+        <p class="shots-hint">Diğer ekranlar için yana kaydırın →</p>
+      </section>
+
       <!-- NASIL ÇALIŞIR -->
       <section id="nasil-calisir">
         <div class="how">
           <span class="kicker">Nasıl Çalışır?</span>
           <h2 class="section-title">Üç adımda yörüngeye oturun</h2>
-          <p class="section-sub">Kayıt karmaşası yok: tarayıcıda açın, gezegen seçin, yola çıkın.</p>
+          <p class="section-sub">Kayıt karmaşası yok: tarayıcıda açın, kaptanınızı oluşturun, yola çıkın.</p>
           <div class="how-steps">
             <div class="how-step">
               <div class="n">1</div>
-              <h3>Keşfet</h3>
-              <p>Gezegen haritasından bir görev seçin — ya da oyun, kaldığınız yerden devam etmeyi önersin.</p>
+              <h3>Kaptanını Oluştur</h3>
+              <p>Çocuk resmini, adını ve yaşını seçer; hesap ya da öğretmen gerekmez. Sonraki girişlerde “Devam et” kaldığı yerden sürdürür.</p>
             </div>
             <div class="how-step">
               <div class="n">2</div>
