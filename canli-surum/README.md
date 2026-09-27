@@ -105,3 +105,18 @@ Etkinleştirme: `docs/HESAP_KURULUMU.md`.
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.17.0-20260927-madde`. |
 
 Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py` → `giris_merkezi.py` → `cocuk_baglama.py` → `madde_denetimi_duzeltmeleri.py`.
+
+## 27 Eylül 2026 (gece, 6): içerik iyileştirmeleri (planın ilk altı maddesi)
+
+Gerekçeler `docs/ICERIK_IYILESTIRME_PLANI.md` dosyasındadır; uygulama durumu ve ölçüm aynı belgenin §5 bölümündedir.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | `kaynak/icerik_iyilestirmeleri.py` ile yapılanlar: övgü ve açıklama metinleri çocuk dilinde ve süreç odaklı (TR, KU, EN); ipucu başlığı "İpucu 1 — Kendine sor"; karşılaştırmada uyumsuz (boyut yanılsamalı) maddeler açıldı ve şıklarda sayı yanıttan önce gizlendi; strateji kuralı ipucu istenince ya da yanıttan sonra görünür; sözel problemlerde sayılar rakamla, her cümle ayrı satırda, işlem adımında şerit model. |
+| `site/oyna/assets/ChildSelect-B-s0Bh40.js` | Çocuk formunda "Sesli yönergeler (henüz okumuyor)" destek bayrağı. |
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` | Kaptan oluşturmada "Yönergeleri kendiliğinden sesli oku" seçeneği; okul öncesinde kendiliğinden açık. |
+| `site/oyna/galaksay-ek.js` | Seslendirme kapısı çocuğun "Sesli yönergeler" ya da "Okuma güçlüğü" bayrağını tanır. |
+| `site/oyna/index.html` | `galaksay-ek.js?v=5`. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.18.0-20260927-icerik`. |
+
+Uygulama sırası: … → `madde_denetimi_duzeltmeleri.py` → `icerik_iyilestirmeleri.py`.

@@ -209,6 +209,68 @@ Her adımdan sonra görüntü denetimi yeniden koşulur ve önce/sonra ölçüm�
 
 **Orta vade (kaynak kod depoya alınınca):** yeni görevler (§3.9), Kurmancî ses kaydı ve uzman incelemesi (§3.10), pilot çalışmada madde güçlüğü analizi ([PILOT_PROTOKOLU.md](PILOT_PROTOKOLU.md)).
 
+## 5. Uygulama durumu (ilk altı madde)
+
+İlk altı madde 27 Eylül 2026'da uygulandı:
+
+| Dosya | İçerik |
+|---|---|
+| `canli-surum/kaynak/icerik_iyilestirmeleri.py` | 121 değişiklik |
+| `canli-surum/kaynak/WelcomeScreen.captain.js` | kaptan oluşturmadaki seçenek |
+| `canli-surum/site/oyna/galaksay-ek.js` | seslendirme kapısı |
+
+Ölçüm, görüntü düzeyindeki denetimin aynı yöntemle yeniden koşulmasıyla yapıldı: Türkçe 1.095, Kurmancî 365 madde.
+
+| Ölçüt | Önce | Sonra |
+|---|---:|---:|
+| Çocuğun ekranında kuram terimi geçen farklı cümle | 17 | 0 |
+| İpucu başlığında "KADEME … YÖNLENDİRİCİ SORU" | var | yok ("İPUCU 1 — KENDİNE SOR") |
+| Gezegen Düellosu: şıkta sayının yanıttan önce görünmesi | 15 / 15 | 0 / 15 |
+| Gezegen Düellosu: 3. seviyeden sonra uyumsuz (boyut yanılsamalı) madde | 0 | açık (çubuk ve taş gösteriminde yaklaşık %35) |
+| Bölme Ustası: kuralın (= yanıtın) soruyla birlikte görünmesi | 9 / 9 | 0 / 7 |
+| Yıldız Dizisi: "= r × c" işleminin soruyla birlikte görünmesi | 15 / 15 | 0 |
+| Sözel problem: sayıların yazıyla yazılması | 75 / 75 | 0 / 75 |
+| Tuş takımlı ve etkileşimli 7 görevde okunabilen geri bildirim | 0 / 105 | 89 / 105 |
+
+### 5.1 Yapılanlar
+
+- **§3.1 Geri bildirim dili:**
+  - Kuram terimi geçen övgü ve açıklamalar, çocuğun yaptığı işi anlatan cümlelere çevrildi (TR 35, KU 26, EN 21 cümle).
+  - Genel övgü havuzları kişi övgüsünden süreç övgüsüne geçti ("Doğru! Adım adım düşündün.").
+  - İpucu başlıkları çocuk dilinde: "Kendine sor", "Resme bak", "Adım adım", "Birlikte yapalım", "Nesnelerle dene".
+  - Denklem Dedektifi etiketleri: "Yer Değiştirme", "Sıfır Eklemek".
+  - Tuş takımlı görevlerin geri bildirimi okununca bulunanlar da düzeltildi:
+    - Çocuğa yapmadığı bir işlemi mal eden övgü ("…tane saydın — verimli strateji", "Toplama ile düşündün")
+    - Matematiksel olarak yanlış açıklama ("sıfırla çarpımın bölmeyle tersi yoktur")
+    - Boşluk hatası ("taşı+ 2 yıldız taşı=")
+- **§3.2 Algısal ipucu:**
+  - "Boyut yanılsaması" maddeleri açıldı: fazla olan grubun taşları küçük, az olanınki büyük.
+  - Uyumsuz maddeyi işaretleyen turuncu çerçeve kaldırıldı.
+  - Ayrıca şıklar sayıyı yazıyordu ("A 14 / B 12") ve çocuk taşlara bakmadan rakamı karşılaştırabiliyordu. Şıklarda yanıttan önce yalnız A / B görünür.
+- **§3.3 Strateji etiketleri:** Bölme Ustası'nın kural satırı ve Yıldız Dizisi'nin "= r × c" satırı, ipucu istenince ya da yanıttan sonra görünür.
+- **§3.4 Sözel problemler:**
+  - Sayılar rakamla yazılıyor: metin, "Verilen" satırı ve çubuk modeli etiketleri. Ses yine sözcükle okur.
+  - Her cümle ayrı satırda.
+  - "Anla" adımı rakamları da buluyor; "7", "17"nin içinde eşleşmiyor.
+  - İşlem seçme adımında şerit model var: bütün ve iki parça, bilinmeyen yerde "?". Toplama ve çıkarma türlerinde (birleştirme, ayırma, parça-bütün, karşılaştırma) gösteriliyor.
+- **§3.5 Sesli yönergeler:**
+  - Kaptan oluşturmanın yaş adımında "Yönergeleri kendiliğinden sesli oku" seçeneği var. Okul öncesi seçilince kendiliğinden açılır.
+  - Yetişkin panelindeki çocuk formuna "Sesli yönergeler (henüz okumuyor)" bayrağı eklendi.
+  - Formdaki "Okuma güçlüğü" bayrağı "tüm yönergeler otomatik seslendirilir" diyordu, ama seslendirme isteğe bağlı olduktan sonra bu söz tutulmuyordu. Kapı artık bu iki bayrağı tanıyor.
+  - Test: okul öncesi kaptanda ve okuma güçlüğü bayrağında soru kendiliğinden okunuyor; bayraksız çocukta okunmuyor.
+- **§3.6 Denetimin genişletilmesi:** Denetim aracı tuş takımıyla yanıt yazıyor. Kapalı "Kontrol Et" düğmesinde önce bir yuvaya dokunuyor. Bu yolla Güç Birleştir, Enerji Ayır, Strateji Ustası, Bölme Ustası, Yıldız Taşı Diz, Birleştir ve Ayır görevlerinin geri bildirimi okunuyor.
+
+### 5.2 Kalanlar
+
+- Çubuk kesme, Uzay Mutfağı, Parça-Bütün Puzzle ve Yörüngeye Yerleştir farklı bir etkileşimle (sürükleme, kesme, konum seçme) yanıt alıyor. Bu dört görevin geri bildirimi henüz otomatik okunamıyor.
+- Uyumsuz karşılaştırma maddelerindeki doğruluğun öğretmen raporunda ayrı gösterilmesi yapılmadı.
+- Genişletilmiş denetim yeni bir Kurmancî açığı gösterdi.
+  - 365 Kurmancî maddeden 51'inde, ipucu merdiveninin 2–5. basamaklarındaki çözümleme metinleri Türkçe kalıyor.
+  - Nedeni: kaynakta yaklaşık 176 dal yalnız Türkçe ya da İngilizce yazılmış. Bunlar sözel problemlerin somut destekleri, Sıralama, Sayı İnşa Et, Tahmin, Taş Ekle/Çıkar, Çubuk Geri Sayım, Onluk Demetle ve Yörüngeye Yerleştir dallarıdır.
+  - Soru, seçenekler ve geri bildirim tamamen Kurmancî; açık yalnız çocuk ipucu istediğinde görünüyor.
+  - Bu metinlerin makine çevirisiyle değil, anadili Kurmancî bir eğitimciyle çevrilmesi önerilir (§3.10).
+- §3.7–3.10 kısa ve orta vadeye bırakıldı.
+
 ## Kaynaklar
 
 - Fuchs, L. S., Zumeta, R. O., Schumacher, R. F., Powell, S. R., Seethaler, P. M., Hamlett, C. L. ve Fuchs, D. (2010). The effects of schema-broadening instruction on second graders' word-problem performance and their ability to represent word problems with algebraic equations. *The Elementary School Journal, 110*(4), 440–463.

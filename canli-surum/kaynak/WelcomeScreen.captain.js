@@ -238,6 +238,10 @@ function Create({ onDone, onCancel }) {
   const [name, setName] = React.useState('');
   const [age, setAge] = React.useState('');
   const [saving, setSaving] = React.useState(false);
+  // Sesli yönergeler: seslendirme yalnız istenince çalışır; okumayan çocuk için yetişkin burada açar.
+  // Okul öncesi seçilince kendiliğinden açılır (yetişkin kapatabilir). Kayıtta flags.autoRead olarak durur.
+  const [autoRead, setAutoRead] = React.useState(false);
+  const [autoTouched, setAutoTouched] = React.useState(false);
   const V = [
     ['Kaptanını seç! Beğendiğin resme dokun.', 'Kaptanê xwe hilbijêre! Dest bide wêneyê ku tu jê hez dikî.', 'Choose your captain! Tap the picture you like.'],
     ['Adın ne? Adını yaz ya da boş bırak.', 'Navê te çi ye? Navê xwe binivîse an vala bihêle.', "What's your name? Type it or leave it empty."],
@@ -256,6 +260,7 @@ function Create({ onDone, onCancel }) {
     setSaving(true);
     const n = name.trim().slice(0, NAME_MAX) || fallbackName;
     const rec = addChild({ name: n, avatar, ageGroup: age });
+    if (autoRead && rec && rec.ns) { try { updateChild(rec.ns, { flags: { ...(rec.flags || { reading: false, anxiety: false }), autoRead: true } }); } catch { /* ayar yazılamadı */ } }
     speak(`Hoş geldin Kaptan ${n}! Yolculuk başlıyor.`, `Bi xêr hatî Kaptan ${n}! Rêwîtî dest pê dike.`, `Welcome, Captain ${n}! The journey begins.`);
     onDone(rec);
   };
@@ -276,11 +281,19 @@ function Create({ onDone, onCancel }) {
       h('p', { style: { marginTop: 12, fontSize: 14, color: C.text.secondary }, children: tt('Takma ad da olur; bu ad cihazda kalır.', 'Nasnav jî dibe; ev nav di cîhazê de dimîne.', 'A nickname is fine; the name stays on this device.') }),
     ] });
   } else {
-    body = h('div', { role: 'radiogroup', 'aria-label': T[2], style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }, children: AGES.map((g) => hs('button', { key: g.key, type: 'button', role: 'radio', 'aria-checked': age === g.key, 'data-testid': `age-${g.key}`, onClick: () => { setAge(g.key); speak(`${g.tr[0]}, ${g.tr[1]}`, `${g.ku[0]}, ${g.ku[1]}`, `${g.en[0]}, ${g.en[1]}`); }, style: { ...opt(age === g.key), padding: '18px 10px', minHeight: 132, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }, children: [
+    const ageGrid = h('div', { role: 'radiogroup', 'aria-label': T[2], style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }, children: AGES.map((g) => hs('button', { key: g.key, type: 'button', role: 'radio', 'aria-checked': age === g.key, 'data-testid': `age-${g.key}`, onClick: () => { setAge(g.key); if (!autoTouched) setAutoRead(g.key === 'okuloncesi'); speak(`${g.tr[0]}, ${g.tr[1]}`, `${g.ku[0]}, ${g.ku[1]}`, `${g.en[0]}, ${g.en[1]}`); }, style: { ...opt(age === g.key), padding: '18px 10px', minHeight: 132, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }, children: [
       h('span', { style: { fontSize: 44, lineHeight: 1 }, children: g.icon }),
       h('span', { style: { fontSize: 17, fontWeight: 900 }, children: ageText(g, 0) }),
       h('span', { style: { fontSize: 13, fontWeight: 700, opacity: .8 }, children: ageText(g, 1) }),
     ] })) });
+    const autoToggle = hs('label', { 'data-testid': 'create-autoread', style: { ...card, marginTop: 14, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }, children: [
+      h('input', { type: 'checkbox', id: 'create-autoread-input', checked: autoRead, onChange: (ev) => { setAutoTouched(true); setAutoRead(ev.target.checked); }, style: { width: 24, height: 24, accentColor: C.accent.primary, flexShrink: 0 } }),
+      hs('span', { children: [
+        h('span', { style: { display: 'block', fontSize: 15, fontWeight: 900, color: C.text.primary }, children: '🔊 ' + tt('Yönergeleri kendiliğinden sesli oku', 'Rêwerzan bixweber bi deng bixwîne', 'Read instructions aloud automatically') }),
+        h('span', { style: { display: 'block', fontSize: 12.5, fontWeight: 700, color: C.text.secondary, marginTop: 2 }, children: tt('Henüz okuyamayan çocuk için. Kapalıyken sorular yalnız 🗣️ düğmesine basınca okunur. Yetişkin panelinden değiştirilebilir.', 'Ji bo zarokê ku hîn nikare bixwîne. Dema girtî be, pirs tenê bi bişkoka 🗣️ tên xwendin. Ji panela mezinan tê guhertin.', 'For a child who cannot read yet. When off, questions are read only when 🗣️ is tapped. Can be changed in the adult panel.') }),
+      ] }),
+    ] });
+    body = hs('div', { children: [ageGrid, autoToggle] });
   }
   return hs('div', { style: page, children: [
     h('style', { children: CSS }),

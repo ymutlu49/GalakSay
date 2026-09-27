@@ -9,6 +9,7 @@
  *    Hesabı" yerine "şifre" (çevrimiçi hesap yoktur; şifre yalnız bu cihazda, şifrelenmiş saklanır).
  *
  * 0) Seslendirme yalnız istenince: otomatik okuma yok; 🔊 / 🗣️ ya da "dinle" düğmesine basılınca konuşur.
+ *    İstisna: çocuk kaydında yetişkinin açtığı "Sesli yönergeler" ya da "Okuma güçlüğü" bayrağı.
  *
  * 3) Göreve ve sorunun sayılarına uygun yanılgı ipucu (window.__gsTip)
  * 4) Göreve uygun maskot öyküsü (window.__gsStory)
@@ -48,7 +49,23 @@
   function onTap(ev) { allowUntil = isListenControl(ev.target) ? Date.now() + 15000 : 0; }
   window.addEventListener('pointerdown', onTap, true);
   window.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') onTap(ev); }, true);
-  window.__gsSpeechAllowed = function () { return Date.now() < allowUntil; };
+  // İstisna: yetişkinin çocuk kaydında açtığı "Okuma güçlüğü" (sesli-öncelikli mod) ya da "Sesli yönergeler"
+  // bayrağı. Oynayan çocuk, en son seçilen (lastSeenAt en yeni) kaptandır; bayrağı açıksa konuşma
+  // kendiliğinden çalışır. Okumayan okul öncesi çocuğu ve okuma güçlüğü olan çocuk yönergeye ulaşabilsin.
+  var autoCache = { t: 0, v: false };
+  function autoReadOn() {
+    var now = Date.now();
+    if (now - autoCache.t < 1500) return autoCache.v;
+    var v = false;
+    try {
+      var list = JSON.parse(localStorage.getItem('galaksay_local_children') || '[]'), cur = null;
+      for (var i = 0; i < list.length; i++) if (list[i] && (!cur || String(list[i].lastSeenAt || '') > String(cur.lastSeenAt || ''))) cur = list[i];
+      v = !!(cur && cur.lastSeenAt && cur.flags && (cur.flags.reading || cur.flags.autoRead));
+    } catch (e) { v = false; }
+    autoCache = { t: now, v: v };
+    return v;
+  }
+  window.__gsSpeechAllowed = function () { return Date.now() < allowUntil || autoReadOn(); };
 
   function currentLang() {
     try { return localStorage.getItem('ds_lang') || 'tr'; } catch (e) { return 'tr'; }
@@ -84,7 +101,7 @@
   ss.speak = function (u) {
     if (!u) return undefined;
     if (u.volume === 0) return nativeSpeak(u);            // ses motoru ısınması
-    if (Date.now() >= allowUntil) return silent(u);        // istenmeyen (otomatik) konuşma
+    if (Date.now() >= allowUntil && !autoReadOn()) return silent(u); // istenmeyen (otomatik) konuşma
     if (currentLang() !== 'ku') return nativeSpeak(u);
     var voice = kurmanjiVoice();                           // Kurmancî: yalnız Kurmancî sesle
     if (voice) {
@@ -107,7 +124,7 @@
       var nativePlay = AP.play;
       AP.play = function () {
         var src = String(this.currentSrc || this.src || '');
-        if (/\/audio\/(ku|tr|en)\//.test(src) && Date.now() >= allowUntil) { var a = this; setTimeout(function () { try { a.dispatchEvent(new Event('ended')); } catch (e) { /* yok */ } }, 50); return Promise.resolve(); }
+        if (/\/audio\/(ku|tr|en)\//.test(src) && Date.now() >= allowUntil && !autoReadOn()) { var a = this; setTimeout(function () { try { a.dispatchEvent(new Event('ended')); } catch (e) { /* yok */ } }, 50); return Promise.resolve(); }
         return nativePlay.apply(this, arguments);
       };
     }
