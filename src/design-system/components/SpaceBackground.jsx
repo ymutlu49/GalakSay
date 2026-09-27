@@ -1,7 +1,7 @@
 // GalakSay Pro — Uzay arka plan animasyonları (parallax + meteorlar)
 // Hem sistem prefers-reduced-motion hem uygulama ayarı (galaksay_reduced_motion) izlenir.
 import React, { useEffect, useRef, useMemo, useState } from 'react';
-import { colors } from '../colors.js';
+import { useTheme } from '../theme.jsx';
 import { useReducedMotion } from '../../hooks/useReducedMotion.js';
 
 // Performanslı yıldız alanı — CSS-only, GPU-accelerated
@@ -15,6 +15,8 @@ export const SpaceBackground = React.memo(function SpaceBackground({
 }) {
   const reducedPref = useReducedMotion();
   const reduceMotion = simplified || reducedPref;
+  // Açık temada beyaz yıldızlar görünmez → koyu mor/mavi/amber noktalar (masaüstü v5.10.0 ile aynı)
+  const { light } = useTheme();
 
   // Parallax pozisyonu (cihaz eğimi veya mouse)
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
@@ -62,7 +64,9 @@ export const SpaceBackground = React.memo(function SpaceBackground({
         size: ((i * 17) % 3) + 1,
         delay: ((i * 23) % 50) / 10,
         dur: 2 + ((i * 13) % 30) / 10,
-        color: i % 7 === 0 ? 'rgba(167,139,250,.8)' : i % 11 === 0 ? 'rgba(56,189,248,.7)' : 'rgba(255,255,255,.6)',
+        color: light
+          ? (i % 7 === 0 ? 'rgba(124,58,237,.5)' : i % 11 === 0 ? 'rgba(2,132,199,.45)' : i % 5 === 0 ? 'rgba(245,158,11,.45)' : 'rgba(30,27,75,.25)')
+          : (i % 7 === 0 ? 'rgba(167,139,250,.8)' : i % 11 === 0 ? 'rgba(56,189,248,.7)' : 'rgba(255,255,255,.6)'),
       };
 
       if (i % 3 === 0) back.push({ ...star, size: star.size + 1, dur: star.dur + 2 });
@@ -71,7 +75,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
     }
 
     return { back, mid, front };
-  }, [starCount, reduceMotion]);
+  }, [starCount, reduceMotion, light]);
 
   const pxFactor = showParallax ? 1 : 0;
 
@@ -180,7 +184,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: '60%',
             height: '60%',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(108,99,255,.08), transparent 70%)',
+            background: light ? 'radial-gradient(ellipse, rgba(124,58,237,.09), transparent 70%)' : 'radial-gradient(ellipse, rgba(108,99,255,.08), transparent 70%)',
             top: '5%',
             right: '-10%',
             filter: 'blur(40px)',
@@ -192,7 +196,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: '50%',
             height: '50%',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(236,72,153,.06), transparent 70%)',
+            background: light ? 'radial-gradient(ellipse, rgba(245,158,11,.08), transparent 70%)' : 'radial-gradient(ellipse, rgba(236,72,153,.06), transparent 70%)',
             bottom: '10%',
             left: '-5%',
             filter: 'blur(40px)',
@@ -205,7 +209,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: '40%',
             height: '40%',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(56,189,248,.04), transparent 70%)',
+            background: light ? 'radial-gradient(ellipse, rgba(56,189,248,.08), transparent 70%)' : 'radial-gradient(ellipse, rgba(56,189,248,.04), transparent 70%)',
             top: '40%',
             left: '30%',
             filter: 'blur(50px)',
@@ -224,7 +228,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: 80,
             height: 1.5,
             borderRadius: 2,
-            background: 'linear-gradient(90deg, transparent, rgba(167,139,250,.6), transparent)',
+            background: light ? 'linear-gradient(90deg, transparent, rgba(124,58,237,.4), transparent)' : 'linear-gradient(90deg, transparent, rgba(167,139,250,.6), transparent)',
             transform: 'rotate(-35deg)',
             opacity: 0,
             animation: 'meteorShoot 20s ease 3s infinite',
@@ -236,7 +240,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: 60,
             height: 1,
             borderRadius: 2,
-            background: 'linear-gradient(90deg, transparent, rgba(56,189,248,.5), transparent)',
+            background: light ? 'linear-gradient(90deg, transparent, rgba(2,132,199,.35), transparent)' : 'linear-gradient(90deg, transparent, rgba(56,189,248,.5), transparent)',
             transform: 'rotate(-30deg)',
             opacity: 0,
             animation: 'meteorShoot 25s ease 12s infinite',
@@ -248,7 +252,7 @@ export const SpaceBackground = React.memo(function SpaceBackground({
             width: 50,
             height: 1,
             borderRadius: 2,
-            background: 'linear-gradient(90deg, transparent, rgba(255,217,61,.4), transparent)',
+            background: light ? 'linear-gradient(90deg, transparent, rgba(217,119,6,.35), transparent)' : 'linear-gradient(90deg, transparent, rgba(255,217,61,.4), transparent)',
             transform: 'rotate(-40deg)',
             opacity: 0,
             animation: 'meteorShoot 30s ease 20s infinite',

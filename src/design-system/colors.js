@@ -87,6 +87,33 @@ export const colors = {
   },
 };
 
+// ═══ AÇIK PALET (colorsLight) ═══════════════════════════════════════════
+// Masaüstü (Jimaro) çizgisindeki v5.10.0 açık tasarımıyla birebir aynı değerler.
+// Anahtarlar `colors` ile aynıdır; ThemeProvider light=true olduğunda bu palet kullanılır.
+// Kontrast: metin #1E1B4B beyaz üzerinde ~15:1, ikincil #4B5563 ~7.5:1 (WCAG AA/AAA).
+export const colorsLight = {
+  background: { primary: '#FAF9FF', secondary: '#F4F2FD', tertiary: '#EDE9FB', overlay: 'rgba(30, 27, 75, 0.45)' },
+  surface: { card: '#FFFFFF', cardHover: '#F7F5FF', input: '#F4F2FC', divider: 'rgba(30, 27, 75, 0.10)' },
+  text: { primary: '#1E1B4B', secondary: '#4B5563', tertiary: '#6B7280', disabled: '#A5A1C2', inverse: '#FFFFFF' },
+  accent: { primary: C.brandPurple, primaryLight: '#6D28D9', secondary: C.correct, tertiary: '#DC2626', gold: '#B45309', orange: '#C2410C' },
+  feedback: { success: '#047857', successGlow: 'rgba(5, 150, 105, 0.12)', error: '#DC2626', errorGlow: 'rgba(220, 38, 38, 0.08)', warning: '#A16207', info: C.brandPurple, hint: '#6D28D9' },
+  capsule: colors.capsule,
+  placeValue: colors.placeValue,
+  gradient: {
+    background: 'linear-gradient(180deg, #FAF9FF 0%, #F5F3FE 55%, #EFEBFC 100%)',
+    backgroundKids: 'radial-gradient(120% 80% at 85% 8%, rgba(245,158,11,.12), transparent 55%), radial-gradient(110% 75% at 10% 90%, rgba(56,189,248,.12), transparent 55%), linear-gradient(180deg, #FAF9FF 0%, #F4F0FE 60%, #EDE9FB 100%)',
+    card: 'linear-gradient(135deg, #FFFFFF 0%, #FAF9FF 100%)',
+    accent: `linear-gradient(135deg, ${C.brandPurple} 0%, #8B5CF6 100%)`,
+    success: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+    gold: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+    nebula: 'linear-gradient(135deg, #C4B5FD 0%, #F9A8D4 50%, #FDBA74 100%)',
+    space: 'linear-gradient(170deg, #FAF9FF 0%, #F4F1FE 40%, #ECE8FB 100%)',
+    spaceAlt: 'linear-gradient(170deg, #FAF9FF 0%, #F1EDFD 35%, #E9E4FA 52%, #F1EDFD 68%, #FAF9FF 100%)',
+  },
+  // Açık zeminde kart gölgesi (beyaz kart + çok hafif mor gölge)
+  shadow: { card: '0 2px 10px rgba(30,27,75,.06), 0 1px 2px rgba(30,27,75,.04)', raised: '0 10px 30px rgba(124,58,237,.18)' },
+};
+
 // ═══ UYUMLULUK KÖPRÜSÜ — Eski C objesiyle uyumluluk ═════════════════════
 // Mevcut kodda `C.blue`, `C.green` vb. kullanan bileşenler çalışmaya devam etsin
 export { C, CAPSULE_CELL, capsuleSize } from '../theme/colors.js';

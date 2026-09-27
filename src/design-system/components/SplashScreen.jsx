@@ -1,6 +1,7 @@
 // GalakSay Pro — 2026-03-18 — Profesyonel açılış ekranı
 import React, { useState, useEffect, useMemo } from 'react';
-import { colors } from '../colors.js';
+// Açılış animasyonu açık paletle (masaüstü v5.10.0 ile aynı): hemen ardından gelen açılış ekranıyla bütünlük.
+import { colorsLight as colors } from '../colors.js';
 import { GalaksayLogo } from '../../components/branding/GalaksayLogo.jsx';
 import { typography } from '../typography.js';
 
@@ -65,7 +66,7 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
               width: s.size,
               height: s.size,
               borderRadius: '50%',
-              background: i % 7 === 0 ? 'rgba(167,139,250,.8)' : '#fff',
+              background: i % 7 === 0 ? 'rgba(124,58,237,.5)' : i % 5 === 0 ? 'rgba(245,158,11,.45)' : 'rgba(30,27,75,.22)',
               opacity: s.opacity,
               animation: `starTwinkle ${s.dur}s ease-in-out ${s.delay}s infinite`,
               willChange: 'opacity',
@@ -108,7 +109,7 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
         width: 100,
         height: 1.5,
         borderRadius: 2,
-        background: 'linear-gradient(90deg, transparent, rgba(167,139,250,.7), rgba(255,255,255,.9), transparent)',
+        background: 'linear-gradient(90deg, transparent, rgba(124,58,237,.45), rgba(2,132,199,.35), transparent)',
         transform: 'rotate(-35deg)',
         opacity: 0,
         animation: phase < 2 ? 'meteorShoot 2s ease 0.8s 1 forwards' : 'none',
@@ -124,7 +125,7 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
           width: 'min(80vw, 460px)',
           height: 260,
           borderRadius: '50%',
-          background: 'radial-gradient(ellipse at center, rgba(124,58,237,.26), rgba(99,102,241,.11) 45%, transparent 72%)',
+          background: 'radial-gradient(ellipse at center, rgba(124,58,237,.14), rgba(99,102,241,.06) 45%, transparent 72%)',
           filter: 'blur(24px)',
           pointerEvents: 'none',
         }} />
@@ -133,9 +134,9 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
           transform: phase >= 0 ? 'scale(1)' : 'scale(0.85)',
           opacity: phase >= 0 ? 1 : 0,
           transition: 'all 600ms cubic-bezier(.16,1,.3,1)',
-          filter: 'drop-shadow(0 6px 32px rgba(108,99,255,.4))',
+          filter: 'drop-shadow(0 6px 24px rgba(124,58,237,.18))',
         }}>
-          <GalaksayLogo width="min(90vw, 450px)" tight dark />
+          <GalaksayLogo width="min(90vw, 450px)" tight />
         </div>
       </div>
 
@@ -148,7 +149,7 @@ export function SplashScreen({ onComplete, duration = 2000 }) {
         width: 200,
         height: 3,
         borderRadius: 3,
-        background: 'rgba(255,255,255,.08)',
+        background: 'rgba(30,27,75,.08)',
         overflow: 'hidden',
       }}>
         <div style={{

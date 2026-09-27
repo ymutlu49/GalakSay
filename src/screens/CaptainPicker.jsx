@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SpaceBackground } from '../design-system/components/SpaceBackground.jsx';
-import { colors } from '../design-system/colors.js';
+import { colorsLight as colors } from '../design-system/colors.js';
 import { typography } from '../design-system/typography.js';
 import { layout } from '../design-system/spacing.js';
 import { listChildren, verifyPin, hasPin, touchChild, getResumeInfo } from '../services/localProfiles.js';
@@ -70,7 +70,7 @@ function PinPad({ child, onSuccess, onCancel, str, lang }) {
       aria-label={opts.aria || String(label)}
       style={{
         height: 62, borderRadius: layout.borderRadius.lg, border: `1px solid ${colors.surface.divider}`,
-        background: opts.ghost ? 'transparent' : 'rgba(255,255,255,.06)', color: colors.text.primary,
+        background: opts.ghost ? 'transparent' : colors.surface.input, color: colors.text.primary,
         fontSize: 26, fontWeight: 800, fontFamily: F, cursor: 'pointer',
       }}
     >
@@ -83,11 +83,11 @@ function PinPad({ child, onSuccess, onCancel, str, lang }) {
       role="dialog"
       aria-modal="true"
       onClick={onCancel}
-      style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(8,7,28,.72)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+      style={{ position: 'fixed', inset: 0, zIndex: 99998, background: colors.background.overlay, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ width: '100%', maxWidth: 320, background: 'rgba(30,27,75,.95)', border: '1px solid rgba(148,163,184,.16)', borderRadius: layout.borderRadius.xl, boxShadow: '0 12px 40px rgba(0,0,0,.5)', padding: 26, textAlign: 'center' }}
+        style={{ width: '100%', maxWidth: 320, background: colors.surface.card, border: `1px solid ${colors.surface.divider}`, borderRadius: layout.borderRadius.xl, boxShadow: '0 16px 48px rgba(30,27,75,.22)', padding: 26, textAlign: 'center' }}
       >
         <div style={{ fontSize: 46, lineHeight: 1, marginBottom: 6 }}>{child.avatar || '🚀'}</div>
         <div style={{ fontSize: 18, fontWeight: 800, color: colors.text.primary, fontFamily: F, marginBottom: 2 }}>{child.name}</div>
@@ -128,13 +128,13 @@ function CaptainCard({ child, onClick, str }) {
       onClick={onClick}
       className="space-btn-hover"
       data-testid={`captain-${child.ns}`}
-      style={{ ...cardBase, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(30,27,75,.55)', boxShadow: '0 2px 12px rgba(0,0,0,.22)' }}
+      style={{ ...cardBase, border: `1px solid ${colors.surface.divider}`, background: colors.surface.card, boxShadow: colors.shadow.card }}
     >
-      <div style={{ fontSize: 44, width: 78, height: 78, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(124,58,237,.22)', lineHeight: 1 }}>
+      <div style={{ fontSize: 44, width: 78, height: 78, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(124,58,237,.10)', lineHeight: 1 }}>
         {child.avatar || '🚀'}
       </div>
       <div style={{ fontSize: 16, fontWeight: 800, color: colors.text.primary, maxWidth: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{child.name}</div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: resume?.hasProgress ? '#c4b5fd' : colors.text.secondary }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: resume?.hasProgress ? colors.accent.primaryLight : colors.text.secondary }}>
         {resume?.hasProgress ? `▶ ${str.resume} · ⭐ ${resume.stars}` : str.newStart}
         {hasPin(child.ns) ? '  🔒' : ''}
       </div>
@@ -149,11 +149,11 @@ function NewCaptainCard({ onClick, str }) {
       onClick={onClick}
       className="space-btn-hover"
       data-testid="captain-new"
-      style={{ ...cardBase, border: '2px dashed rgba(255,255,255,.45)', background: 'rgba(255,255,255,.08)' }}
+      style={{ ...cardBase, border: '2px dashed rgba(124,58,237,.45)', background: 'rgba(255,255,255,.6)' }}
     >
-      <div style={{ fontSize: 40, width: 78, height: 78, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(255,255,255,.14)', lineHeight: 1, color: '#fff', fontWeight: 900 }}>＋</div>
-      <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{str.newCaptain}</div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,.75)' }}>🚀</div>
+      <div style={{ fontSize: 40, width: 78, height: 78, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.gradient.accent, lineHeight: 1, color: '#fff', fontWeight: 900 }}>＋</div>
+      <div style={{ fontSize: 16, fontWeight: 800, color: colors.text.primary }}>{str.newCaptain}</div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: colors.text.secondary }}>🚀</div>
     </button>
   );
 }
@@ -191,7 +191,7 @@ export default function CaptainPicker({ onPick, onNew, onBack, onAdult }) {
     }
   }, [pinFor, onPick]);
 
-  const ghost = { minHeight: 44, padding: '0 12px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,.12)', color: '#fff', fontFamily: F, fontSize: 14, fontWeight: 800, cursor: 'pointer' };
+  const ghost = { minHeight: 44, padding: '0 12px', borderRadius: 12, border: `1px solid ${colors.surface.divider}`, background: colors.surface.card, boxShadow: colors.shadow.card, color: colors.text.primary, fontFamily: F, fontSize: 14, fontWeight: 800, cursor: 'pointer' };
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: colors.gradient.backgroundKids, padding: '14px 16px 16px', boxSizing: 'border-box', overflowY: 'auto' }}>
@@ -199,15 +199,15 @@ export default function CaptainPicker({ onPick, onNew, onBack, onAdult }) {
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto', minHeight: 'calc(100vh - 30px)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <button type="button" onClick={onBack} data-testid="picker-back" style={ghost}>← {str.back}</button>
-          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,.7)', fontFamily: F }}>👩‍🚀 {str.captains} · {children.length}</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: colors.text.secondary, fontFamily: F }}>👩‍🚀 {str.captains} · {children.length}</span>
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 46, marginBottom: 6, lineHeight: 1 }}>🧒</div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: colors.text.primary, fontFamily: F, margin: '0 0 4px' }}>{str.whoPlays}</h1>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,.85)', fontFamily: F, margin: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <p style={{ fontSize: 14, color: colors.text.secondary, fontFamily: F, margin: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             {str.tapYourPicture}
-            <button type="button" onClick={() => speak(str.tapYourPicture, lang)} aria-label={str.listen} style={{ border: 'none', background: 'rgba(255,255,255,.16)', borderRadius: 999, width: 36, height: 36, cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>🔊</button>
+            <button type="button" onClick={() => speak(str.tapYourPicture, lang)} aria-label={str.listen} style={{ border: 'none', background: 'rgba(124,58,237,.10)', borderRadius: 999, width: 44, height: 44, cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>🔊</button>
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export default function CaptainPicker({ onPick, onNew, onBack, onAdult }) {
 
         <div style={{ flex: 1 }} />
         <div style={{ marginTop: 22, textAlign: 'center' }}>
-          <button type="button" onClick={onAdult} data-testid="picker-adult" style={{ minHeight: 44, padding: '0 14px', borderRadius: 12, border: 'none', background: 'transparent', color: 'rgba(255,255,255,.75)', fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: 'pointer' }}>
+          <button type="button" onClick={onAdult} data-testid="picker-adult" style={{ minHeight: 44, padding: '0 14px', borderRadius: 12, border: 'none', background: 'transparent', color: colors.text.secondary, fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: 'pointer' }}>
             👩‍🏫 {str.adults}
           </button>
         </div>

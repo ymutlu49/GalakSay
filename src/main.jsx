@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client'
 import './assets/fonts/fonts.css' // Nunito + Atkinson Hyperlegible (kendi sunucumuzdan)
 import { SplashScreen } from './design-system/components/SplashScreen.jsx'
 import { colors } from './design-system/colors.js'
+import { ThemeProvider } from './design-system/theme.jsx'
 import { typography } from './design-system/typography.js'
 import { layout } from './design-system/spacing.js'
 import { getResumeInfo } from './hooks/useAutoSave.js'
@@ -609,16 +610,19 @@ function App() {
     }
     if (entryView === 'captains') {
       return (
+        <ThemeProvider light>
         <CaptainPicker
           onPick={(rec) => handleSelectLocalChild(rec, { directPlay: true })}
           onNew={() => setEntryView('create')}
           onBack={() => setEntryView('title')}
           onAdult={() => setEntryView('adultLogin')}
         />
+        </ThemeProvider>
       )
     }
     if (entryView === 'create') {
       return (
+        <ThemeProvider light>
         <CaptainCreate
           onDone={(rec) => {
             // Oyundan "Değiştir" ile dönüldüğünde sihirbaz değil kaptan listesi görünsün.
@@ -627,15 +631,18 @@ function App() {
           }}
           onCancel={() => setEntryView(childCount() > 0 ? 'captains' : 'title')}
         />
+        </ThemeProvider>
       )
     }
     return (
+      <ThemeProvider light>
       <TitleScreen
         onResume={(rec) => { touchChild(rec.ns); setEntryView('captains'); handleSelectLocalChild(rec, { directPlay: true }) }}
         onCaptains={() => setEntryView('captains')}
         onNew={() => setEntryView('create')}
         onAdult={() => setEntryView('adultLogin')}
       />
+      </ThemeProvider>
     )
   }
 
