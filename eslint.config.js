@@ -7,7 +7,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 import globals from 'globals'
 
 export default [
-  { ignores: ['dist/**', 'cf-deploy/**', 'node_modules/**', 'site/**', 'public/**', 'Bildiri_Sunumu/**', 'docs/**'] },
+  { ignores: ['dist/**', 'cf-deploy/**', 'node_modules/**', 'site/**', 'public/**', 'Bildiri_Sunumu/**', 'docs/**', 'canli-surum/**'] },
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx,mjs}'],

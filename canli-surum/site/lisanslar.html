@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaksay — Lisanslar ve Üçüncü Taraf Bileşenler</title>
+<meta name="description" content="Galaksay uygulama lisansı, açık kaynak bileşenler, yazı tipleri ve Kürtçe ses modeli lisans notu.">
+<style>
+  :root{--ink:#1E1B4B;--sub:#4B5563;--brand:#7c3aed;--line:#E5E7EB;--bg:#FAF9FF;--ok:#059669;--warn:#B45309}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Nunito,system-ui,sans-serif}
+  main{max-width:820px;margin:0 auto;padding:32px 20px 60px}
+  h1{font-size:28px;margin:0 0 6px;text-wrap:balance}h2{font-size:20px;margin:36px 0 10px;color:var(--brand)}h3{font-size:16px;margin:18px 0 6px}
+  .meta{color:var(--sub);font-size:14px;margin-bottom:22px}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fff;margin:14px 0}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EDE9FE;color:#5B21B6;margin-right:6px}
+  .ok{background:#D1FAE5;color:#065F46}.warn{background:#FEF3C7;color:#92400E}
+  table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+  nav.top a{margin-right:14px;font-size:14px}a{color:var(--brand)}
+  .small{font-size:13px;color:var(--sub)}
+  ul.check li{list-style:none;margin:6px 0}ul.check li::before{content:"☐ ";color:var(--brand)}
+  .docs{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin:8px 0 18px}.docs a{padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;text-decoration:none}
+  @media print{nav,.docs{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<main>
+<a href="/">← Galaksay</a>
+<h1>Lisanslar ve Üçüncü Taraf Bileşenler</h1>
+<div class="meta">Sürüm 5.9.1 · 6 Eylül 2026 · Her Çocuk Matematik Öğrenebilir (HÇMÖ) ekosistemi</div>
+<div class="docs" aria-label="Belgeler"><a href="/kilavuz.html">Öğretmen Kılavuzu</a><a href="/kanit.html">Kanıt Temeli</a><a href="/gizlilik.html">Gizlilik ve Rıza</a><a href="/erisilebilirlik.html">Erişilebilirlik</a><a href="/kullanim-sartlari.html">Kullanım Şartları</a><a href="/lisanslar.html">Lisanslar</a><a href="/surum-notlari.html">Sürüm Notları</a></div>
+
+<h2>Uygulama</h2>
+<div class="box"><p>Galaksay uygulaması, içerikleri, mod tasarımları ve görselleri © 2026 Prof. Dr. Yılmaz Mutlu — tüm hakları saklıdır. Okullar ve aileler için kullanım koşulları <a href="/kullanim-sartlari.html">Kullanım Şartları</a> sayfasındadır. Kaynak kodun açık lisanslanması doğrulama çalışmasının ardından değerlendirilecektir.</p></div>
+<h2>Açık kaynak bileşenler</h2>
+<table>
+<tr><th>Bileşen</th><th>Lisans</th><th>Kullanım</th></tr>
+<tr><td>React, React DOM</td><td>MIT</td><td>Arayüz</td></tr>
+<tr><td>Recharts</td><td>MIT</td><td>Radar/trend grafikleri</td></tr>
+<tr><td>Framer Motion</td><td>MIT</td><td>Animasyonlar</td></tr>
+<tr><td>jsPDF</td><td>MIT</td><td>PDF raporu</td></tr>
+<tr><td>html2canvas</td><td>MIT</td><td>Ekran yakalama (rapor)</td></tr>
+<tr><td>Vite, Vitest, Testing Library, jsdom</td><td>MIT</td><td>Geliştirme/test</td></tr>
+</table>
+<h2>Yazı tipleri</h2>
+<table>
+<tr><th>Yazı tipi</th><th>Lisans</th><th>Not</th></tr>
+<tr><td>Nunito</td><td>SIL Open Font License 1.1</td><td>Arayüz metni (Google Fonts)</td></tr>
+<tr><td>Atkinson Hyperlegible (Braille Institute)</td><td>SIL Open Font License 1.1</td><td>Rakamlar ve şıklar (6/9, 1/7 ayrımı)</td></tr>
+<tr><td>Roboto</td><td>Apache License 2.0</td><td>PDF raporuna gömülü (gerçek Türkçe karakterler)</td></tr>
+<tr><td>OpenDyslexic (isteğe bağlı)</td><td>SIL OFL 1.1</td><td>Disleksi dostu yazı seçeneği</td></tr>
+</table>
+<h2>Ses</h2>
+<div class="box">
+<p><b>Türkçe ve İngilizce seslendirme:</b> cihazın kendi konuşma sentezi (Web Speech API) — ek lisans gerektirmez.</p>
+<p><b>Kurmancî Kürtçe klipler:</b> Meta <i>Massively Multilingual Speech</i> (MMS-TTS, <code>kmr-script_latin</code>) modeliyle çevrimdışı üretilmiş ses dosyaları. Model lisansı <b>CC BY-NC 4.0</b> (ticari olmayan kullanım). <span class="tag warn">Karar notu</span> Galaksay ücretsiz eğitim kullanımı bu kapsamdadır; ücretli okul lisansı öncesinde Kürtçe klipler ya farklı lisanslı bir sesle yeniden üretilecek ya da cihaz sentezine düşülecektir.</p>
+<p><b>Ses efektleri ve müzik:</b> Web Audio API ile programatik üretim — üçüncü taraf örnek dosyası yoktur.</p>
+</div>
+<h2>Bilimsel içerik</h2>
+<p>Öğrenme yörüngesi adları Clements &amp; Sarama'nın yayınlarına, kazanım kodları MEB 2024 Matematik Dersi Öğretim Programı'na atıfla kullanılmıştır; metinler özgün özetlerdir. Kaynaklar <a href="/kanit.html">Kanıt Temeli</a> sayfasındadır.</p>
+
+<p class="small" style="margin-top:36px">© 2026 Galaksay · Prof. Dr. Yılmaz Mutlu · galaksay.com · Bu belge sürüm notlarıyla birlikte güncellenir.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Galaksay — Matematik Öğrenme Oyunu</title>
+    <meta
+      name="description"
+      content="Diskalkuli riski taşıyan ya da matematikte zorlanan 5-10 yaş çocuklar için uzay temalı, bilimsel temelli matematik öğrenme ve müdahale oyunu. 60+ etkinlik, Türkçe + Kürtçe, Numap tarama platformuyla entegre. Telefon, tablet ve bilgisayarda; çevrimdışı da çalışır."
+    />
+    <meta name="theme-color" content="#FAF9FF" />
+    <link rel="canonical" href="https://galaksay.com/" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Galaksay" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Galaksay" />
+    <meta property="og:title" content="Galaksay — Matematik Öğrenme Oyunu" />
+    <meta
+      property="og:description"
+      content="Diskalkuli riski taşıyan ya da matematikte zorlanan 5-10 yaş çocuklar için uzay temalı matematik öğrenme ve müdahale oyunu — Numap tarama platformuyla entegre."
+    />
+    <meta property="og:url" content="https://galaksay.com/" />
+    <meta property="og:image" content="https://galaksay.com/icons/icon-512.png" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #faf9ff;
+        --card: #ffffff;
+        --ink: #1e1b4b;
+        --muted: #4b5563;
+        --brand: #7c3aed;
+        --brand-dark: #6d28d9;
+        --cta: #f59e0b;
+        --cta-dark: #d97706;
+        --sky: #38bdf8;
+        --green: #059669;
+        --lav-50: #f5f3ff;
+        --lav-100: #ede9fe;
+        --lav-200: #ddd6fe;
+        --sky-50: #f0f9ff;
+        --sky-100: #e0f2fe;
+        --amber-50: #fffbeb;
+        --amber-100: #fef3c7;
+        --shadow: 0 10px 30px rgba(30, 27, 75, 0.08);
+        --shadow-sm: 0 4px 14px rgba(30, 27, 75, 0.07);
+        --radius: 22px;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+      body {
+        font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        overflow-x: hidden;
+        min-height: 100vh;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
+      }
+      ::selection { background: rgba(124, 58, 237, 0.18); }
+      a { color: inherit; text-decoration: none; }
+      img, svg { max-width: 100%; }
+      h1, h2, h3, .display {
+        font-family: 'Fredoka', 'Nunito', sans-serif;
+        font-weight: 600;
+        line-height: 1.15;
+        color: var(--ink);
+      }
+      :focus-visible {
+        outline: 3px solid var(--brand);
+        outline-offset: 3px;
+        border-radius: 6px;
+      }
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 0 0 12px 0;
+        font-weight: 800;
+      }
+      .skip-link:focus { left: 0; }
+
+      .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+      section[id] { scroll-margin-top: 90px; }
+
+      /* ── Üst bar ── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(250, 249, 255, 0.86);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--lav-100);
+      }
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 20px;
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+      .logo-link { display: block; flex-shrink: 0; }
+      .logo { height: 42px; width: auto; display: block; }
+      .nav { display: flex; align-items: center; gap: 4px; }
+      .nav-link {
+        position: relative;
+        font-weight: 800;
+        font-size: 15px;
+        color: var(--muted);
+        padding: 8px 12px;
+        border-radius: 10px;
+        transition: color 0.2s;
+      }
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 4px;
+        height: 2.5px;
+        border-radius: 2px;
+        background: var(--brand);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.22s ease;
+      }
+      .nav-link:hover { color: var(--brand-dark); }
+      .nav-link:hover::after { transform: scaleX(1); }
+      .nav-cta {
+        font-weight: 900;
+        font-size: 15px;
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: var(--cta);
+        color: var(--ink);
+        box-shadow: 0 5px 16px rgba(245, 158, 11, 0.35);
+        transition: transform 0.2s, background 0.2s;
+        white-space: nowrap;
+        margin-left: 6px;
+      }
+      .nav-cta:hover { transform: translateY(-2px); background: var(--cta-dark); }
+      @media (max-width: 700px) {
+        .header-inner { flex-direction: column; gap: 8px; padding: 10px 14px; }
+        .logo { height: 36px; }
+        .nav { width: 100%; justify-content: center; flex-wrap: wrap; gap: 2px; }
+        .nav-link { font-size: 13.5px; padding: 6px 8px; }
+        .nav-cta { font-size: 14px; padding: 8px 16px; }
+        section[id] { scroll-margin-top: 128px; }
+      }
+
+      /* ── Hero ── */
+      .hero {
+        position: relative;
+        text-align: center;
+        padding: 64px 0 48px;
+      }
+      .hero-deco { position: absolute; pointer-events: none; z-index: 0; }
+      .hero-deco svg { display: block; width: 100%; height: 100%; }
+      .deco-planet { top: 0; left: -64px; width: 160px; height: 160px; animation: floaty 18s ease-in-out infinite; }
+      .deco-moon { bottom: 10px; right: -20px; width: 110px; height: 110px; animation: floaty 22s ease-in-out infinite reverse; }
+      .deco-rocket { top: 60px; right: 4%; width: 92px; height: 92px; animation: rocketFloat 9s ease-in-out infinite; }
+      .deco-stars-l { top: 46%; left: 4%; width: 70px; height: 90px; }
+      .deco-stars-r { top: 22%; right: 20%; width: 60px; height: 80px; }
+      @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+      @keyframes rocketFloat { 0%, 100% { transform: translate(0, 0) rotate(14deg); } 50% { transform: translate(-8px, -18px) rotate(20deg); } }
+      @media (max-width: 860px) {
+        .deco-planet { width: 100px; height: 100px; left: -34px; top: 12px; opacity: 0.7; }
+        .deco-moon { width: 70px; height: 70px; right: -18px; opacity: 0.7; }
+        .deco-rocket { width: 58px; height: 58px; top: 20px; right: 2%; opacity: 0.85; }
+        .deco-stars-r { display: none; }
+      }
+      .hero-inner { position: relative; z-index: 1; }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--lav-50);
+        border: 1.5px solid var(--lav-200);
+        color: var(--brand-dark);
+        font-weight: 900;
+        font-size: 13.5px;
+        letter-spacing: 0.4px;
+        padding: 7px 16px;
+        border-radius: 999px;
+        margin-bottom: 22px;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 6.4vw, 62px);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 18px;
+      }
+      .hero h1 .grad {
+        background: linear-gradient(95deg, var(--brand) 10%, var(--sky) 90%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero p.lead {
+        font-size: clamp(16px, 2.3vw, 19.5px);
+        color: var(--muted);
+        max-width: 680px;
+        margin: 0 auto 32px;
+        font-weight: 600;
+      }
+      .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+      .btn {
+        font-family: inherit;
+        font-weight: 900;
+        font-size: 18px;
+        padding: 16px 32px;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .btn-primary {
+        background: var(--cta);
+        color: var(--ink);
+        box-shadow: 0 10px 26px rgba(245, 158, 11, 0.38);
+      }
+      .btn-primary:hover { transform: translateY(-3px); background: var(--cta-dark); box-shadow: 0 14px 32px rgba(245, 158, 11, 0.45); }
+      .btn-secondary {
+        background: var(--card);
+        color: var(--brand-dark);
+        border: 2px solid var(--lav-200);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-secondary:hover { transform: translateY(-3px); border-color: var(--brand); }
+      .btn-secondary[hidden] { display: none; }
+      .btn-brand {
+        background: var(--brand);
+        color: #fff;
+        box-shadow: 0 10px 26px rgba(124, 58, 237, 0.32);
+      }
+      .btn-brand:hover { transform: translateY(-3px); background: var(--brand-dark); }
+
+      /* Rakam rozetleri */
+      .stats {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 40px;
+      }
+      .stat {
+        background: var(--card);
+        border: 1.5px solid var(--lav-100);
+        border-radius: 18px;
+        box-shadow: var(--shadow-sm);
+        padding: 14px 22px;
+        min-width: 128px;
+      }
+      .stat .num {
+        font-family: 'Fredoka', sans-serif;
+        font-weight: 700;
+        font-size: 30px;
+        line-height: 1.1;
+        color: var(--brand);
+      }
+      .stat:nth-child(2) .num { color: var(--sky); }
+      .stat:nth-child(3) .num { color: var(--cta-dark); }
+      .stat:nth-child(4) .num { color: var(--green); }
+      .stat .lbl { font-size: 13.5px; font-weight: 800; color: var(--muted); }
+      .trust {
+        margin-top: 26px;
+        font-size: 13.5px;
+        color: var(--muted);
+        font-weight: 700;
+        display: flex;
+        gap: 6px 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .trust span { white-space: nowrap; }
+      .trust .dot { color: var(--lav-200); }
+      @media (max-width: 480px) {
+        .trust span { white-space: normal; }
+        .stat { min-width: 116px; padding: 12px 16px; flex: 1 1 40%; }
+      }
+
+      /* ── Bölüm başlıkları ── */
+      section { padding: 48px 0; }
+      .kicker {
+        display: block;
+        text-align: center;
+        color: var(--brand);
+        font-weight: 900;
+        font-size: 13.5px;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        text-align: center;
+        font-size: clamp(26px, 4vw, 38px);
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .section-sub {
+        text-align: center;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 16.5px;
+        max-width: 620px;
+        margin: 0 auto 38px;
+      }
+
+      /* ── Değer önerileri ── */
+      .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .value-card {
+        background: var(--card);
+        border: 1.5px solid var(--lav-100);
+        border-radius: var(--radius);
+        padding: 30px 26px;
+        box-shadow: var(--shadow);
+        transition: transform 0.25s, border-color 0.25s;
+      }
+      .value-card:hover { transform: translateY(-6px); border-color: var(--lav-200); }
+      .value-card .ico {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        font-size: 29px;
+        margin-bottom: 18px;
+      }
+      .value-card:nth-child(1) .ico { background: var(--lav-100); }
+      .value-card:nth-child(2) .ico { background: var(--sky-100); }
+      .value-card:nth-child(3) .ico { background: var(--amber-100); }
+      .value-card h3 { font-size: 21px; margin-bottom: 10px; }
+      .value-card p { font-size: 15.5px; color: var(--muted); font-weight: 600; }
+
+      /* ── Nasıl çalışır ── */
+      .how { background: var(--lav-50); border-radius: 30px; padding: 52px 34px; }
+      .how-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+      .how-step {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 28px 24px;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+      }
+      .how-step .n {
+        font-family: 'Fredoka', sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        color: #fff;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        margin-bottom: 16px;
+      }
+      .how-step:nth-child(1) .n { background: var(--brand); }
+      .how-step:nth-child(2) .n { background: var(--sky); }
+      .how-step:nth-child(3) .n { background: var(--green); }
+      .how-step h3 { font-size: 20px; margin-bottom: 8px; }
+      .how-step p { font-size: 15px; color: var(--muted); font-weight: 600; }
+      @media (max-width: 700px) { .how { padding: 40px 20px; border-radius: 24px; } }
+
+      /* ── Kimler için ── */
+      .split { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+      @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+      .aud {
+        border-radius: var(--radius);
+        padding: 34px 30px;
+        border: 1.5px solid transparent;
+      }
+      .aud.kids { background: var(--lav-50); border-color: var(--lav-100); }
+      .aud.adults { background: var(--sky-50); border-color: var(--sky-100); }
+      .aud .tag {
+        display: inline-block;
+        font-weight: 900;
+        font-size: 13px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        padding: 6px 14px;
+        border-radius: 999px;
+        margin-bottom: 16px;
+      }
+      .aud.kids .tag { background: var(--lav-200); color: var(--brand-dark); }
+      .aud.adults .tag { background: var(--sky-100); color: #0369a1; }
+      .aud h3 { font-size: 24px; margin-bottom: 16px; }
+      .aud ul { list-style: none; display: grid; gap: 13px; }
+      .aud li { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; color: var(--muted); font-size: 15.5px; }
+      .aud li .emo {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--card);
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+      }
+      .aud li b { color: var(--ink); }
+
+      /* ── Özellik şeridi ── */
+      .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+      .strip-item {
+        background: var(--card);
+        border: 1.5px solid var(--lav-100);
+        border-radius: 18px;
+        padding: 22px 20px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .strip-item .emo { font-size: 26px; line-height: 1.2; }
+      .strip-item b { display: block; font-size: 16px; margin-bottom: 3px; }
+      .strip-item p { font-size: 13.5px; color: var(--muted); font-weight: 600; line-height: 1.5; }
+
+      /* ── Eğitimciler ── */
+      .edu {
+        background: var(--card);
+        border: 1.5px solid var(--lav-100);
+        border-radius: 30px;
+        box-shadow: var(--shadow);
+        padding: 52px 40px;
+      }
+      .edu-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: center; }
+      @media (max-width: 860px) { .edu-cols { grid-template-columns: 1fr; } .edu { padding: 38px 22px; border-radius: 24px; } }
+      .edu h2 { font-size: clamp(24px, 3.6vw, 34px); margin-bottom: 14px; }
+      .edu .kicker { text-align: left; }
+      .edu p.intro { color: var(--muted); font-weight: 600; font-size: 16px; margin-bottom: 22px; }
+      .edu ul.checks { list-style: none; display: grid; gap: 12px; margin-bottom: 28px; }
+      .edu ul.checks li { display: flex; gap: 11px; font-weight: 600; color: var(--muted); font-size: 15.5px; align-items: flex-start; }
+      .edu ul.checks .chk {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        margin-top: 2px;
+        border-radius: 50%;
+        background: #d1fae5;
+        color: var(--green);
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .edu ul.checks b { color: var(--ink); }
+
+      /* Üçlü kod paneli */
+      .triple-panel {
+        background: var(--lav-50);
+        border: 1.5px solid var(--lav-100);
+        border-radius: var(--radius);
+        padding: 30px 26px;
+        text-align: center;
+      }
+      .triple-panel h3 { font-size: 20px; margin-bottom: 6px; }
+      .triple-panel > p { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 20px; }
+      .codes { display: grid; gap: 12px; }
+      .code-pill {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 18px;
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: var(--shadow-sm);
+        font-weight: 800;
+        text-align: left;
+      }
+      .code-dot {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        color: #fff;
+        font-weight: 800;
+      }
+      .code-dot.somut { background: #6366f1; font-size: 13px; letter-spacing: 1px; }
+      .code-dot.sozel { background: var(--brand); }
+      .code-dot.sembolik { background: var(--green); font-size: 22px; }
+      .code-pill small { display: block; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+
+      /* ── Yükle ── */
+      .install {
+        background: linear-gradient(135deg, var(--lav-50), var(--sky-50));
+        border: 1.5px solid var(--lav-100);
+        border-radius: 30px;
+        padding: 48px 30px;
+        text-align: center;
+      }
+      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 30px; text-align: left; }
+      .step { background: var(--card); border-radius: 18px; padding: 20px 22px; box-shadow: var(--shadow-sm); }
+      .step .badge { font-weight: 900; color: var(--brand); font-size: 12.5px; letter-spacing: 1px; margin-bottom: 6px; }
+      .step b { display: block; margin-bottom: 4px; }
+      .step p { font-size: 14px; color: var(--muted); font-weight: 600; }
+      #ios-tip { margin-top: 18px; font-size: 14.5px; color: var(--cta-dark); font-weight: 800; display: none; }
+      @media (max-width: 700px) { .install { padding: 38px 20px; border-radius: 24px; } }
+
+      /* ── Kapanış CTA ── */
+      .final-cta {
+        background: linear-gradient(120deg, var(--brand-dark), var(--brand) 55%, #8b5cf6);
+        border-radius: 30px;
+        padding: 56px 34px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .final-cta::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(2px 2px at 12% 24%, rgba(255, 255, 255, 0.7), transparent),
+          radial-gradient(1.5px 1.5px at 78% 18%, rgba(255, 255, 255, 0.6), transparent),
+          radial-gradient(2px 2px at 88% 66%, rgba(255, 255, 255, 0.5), transparent),
+          radial-gradient(1.5px 1.5px at 30% 78%, rgba(255, 255, 255, 0.55), transparent),
+          radial-gradient(1px 1px at 55% 40%, rgba(255, 255, 255, 0.5), transparent);
+        pointer-events: none;
+      }
+      .final-cta h2 { color: #fff; font-size: clamp(26px, 4vw, 38px); margin-bottom: 12px; position: relative; }
+      .final-cta p { color: #ede9fe; font-weight: 600; max-width: 520px; margin: 0 auto 28px; position: relative; }
+      .final-cta .cta-row { position: relative; }
+      @media (max-width: 700px) { .final-cta { padding: 44px 20px; border-radius: 24px; } }
+
+      /* ── Footer ── */
+      footer {
+        border-top: 1.5px solid var(--lav-100);
+        margin-top: 30px;
+        padding: 44px 20px 52px;
+        color: var(--muted);
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .footer-inner { max-width: 1120px; margin: 0 auto; text-align: center; }
+      .footer-hcmo {
+        background: var(--lav-50);
+        border: 1.5px solid var(--lav-100);
+        border-radius: 18px;
+        padding: 20px 24px;
+        max-width: 720px;
+        margin: 0 auto 26px;
+      }
+      .footer-hcmo b { color: var(--ink); }
+      .footer-kvkk { max-width: 720px; margin: 0 auto 26px; font-size: 13.5px; }
+      footer .org { color: var(--ink); font-weight: 800; margin-bottom: 6px; }
+      footer a { color: var(--brand-dark); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
+      footer a:hover { color: var(--brand); }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        html { scroll-behavior: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#top">İçeriğe geç</a>
+
+    <header>
+      <div class="header-inner">
+        <a href="#top" class="logo-link" aria-label="Galaksay — başa dön">
+          <svg class="logo" viewBox="0 0 420 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Galaksay">
+            <use href="#galaksay-logo" />
+          </svg>
+        </a>
+        <nav class="nav" aria-label="Sayfa içi gezinme">
+          <a class="nav-link" href="#ozellikler">Özellikler</a>
+          <a class="nav-link" href="#nasil-calisir">Nasıl Çalışır?</a>
+          <a class="nav-link" href="#egitimciler">Eğitimciler</a>
+          <a class="nav-link" href="#yukle">Yükle</a>
+          <a class="nav-cta" href="/oyna/">🚀 Oyna</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- HERO -->
+      <section class="hero" id="top">
+        <!-- Pastel halkalı gezegen (sol) -->
+        <div class="hero-deco deco-planet" aria-hidden="true">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="prCore" cx="38%" cy="33%" r="78%">
+                <stop offset="0%" stop-color="#f3f0ff" />
+                <stop offset="55%" stop-color="#c4b5fd" />
+                <stop offset="100%" stop-color="#8b5cf6" />
+              </radialGradient>
+              <linearGradient id="prRing" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#a5b4fc" />
+                <stop offset="100%" stop-color="#7dd3fc" />
+              </linearGradient>
+              <mask id="prRingFront">
+                <rect width="200" height="200" fill="#000" />
+                <rect x="0" y="100" width="200" height="100" fill="#fff" />
+              </mask>
+            </defs>
+            <ellipse cx="100" cy="100" rx="94" ry="30" fill="none" stroke="url(#prRing)" stroke-width="7" opacity="0.45" transform="rotate(-22 100 100)" />
+            <circle cx="100" cy="100" r="56" fill="url(#prCore)" />
+            <ellipse cx="80" cy="80" rx="22" ry="15" fill="#fff" opacity="0.45" />
+            <circle cx="120" cy="118" r="10" fill="#7c3aed" opacity="0.18" />
+            <ellipse cx="100" cy="100" rx="94" ry="30" fill="none" stroke="url(#prRing)" stroke-width="7" opacity="0.8" transform="rotate(-22 100 100)" mask="url(#prRingFront)" />
+          </svg>
+        </div>
+        <!-- Pastel ay (sağ alt) -->
+        <div class="hero-deco deco-moon" aria-hidden="true">
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="psCore" cx="36%" cy="31%" r="76%">
+                <stop offset="0%" stop-color="#ecfeff" />
+                <stop offset="60%" stop-color="#a5f3fc" />
+                <stop offset="100%" stop-color="#38bdf8" />
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="46" fill="url(#psCore)" />
+            <ellipse cx="46" cy="44" rx="15" ry="10" fill="#fff" opacity="0.5" />
+            <circle cx="74" cy="70" r="8" fill="#0ea5e9" opacity="0.2" />
+            <circle cx="53" cy="83" r="5" fill="#0ea5e9" opacity="0.18" />
+            <circle cx="80" cy="48" r="4" fill="#0ea5e9" opacity="0.15" />
+          </svg>
+        </div>
+        <!-- Roket (sağ üst) -->
+        <div class="hero-deco deco-rocket" aria-hidden="true">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="shBody" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#ddd6fe" />
+              </linearGradient>
+              <linearGradient id="shFlame" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fbbf24" />
+                <stop offset="100%" stop-color="#fb923c" />
+              </linearGradient>
+            </defs>
+            <path d="M44 73 Q50 95 56 73 Q50 82 44 73 Z" fill="url(#shFlame)" />
+            <path d="M50 8 C66 26 64 54 58 72 L42 72 C36 54 34 26 50 8 Z" fill="url(#shBody)" stroke="#c4b5fd" stroke-width="1.5" />
+            <path d="M42 60 L29 75 L42 70 Z" fill="#7c3aed" />
+            <path d="M58 60 L71 75 L58 70 Z" fill="#7c3aed" />
+            <circle cx="50" cy="37" r="8.5" fill="#e0f2fe" />
+            <circle cx="50" cy="37" r="8.5" fill="none" stroke="#7c3aed" stroke-width="2.5" />
+            <circle cx="47" cy="34" r="2.5" fill="#ffffff" opacity="0.9" />
+          </svg>
+        </div>
+        <!-- Yıldız serpintileri -->
+        <div class="hero-deco deco-stars-l" aria-hidden="true">
+          <svg viewBox="0 0 70 90" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 10 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" fill="#fbbf24" opacity="0.7" />
+            <circle cx="52" cy="34" r="4" fill="#c4b5fd" />
+            <path d="M34 62 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4 Z" fill="#7dd3fc" opacity="0.8" />
+          </svg>
+        </div>
+        <div class="hero-deco deco-stars-r" aria-hidden="true">
+          <svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="14" r="4" fill="#fcd34d" />
+            <path d="M40 34 l2.6 6 6 2.6 -6 2.6 -2.6 6 -2.6 -6 -6 -2.6 6 -2.6 Z" fill="#c4b5fd" opacity="0.85" />
+            <circle cx="22" cy="66" r="3" fill="#7dd3fc" />
+          </svg>
+        </div>
+
+        <div class="hero-inner">
+          <span class="eyebrow">🔭 Matematikte zorlanan her çocuk için — diskalkuli dostu</span>
+          <h1>Sayılar Evrenin Dilidir.<br /><span class="grad">Çocuğunuz bu dili oyunla öğrensin.</span></h1>
+          <p class="lead">
+            Galaksay; diskalkuli — matematik öğrenme güçlüğü (MÖG) — riski taşıyan <b>ya da
+            matematikte düşük başarı gösteren</b> 5–10 yaş çocuklar için geliştirilmiş,
+            <b>öğrenme yörüngesi temelli</b> bir matematik oyunudur. Kısa uzay görevleriyle sayı
+            hissini adım adım inşa eder; telefon, tablet ve bilgisayarda çalışır.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="/oyna/">🚀 Hemen Oyna</a>
+            <a class="btn btn-secondary" href="#egitimciler">Eğitimciler İçin</a>
+          </div>
+          <div class="stats" role="list" aria-label="Galaksay sayılarla">
+            <div class="stat" role="listitem"><div class="num">64</div><div class="lbl">Oyun Modu</div></div>
+            <div class="stat" role="listitem"><div class="num">8</div><div class="lbl">Gezegen</div></div>
+            <div class="stat" role="listitem"><div class="num">5</div><div class="lbl">Zorluk Seviyesi</div></div>
+            <div class="stat" role="listitem"><div class="num">2</div><div class="lbl">Dil: Türkçe + Kurmancî</div></div>
+          </div>
+          <div class="trust">
+            <span>Clements &amp; Sarama öğrenme yörüngeleri üzerine kurulu</span><span class="dot">·</span>
+            <span>MEB 2024 Maarif Modeli ile uyumlu</span><span class="dot">·</span>
+            <span>Prof. Dr. Yılmaz Mutlu tarafından tasarlandı</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEĞER ÖNERİLERİ -->
+      <section id="ozellikler">
+        <span class="kicker">Neden Galaksay?</span>
+        <h2 class="section-title">Oyun gibi görünür, müdahale gibi çalışır</h2>
+        <p class="section-sub">Araştırmaya dayalı yöntemleri, çocukların sevdiği bir uzay macerasıyla birleştirir.</p>
+        <div class="grid3">
+          <div class="value-card">
+            <div class="ico">🪐</div>
+            <h3>Yörünge Temelli</h3>
+            <p>
+              64 oyun modu, Clements &amp; Sarama'nın <b>öğrenme yörüngelerine</b> (learning
+              trajectories) göre gelişimsel sırada dizilir; yaş grubuna özel yolculuk haritasında
+              her durak bir sonrakine hazırlar. Çocuk rastgele sorularla değil, bilimsel bir
+              haritayla ilerler.
+            </p>
+          </div>
+          <div class="value-card">
+            <div class="ico">🎚️</div>
+            <h3>Uyarlanabilir Zorluk</h3>
+            <p>
+              Her modda kolaydan zora <b>5 seviye</b>. Oyun, çocuğun performansına göre zorluğu
+              uyarlar ve kaldığı seviyeyi hatırlar — ne sıkacak kadar kolay, ne yıldıracak kadar
+              zor.
+            </p>
+          </div>
+          <div class="value-card">
+            <div class="ico">💛</div>
+            <h3>Çocuk Dostu Geribildirim</h3>
+            <p>
+              Yanlış cevap ceza değil, öğrenme fırsatıdır: <b>somut → görsel → soyut</b> ipucu
+              basamakları çocuğu yanıta kendisi ulaşana dek nazikçe taşır. Akıllı Rapor, hata
+              örüntülerini yetişkinler için özetler.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- NASIL ÇALIŞIR -->
+      <section id="nasil-calisir">
+        <div class="how">
+          <span class="kicker">Nasıl Çalışır?</span>
+          <h2 class="section-title">Üç adımda yörüngeye oturun</h2>
+          <p class="section-sub">Kayıt karmaşası yok: tarayıcıda açın, gezegen seçin, yola çıkın.</p>
+          <div class="how-steps">
+            <div class="how-step">
+              <div class="n">1</div>
+              <h3>Keşfet</h3>
+              <p>Gezegen haritasından bir görev seçin — ya da oyun, kaldığınız yerden devam etmeyi önersin.</p>
+            </div>
+            <div class="how-step">
+              <div class="n">2</div>
+              <h3>Oyna</h3>
+              <p>5–10 dakikalık kısa görevler; sesli yönergeler ve nazik oturum sınırıyla ekran süresi dengede kalır.</p>
+            </div>
+            <div class="how-step">
+              <div class="n">3</div>
+              <h3>Gelişimi İzle</h3>
+              <p>Sınıf Paneli, gelişim grafikleri, Akıllı Rapor ve profesyonel PDF ile ilerlemeyi adım adım takip edin.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KİMLER İÇİN -->
+      <section id="kimler-icin">
+        <span class="kicker">Herkese Bir Yörünge</span>
+        <h2 class="section-title">Çocuklar oynar, yetişkinler izler</h2>
+        <p class="section-sub">Aynı evren, iki ayrı deneyim: çocuğa macera, yetişkine net veri.</p>
+        <div class="split">
+          <div class="aud kids">
+            <span class="tag">Çocuklar İçin</span>
+            <h3>Bir uzay macerası 🚀</h3>
+            <ul>
+              <li><span class="emo">🪐</span><span><b>8 gezegen, 64 görev:</b> sayma gezegeninden çarpma galaksisine uzanan keşif rotası.</span></li>
+              <li><span class="emo">🏅</span><span><b>Rozetler ve koleksiyon:</b> tamamlanan görevler yıldız, rozet ve koleksiyon eserleri kazandırır.</span></li>
+              <li><span class="emo">👽</span><span><b>Sevimli maskot rehber:</b> yönergeleri sesli anlatır, takıldığında ipucu verir — asla azarlamaz.</span></li>
+              <li><span class="emo">🧘</span><span><b>Sakin mod:</b> animasyon ve sesleri azaltan, duyusal hassasiyete saygılı oyun seçeneği.</span></li>
+            </ul>
+          </div>
+          <div class="aud adults">
+            <span class="tag">Veliler ve Eğitimciler İçin</span>
+            <h3>Net veri, tam kontrol 📊</h3>
+            <ul>
+              <li><span class="emo">🧠</span><span><b>Akıllı Rapor:</b> hata tiplerini analiz eder, bireyselleştirilmiş çalışma önerileri sunar.</span></li>
+              <li><span class="emo">📄</span><span><b>Profesyonel PDF + CSV:</b> veli görüşmesine ya da BEP dosyasına hazır gelişim raporları.</span></li>
+              <li><span class="emo">🔒</span><span><b>Veri cihazda kalır:</b> KVKK ilkelerine uygun — hesap zorunluluğu, reklam ve üçüncü taraf izleyici yok.</span></li>
+              <li><span class="emo">🔗</span><span><b>Numap ile opsiyonel entegrasyon:</b> Galaksay bağımsız çalışır; dilerseniz Numap tarama sonuçlarıyla bağlanır.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÖZELLİK ŞERİDİ -->
+      <section id="ozellik-seridi" aria-label="Öne çıkan özellikler">
+        <div class="strip">
+          <div class="strip-item">
+            <span class="emo">🗣️</span>
+            <div><b>İki dilli sesli yönerge</b><p>Türkçe ve Kurmancî: çocuk, anladığı dilde öğrenir.</p></div>
+          </div>
+          <div class="strip-item">
+            <span class="emo">♿</span>
+            <div><b>Erişilebilirlik</b><p>Disleksi dostu yazı tipi, renk körlüğü modları, azaltılmış hareket.</p></div>
+          </div>
+          <div class="strip-item">
+            <span class="emo">🛰️</span>
+            <div><b>Çevrimdışı çalışır</b><p>Bir kez yükleyin; internet olmadan da oynanır.</p></div>
+          </div>
+          <div class="strip-item">
+            <span class="emo">🛡️</span>
+            <div><b>Reklamsız ve güvenli</b><p>Uygulama içi satın alma baskısı yok, dikkat dağıtıcı yok.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EĞİTİMCİLER -->
+      <section id="egitimciler">
+        <div class="edu">
+          <div class="edu-cols">
+            <div>
+              <span class="kicker">Eğitimciler İçin</span>
+              <h2>Kanıt temelli, sınıfa hazır</h2>
+              <p class="intro">
+                Galaksay; diskalkuli ve matematik öğrenme güçlüğü (MÖG) riski taşıyan öğrencilerin
+                yanı sıra <b>matematik başarısı düşük tüm öğrenciler</b> için
+                <b>bireyselleştirilmiş müdahale</b> aracı olarak tasarlandı. Sınıfta, destek
+                odasında ya da evde — aynı bilimsel omurgayla.
+              </p>
+              <ul class="checks">
+                <li><span class="chk">✓</span><span><b>Gelişimsel dizilim:</b> 64 modun tümü Clements &amp; Sarama öğrenme yörüngeleriyle eşlenmiştir; yolculuk haritasındaki duraklar bu sırayla, başarı eşikleriyle açılır.</span></li>
+                <li><span class="chk">✓</span><span><b>Somut → görsel → soyut (CRA):</b> ipucu basamakları araştırma temelli müdahale sırasını izler.</span></li>
+                <li><span class="chk">✓</span><span><b>Seviye kalıcılığı:</b> her öğrenci kendi seviyesinden devam eder; zorluk performansa göre uyarlanır.</span></li>
+                <li><span class="chk">✓</span><span><b>Sınıf Paneli:</b> öğrenci bazlı ilerleme, hata örüntüleri, PDF rapor ve CSV dışa aktarım.</span></li>
+                <li><span class="chk">✓</span><span><b>MEB 2024 Maarif Modeli</b> kazanımlarıyla uyumlu içerik.</span></li>
+              </ul>
+              <a class="btn btn-brand" href="/oyna/">Sınıfınızda Deneyin</a>
+            </div>
+            <div class="triple-panel">
+              <h3>Üçlü Kod Modeli</h3>
+              <p>Logomuzdaki üç gezegen tesadüf değil: her sayı, üç temsille birden öğretilir.</p>
+              <div class="codes">
+                <div class="code-pill">
+                  <div class="code-dot somut">●●●</div>
+                  <div>Somut<small>nesnelerle</small></div>
+                </div>
+                <div class="code-pill">
+                  <div class="code-dot sozel">üç</div>
+                  <div>Sözel<small>sayı adıyla</small></div>
+                </div>
+                <div class="code-pill">
+                  <div class="code-dot sembolik">3</div>
+                  <div>Sembolik<small>rakamla</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- YÜKLE -->
+      <section id="yukle">
+        <div class="install">
+          <span class="kicker">Kurulum</span>
+          <h2 class="section-title">Cihazınıza Yükleyin</h2>
+          <p class="section-sub" style="margin-bottom: 0">
+            Galaksay bir <b>web uygulamasıdır</b> — uygulama mağazası gerekmez. Tek dokunuşla ana
+            ekrana ekleyin, uygulama gibi açılsın.
+          </p>
+          <div class="cta-row" style="margin-top: 24px">
+            <a class="btn btn-primary" href="/oyna/">🚀 Tarayıcıda Aç</a>
+            <button class="btn btn-secondary" id="install-btn-2" hidden>⬇️ Uygulamayı Yükle</button>
+          </div>
+          <div id="ios-tip">📱 iPhone/iPad: Safari'de <b>Paylaş</b> → <b>“Ana Ekrana Ekle”</b> adımlarını izleyin.</div>
+          <div class="steps">
+            <div class="step">
+              <div class="badge">ANDROID · CHROME</div>
+              <b>Ana ekrana ekle</b>
+              <p>“Uygulamayı Yükle” butonuna dokunun ya da tarayıcı menüsünden “Ana ekrana ekle”yi seçin.</p>
+            </div>
+            <div class="step">
+              <div class="badge">iPHONE · iPAD</div>
+              <b>Safari paylaş menüsü</b>
+              <p>Alttaki Paylaş simgesine, ardından “Ana Ekrana Ekle”ye dokunun.</p>
+            </div>
+            <div class="step">
+              <div class="badge">BİLGİSAYAR</div>
+              <b>Adres çubuğundan kur</b>
+              <p>Chrome/Edge adres çubuğundaki yükleme simgesine tıklayın, masaüstü uygulaması olarak açılsın.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KAPANIŞ CTA -->
+      <section id="kapanis">
+        <div class="final-cta">
+          <h2>Göreve hazır mısınız? 🚀</h2>
+          <p>Kayıt gerekmez, ücretsiz başlarsınız. İlk gezegen sizi bekliyor.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="/oyna/">🚀 Hemen Oyna</a>
+            <button class="btn btn-secondary" id="install-btn" hidden>⬇️ Uygulamayı Yükle</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-hcmo">
+          <b>Her Çocuk Matematik Öğrenebilir (HÇMÖ)</b> — Galaksay; Numap tarama platformu ve
+          kardeş uygulamalarla birlikte, diskalkuli tanılama-müdahale ekosisteminin bir parçasıdır.
+          👉 <a href="https://hercocukmatematikogrenebilir.com" rel="noopener">hercocukmatematikogrenebilir.com</a>
+        </div>
+        <div class="footer-kvkk">
+          <b>Gizlilik:</b> Galaksay çocuk verilerini cihazda saklar; KVKK ilkelerine uygundur.
+          Reklam, üçüncü taraf izleyici ve zorunlu hesap yoktur. Veriler yalnızca velinin/öğretmenin
+          isteğiyle dışa aktarılır ve tek öğrenci düzeyinde kalıcı olarak silinebilir.
+          <a href="/gizlilik.html">Aydınlatma, rıza ve saklama metinleri →</a>
+          <div style="margin-top:8px">
+            <a href="/kilavuz.html">Öğretmen Kılavuzu</a> · <a href="/kanit.html">Kanıt Temeli</a> · <a href="/erisilebilirlik.html">Erişilebilirlik</a> · <a href="/kullanim-sartlari.html">Kullanım Şartları</a> · <a href="/lisanslar.html">Lisanslar</a> · <a href="/surum-notlari.html">Sürüm Notları</a>
+          </div>
+        </div>
+        <div class="org">Prof. Dr. Yılmaz Mutlu tarafından tasarlanmıştır.</div>
+        <div style="margin-top: 6px">© <span id="yil"></span> Galaksay · <a href="/oyna/">Oyuna başla</a></div>
+      </div>
+    </footer>
+
+    <!-- Paylaşılan logo tanımı (header <use> ile çağırır) -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <g id="galaksay-logo">
+          <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="130%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2e1065" flood-opacity="0.16" />
+          </filter>
+          <linearGradient id="dotCircleGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6366f1" /><stop offset="100%" stop-color="#4f46e5" />
+          </linearGradient>
+          <linearGradient id="wordCircleGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7c3aed" /><stop offset="100%" stop-color="#5b21b6" />
+          </linearGradient>
+          <linearGradient id="numCircleGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#059669" />
+          </linearGradient>
+          <linearGradient id="underlineGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#6366f1" /><stop offset="50%" stop-color="#7c3aed" /><stop offset="100%" stop-color="#10b981" />
+          </linearGradient>
+          <g filter="url(#logoShadow)">
+            <line x1="28" y1="26" x2="72" y2="26" stroke="#a5b4c8" stroke-width="2" opacity="0.55" />
+            <line x1="28" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity="0.55" />
+            <line x1="72" y1="26" x2="50" y2="74" stroke="#a5b4c8" stroke-width="2" opacity="0.55" />
+            <circle cx="28" cy="26" r="20" fill="url(#dotCircleGrad)" />
+            <circle cx="21" cy="25" r="3" fill="white" opacity="0.9" />
+            <circle cx="28" cy="25" r="3" fill="white" opacity="0.9" />
+            <circle cx="35" cy="25" r="3" fill="white" opacity="0.9" />
+            <circle cx="72" cy="26" r="20" fill="url(#wordCircleGrad)" />
+            <text x="72" y="31" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="12" fill="white">üç</text>
+            <circle cx="50" cy="74" r="20" fill="url(#numCircleGrad)" />
+            <text x="50" y="82" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="24" fill="white">3</text>
+          </g>
+          <text x="108" y="56" font-family="Fredoka, Nunito, sans-serif" font-weight="600" font-size="48" letter-spacing="-1">
+            <tspan fill="#1e1b4b">Galak</tspan><tspan fill="#7c3aed">say</tspan>
+          </text>
+          <line x1="110" y1="65" x2="265" y2="65" stroke="url(#underlineGrad)" stroke-width="2.5" stroke-linecap="round" opacity=".55" />
+          <text x="230" y="82" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="700" font-size="11" letter-spacing="2" fill="#6d28d9" opacity="0.85">Sayılar evrenin dilidir</text>
+        </g>
+      </defs>
+    </svg>
+
+    <script>
+      document.getElementById('yil').textContent = new Date().getFullYear();
+
+      // ── PWA kurulum istemi ──
+      var deferredPrompt = null;
+      var installButtons = [document.getElementById('install-btn'), document.getElementById('install-btn-2')];
+
+      function showInstall(show) {
+        installButtons.forEach(function (b) { if (b) b.hidden = !show; });
+      }
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstall(true);
+      });
+
+      installButtons.forEach(function (btn) {
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(function () {
+            deferredPrompt = null;
+            showInstall(false);
+          });
+        });
+      });
+
+      window.addEventListener('appinstalled', function () { showInstall(false); });
+
+      // ── iOS: beforeinstallprompt yok → manuel ipucu göster ──
+      (function () {
+        var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        var standalone = window.navigator.standalone === true ||
+          window.matchMedia('(display-mode: standalone)').matches;
+        if (isIOS && !standalone) {
+          var tip = document.getElementById('ios-tip');
+          if (tip) tip.style.display = 'block';
+        }
+      })();
+
+      // ── Service worker ──
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>

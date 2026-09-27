@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <meta name="theme-color" content="#FAF9FF" /><!-- Faz 3: gündüz varsayılanı — tarayıcı çubuğu açık taban ile uyumlu -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <title>Galaksay — Sayılar Evrenin Dilidir</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #FAF9FF; } /* açık çerçeve taban rengi — oyun kendi koyu zeminini tam-yükseklik boyar */
+      ::selection { background: rgba(108,99,255,.35); color: #fff; }
+      ::-moz-selection { background: rgba(108,99,255,.35); color: #fff; }
+      button, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+      input, textarea { -webkit-tap-highlight-color: transparent; }
+
+      /* ═══ DESKTOP KAPSÜL SİSTEMİ — 3 TIER ═══════════════════════════════════
+         Çocuk uygulaması mobil-öncelikli. Geniş ekranda (≥1024px) içerik bir
+         "kapsül" sütununda merkezlenir; etrafına yayılan glow + box-shadow ile
+         tablet/uygulama hissi verir.
+
+         Kapsül sınıfları (hangi ekran hangi sınıfı kullanır):
+           .page                form/oyun/ayar ekranları (login, game, settings)  → 768px
+           .page.page-medium    liste/dashboard ekranları (ageSelect, levelSelect) → 880px
+           .page.page-wide      rapor/veri ekranları (progress, devTrack, report)  → 1100px
+           .page.page-fluid     full-width tasarımlar — kapsül yok                 → ∞
+
+         Pozisyon: position:fixed olan SplashScreen / overlay'ler etkilenmez. */
+      @media (min-width: 1024px) {
+        .page { max-width: 768px !important; margin-left: auto !important; margin-right: auto !important; box-shadow: 0 0 80px rgba(0,0,0,.55), 0 0 0 1px rgba(167,139,250,.08); }
+        .page.page-medium { max-width: 880px !important; }
+        .page.page-wide { max-width: 1100px !important; }
+        .page.page-fluid { max-width: none !important; box-shadow: none !important; }
+        /* Çerçeve ekranları (Welcome/giriş/hub — main.jsx DayTheme ağacı) aynı kapsülü alır:
+           "gölgeli zemin genişliği tüm sayfalarda" (kullanıcı kararı 2026-08-27). Açık temada
+           gölge yumuşatıldı (koyu kapsülün .55'i açık zeminde fazla sert). */
+        .frame-capsule { max-width: 768px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; box-shadow: 0 0 80px rgba(30, 27, 75, .28), 0 0 0 1px rgba(109, 40, 217, .07); }
+
+        /* Oyun ekranı (screen === "game") — desktop'ta tüm içerik %20 büyütülür.
+           KRİTİK: zoom layout'u büyütür ama .page'in 100dvh yüksekliğini KÜÇÜLTMEZ →
+           yükseklik telafi edilmezse ekranın alt %20'si (İpucu / Nesnelerle Göster çubuğu)
+           görünmez kalıyordu. height = 100dvh/zoom ⇒ zoom sonrası görsel yükseklik tam viewport. */
+        .page.game-screen { zoom: 1.20; height: calc(100vh / 1.2); height: calc(100dvh / 1.2); min-height: calc(100vh / 1.2); min-height: calc(100dvh / 1.2); }
+      }
+
+      /* ═══ CORE ANIMATIONS ═══ */
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+      @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(180deg); } }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+      /* ═══ ENHANCED SPACE ANIMATIONS ═══ */
+      
+      
+      
+      
+      
+      
+      
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      /* Yıldız nefesi — 4 sn döngü: büyürken nefes al, küçülürken ver (kaygı mikro-müdahalesi) */
+      @keyframes starBreath {
+        0%, 100% { transform: scale(1); opacity: .75; }
+        50% { transform: scale(1.55); opacity: 1; }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes correctPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
+      @keyframes wrongShake {
+        0%, 100% { transform: translateX(0) rotate(0); }
+        20% { transform: translateX(-6px) rotate(-1deg); }
+        40% { transform: translateX(6px) rotate(1deg); }
+        60% { transform: translateX(-4px) rotate(-0.5deg); }
+        80% { transform: translateX(4px) rotate(0.5deg); }
+      }
+      @keyframes confetti {
+        0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+        100% { transform: translateY(85vh) rotate(720deg) scale(0.3); opacity: 0; }
+      }
+      @keyframes confettiBig {
+        0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+        50% { opacity: 0.9; }
+        100% { transform: translateY(90vh) rotate(1080deg) scale(0.2); opacity: 0; }
+      }
+      
+      @keyframes crystalRotate {
+        0% { transform: rotateY(0deg) scale(1); }
+        25% { transform: rotateY(90deg) scale(1.1); }
+        50% { transform: rotateY(180deg) scale(1); }
+        75% { transform: rotateY(270deg) scale(1.1); }
+        100% { transform: rotateY(360deg) scale(1); }
+      }
+
+      /* ═══ GUIDE CHARACTER ANIMATIONS ═══ */
+      
+      
+      
+      
+      
+      
+
+      /* ═══ GAME FLOW ANIMATIONS ═══ */
+      
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      
+      
+      
+      @keyframes shipUpgrade {
+        0% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.4); filter: brightness(1.5) drop-shadow(0 0 12px rgba(251,191,36,.6)); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+      
+      @keyframes correctPulseRing {
+        0% { transform: scale(0.5); opacity: 0.8; }
+        100% { transform: scale(3); opacity: 0; }
+      }
+      @keyframes starBurst {
+        0% { opacity: 1; transform: rotate(var(--angle,0deg)) translateY(0); }
+        100% { opacity: 0; transform: rotate(var(--angle,0deg)) translateY(-80px) scale(0.3); }
+      }
+
+      /* ═══ JOURNEY MAP ANIMATIONS ═══ */
+      @keyframes mapBounce {
+        0%, 100% { transform: translate(-50%,-50%) scale(1); }
+        50% { transform: translate(-50%,-50%) scale(1.08); }
+      }
+      @keyframes mapFloat {
+        0%, 100% { transform: translate(-50%,-55%); }
+        50% { transform: translate(-50%,-58%); }
+      }
+      @keyframes currentGlow {
+        0%, 100% { opacity: 0.4; transform: translate(-50%,-55%) scale(1); }
+        50% { opacity: 0.8; transform: translate(-50%,-55%) scale(1.06); }
+      }
+      @keyframes starCoreGlow {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.2); }
+      }
+      @keyframes pathDash {
+        to { stroke-dashoffset: -20; }
+      }
+
+      /* ═══ TYPEWRITER EFFECT ═══ */
+      
+      @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: #a78bfa; }
+      }
+      .typewriter-text {
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 2px solid #a78bfa;
+        width: 0;
+        animation: typewriter 2.5s steps(28, end) 0.5s forwards, blink-caret 0.75s step-end infinite;
+        display: inline-block;
+      }
+
+      /* ═══ ROCKET LAUNCH ═══ */
+      
+      @keyframes rocketLaunch {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        60% { transform: translateY(-120px) scale(1.1); opacity: 1; }
+        100% { transform: translateY(-300px) scale(0.3); opacity: 0; }
+      }
+      @keyframes exhaust {
+        0% { opacity: 0.8; transform: scaleY(1) scaleX(1); }
+        50% { opacity: 0.4; transform: scaleY(1.5) scaleX(0.8); }
+        100% { opacity: 0; transform: scaleY(2) scaleX(0.4); }
+      }
+
+      /* ═══ CARD REVEAL ═══ */
+      
+      
+
+      /* ═══ CAPTAIN'S LOG ═══ */
+      
+      @keyframes logPulse {
+        0%, 100% { box-shadow: 0 0 8px rgba(251,191,36,.15); }
+        50% { box-shadow: 0 0 20px rgba(251,191,36,.3), 0 0 40px rgba(251,191,36,.1); }
+      }
+
+      /* ═══ PARTICLE BURST ═══ */
+      
+
+      /* ═══ WARP TUNNEL ═══ */
+      
+
+      /* ═══ ACHIEVEMENT UNLOCK ═══ */
+      
+
+      /* ═══ MISSION COMPLETE FLASH ═══ */
+      @keyframes missionFlash {
+        0% { opacity: 0; }
+        20% { opacity: .6; }
+        50% { opacity: .2; }
+        100% { opacity: 0; }
+      }
+
+      /* ═══ SPACE DUST ═══ */
+      @keyframes spaceDust {
+        0% { transform: translateY(0) translateX(0); opacity: 0; }
+        10% { opacity: 0.6; }
+        90% { opacity: 0.3; }
+        100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+      }
+
+      /* ═══ MASCOT ENTRANCE ═══ */
+      
+
+      /* ═══ INSIGHT SLIDE ═══ */
+      
+
+      /* ═══ NEBULA FLOAT ═══ */
+      @keyframes nebulaFloat {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(10px, -15px) scale(1.05); }
+        66% { transform: translate(-8px, 8px) scale(0.95); }
+      }
+
+      /* ═══ FLOAT VARIANTS ═══ */
+      
+      
+      
+
+      /* ═══ LEVEL COMPLETE CELEBRATION ═══ */
+      
+
+      /* ═══ PAGE TRANSITIONS ═══ */
+      .page {
+        min-height: 100vh; min-height: 100dvh;
+        background: linear-gradient(165deg, #0c0a1a 0%, #1a1145 25%, #0f172a 50%, #1e1b4b 75%, #0c0a1a 100%);
+        position: relative; overflow: hidden;
+      }
+      .page::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.4) 0%, transparent 100%),
+                          radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,.3) 0%, transparent 100%),
+                          radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,.2) 0%, transparent 100%),
+                          radial-gradient(1px 1px at 70% 50%, rgba(255,255,255,.35) 0%, transparent 100%),
+                          radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,.25) 0%, transparent 100%),
+                          radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,.15) 0%, transparent 100%),
+                          radial-gradient(1.5px 1.5px at 15% 45%, rgba(255,255,255,.5) 0%, transparent 100%),
+                          radial-gradient(1.5px 1.5px at 60% 30%, rgba(255,255,255,.45) 0%, transparent 100%),
+                          radial-gradient(0.5px 0.5px at 25% 15%, rgba(255,255,255,.6) 0%, transparent 100%),
+                          radial-gradient(0.5px 0.5px at 85% 60%, rgba(255,255,255,.5) 0%, transparent 100%);
+        pointer-events: none; z-index: 0;
+      }
+      .page-enter { animation: fadeUp .35s ease both; }
+      .page-zoom { animation: bounceIn .4s ease both; }
+      .page-warp { animation: warpSpeed .5s ease both; }
+
+      /* ═══ BUTTON HOVER EFFECTS ═══ */
+      .space-btn-hover { position: relative; transition: all .25s cubic-bezier(.4,0,.2,1) !important; }
+      .space-btn-hover:hover:not(:disabled) {
+        transform: translateY(-2px) scale(1.02) !important;
+        filter: brightness(1.1);
+      }
+      .space-btn-hover:active:not(:disabled) {
+        transform: translateY(0) scale(0.98) !important;
+        filter: brightness(0.95);
+      }
+
+      /* ═══ ENHANCED BUTTON PRESS FEEDBACK ═══ */
+      .space-btn-hover::after {
+        content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+        background: radial-gradient(circle at center, rgba(255,255,255,.15), transparent 70%);
+        opacity: 0; transition: opacity .2s;
+      }
+      .space-btn-hover:active::after { opacity: 1; }
+
+      /* ═══ PLANET/MODE CARD HOVER ═══ */
+      .planet-card { transition: all .3s cubic-bezier(.4,0,.2,1); }
+      .planet-card:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 12px 40px rgba(0,0,0,.3), 0 0 20px var(--glow-color, rgba(124,58,237,.2));
+      }
+      .planet-card:active { transform: translateY(-1px) scale(0.98); }
+
+      /* ═══ SMOOTH PAGE HYPERSPACE ═══ */
+      .page-hyperspace {
+        animation: hyperspaceJump .7s cubic-bezier(.25,.1,.25,1) both;
+      }
+      
+
+      /* ═══ SCROLLBAR ═══ */
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(124,58,237,.3); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,.5); }
+
+      /* ═══ CREW RESCUE CELEBRATION ═══ */
+      
+      @keyframes crewGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,.2), 0 0 40px rgba(124,58,237,.1); }
+        50% { box-shadow: 0 0 40px rgba(251,191,36,.4), 0 0 80px rgba(124,58,237,.2), 0 0 120px rgba(99,102,241,.1); }
+      }
+
+      /* ═══ ARTIFACT UNLOCK ═══ */
+      @keyframes artifactReveal {
+        0% { transform: rotateY(180deg) scale(0.5); opacity: 0; filter: brightness(2); }
+        30% { transform: rotateY(90deg) scale(0.9); opacity: 0.7; }
+        60% { transform: rotateY(0deg) scale(1.15); opacity: 1; filter: brightness(1.5); }
+        80% { transform: scale(0.95); filter: brightness(1.1); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+      @keyframes artifactFloat {
+        0%, 100% { transform: translateY(0) rotate(-2deg); filter: drop-shadow(0 4px 12px rgba(251,191,36,.3)); }
+        50% { transform: translateY(-8px) rotate(2deg); filter: drop-shadow(0 8px 20px rgba(251,191,36,.5)); }
+      }
+      @keyframes rarityShimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+      }
+
+      /* ═══ MISSION ARC PROGRESS ═══ */
+      @keyframes chapterUnlock {
+        0% { transform: scale(0.8); opacity: 0; filter: brightness(0.5); }
+        50% { transform: scale(1.1); filter: brightness(1.5); }
+        100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+      }
+      @keyframes pathConnect {
+        from { stroke-dashoffset: 100; }
+        to { stroke-dashoffset: 0; }
+      }
+      @keyframes crewPortraitPop {
+        0% { transform: translate(-50%, -50%) scale(0); }
+        60% { transform: translate(-50%, -50%) scale(1.2); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+      }
+
+      /* ═══ CAPTAIN'S LOG ENHANCED ═══ */
+      
+      
+      
+
+      /* ═══ TRANSITION WARP ENHANCED ═══ */
+      
+      @keyframes warpTunnel {
+        0% { transform: scale(0); opacity: 0; border-width: 3px; }
+        50% { opacity: 0.8; }
+        100% { transform: scale(20); opacity: 0; border-width: 0.5px; }
+      }
+      @keyframes transitionText {
+        0% { opacity: 0; transform: translateY(10px); letter-spacing: 0; }
+        30% { opacity: 1; transform: translateY(0); letter-spacing: 4px; }
+        80% { opacity: 1; }
+        100% { opacity: 0; letter-spacing: 8px; }
+      }
+
+      /* ═══ ENHANCED MICRO-INTERACTIONS ═══ */
+      @keyframes ripple {
+        0% { transform: scale(0); opacity: 0.5; }
+        100% { transform: scale(4); opacity: 0; }
+      }
+      @keyframes successPulse {
+        0% { box-shadow: 0 0 0 0 rgba(52,211,153,.4); }
+        70% { box-shadow: 0 0 0 15px rgba(52,211,153,0); }
+        100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+      }
+      
+      @keyframes numberCountUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      
+
+      /* ═══ RARITY BORDERS ═══ */
+      .rarity-common { border: 2px solid rgba(148,163,184,.3); }
+      .rarity-rare { border: 2px solid rgba(59,130,246,.5); animation: cosmicGlow 3s ease infinite; --glow-color: rgba(59,130,246,.3); }
+      .rarity-epic { border: 2px solid rgba(168,85,247,.5); animation: cosmicGlow 2.5s ease infinite; --glow-color: rgba(168,85,247,.4); }
+      .rarity-legendary { border: 2px solid rgba(251,191,36,.5); animation: cosmicGlow 2s ease infinite, rarityShimmer 3s linear infinite; --glow-color: rgba(251,191,36,.4); background-size: 200% auto; }
+
+      /* ═══ CREW DIALOGUE SYSTEM ═══ */
+      @keyframes crewDialogueSlide {
+        0% { opacity: 0; transform: translateX(-12px) scale(0.95); }
+        100% { opacity: 1; transform: translateX(0) scale(1); }
+      }
+      @keyframes crewDialogueFade {
+        0% { opacity: 1; transform: translateY(0); }
+        70% { opacity: 1; }
+        100% { opacity: 0; transform: translateY(-8px); }
+      }
+      .crew-dialogue {
+        animation: crewDialogueSlide .4s cubic-bezier(.16,1,.3,1) both;
+      }
+      .crew-dialogue-exit {
+        animation: crewDialogueFade .5s ease .3s both;
+      }
+
+      /* ═══ PLANET LORE ENTRIES ═══ */
+      @keyframes loreReveal {
+        0% { opacity: 0; transform: translateY(8px); max-height: 0; }
+        100% { opacity: 1; transform: translateY(0); max-height: 120px; }
+      }
+      @keyframes loreGlow {
+        0%, 100% { border-color: rgba(167,139,250,.12); }
+        50% { border-color: rgba(167,139,250,.3); }
+      }
+
+      /* ═══ MATH INSIGHT TOAST ═══ */
+      @keyframes insightToast {
+        0% { opacity: 0; transform: translateY(6px) scale(0.96); }
+        15% { opacity: 1; transform: translateY(0) scale(1); }
+        85% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
+      }
+
+      /* ═══ DAILY MOTIVATION BANNER ═══ */
+      @keyframes motivationPulse {
+        0%, 100% { opacity: .85; }
+        50% { opacity: 1; }
+      }
+      @keyframes motivationSlide {
+        0% { opacity: 0; transform: translateY(-8px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ═══ ENHANCED STAR ANIMATIONS ═══ */
+      
+      
+      
+
+      /* ═══ STREAK CELEBRATION ═══ */
+      
+      @keyframes streakRing {
+        0% { transform: scale(0.3); opacity: .8; border-width: 3px; }
+        100% { transform: scale(2); opacity: 0; border-width: 1px; }
+      }
+
+      /* ═══ ENHANCED STARFIELD ═══ */
+      .space-bg::after {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+          radial-gradient(1px 1px at 5% 15%, rgba(255,255,255,.6) 0%, transparent 100%),
+          radial-gradient(1px 1px at 12% 42%, rgba(255,255,255,.35) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 18% 78%, rgba(167,139,250,.5) 0%, transparent 100%),
+          radial-gradient(1px 1px at 25% 5%, rgba(255,255,255,.4) 0%, transparent 100%),
+          radial-gradient(0.5px 0.5px at 32% 35%, rgba(255,255,255,.6) 0%, transparent 100%),
+          radial-gradient(1px 1px at 38% 88%, rgba(255,255,255,.3) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 45% 22%, rgba(251,191,36,.3) 0%, transparent 100%),
+          radial-gradient(1px 1px at 52% 55%, rgba(255,255,255,.5) 0%, transparent 100%),
+          radial-gradient(0.5px 0.5px at 58% 72%, rgba(255,255,255,.45) 0%, transparent 100%),
+          radial-gradient(1px 1px at 65% 8%, rgba(255,255,255,.35) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 72% 45%, rgba(99,102,241,.35) 0%, transparent 100%),
+          radial-gradient(1px 1px at 78% 82%, rgba(255,255,255,.4) 0%, transparent 100%),
+          radial-gradient(0.5px 0.5px at 85% 18%, rgba(255,255,255,.55) 0%, transparent 100%),
+          radial-gradient(1px 1px at 92% 58%, rgba(255,255,255,.3) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 95% 92%, rgba(236,72,153,.25) 0%, transparent 100%);
+        animation: starfieldDrift 120s linear infinite;
+        pointer-events: none; z-index: 0;
+      }
+      @keyframes starfieldDrift {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-20px); }
+      }
+      /* Ambient nebula glow behind content */
+      .space-bg::before {
+        content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+        background:
+          radial-gradient(ellipse 60% 40% at 20% 80%, rgba(99,102,241,.06) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 50% at 80% 20%, rgba(139,92,246,.05) 0%, transparent 70%),
+          radial-gradient(ellipse 40% 30% at 50% 50%, rgba(236,72,153,.03) 0%, transparent 70%);
+        animation: nebulaShift 60s ease-in-out infinite alternate;
+      }
+      @keyframes nebulaShift {
+        0% { opacity: .5; }
+        50% { opacity: .8; }
+        100% { opacity: .6; }
+      }
+
+      /* ═══ NARRATIVE SCROLL ═══ */
+      
+      
+      
+
+      /* ═══ LOGIN CARD ═══ */
+      
+      
+
+      /* ═══ ROCKET TRAIL ENHANCED ═══ */
+      
+
+      /* ═══ STORY SCENE FLOAT ═══ */
+      @keyframes storyFloat {
+        0%, 100% { transform: translateY(0) rotate(-2deg); }
+        50% { transform: translateY(-6px) rotate(2deg); }
+      }
+
+      /* ═══ BADGE UNLOCK ═══ */
+      
+
+      /* ═══ HYPERSPACE PAGE TRANSITION ═══ */
+      .page-hyperspace {
+        animation: hyperspaceEntry .7s cubic-bezier(.16,1,.3,1) both;
+      }
+      @keyframes hyperspaceEntry {
+        0% { transform: scale(0.9); opacity: 0; filter: blur(4px) brightness(1.3); }
+        40% { filter: blur(0) brightness(1.1); }
+        100% { transform: scale(1); opacity: 1; filter: none; }
+      }
+      .page-fade { animation: fadeIn .3s ease both; }
+
+      /* ═══ LOGIN STREAK CELEBRATION ═══ */
+      @keyframes streakBannerSlide {
+        0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+        30% { opacity: 1; transform: translateY(4px) scale(1.02); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes streakNumberPop {
+        0% { transform: scale(0) rotate(-15deg); }
+        50% { transform: scale(1.3) rotate(5deg); }
+        70% { transform: scale(0.9) rotate(-2deg); }
+        100% { transform: scale(1) rotate(0deg); }
+      }
+      
+
+      /* ═══ MATH INSIGHT HIGHLIGHT ═══ */
+      
+      @keyframes insightIconPulse {
+        0%, 100% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.1); filter: brightness(1.2); }
+      }
+
+      /* ═══ ENHANCED OPTION BUTTON FEEDBACK ═══ */
+      .option-btn {
+        transition: all .2s cubic-bezier(.4,0,.2,1);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .option-btn:active:not(:disabled) {
+        transform: scale(0.95);
+      }
+      .option-btn.correct-flash {
+        animation: correctOptionFlash .5s ease both;
+      }
+      .option-btn.wrong-flash {
+        animation: wrongOptionFlash .5s ease both;
+      }
+      @keyframes correctOptionFlash {
+        0% { background: rgba(52,211,153,.2); }
+        40% { background: rgba(52,211,153,.4); box-shadow: 0 0 20px rgba(52,211,153,.3); }
+        100% { background: rgba(52,211,153,.15); }
+      }
+      @keyframes wrongOptionFlash {
+        0% { background: rgba(248,113,113,.15); }
+        25% { transform: translateX(-3px); }
+        50% { transform: translateX(3px); background: rgba(248,113,113,.3); }
+        75% { transform: translateX(-2px); }
+        100% { transform: translateX(0); background: rgba(248,113,113,.1); }
+      }
+
+      /* ═══ LEVEL UP CELEBRATION RAYS ═══ */
+      
+      
+
+      /* ═══ CAPTAIN LOG GLOW ═══ */
+      
+
+      /* ═══ CREW DIALOGUE ENTRANCE ═══ */
+      
+
+      /* ═══ NEBULA GLOW ELEMENT ═══ */
+      .nebula-glow {
+        position: absolute; border-radius: 50%;
+        filter: blur(60px); pointer-events: none; z-index: 0;
+      }
+
+      /* ═══ CSS PLANETS — 3D-rendered procedural planets ═══ */
+      .css-planet {
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+      .css-planet::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 25%, transparent 55%);
+        z-index: 2;
+      }
+      .css-planet::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 45%;
+        border-radius: 0 0 50% 50%;
+        background: linear-gradient(to top, rgba(0,0,0,.35), transparent);
+        z-index: 1;
+      }
+      .planet-ring {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%) rotateX(65deg);
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,.15);
+        pointer-events: none;
+        z-index: 3;
+      }
+      .planet-surface-lines {
+        position: absolute; inset: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .planet-surface-lines::before {
+        content: '';
+        position: absolute;
+        top: 20%; left: -10%;
+        width: 120%; height: 15%;
+        background: rgba(255,255,255,.06);
+        border-radius: 50%;
+        transform: rotate(-8deg);
+      }
+      .planet-surface-lines::after {
+        content: '';
+        position: absolute;
+        top: 55%; left: -5%;
+        width: 110%; height: 12%;
+        background: rgba(255,255,255,.04);
+        border-radius: 50%;
+        transform: rotate(-5deg);
+      }
+
+      /* ═══ ENHANCED ANSWER OPTION BUTTONS ═══ */
+      .answer-option {
+        transition: all .2s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+      }
+      .answer-option::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 0; height: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,.1);
+        transform: translate(-50%, -50%);
+        transition: width .4s ease, height .4s ease;
+      }
+      .answer-option:hover::before {
+        width: 200%; height: 200%;
+      }
+      .answer-option:hover:not(:disabled) {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 8px 28px rgba(0,0,0,.2) !important;
+      }
+      .answer-option:active:not(:disabled) {
+        transform: translateY(0) scale(0.97);
+      }
+
+      /* ═══ GLASS CARD ═══ */
+      .glass-card {
+        background: rgba(255,255,255,.06);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 20px;
+      }
+
+      /* ═══ ENHANCED PROGRESS BAR ═══ */
+      .progress-bar-glow {
+        position: relative;
+        overflow: hidden;
+      }
+      .progress-bar-glow::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+        animation: shimmer 2.5s ease-in-out infinite;
+      }
+
+      /* ═══ FLOATING PARTICLES ═══ */
+      @keyframes particleDrift {
+        0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+        10% { opacity: 0.6; }
+        90% { opacity: 0.2; }
+        100% { transform: translate(var(--dx, 30px), var(--dy, -80px)) rotate(180deg); opacity: 0; }
+      }
+
+      /* ═══ GALAXY MAP CONNECTOR BEAMS ═══ */
+      @keyframes beamPulse {
+        0%, 100% { opacity: 0.3; stroke-width: 1; }
+        50% { opacity: 0.8; stroke-width: 2; }
+      }
+      
+
+      /* ═══ ANSWER CORRECT CELEBRATION ═══ */
+      @keyframes correctBurst {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52,211,153,.5); }
+        40% { transform: scale(1.06); box-shadow: 0 0 0 12px rgba(52,211,153,.15); }
+        100% { transform: scale(1); box-shadow: 0 0 0 20px rgba(52,211,153,0); }
+      }
+      
+
+      /* ═══ JOURNEY MAP PLANET ORBIT RINGS ═══ */
+      
+      .orbit-ring {
+        border-radius: 50%;
+        position: absolute;
+        border: 1px dashed rgba(255,255,255,.08);
+        pointer-events: none;
+      }
+
+      /* ═══ MISSION BANNER ENHANCED ═══ */
+      
+      @keyframes scanlineMove {
+        0% { top: -10%; }
+        100% { top: 110%; }
+      }
+      .log-panel {
+        position: relative;
+        overflow: hidden;
+      }
+      .log-panel::before {
+        content: '';
+        position: absolute;
+        left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251,191,36,.15), transparent);
+        animation: scanlineMove 4s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      /* ═══ HOLOGRAPHIC TEXT EFFECT ═══ */
+      .holo-text {
+        background: linear-gradient(90deg, #a78bfa, #38bdf8, #34d399, #fbbf24, #f472b6, #a78bfa);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: holoShift 4s linear infinite;
+      }
+      @keyframes holoShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 300% 50%; }
+      }
+
+      /* ═══ AURORA BACKGROUND EFFECT ═══ */
+      .aurora-bg::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background:
+          radial-gradient(ellipse 40% 30% at 25% 70%, rgba(99,102,241,.08) 0%, transparent 60%),
+          radial-gradient(ellipse 35% 25% at 75% 30%, rgba(139,92,246,.06) 0%, transparent 60%),
+          radial-gradient(ellipse 45% 35% at 50% 50%, rgba(52,211,153,.04) 0%, transparent 60%);
+        animation: auroraWave 20s ease-in-out infinite alternate;
+        pointer-events: none; z-index: 0;
+      }
+      @keyframes auroraWave {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(2%, -3%) rotate(2deg); }
+        66% { transform: translate(-1%, 2%) rotate(-1deg); }
+        100% { transform: translate(1%, -1%) rotate(1deg); }
+      }
+
+      /* ═══ GALAXY SWIRL ACCENT ═══ */
+      @keyframes galaxySwirl {
+        0% { transform: rotate(0deg) scale(1); opacity: .15; }
+        50% { transform: rotate(180deg) scale(1.1); opacity: .25; }
+        100% { transform: rotate(360deg) scale(1); opacity: .15; }
+      }
+      .galaxy-swirl {
+        position: absolute;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, transparent, rgba(139,92,246,.15), transparent, rgba(99,102,241,.1), transparent);
+        filter: blur(30px);
+        pointer-events: none;
+        animation: galaxySwirl 30s linear infinite;
+      }
+
+      /* ═══ COMET TRAIL EFFECT ═══ */
+      @keyframes cometTrail {
+        0% { transform: translateX(-100vw) translateY(30vh) rotate(-35deg); opacity: 0; }
+        5% { opacity: 1; }
+        30% { opacity: .7; }
+        100% { transform: translateX(120vw) translateY(-40vh) rotate(-35deg); opacity: 0; }
+      }
+
+      /* ═══ ENERGY PULSE RING ═══ */
+      
+
+      /* ═══ MAGNETIC FLOAT — for interactive elements ═══ */
+      @keyframes magneticFloat {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        20% { transform: translateY(-5px) rotate(0.5deg); }
+        40% { transform: translateY(-3px) rotate(-0.3deg); }
+        60% { transform: translateY(-7px) rotate(0.2deg); }
+        80% { transform: translateY(-4px) rotate(-0.4deg); }
+      }
+
+      /* ═══ NUMBER MORPH — for counting transitions ═══ */
+      @keyframes numberMorph {
+        0% { transform: scale(1) translateY(0); opacity: 1; }
+        30% { transform: scale(1.3) translateY(-4px); opacity: .7; }
+        60% { transform: scale(0.8) translateY(2px); opacity: .5; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+      }
+
+      /* ═══ VICTORY SUPERNOVA ═══ */
+      @keyframes supernovaExpand {
+        0% { transform: scale(0); opacity: 1; filter: brightness(3); }
+        30% { filter: brightness(2); }
+        100% { transform: scale(6); opacity: 0; filter: brightness(1); }
+      }
+      @keyframes supernovaCore {
+        0% { transform: scale(0) rotate(0deg); }
+        50% { transform: scale(1.5) rotate(180deg); filter: brightness(2); }
+        100% { transform: scale(1) rotate(360deg); filter: brightness(1); }
+      }
+
+      /* ═══ WARP SPEED LINES ═══ */
+      @keyframes warpSpeedLine {
+        0% { transform: scaleX(0) translateX(0); opacity: 0; }
+        10% { opacity: 1; }
+        100% { transform: scaleX(8) translateX(100px); opacity: 0; }
+      }
+
+      /* ═══ TYPEWRITER CURSOR VARIANTS ═══ */
+      
+
+      /* ═══ SMOOTH SCORE INCREMENT ═══ */
+      @keyframes scoreIncrement {
+        0% { transform: translateY(0) scale(1); color: inherit; }
+        30% { transform: translateY(-6px) scale(1.3); color: #fbbf24; }
+        60% { transform: translateY(-3px) scale(1.1); }
+        100% { transform: translateY(0) scale(1); color: inherit; }
+      }
+
+      /* ═══ PLANET DISCOVERY REVEAL ═══ */
+      @keyframes planetDiscovery {
+        0% { transform: scale(0) rotate(-90deg); opacity: 0; filter: blur(10px) brightness(3); }
+        40% { transform: scale(1.2) rotate(10deg); filter: blur(0) brightness(1.5); }
+        60% { transform: scale(0.9) rotate(-5deg); filter: brightness(1.2); }
+        80% { transform: scale(1.05) rotate(2deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+      }
+
+      /* ═══ CREW MEMBER JOIN ═══ */
+      @keyframes crewJoin {
+        0% { transform: translateX(50px) scale(0); opacity: 0; }
+        40% { transform: translateX(-5px) scale(1.1); opacity: 1; }
+        60% { transform: translateX(3px) scale(0.95); }
+        100% { transform: translateX(0) scale(1); }
+      }
+
+      /* ═══ MATH SYMBOL DANCE ═══ */
+      
+
+      /* ═══ ENHANCED CHIP GLOW — for math manipulatives ═══ */
+      @keyframes chipGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px var(--chip-color, rgba(59,130,246,.3))); }
+        50% { filter: drop-shadow(0 0 8px var(--chip-color, rgba(59,130,246,.6))) drop-shadow(0 0 16px var(--chip-color, rgba(59,130,246,.2))); }
+      }
+
+      /* ═══ QUEST COMPLETION FIREWORKS ═══ */
+      @keyframes questFirework {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        50% { transform: translateY(-60px) scale(0.5); opacity: .8; }
+        51% { transform: translateY(-60px) scale(1.5); opacity: 1; }
+        100% { transform: translateY(-60px) scale(2); opacity: 0; }
+      }
+
+      /* ═══ LOADING DOTS ═══ */
+      @keyframes loadingDot {
+        0%, 100% { transform: translateY(0); opacity: .4; }
+        50% { transform: translateY(-6px); opacity: 1; }
+      }
+      .loading-dots span:nth-child(1) { animation: loadingDot .8s ease infinite; }
+      .loading-dots span:nth-child(2) { animation: loadingDot .8s ease .15s infinite; }
+      .loading-dots span:nth-child(3) { animation: loadingDot .8s ease .3s infinite; }
+
+      /* ═══ ENHANCED TOOLTIP ═══ */
+      .space-tooltip {
+        position: relative;
+      }
+      .space-tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        background: rgba(15,23,42,.95);
+        color: #e2e8f0;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .2s, transform .2s;
+        border: 1px solid rgba(139,92,246,.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,.3);
+        z-index: 1000;
+      }
+      .space-tooltip:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ═══ ACCESSIBILITY ═══ */
+      .a11y-large * { font-size: 110% !important; }
+      .a11y-contrast .page { filter: contrast(1.3); }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      }
+
+      /* ═══ ENHANCED LOGIN CINEMATIC ═══ */
+      @keyframes loginCardAppear {
+        0% { opacity: 0; transform: translateY(40px) scale(0.92); }
+        60% { transform: translateY(-4px) scale(1.01); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      
+      
+      
+      @keyframes inputFocusGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        50% { box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+      }
+
+      /* ═══ ENHANCED AGE SELECT PLANET CARDS ═══ */
+      
+      @keyframes planetIconSpin {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.1); }
+        100% { transform: rotate(360deg) scale(1); }
+      }
+      @keyframes stopsCounter {
+        0% { opacity: 0; transform: scale(0); }
+        60% { transform: scale(1.2); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+
+      /* ═══ ENHANCED GAME FEEDBACK ═══ */
+      
+      @keyframes correctStarBurst {
+        0% { transform: scale(0) rotate(0deg); opacity: 1; }
+        50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+        100% { transform: scale(2) rotate(360deg); opacity: 0; }
+      }
+      
+
+      /* ═══ ENHANCED JOURNEY MAP ═══ */
+      @keyframes planetPulseRing {
+        0% { transform: translate(-50%,-50%) scale(0.8); opacity: 0.6; }
+        100% { transform: translate(-50%,-50%) scale(1.8); opacity: 0; }
+      }
+      @keyframes connectorBeam {
+        0% { stroke-dashoffset: 20; opacity: 0.3; }
+        50% { opacity: 0.8; }
+        100% { stroke-dashoffset: 0; opacity: 0.3; }
+      }
+
+      /* ═══ ENHANCED BUTTON INTERACTIONS ═══ */
+      .login-input:focus {
+        border-color: rgba(99,102,241,.5) !important;
+        box-shadow: 0 0 0 3px rgba(99,102,241,.12), 0 4px 16px rgba(0,0,0,.15) !important;
+        background: rgba(30,27,75,.7) !important;
+      }
+      .login-input::placeholder { color: rgba(148,163,184,.5); }
+      .age-card:hover {
+        transform: translateY(-3px) scale(1.02) !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,.3), 0 0 20px var(--card-glow, rgba(99,102,241,.2)) !important;
+      }
+      .age-card:active {
+        transform: translateY(0) scale(0.98) !important;
+      }
+      .menu-action-btn:hover {
+        transform: translateY(-2px) !important;
+        background: rgba(255,255,255,.14) !important;
+        border-color: rgba(255,255,255,.25) !important;
+      }
+
+      /* ═══ ENHANCED STREAK FIRE EFFECT ═══ */
+      
+      @keyframes streakCounter {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3) rotate(5deg); }
+        100% { transform: scale(1) rotate(0); }
+      }
+
+      /* ═══ STAR RATING REVEAL ═══ */
+      
+      
+
+      /* ═══ LEVEL UP CELEBRATION ═══ */
+      
+      
+
+      /* ═══ MATH INSIGHT GLOW ═══ */
+      
+
+      /* ═══ NARRATIVE SCROLL EFFECT ═══ */
+      
+      
+
+      /* ═══ CORRECT ANSWER PARTICLE RING ═══ */
+      
+
+      /* ═══ MISSION COMPLETE SEQUENCE ═══ */
+      @keyframes missionComplete {
+        0% { transform: scale(0.5); opacity: 0; filter: brightness(2) blur(4px); }
+        30% { transform: scale(1.15); filter: brightness(1.5) blur(0); }
+        50% { transform: scale(0.95); opacity: 1; }
+        70% { transform: scale(1.05); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+
+      /* ═══ INTERACTIVE HOVER GLOW ═══ */
+      .mode-card-hover {
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+      }
+      .mode-card-hover:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(0,0,0,.3), 0 0 20px var(--card-glow, rgba(124,58,237,.15));
+      }
+      .mode-card-hover:active {
+        transform: translateY(-1px) scale(0.98);
+      }
+
+      /* ═══ STAT COUNTER ANIMATION ═══ */
+      @keyframes statPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); color: #fbbf24; }
+        100% { transform: scale(1); }
+      }
+
+      /* ═══ GUIDE CELEBRATION ═══ */
+      
+
+      /* ═══ PROGRESS BAR FILL ═══ */
+      
+
+      /* ═══ BADGE UNLOCK FANFARE ═══ */
+      
+
+      /* ═══ HYPERSPACE JUMP TRANSITION ═══ */
+      .page-hyperspace {
+        animation: hyperspaceJump .7s cubic-bezier(.16,1,.3,1) both;
+      }
+      @keyframes hyperspaceJump {
+        0% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0) brightness(1); }
+        15% { transform: scale(1.02) translateY(0); filter: blur(0) brightness(1.3); }
+        35% { transform: scale(.7) translateY(0); opacity: .8; filter: blur(8px) brightness(2); }
+        55% { transform: scale(1.15) translateY(-8px); opacity: 0; filter: blur(12px) brightness(3); }
+        56% { transform: scale(.85) translateY(15px); opacity: 0; filter: blur(6px) brightness(1.5); }
+        100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0) brightness(1); }
+      }
+
+      /* ═══ XP FLOAT UP ═══ */
+      
+
+      /* ═══ QUESTION CARD ENTRANCE ═══ */
+      
+
+      /* ═══ STAT COUNTER TICK ═══ */
+      
+
+      /* ═══ MISSION HEADER GLOW ═══ */
+      
+
+      /* ═══ ANSWER OPTION STAGGER ═══ */
+      @keyframes optionReveal {
+        0% { transform: translateY(12px) scale(.95); opacity: 0; }
+        100% { transform: translateY(0) scale(1); opacity: 1; }
+      }
+
+      /* ═══ v5.10: CONSTELLATION PROGRESS — connected star map ═══ */
+      @keyframes constellationDraw {
+        from { stroke-dashoffset: 100; opacity: 0; }
+        to { stroke-dashoffset: 0; opacity: 1; }
+      }
+      @keyframes constellationStar {
+        0% { r: 0; opacity: 0; filter: brightness(3); }
+        40% { r: 5; opacity: 1; filter: brightness(2); }
+        100% { r: 3.5; opacity: 1; filter: brightness(1); }
+      }
+      @keyframes constellationPulse {
+        0%, 100% { r: 3.5; opacity: .8; }
+        50% { r: 4.5; opacity: 1; }
+      }
+
+      /* ═══ v5.10: NEBULA RIBBON — atmospheric depth layer ═══ */
+      @keyframes nebulaRibbon {
+        0% { transform: translateX(-5%) scaleY(1) rotate(-2deg); opacity: .06; }
+        33% { transform: translateX(2%) scaleY(1.15) rotate(0deg); opacity: .1; }
+        66% { transform: translateX(-3%) scaleY(0.9) rotate(1deg); opacity: .07; }
+        100% { transform: translateX(-5%) scaleY(1) rotate(-2deg); opacity: .06; }
+      }
+      .nebula-ribbon {
+        position: absolute; left: -10%; right: -10%;
+        height: 120px; border-radius: 50%;
+        pointer-events: none; z-index: 0;
+        filter: blur(40px);
+        animation: nebulaRibbon 25s ease-in-out infinite;
+      }
+
+      /* ═══ v5.10: CRYSTAL COLLECT — reward moment ═══ */
+      @keyframes crystalCollect {
+        0% { transform: scale(0) rotate(-90deg); opacity: 0; filter: brightness(3) saturate(2); }
+        25% { transform: scale(1.4) rotate(30deg); opacity: 1; filter: brightness(2) saturate(1.5); }
+        50% { transform: scale(0.85) rotate(-15deg); filter: brightness(1.3); }
+        75% { transform: scale(1.1) rotate(5deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1) saturate(1); }
+      }
+      @keyframes crystalShimmer {
+        0%, 100% { background-position: -200% center; filter: brightness(1); }
+        50% { background-position: 200% center; filter: brightness(1.15); }
+      }
+
+      /* ═══ v5.10: GRAVITATIONAL WAVE — subtle bg pulse ═══ */
+      @keyframes gravWave {
+        0% { transform: scale(1); opacity: .04; }
+        50% { transform: scale(1.3); opacity: .08; }
+        100% { transform: scale(1); opacity: .04; }
+      }
+
+      /* ═══ v5.10: WORMHOLE PORTAL — screen transition ═══ */
+      @keyframes wormholeOpen {
+        0% { transform: scale(0) rotate(0deg); opacity: 0; border-width: 4px; }
+        40% { opacity: 1; }
+        100% { transform: scale(15) rotate(720deg); opacity: 0; border-width: 0.5px; }
+      }
+
+      /* ═══ v5.10: MISSION STAMP — result screen ═══ */
+      @keyframes missionStamp {
+        0% { transform: scale(3) rotate(-30deg); opacity: 0; }
+        40% { transform: scale(0.9) rotate(5deg); opacity: 1; }
+        60% { transform: scale(1.1) rotate(-2deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      }
+
+      /* ═══ v5.10: HOLOGRAPHIC CARD REVEAL — enhanced card ═══ */
+      @keyframes holoCardReveal {
+        0% { transform: perspective(600px) rotateY(180deg) rotateX(10deg) scale(0.7); opacity: 0; }
+        30% { transform: perspective(600px) rotateY(90deg) rotateX(5deg) scale(0.9); opacity: .5; }
+        60% { transform: perspective(600px) rotateY(0deg) rotateX(-5deg) scale(1.05); opacity: 1; }
+        80% { transform: perspective(600px) rotateY(-5deg) rotateX(2deg) scale(1.02); }
+        100% { transform: perspective(600px) rotateY(0deg) rotateX(0deg) scale(1); opacity: 1; }
+      }
+      @keyframes holoRainbow {
+        0% { background-position: 0% 50%; filter: brightness(1); }
+        25% { filter: brightness(1.1); }
+        50% { background-position: 100% 50%; filter: brightness(1.2); }
+        75% { filter: brightness(1.1); }
+        100% { background-position: 0% 50%; filter: brightness(1); }
+      }
+
+      /* ═══ v5.10: STARDUST TRAIL — correct answer particles ═══ */
+      @keyframes stardustTrail {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        30% { opacity: .8; }
+        100% { transform: translate(var(--sdx, 40px), var(--sdy, -60px)) scale(0); opacity: 0; }
+      }
+
+      /* ═══ v5.10: MATH INSIGHT GLOW ENHANCED ═══ */
+      @keyframes insightReveal {
+        0% { opacity: 0; transform: translateY(8px) scale(0.95); max-height: 0; }
+        30% { opacity: 1; max-height: 100px; }
+        100% { transform: translateY(0) scale(1); max-height: 200px; }
+      }
+      .insight-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .insight-card::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
+        background: linear-gradient(90deg, transparent, rgba(167,139,250,.4), rgba(52,211,153,.3), transparent);
+      }
+
+      /* ═══ v5.10: MISSION COMPLETE BADGE ═══ */
+      @keyframes missionBadgeReveal {
+        0% { transform: scale(0) rotate(-180deg); opacity: 0; filter: brightness(3) drop-shadow(0 0 20px rgba(251,191,36,.8)); }
+        40% { transform: scale(1.3) rotate(15deg); opacity: 1; filter: brightness(1.5) drop-shadow(0 0 16px rgba(251,191,36,.5)); }
+        70% { transform: scale(0.9) rotate(-5deg); filter: brightness(1.1); }
+        100% { transform: scale(1) rotate(0deg); filter: brightness(1) drop-shadow(0 0 8px rgba(251,191,36,.3)); }
+      }
+
+      /* ═══ v5.10: ENERGY CHARGE BAR ═══ */
+      
+      .energy-bar {
+        height: 6px; border-radius: 3px;
+        background: linear-gradient(90deg, var(--charge-from, #6366f1), var(--charge-to, #a78bfa));
+        animation: energyCharge 1s cubic-bezier(.4,0,.2,1) forwards;
+        position: relative;
+      }
+      .energy-bar::after {
+        content: '';
+        position: absolute; top: 0; right: 0;
+        width: 12px; height: 100%;
+        border-radius: 0 3px 3px 0;
+        background: rgba(255,255,255,.4);
+        filter: blur(2px);
+        animation: pulse 1.5s ease infinite;
+      }
+
+      /* ═══ v5.10: SMOOTH NUMBER TRANSITION ═══ */
+      @keyframes numberSlotMachine {
+        0% { transform: translateY(100%); opacity: 0; }
+        60% { transform: translateY(-8%); opacity: 1; }
+        80% { transform: translateY(3%); }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+
+      /* ═══ v5.10: AGE CARD MAGNETIC HOVER ═══ */
+      .age-card {
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+      }
+      .age-card:hover {
+        transform: translateY(-4px) scale(1.025);
+        box-shadow: 0 16px 48px var(--card-glow, rgba(0,0,0,.3)), 0 0 24px var(--card-glow, rgba(124,58,237,.15));
+      }
+      .age-card:active {
+        transform: translateY(-1px) scale(0.98);
+      }
+      
+
+      /* ═══ v5.10: HOLOGRAPHIC FLICKER ═══ */
+      
+
+      /* ═══ v5.10: MISSION PULSE RING ═══ */
+      
+
+      /* ═══ v5.10: SUPERNOVA FLASH — perfect score ═══ */
+      
+
+      /* ═══ v5.10: PLANET ARRIVAL — briefing screen ═══ */
+      
+
+      /* ═══ v5.10: STAR RAIN ═══ */
+      
+
+      /* ═══ v5.10: COMPASS SPIN ═══ */
+      
+
+      /* ═══ v5.10: NEBULA PULSE ═══ */
+      
+
+      /* ═══ GalakSay Pro — Design System Animations ═══ */
+      @keyframes meteorShoot {
+        0%, 90%, 100% { opacity: 0; transform: translateX(0) translateY(0); }
+        2% { opacity: 1; }
+        8% { opacity: 0; transform: translateX(300px) translateY(150px); }
+      }
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+
+      /* ═══ ERİŞİLEBİLİRLİK — GALAKSAY PRO ═══ */
+
+      /* prefers-reduced-motion: Tüm dekoratif animasyonları durdur */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* Kullanıcı ayarı: azaltılmış hareket */
+      body.galaksay-reduced-motion *, body.galaksay-reduced-motion *::before, body.galaksay-reduced-motion *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.05ms !important;
+      }
+
+      /* Büyük metin modu — %130 ölçekleme */
+      body.galaksay-large-text {
+        font-size: 130% !important;
+      }
+      body.galaksay-large-text button,
+      body.galaksay-large-text input,
+      body.galaksay-large-text select {
+        min-height: calc(var(--galaksay-touch-scale, 1) * 48px);
+        font-size: inherit;
+      }
+
+      /* Yüksek kontrast modu */
+      body.galaksay-high-contrast {
+        --contrast-boost: 1.3;
+      }
+      body.galaksay-high-contrast * {
+        border-color: rgba(255,255,255,.25) !important;
+      }
+      body.galaksay-high-contrast button:focus-visible,
+      body.galaksay-high-contrast [role="switch"]:focus-visible,
+      body.galaksay-high-contrast a:focus-visible,
+      body.galaksay-high-contrast [tabindex]:focus-visible {
+        outline: 3px solid #FFD93D !important;
+        outline-offset: 2px !important;
+      }
+
+      /* Renk körlüğü modları — SVG filtre alternatifleri */
+      body.galaksay-colorblind-protanopia { filter: url('#colorblind-protanopia'); }
+      body.galaksay-colorblind-deuteranopia { filter: url('#colorblind-deuteranopia'); }
+      body.galaksay-colorblind-tritanopia { filter: url('#colorblind-tritanopia'); }
+
+      /* ═══ KAPSÜL ERİŞİLEBİLİRLİK DESENLERİ — Renk körlüğü desteği ═══ */
+      /* Bilgi sadece renkle iletilmez — her kapsül değerine farklı desen */
+      /* Aktifleştirme: body.galaksay-colorblind-* veya .capsule-patterns sınıfı */
+      body.galaksay-colorblind-protanopia .capsule-pattern,
+      body.galaksay-colorblind-deuteranopia .capsule-pattern,
+      body.galaksay-colorblind-tritanopia .capsule-pattern,
+      .capsule-patterns .capsule-pattern {
+        position: relative;
+        overflow: hidden;
+      }
+      .capsule-patterns .capsule-pattern::after,
+      body[class*="galaksay-colorblind"] .capsule-pattern::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0.35;
+        pointer-events: none;
+        border-radius: inherit;
+      }
+      /* 1=düz (beyaz — desen yok) */
+      /* 2=yatay çizgi (kırmızı) */
+      .capsule-pattern[data-value="2"]::after {
+        background: repeating-linear-gradient(0deg, transparent, transparent 3px, currentColor 3px, currentColor 4px);
+      }
+      /* 3=dikey çizgi (yeşil) */
+      .capsule-pattern[data-value="3"]::after {
+        background: repeating-linear-gradient(90deg, transparent, transparent 3px, currentColor 3px, currentColor 4px);
+      }
+      /* 4=noktalı (mor) */
+      .capsule-pattern[data-value="4"]::after {
+        background: radial-gradient(circle 1.5px, currentColor 100%, transparent 100%);
+        background-size: 6px 6px;
+      }
+      /* 5=çapraz çizgi (sarı) */
+      .capsule-pattern[data-value="5"]::after {
+        background: repeating-linear-gradient(45deg, transparent, transparent 3px, currentColor 3px, currentColor 4px);
+      }
+      /* 6=dama (koyu yeşil) */
+      .capsule-pattern[data-value="6"]::after {
+        background: repeating-conic-gradient(currentColor 0% 25%, transparent 0% 50%) 50% / 6px 6px;
+      }
+      /* 7=zikzak (siyah) */
+      .capsule-pattern[data-value="7"]::after {
+        background: repeating-linear-gradient(-45deg, transparent, transparent 3px, currentColor 3px, currentColor 4px);
+      }
+      /* 8=dalga (kahverengi) */
+      .capsule-pattern[data-value="8"]::after {
+        background: repeating-linear-gradient(0deg, transparent, transparent 2px, currentColor 2px, currentColor 3px, transparent 3px, transparent 6px);
+        transform: skewX(15deg);
+      }
+      /* 9=artı (mavi) */
+      .capsule-pattern[data-value="9"]::after {
+        background:
+          repeating-linear-gradient(0deg, transparent, transparent 4px, currentColor 4px, currentColor 5px),
+          repeating-linear-gradient(90deg, transparent, transparent 4px, currentColor 4px, currentColor 5px);
+        background-size: 8px 8px;
+      }
+      /* 10=yıldız/x-çizgi (turuncu) */
+      .capsule-pattern[data-value="10"]::after {
+        background:
+          repeating-linear-gradient(45deg, transparent, transparent 3px, currentColor 3px, currentColor 4px),
+          repeating-linear-gradient(-45deg, transparent, transparent 3px, currentColor 3px, currentColor 4px);
+      }
+
+      /* Focus görünürlüğü — klavye navigasyonu */
+      :focus-visible {
+        outline: 2px solid #6C63FF;
+        outline-offset: 2px;
+      }
+
+      /* Landscape uyarısı — telefonlarda (responsive denetim: 412-430px yükseklikli
+         Pixel/iPhone-Max yatayları 400 eşiğinden kaçıyordu → 500'e yükseltildi;
+         tabletler etkilenmez: yatay yükseklikleri ≥768px) */
+      @media (max-height: 500px) and (orientation: landscape) {
+        body::after {
+          content: 'Lütfen cihazınızı dikey çevirin';
+          position: fixed; inset: 0;
+          z-index: 999999;
+          background: #0B0E2D;
+          color: #A8B2D1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          font-weight: 700;
+          font-family: 'Nunito', system-ui, sans-serif;
+          text-align: center;
+          padding: 20px;
+        }
+      }
+
+      /* Safe area — TEK sahip .page'dir (GalakSay CSS'i). Buradaki body kopyası KALDIRILDI:
+         çentikli iPhone'larda inset iki kez uygulanıyordu (~2×47px üst + 2×34px alt ölü alan). */
+
+      /* ═══ A11Y — Disleksi-dostu font (Atkinson Hyperlegible) ═══ */
+      body.galaksay-dyslexic-font,
+      body.galaksay-dyslexic-font * {
+        font-family: 'Atkinson Hyperlegible', 'Nunito', system-ui, sans-serif !important;
+        letter-spacing: 0.04em;
+        word-spacing: 0.16em; /* BDA: sözcük-aralığı >= 3.5x harf-aralığı (okuma segmentasyonu) */
+      }
+      body.galaksay-dyslexic-font p,
+      body.galaksay-dyslexic-font li,
+      body.galaksay-dyslexic-font span {
+        line-height: 1.7 !important;
+      }
+
+      /* ═══ A11Y — Büyük metin modu (1.3× ölçek) ═══ */
+      body.galaksay-large-text {
+        font-size: calc(1rem * var(--galaksay-text-scale, 1.3));
+      }
+
+      /* ═══ A11Y — Klavye/anahtar erişimi: görünür odak halkası ═══
+         (denetim: odak stili yoktu — switch-access/klavye kullanıcısı nerede olduğunu göremiyordu) */
+      button:focus-visible,
+      [role="button"]:focus-visible,
+      [role="switch"]:focus-visible,
+      a:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #f59e0b !important;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      /* ═══ A11Y — Yüksek kontrast modu ═══ */
+      body.galaksay-high-contrast {
+        --hc-bg: #000;
+        --hc-fg: #fff;
+        --hc-accent: #ffd400;
+        --hc-border: #fff;
+      }
+      body.galaksay-high-contrast button,
+      body.galaksay-high-contrast [role="button"] {
+        outline: 2px solid var(--hc-border) !important;
+        outline-offset: 2px;
+      }
+      body.galaksay-high-contrast :focus-visible {
+        outline: 3px solid var(--hc-accent) !important;
+        outline-offset: 3px !important;
+      }
+
+      /* ═══ A11Y — Azaltılmış hareket: tüm dekoratif animasyonları durdur ═══ */
+      body.galaksay-reduced-motion *,
+      body.galaksay-reduced-motion *::before,
+      body.galaksay-reduced-motion *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      /* Sistem prefers-reduced-motion ile uyumlu */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* ═══ A11Y — Klavye odak görünürlüğü ═══ */
+      :focus-visible {
+        outline: 3px solid #6C63FF;
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+    </style>
+    <script type="module" crossorigin src="/oyna/assets/index-pKper_0i.js"></script>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Galaksay">
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- GalakSay Pro — 2026-03-19 — Renk körlüğü SVG filtreleri -->
+    <svg style="position:absolute;width:0;height:0" aria-hidden="true">
+      <defs>
+        <filter id="colorblind-protanopia">
+          <feColorMatrix type="matrix" values="0.567,0.433,0,0,0 0.558,0.442,0,0,0 0,0.242,0.758,0,0 0,0,0,1,0"/>
+        </filter>
+        <filter id="colorblind-deuteranopia">
+          <feColorMatrix type="matrix" values="0.625,0.375,0,0,0 0.7,0.3,0,0,0 0,0.3,0.7,0,0 0,0,0,1,0"/>
+        </filter>
+        <filter id="colorblind-tritanopia">
+          <feColorMatrix type="matrix" values="0.95,0.05,0,0,0 0,0.433,0.567,0,0 0,0.475,0.525,0,0 0,0,0,1,0"/>
+        </filter>
+      </defs>
+    </svg>
+    <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(function(){})})}</script>
+  </body>
+</html>

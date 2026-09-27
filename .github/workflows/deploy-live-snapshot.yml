@@ -1,0 +1,43 @@
+name: Canlı kopyayı yayınla (galaksay.com)
+
+# canli-surum/site klasörünü Cloudflare Pages'e yükler. Elle çalıştırılır.
+#   hedef = onizleme → https://onizleme.galaksay.pages.dev (üretimi etkilemez)
+#   hedef = main     → galaksay.com
+on:
+  workflow_dispatch:
+    inputs:
+      hedef:
+        description: "onizleme ya da main"
+        required: true
+        default: onizleme
+
+permissions:
+  contents: read
+
+env:
+  CF_ACCOUNT_ID: 0eec8b88e11ef882d9269249ad00e331
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kopya bütünlük denetimi
+        run: |
+          set -e
+          test -f canli-surum/site/index.html
+          test -f canli-surum/site/oyna/index.html
+          test -f canli-surum/site/_headers
+          grep -q "position: relative; transition" canli-surum/site/oyna/index.html
+          # oyna/index.html'deki her varlık klasörde olmalı
+          for f in $(grep -o '/oyna/assets/[^"]*' canli-surum/site/oyna/index.html); do test -f "canli-surum/site$f" || { echo "EKSİK: $f"; exit 1; }; done
+          find canli-surum/site -type f | wc -l
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
+          command: pages deploy canli-surum/site --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }} --branch ${{ inputs.hedef }} --commit-dirty=true

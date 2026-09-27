@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaksay — Erişilebilirlik Beyanı</title>
+<meta name="description" content="Galaksay erişilebilirlik beyanı: WCAG 2.1 AA hedefi, mevcut özellikler, bilinen eksikler ve geri bildirim kanalı.">
+<style>
+  :root{--ink:#1E1B4B;--sub:#4B5563;--brand:#7c3aed;--line:#E5E7EB;--bg:#FAF9FF;--ok:#059669;--warn:#B45309}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Nunito,system-ui,sans-serif}
+  main{max-width:820px;margin:0 auto;padding:32px 20px 60px}
+  h1{font-size:28px;margin:0 0 6px;text-wrap:balance}h2{font-size:20px;margin:36px 0 10px;color:var(--brand)}h3{font-size:16px;margin:18px 0 6px}
+  .meta{color:var(--sub);font-size:14px;margin-bottom:22px}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fff;margin:14px 0}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EDE9FE;color:#5B21B6;margin-right:6px}
+  .ok{background:#D1FAE5;color:#065F46}.warn{background:#FEF3C7;color:#92400E}
+  table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+  nav.top a{margin-right:14px;font-size:14px}a{color:var(--brand)}
+  .small{font-size:13px;color:var(--sub)}
+  ul.check li{list-style:none;margin:6px 0}ul.check li::before{content:"☐ ";color:var(--brand)}
+  .docs{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin:8px 0 18px}.docs a{padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;text-decoration:none}
+  @media print{nav,.docs{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<main>
+<a href="/">← Galaksay</a>
+<h1>Erişilebilirlik Beyanı</h1>
+<div class="meta">Sürüm 5.9.1 · 6 Eylül 2026 · Her Çocuk Matematik Öğrenebilir (HÇMÖ) ekosistemi</div>
+<div class="docs" aria-label="Belgeler"><a href="/kilavuz.html">Öğretmen Kılavuzu</a><a href="/kanit.html">Kanıt Temeli</a><a href="/gizlilik.html">Gizlilik ve Rıza</a><a href="/erisilebilirlik.html">Erişilebilirlik</a><a href="/kullanim-sartlari.html">Kullanım Şartları</a><a href="/lisanslar.html">Lisanslar</a><a href="/surum-notlari.html">Sürüm Notları</a></div>
+
+<div class="box"><span class="tag ok">Hedef: WCAG 2.1 AA</span> Galaksay, diskalkuli riski taşıyan ve matematikte zorlanan 5–9 yaş çocuklar için tasarlandığından erişilebilirlik ürün gereksinimidir. Bu beyan uygulama içi öz-değerlendirmeye dayanır; bağımsız denetim henüz yapılmamıştır.</div>
+<h2>Mevcut özellikler</h2>
+<table>
+<tr><th>Alan</th><th>Özellik</th></tr>
+<tr><td>Klavye / anahtar erişimi</td><td>Tüm etkileşimli hücreler ve düğmeler odaklanabilir; Enter/Space ile tetiklenir; görünür odak halkası (3 px amber). Switch-access ile oyun tahtaları oynanabilir.</td></tr>
+<tr><td>Ekran okuyucu</td><td>Kalıcı aria-live bölgesi: maskot mesajları, mola önerileri, dönütler duyurulur; sonuç ve dönüt kutuları role="status"; mola/nefes ekranları role="dialog".</td></tr>
+<tr><td>Okuma yükü</td><td>Ön-okur modu (tüm yönergeler ve şıklar sesli, üç dilde); rakam + sayı adı çifte kodlama; Atkinson Hyperlegible rakam fontu; disleksi dostu yazı seçeneği.</td></tr>
+<tr><td>Hareket ve duyusal yük</td><td>Azaltılmış hareket modu (animasyonlar kapanır); sakin mod (kutlama patlamaları kapanır); ses/müzik ayrı anahtarlar.</td></tr>
+<tr><td>Renk</td><td>Renk körlüğü desenleri (çizgi/nokta/çarpı ile renk kodlaması çifte kodlanır); tema token'larıyla kontrast denetimi; gündüz teması varsayılan.</td></tr>
+<tr><td>Dokunma hedefleri</td><td>Birincil düğmeler ≥44 px; şıklar geniş kart; çift dokunuş kilidi.</td></tr>
+<tr><td>Zaman baskısı</td><td>Oyun içinde zaman sınırı yoktur; zamanlı sondalar yalnız öğretmen tetikler ve kaygı bayrağında uyarır; akıcılık modu doğruluk oturmadan açılmaz.</td></tr>
+<tr><td>Dil</td><td>Türkçe, Kurmancî Kürtçe (FerMat terminolojisi), İngilizce.</td></tr>
+</table>
+<h2>Bilinen eksikler ve plan</h2>
+<ul>
+<li>Sözel problem "kelime dokunuşu" klavyesi ve sayı doğrusu yerleştirme için ok tuşu konumlama henüz yok (planlı).</li>
+<li>Bazı dekoratif emojiler ekran okuyucuda okunabilir; SVG ikon geçişi sürüyor.</li>
+<li>Grafiklerde (radar/trend) veri tablosu eşdeğeri sınırlıdır; DBI grafiğinde nokta başlıkları vardır.</li>
+<li>Bağımsız WCAG denetimi ve gerçek kullanıcı (ekran okuyucu) testleri doğrulama çalışmasıyla birlikte planlanmıştır.</li>
+</ul>
+<h2>Geri bildirim</h2>
+<p>Erişilebilirlik engeliyle karşılaşırsanız galaksay.com üzerinden bildirin; yanıt hedefi 10 iş günüdür.</p>
+
+<p class="small" style="margin-top:36px">© 2026 Galaksay · Prof. Dr. Yılmaz Mutlu · galaksay.com · Bu belge sürüm notlarıyla birlikte güncellenir.</p>
+</main>
+</body>
+</html>
