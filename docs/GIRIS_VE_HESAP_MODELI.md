@@ -63,3 +63,19 @@ Aşağıdakiler tarayıcıda uçtan uca denendi:
 - **Görünüm:** Kurmancî metinler ve tablette taşma olmaması.
 
 Önceki testler de yeniden geçti: kaptan akışı telefon, tablet ve masaüstünde, 20 öğrencili liste, günlük görev, Kurmancî ses ve yedekten geri yükleme.
+
+## 7. Ek: e-posta doğrulamalı yetişkin hesabı ve çocuk girişi kararı
+
+**Yetişkin hesabı.** Yetişkin girişi artık e-posta doğrulamalı bir hesaba bağlanabiliyor. Sağlayıcı Firebase Authentication'dır ve etkinleştirme adımları `docs/HESAP_KURULUMU.md` dosyasındadır. Model iki katmanlıdır:
+
+- **Hesap:** Yetişkini tanımlar ve cihazı bir kez kurar. E-posta doğrulaması zorunludur. Şifre en az 8 karakterdir ve e-postayla sıfırlanabilir.
+- **Cihaz şifresi:** Günlük kullanımda hızlı kilit olarak kalır. Tablet başında her seferinde e-posta ve uzun şifre yazmak gerekmez.
+
+**Çocuk girişi kaldırılmalı mı?** Hayır. Önerim, çocuk girişini korumak ama yetişkin hesabına bağlamaktır. Uygulamada yapılan budur. Gerekçeler:
+
+1. **Hedef yaş:** 5–10 yaş çocukların çoğu e-posta ya da şifre kullanamaz. Okuma güçlüğü ya da diskalkuli riski olan çocuk için bu yük daha da ağırdır.
+2. **Doz:** Etkililik haftada 3–4 gün düzenli oynamaya bağlıdır. Her oturumda bir yetişkinin giriş yapması gerekirse doz düşer.
+3. **Alan standardı:** Çocuklara yönelik yerleşik eğitim uygulamaları aynı modeli kullanır. Yetişkin hesabı cihazı ya da sınıfı kurar, çocuk resmine ya da sınıf koduna dokunarak girer.
+4. **Güvenlik ve KVKK:** Yetişkin doğrulanmış kimlikle kurulum yapar ve aydınlatma metnini onaylar. Çocuğa ait hiçbir kimlik bilgisi toplanmaz.
+
+**Uygulanan kural.** Hesap sistemi etkinken yeni kaptanı yalnız doğrulanmış bir yetişkin oluşturabilir, yetişkin paneli de hesap ister. Var olan kaptanlar ve oyun oynamak hesap gerektirmez.

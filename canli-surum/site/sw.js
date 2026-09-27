@@ -4,7 +4,7 @@
      diğer aynı-köken GET'lerde stale-while-revalidate.
    - Uygulama varlıkları hash'li olduğu için cache büyümesi kontrollüdür;
      yeni sürümde VERSION bump'la → eski cache temizlenir. */
-const VERSION = 'galaksay-v5.15.0-20260927-giris';
+const VERSION = 'galaksay-v5.16.0-20260927-hesap';
 
 // İlk yüklemede çevrimdışı çalışması için önbelleğe alınan çekirdek kabuk.
 const CORE = [

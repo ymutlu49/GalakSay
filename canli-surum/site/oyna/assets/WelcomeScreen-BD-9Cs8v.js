@@ -87,14 +87,14 @@ const line = (text) => h('span', { style: { display: 'block', fontSize: 13, font
 function setAdultRole(role) { try { localStorage.setItem('galaksay_adult_role', role); } catch { /* depolama kapalı */ } }
 function takeLockedNote() { try { const v = sessionStorage.getItem('gs_locked'); sessionStorage.removeItem('gs_locked'); return v === '1'; } catch { return false; } }
 
-function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult }) {
+function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdultRole, account, onSignOut }) {
   const [locked] = React.useState(takeLockedNote);
   const last = kids[0] || null;
   const resume = last ? getResumeInfo(last.ns) : null;
   const plan = last ? todayPlan(last.ns) : null;
   const langs = { tr: 'TR · Türkçe', ku: 'KU · Kurmancî', en: 'EN · English' };
   const lp = resume && resume.lastPlayed;
-  const adultTile = (testid, role, icon, title, desc) => hs('button', { type: 'button', className: 'gs-tap', 'data-testid': testid, onClick: () => { setAdultRole(role); onAdult(); }, style: { ...card, display: 'flex', alignItems: 'flex-start', gap: 12, textAlign: 'left', padding: '14px 14px', borderRadius: 16, cursor: 'pointer', fontFamily: F, minHeight: 84 }, children: [
+  const adultTile = (testid, role, icon, title, desc) => hs('button', { type: 'button', className: 'gs-tap', 'data-testid': testid, onClick: () => onAdultRole(role), style: { ...card, display: 'flex', alignItems: 'flex-start', gap: 12, textAlign: 'left', padding: '14px 14px', borderRadius: 16, cursor: 'pointer', fontFamily: F, minHeight: 84 }, children: [
     h('span', { 'aria-hidden': 'true', style: { fontSize: 28, lineHeight: 1, flexShrink: 0 }, children: icon }),
     hs('span', { style: { minWidth: 0 }, children: [
       h('span', { style: { display: 'block', fontSize: 15.5, fontWeight: 900, color: C.text.primary }, children: title }),
@@ -102,7 +102,9 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult }) {
     ] }),
   ] });
   const steps = [
-    ['🧑‍🚀', tt('Kaptanını oluştur', 'Kaptanê xwe çêke', 'Create your captain'), tt('Resim, ad ve yaş — 30 saniye', 'Wêne, nav û temen — 30 çirke', 'Picture, name and age — 30 seconds')],
+    hesap() && !(account && account.verified)
+      ? ['🔐', tt('Bir yetişkin cihazı kurar', 'Mezinek cîhazê saz dike', 'An adult sets up the device'), tt('E-posta doğrulamalı hesap — bir kez', 'Hesabê bi e-nameya piştrastkirî — carekê', 'E-mail-verified account — once')]
+      : ['🧑‍🚀', tt('Kaptanını oluştur', 'Kaptanê xwe çêke', 'Create your captain'), tt('Resim, ad ve yaş — 30 saniye', 'Wêne, nav û temen — 30 çirke', 'Picture, name and age — 30 seconds')],
     ['⭐', tt('Her gün kısa bir görev', 'Her roj erkeke kurt', 'A short mission every day'), tt('10–15 dakika, haftada 3–4 gün', '10–15 xulek, heftê 3–4 roj', '10–15 minutes, 3–4 days a week')],
     ['🪐', tt('Gezegenleri keşfet', 'Gerstêrkan keşf bike', 'Explore the planets'), tt('Saymadan çarpmaya adım adım', 'Ji jimartinê heta lêkdanê gav bi gav', 'Step by step from counting to multiplying')],
   ];
@@ -148,7 +150,7 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult }) {
               hs('span', { children: [h('span', { style: { display: 'block', fontSize: 15, fontWeight: 900, color: C.text.primary }, children: `${i + 1}. ${t1}` }), h('span', { style: { display: 'block', fontSize: 12.5, fontWeight: 600, color: C.text.secondary }, children: t2 })] }),
             ] })) }),
             h('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-start', onClick: onNew, style: { width: '100%', minHeight: 64, borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: F, fontSize: 22, fontWeight: 900, color: '#fff', background: C.gradient.accent }, children: '🚀 ' + tt('Yolculuğa Başla', 'Dest bi Rêwîtiyê Bike', 'Start the Journey') }),
-            h('p', { style: { margin: '10px 0 0', textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.text.secondary }, children: tt('Hesap gerekmez · ilerleme bu cihazda saklanır', 'Hesab ne pêwîst e · pêşveçûn li vê cîhazê dimîne', 'No account needed · progress stays on this device') }),
+            h('p', { style: { margin: '10px 0 0', textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.text.secondary }, children: hesap() && !(account && account.verified) ? tt('Çocuklar hesap kullanmaz; kurulumu bir yetişkin bir kez yapar', 'Zarok hesab bikar naynin; sazkirinê mezinek carekê dike', 'Children do not use accounts; an adult sets up once') : tt('Çocuklar için hesap gerekmez · ilerleme bu cihazda saklanır', 'Ji bo zarokan hesab ne pêwîst e · pêşveçûn li vê cîhazê dimîne', 'No account needed for children · progress stays on this device') }),
           ] }),
       ] }),
 
@@ -159,7 +161,15 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult }) {
           adultTile('title-adult', 'ogretmen', '👩‍🏫', tt('Öğretmen · Uzman', 'Mamoste · Pispor', 'Teacher · Specialist'), tt('Sınıf paneli, gelişim raporları, BEP taslağı ve araştırma verisi', 'Panela polê, raporên pêşveçûnê, pêşnûmeya BEP û daneyên lêkolînê', 'Class panel, progress reports, IEP draft and research data')),
           adultTile('title-parent', 'ebeveyn', '👪', tt('Ebeveyn', 'Dê û bav', 'Parent'), tt('Çocuğunuzun gelişimi, haftalık öneriler, ayarlar ve yedekleme', 'Pêşveçûna zarokê we, pêşniyarên heftane, mîheng û paşek', "Your child's progress, weekly tips, settings and backup")),
         ] }),
-        h('p', { style: { margin: '10px 4px 0', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: tt('🔒 İlk girişte bu cihaz için bir yönetici şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke rêveberiyê tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an admin password is created for this device. Children cannot open the adult panel; data stays on this device.') }),
+        account ? hs('div', { 'data-testid': 'hesap-rozet', style: { ...card, marginTop: 10, padding: '10px 12px', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 10 }, children: [
+          h('span', { 'aria-hidden': 'true', style: { fontSize: 20 }, children: account.verified ? '✅' : '📧' }),
+          hs('span', { style: { flex: 1, minWidth: 0 }, children: [
+            h('span', { style: { display: 'block', fontSize: 14, fontWeight: 900, color: C.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: account.name || account.email }),
+            h('span', { style: { display: 'block', fontSize: 12, fontWeight: 700, color: account.verified ? '#047857' : '#B45309' }, children: account.verified ? `${account.email} · ${tt('e-posta doğrulandı', 'e-name piştrast bû', 'e-mail verified')}` : `${account.email} · ${tt('doğrulama bekliyor', 'li benda piştrastkirinê', 'awaiting verification')}` }),
+          ] }),
+          h('button', { type: 'button', onClick: onSignOut, 'data-testid': 'hesap-cikis', style: { ...ghostBtn, minHeight: 40, fontSize: 13 }, children: tt('Hesaptan çık', 'Ji hesabê derkeve', 'Sign out') }),
+        ] }) : null,
+        h('p', { style: { margin: '10px 4px 0', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: hesap() ? tt('🔒 Yetişkin paneli e-posta doğrulamalı hesap ister. Çocuklar yetişkin paneline giremez; oyun verileri bu cihazda kalır.', '🔒 Panela mezinan hesabekî bi e-nameya piştrastkirî dixwaze. Zarok nikarin bikevin panela mezinan; daneyên lîstikê li vê cîhazê dimînin.', '🔒 The adult panel requires an e-mail-verified account. Children cannot open it; game data stays on this device.') : tt('🔒 İlk girişte bu cihaz için bir yönetici şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke rêveberiyê tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an admin password is created for this device. Children cannot open the adult panel; data stays on this device.') }),
       ] }),
 
       h('nav', { 'aria-label': tt('Bağlantılar', 'Girêdan', 'Links'), style: { marginTop: 22, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12.5, fontWeight: 700 }, children: [
@@ -286,13 +296,136 @@ function Create({ onDone, onCancel }) {
   ] });
 }
 
+
+// ── Yetişkin hesabı (e-posta doğrulamalı) ───────────────────────────────────
+// oyna/galaksay-hesap.js (Firebase Authentication REST) etkinse yetişkin paneli ve yeni kaptan
+// oluşturma, bu cihazda doğrulanmış bir yetişkin hesabı ister. Hesap cihazı bir kez kurar; ardından
+// cihaz şifresi hızlı kilit olarak kullanılır. Çocuk verisi cihazda kalır; hesaba ad, e-posta ve rol gider.
+const hesap = () => (typeof window !== 'undefined' && window.GalakSayHesap && window.GalakSayHesap.active()) ? window.GalakSayHesap : null;
+const inputStyle = { width: '100%', boxSizing: 'border-box', height: 50, padding: '0 14px', borderRadius: 14, border: '2px solid rgba(30,27,75,.14)', background: '#fff', color: C.text.primary, fontSize: 16, fontWeight: 600, fontFamily: F, outline: 'none' };
+const fieldLabel = (text, htmlFor) => h('label', { htmlFor, style: { display: 'block', fontSize: 13, fontWeight: 800, color: C.text.secondary, margin: '12px 0 6px' }, children: text });
+const linkBtn = { border: 'none', background: 'transparent', color: C.accent.primary, fontFamily: F, fontSize: 14, fontWeight: 800, cursor: 'pointer', minHeight: 44, padding: '0 6px' };
+
+function Account({ role, purpose, onDone, onCancel }) {
+  const H = hesap();
+  const sess = H ? H.session() : null;
+  const [tab, setTab] = React.useState(sess && !sess.verified ? 'dogrula' : (sess ? 'giris' : 'kayit'));
+  const [r, setR] = React.useState(role === 'ebeveyn' ? 'ebeveyn' : 'ogretmen');
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState(sess ? sess.email : '');
+  const [pw, setPw] = React.useState('');
+  const [show, setShow] = React.useState(false);
+  const [consent, setConsent] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState(null); // { kind: 'err' | 'ok', text }
+  const [cool, setCool] = React.useState(0);
+  React.useEffect(() => { if (cool <= 0) return undefined; const t = setTimeout(() => setCool(cool - 1), 1000); return () => clearTimeout(t); }, [cool]);
+  const run = async (fn) => { setBusy(true); setMsg(null); try { await fn(); } catch (e) { setMsg({ kind: 'err', text: (e && e.message) || String(e) }); } setBusy(false); };
+  const finish = () => { try { localStorage.setItem('galaksay_adult_role', r); } catch { /* yok */ } H.setRole(r); onDone(); };
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+
+  const submitSignUp = () => run(async () => {
+    if (!name.trim()) throw new Error(tt('Adınızı yazın.', 'Navê xwe binivîsin.', 'Enter your name.'));
+    if (!emailOk) throw new Error(H.errorText('INVALID_EMAIL'));
+    if (pw.length < 8) throw new Error(H.errorText('WEAK_PASSWORD'));
+    if (!consent) throw new Error(tt('Devam etmek için aydınlatma metnini onaylayın.', 'Ji bo domandinê nivîsa agahdariyê bipejirînin.', 'Please accept the privacy notice to continue.'));
+    await H.signUp({ email, password: pw, name, role: r });
+    setPw(''); setTab('dogrula'); setCool(30);
+  });
+  const submitSignIn = () => run(async () => {
+    if (!emailOk) throw new Error(H.errorText('INVALID_EMAIL'));
+    const s = await H.signIn({ email, password: pw, role: r });
+    setPw('');
+    if (s && s.verified) finish(); else { setTab('dogrula'); }
+  });
+  const checkVerified = () => run(async () => {
+    const ok = await H.refreshVerified();
+    if (ok) finish();
+    else setMsg({ kind: 'err', text: tt('E-posta henüz doğrulanmadı. Gelen kutunuzdaki bağlantıya tıklayın; göremiyorsanız "Gereksiz" klasörüne bakın.', 'E-name hê nehatiye piştrastkirin. Li girêdana di sindoqa xwe de bitikînin; heke nabînin, li peldanka "Spam" binêrin.', 'The e-mail is not verified yet. Click the link in your inbox; if you cannot see it, check the spam folder.') });
+  });
+  const resend = () => run(async () => { await H.resendVerification(); setCool(30); setMsg({ kind: 'ok', text: tt('Doğrulama bağlantısı yeniden gönderildi.', 'Girêdana piştrastkirinê dîsa hat şandin.', 'The verification link was sent again.') }); });
+  const sendReset = () => run(async () => { if (!emailOk) throw new Error(H.errorText('INVALID_EMAIL')); await H.resetPassword(email); setMsg({ kind: 'ok', text: tt('Şifre sıfırlama bağlantısı e-postanıza gönderildi.', 'Girêdana nûkirina şîfreyê ji e-nameya we re hat şandin.', 'A password reset link was sent to your e-mail.') }); });
+
+  const roleTitle = r === 'ebeveyn' ? tt('Ebeveyn Hesabı', 'Hesabê Dê û Bav', 'Parent Account') : tt('Öğretmen · Uzman Hesabı', 'Hesabê Mamoste · Pispor', 'Teacher · Specialist Account');
+  const why = purpose === 'kurulum'
+    ? tt('Yeni kaptanı bir yetişkin oluşturur. Önce hesabınızla bu cihazı kurun; sonra çocuklar kendi resimlerine dokunarak oynar.', 'Kaptanê nû ji aliyê mezinekî ve tê çêkirin. Pêşî bi hesabê xwe vê cîhazê saz bikin; paşê zarok bi destdayîna wêneyê xwe dilîzin.', 'A new captain is created by an adult. First set up this device with your account; then children play by tapping their picture.')
+    : tt('Hesabınız sizi tanımlar ve bu cihazı güvenle kurar. Çocukların oyun verisi bu cihazda kalır; hesaba yalnız ad, e-posta ve rol bilgisi gider.', 'Hesabê we we dide nasîn û vê cîhazê bi ewlehî saz dike. Daneyên lîstikê yên zarokan li vê cîhazê dimînin; tenê nav, e-name û rol diçin hesabê.', "Your account identifies you and sets up this device securely. Children's game data stays on this device; only your name, e-mail and role go to the account.");
+
+  const tabBtn = (id, text) => h('button', { type: 'button', role: 'tab', 'aria-selected': tab === id, 'data-testid': `hesap-sekme-${id}`, onClick: () => { setTab(id); setMsg(null); }, style: { flex: 1, minHeight: 44, borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 900, background: tab === id ? '#fff' : 'transparent', color: tab === id ? C.text.primary : C.text.secondary, boxShadow: tab === id ? '0 2px 8px rgba(30,27,75,.12)' : 'none' }, children: text });
+  const primary = (text, onClick, testid, disabled) => h('button', { type: 'submit', 'data-testid': testid, onClick: (ev) => { ev.preventDefault(); onClick(); }, disabled: busy || disabled, style: { width: '100%', minHeight: 54, marginTop: 16, borderRadius: 16, border: 'none', cursor: busy || disabled ? 'default' : 'pointer', fontFamily: F, fontSize: 17, fontWeight: 900, color: '#fff', background: busy || disabled ? '#A5A0C8' : C.gradient.accent }, children: busy ? tt('Lütfen bekleyin…', 'Ji kerema xwe bisekinin…', 'Please wait…') : text });
+  const pwField = (id, autoc) => hs('div', { style: { position: 'relative' }, children: [
+    h('input', { id, type: show ? 'text' : 'password', value: pw, onChange: (e) => setPw(e.target.value), autoComplete: autoc, 'data-testid': 'hesap-sifre', style: { ...inputStyle, paddingRight: 52 } }),
+    h('button', { type: 'button', onClick: () => setShow(!show), 'aria-label': show ? tt('Şifreyi gizle', 'Şîfreyê veşêre', 'Hide password') : tt('Şifreyi göster', 'Şîfreyê nîşan bide', 'Show password'), style: { position: 'absolute', right: 4, top: 3, width: 44, height: 44, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18 }, children: show ? '🙈' : '👁️' }),
+  ] });
+
+  let body;
+  if (!H) {
+    body = null;
+  } else if (tab === 'dogrula') {
+    const s = H.session();
+    body = hs('div', { style: { textAlign: 'center' }, children: [
+      h('div', { 'aria-hidden': 'true', style: { fontSize: 46, margin: '4px 0 6px' }, children: '📧' }),
+      h('h2', { style: { fontSize: 20, fontWeight: 900, color: C.text.primary, margin: '0 0 8px' }, children: tt('E-postanızı doğrulayın', 'E-nameya xwe piştrast bikin', 'Verify your e-mail') }),
+      h('p', { style: { fontSize: 14.5, lineHeight: 1.55, color: C.text.secondary, margin: 0 }, children: tt(`${s ? s.email : ''} adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra aşağıdaki düğmeye dokunun.`, `Me girêdaneke piştrastkirinê ji ${s ? s.email : ''} re şand. Piştî ku hûn li girêdanê bitikînin, li bişkoka jêrîn bidin.`, `We sent a verification link to ${s ? s.email : ''}. After clicking the link, tap the button below.`) }),
+      primary(tt('Doğruladım, devam et', 'Min piştrast kir, bidomîne', "I've verified, continue"), checkVerified, 'hesap-dogruladim'),
+      hs('div', { style: { display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 4, marginTop: 8 }, children: [
+        h('button', { type: 'button', style: { ...linkBtn, opacity: cool > 0 ? .5 : 1 }, disabled: cool > 0 || busy, onClick: resend, 'data-testid': 'hesap-yeniden', children: cool > 0 ? tt(`Yeniden gönder (${cool})`, `Dîsa bişîne (${cool})`, `Resend (${cool})`) : tt('Bağlantıyı yeniden gönder', 'Girêdanê dîsa bişîne', 'Resend the link') }),
+        h('button', { type: 'button', style: linkBtn, onClick: () => { H.signOut(); setTab('kayit'); setMsg(null); }, children: tt('Farklı e-posta kullan', 'E-nameyeke din bikar bîne', 'Use a different e-mail') }),
+      ] }),
+    ] });
+  } else if (tab === 'sifre') {
+    body = hs('form', { onSubmit: (e) => { e.preventDefault(); sendReset(); }, children: [
+      h('p', { style: { fontSize: 14.5, lineHeight: 1.55, color: C.text.secondary, margin: '0 0 4px' }, children: tt('Hesabınızın e-posta adresini yazın; şifre sıfırlama bağlantısı gönderelim.', 'Navnîşana e-nameya hesabê xwe binivîsin; em ê girêdana nûkirina şîfreyê bişînin.', "Enter your account's e-mail address and we'll send a reset link.") }),
+      fieldLabel(tt('E-posta', 'E-name', 'E-mail'), 'hesap-eposta'),
+      h('input', { id: 'hesap-eposta', type: 'email', inputMode: 'email', autoComplete: 'email', value: email, onChange: (e) => setEmail(e.target.value), 'data-testid': 'hesap-eposta', style: inputStyle }),
+      primary(tt('Sıfırlama bağlantısı gönder', 'Girêdana nûkirinê bişîne', 'Send reset link'), sendReset, 'hesap-sifirla'),
+      h('div', { style: { textAlign: 'center', marginTop: 6 }, children: h('button', { type: 'button', style: linkBtn, onClick: () => { setTab('giris'); setMsg(null); }, children: '← ' + tt('Girişe dön', 'Vegere têketinê', 'Back to sign-in') }) }),
+    ] });
+  } else {
+    const isUp = tab === 'kayit';
+    body = hs('form', { onSubmit: (e) => { e.preventDefault(); (isUp ? submitSignUp : submitSignIn)(); }, children: [
+      hs('div', { role: 'tablist', style: { display: 'flex', gap: 4, padding: 4, borderRadius: 14, background: 'rgba(30,27,75,.06)', marginBottom: 4 }, children: [tabBtn('kayit', tt('Hesap oluştur', 'Hesab çêke', 'Create account')), tabBtn('giris', tt('Giriş yap', 'Têkeve', 'Sign in'))] }),
+      isUp ? fieldLabel(tt('Adınız soyadınız', 'Nav û paşnavê we', 'Full name'), 'hesap-ad') : null,
+      isUp ? h('input', { id: 'hesap-ad', type: 'text', autoComplete: 'name', value: name, maxLength: 60, onChange: (e) => setName(e.target.value), 'data-testid': 'hesap-ad', style: inputStyle }) : null,
+      fieldLabel(tt('E-posta', 'E-name', 'E-mail'), 'hesap-eposta'),
+      h('input', { id: 'hesap-eposta', type: 'email', inputMode: 'email', autoComplete: 'email', value: email, onChange: (e) => setEmail(e.target.value), 'data-testid': 'hesap-eposta', style: inputStyle }),
+      fieldLabel(isUp ? tt('Şifre (en az 8 karakter)', 'Şîfre (herî kêm 8 tîp)', 'Password (at least 8 characters)') : tt('Şifre', 'Şîfre', 'Password'), 'hesap-sifre'),
+      pwField('hesap-sifre', isUp ? 'new-password' : 'current-password'),
+      isUp ? hs('div', { role: 'radiogroup', 'aria-label': tt('Rol', 'Rol', 'Role'), style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 }, children: [['ogretmen', '👩‍🏫', tt('Öğretmen · Uzman', 'Mamoste · Pispor', 'Teacher · Specialist')], ['ebeveyn', '👪', tt('Ebeveyn', 'Dê û bav', 'Parent')]].map(([k, ic, lb]) => h('button', { key: k, type: 'button', role: 'radio', 'aria-checked': r === k, 'data-testid': `hesap-rol-${k}`, onClick: () => setR(k), style: { minHeight: 48, borderRadius: 12, cursor: 'pointer', fontFamily: F, fontSize: 14, fontWeight: 800, border: r === k ? `2px solid ${C.accent.primary}` : '2px solid rgba(30,27,75,.12)', background: r === k ? 'rgba(124,58,237,.08)' : '#fff', color: C.text.primary }, children: `${ic} ${lb}` })) }) : null,
+      isUp ? hs('label', { style: { display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 14, fontSize: 13, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary, cursor: 'pointer' }, children: [
+        h('input', { type: 'checkbox', checked: consent, onChange: (e) => setConsent(e.target.checked), 'data-testid': 'hesap-onay', style: { width: 22, height: 22, marginTop: 1, flexShrink: 0, accentColor: C.accent.primary } }),
+        hs('span', { children: [h('a', { href: '/gizlilik.html', target: '_blank', rel: 'noopener', style: { color: C.accent.primary, fontWeight: 800 }, children: tt('Aydınlatma metnini', 'Nivîsa agahdariyê', 'The privacy notice') }), tt(' okudum. Ad, e-posta ve rol bilgimin hesap için işlenmesini kabul ediyorum.', ' min xwend. Ez qebûl dikim ku nav, e-name û rola min ji bo hesabê were bikaranîn.', ' — I have read it and agree that my name, e-mail and role are processed for the account.')] }),
+      ] }) : null,
+      primary(isUp ? tt('Hesap oluştur', 'Hesab çêke', 'Create account') : tt('Giriş yap', 'Têkeve', 'Sign in'), isUp ? submitSignUp : submitSignIn, isUp ? 'hesap-olustur' : 'hesap-giris'),
+      !isUp ? h('div', { style: { textAlign: 'center', marginTop: 6 }, children: h('button', { type: 'button', style: linkBtn, onClick: () => { setTab('sifre'); setMsg(null); }, 'data-testid': 'hesap-unuttum', children: tt('Şifremi unuttum', 'Min şîfre ji bîr kir', 'I forgot my password') }) }) : null,
+    ] });
+  }
+
+  return hs('div', { lang: getLang(), style: page, children: [
+    h('style', { children: CSS }),
+    h(SpaceBackground, { starCount: 30 }),
+    hs('div', { style: { ...col(460), minHeight: 'auto' }, children: [
+      h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }, children: h('button', { type: 'button', onClick: onCancel, 'data-testid': 'hesap-geri', style: ghostBtn, children: '← ' + tt('Geri', 'Vegere', 'Back') }) }),
+      hs('main', { style: { ...card, borderRadius: 24, padding: '20px 18px 18px' }, children: [
+        hs('header', { style: { textAlign: 'center', marginBottom: 12 }, children: [
+          h(Logo, { width: 'min(200px, 56vw)' }),
+          h('h1', { style: { fontSize: 22, fontWeight: 900, color: C.text.primary, margin: '10px 0 6px' }, children: roleTitle }),
+          h('p', { style: { fontSize: 13.5, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary, margin: 0 }, children: why }),
+        ] }),
+        msg ? h('div', { role: msg.kind === 'err' ? 'alert' : 'status', 'data-testid': 'hesap-mesaj', style: { margin: '10px 0 4px', padding: '10px 12px', borderRadius: 12, fontSize: 13.5, lineHeight: 1.45, fontWeight: 700, background: msg.kind === 'err' ? 'rgba(220,38,38,.08)' : 'rgba(5,150,105,.10)', color: msg.kind === 'err' ? '#B91C1C' : '#047857' }, children: msg.text }) : null,
+        body,
+      ] }),
+      h('p', { style: { margin: '14px 6px 0', textAlign: 'center', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: tt('🔒 Hesap e-posta doğrulamasıyla açılır. Bu cihazda ayrıca kısa bir yetişkin şifresi hızlı kilit olarak kullanılır.', '🔒 Hesab bi piştrastkirina e-nameyê vedibe. Li vê cîhazê şîfreyeke mezinan a kurt jî wek kilîda bilez tê bikaranîn.', '🔒 The account opens after e-mail verification. On this device a short adult password also works as a quick lock.') }),
+    ] }),
+  ] });
+}
+
 // ── Kök bileşen (App'in çağırdığı varsayılan dışa aktarım) ───────────────────
 function CaptainEntry({ onStudent, onAdult, onPick }) {
   const [view, setView] = React.useState(() => {
     try {
       const g = new URLSearchParams(window.location.search).get('giris');
       if (g === 'kaptanlar' && listChildren().length) return 'captains';
-      if (g === 'yeni') return 'create';
     } catch { /* URL okunamadı */ }
     return 'title';
   });
@@ -302,8 +435,9 @@ function CaptainEntry({ onStudent, onAdult, onPick }) {
       if (!g) return;
       u.searchParams.delete('giris');
       window.history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
-      if (g === 'ogretmen' || g === 'ebeveyn') setAdultRole(g);
-      if ((g === 'yetiskin' || g === 'ogretmen' || g === 'ebeveyn') && typeof onAdult === 'function') onAdult();
+      if (g === 'ogretmen' || g === 'ebeveyn') adultRole(g);
+      else if (g === 'yeni') newCaptain();
+      else if (g === 'yetiskin') adultRole((() => { try { return localStorage.getItem('galaksay_adult_role') || 'ogretmen'; } catch { return 'ogretmen'; } })());
     } catch { /* geçmiş API yok */ }
   }, []);
   const [lang, setLang] = React.useState(() => getLang());
@@ -316,18 +450,37 @@ function CaptainEntry({ onStudent, onAdult, onPick }) {
     try { touchChild(c.ns); } catch { /* yok */ }
     onPick(c);
   };
+  const [account, setAccount] = React.useState(() => { const H = hesap(); return H ? H.session() : null; });
+  const [gate, setGate] = React.useState(null); // { role, purpose, then }
+  const needAccount = () => { const H = hesap(); return !!H && !H.isVerifiedAdult(); };
+  const adultRole = (role) => {
+    setAdultRole(role);
+    if (needAccount()) { setGate({ role, purpose: 'panel', then: 'adult' }); setView('account'); return; }
+    onAdult && onAdult();
+  };
+  const newCaptain = () => {
+    if (needAccount()) { setGate({ role: (() => { try { return localStorage.getItem('galaksay_adult_role') || 'ebeveyn'; } catch { return 'ebeveyn'; } })(), purpose: 'kurulum', then: 'create' }); setView('account'); return; }
+    setView('create');
+  };
+  const signOut = () => { const H = hesap(); if (H) H.signOut(); setAccount(null); };
   const cycleLang = () => {
     const nx = lang === 'tr' ? 'ku' : lang === 'ku' ? 'en' : 'tr';
     try { localStorage.setItem('ds_lang', nx); } catch { /* depolama kapalı */ }
     setLang(nx);
   };
+  if (view === 'account' && gate) {
+    return h(Account, { role: gate.role, purpose: gate.purpose, onCancel: () => { setGate(null); setAccount(hesap() ? hesap().session() : null); setView('title'); }, onDone: () => {
+      const g = gate; setGate(null); setAccount(hesap() ? hesap().session() : null);
+      if (g.then === 'create') setView('create'); else { setView('title'); onAdult && onAdult(); }
+    } });
+  }
   if (view === 'create') {
     return h(Create, { onCancel: () => setView(kids.length ? 'captains' : 'title'), onDone: (rec) => { setKids(listChildren()); start(rec); } });
   }
   if (view === 'captains') {
-    return h(Captains, { kids, onPick: start, onNew: () => setView('create'), onBack: () => setView('title'), onAdult });
+    return h(Captains, { kids, onPick: start, onNew: newCaptain, onBack: () => setView('title'), onAdult: () => adultRole((() => { try { return localStorage.getItem('galaksay_adult_role') || 'ogretmen'; } catch { return 'ogretmen'; } })()) });
   }
-  return h(Title, { kids, lang, onLang: cycleLang, onResume: start, onCaptains: () => setView('captains'), onNew: () => setView('create'), onAdult });
+  return h(Title, { kids, lang, onLang: cycleLang, onResume: start, onCaptains: () => setView('captains'), onNew: newCaptain, onAdult, onAdultRole: adultRole, account, onSignOut: signOut });
 }
 
 export { CaptainEntry as default };

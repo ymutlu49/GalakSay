@@ -70,3 +70,18 @@ Eleştiri ve gerekçeler `docs/GIRIS_VE_HESAP_MODELI.md` dosyasındadır.
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.15.0-20260927-giris`. |
 
 Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py` → `giris_merkezi.py`.
+
+## 27 Eylül 2026 (gece, 3): e-posta doğrulamalı yetişkin hesabı (anahtar tanımlanınca etkin)
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/galaksay-hesap.js` (yeni) | Firebase Authentication REST istemcisi: kayıt, giriş, doğrulama e-postası, doğrulama denetimi, şifre sıfırlama. |
+| `site/oyna/hesap-ayar.js` (yeni) | Web API anahtarı. Boşsa sistem kapalı; yayın akışı `FIREBASE_API_KEY` depo değişkeninden doldurur. |
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` | Hesap ekranları: hesap oluştur, giriş yap, e-postanı doğrula, şifremi unuttum. Kurulum kapısı: yeni kaptan ve yetişkin paneli doğrulanmış hesap ister. Merkezde hesap rozeti. |
+| `site/oyna/index.html` | Hesap betikleri. |
+| `site/_headers` | connect-src'ye Google kimlik uçları eklendi. |
+| `site/gizlilik.html` | Aydınlatma metnine yetişkin hesabı bölümü. |
+| `.github/workflows/deploy-live-snapshot.yml` | Hesap ayarı adımı. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.16.0-20260927-hesap`. |
+
+Etkinleştirme: `docs/HESAP_KURULUMU.md`.

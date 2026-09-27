@@ -36,6 +36,21 @@ jobs:
           # oyna/index.html'deki her varlık klasörde olmalı
           for f in $(grep -o '/oyna/assets/[^"]*' canli-surum/site/oyna/index.html); do test -f "canli-surum/site$f" || { echo "EKSİK: $f"; exit 1; }; done
           find canli-surum/site -type f | wc -l
+      - name: Hesap ayarı (isteğe bağlı)
+        # Depo değişkeni FIREBASE_API_KEY tanımlıysa e-posta doğrulamalı yetişkin hesabı etkinleşir.
+        # Bu anahtar gizli değildir (tarayıcıya gider); yine de biçimi denetlenir.
+        env:
+          FIREBASE_API_KEY: ${{ vars.FIREBASE_API_KEY }}
+        run: |
+          set -e
+          if [ -n "$FIREBASE_API_KEY" ]; then
+            echo "$FIREBASE_API_KEY" | grep -Eq '^[A-Za-z0-9_-]{30,60}$' || { echo "FIREBASE_API_KEY biçimi geçersiz"; exit 1; }
+            printf "window.GALAKSAY_HESAP = { apiKey: '%s' };\n" "$FIREBASE_API_KEY" > canli-surum/site/oyna/hesap-ayar.js
+            sed -i "s/const VERSION = '\([^']*\)'/const VERSION = '\1-hesap'/" canli-surum/site/sw.js
+            echo "Hesap sistemi etkin."
+          else
+            echo "FIREBASE_API_KEY tanımlı değil: hesap sistemi kapalı, giriş cihaz şifresiyle."
+          fi
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

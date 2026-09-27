@@ -34,10 +34,12 @@
 <tr><td>Öğrenci rumuzu/adı, avatar, yaş grubu, sınıf</td><td>Çocuğun kendi profilini bulması; yaşa uygun içerik</td><td>Yalnız cihazda (tarayıcı depolama)</td></tr>
 <tr><td>Oyun cevapları, süreler, ipucu kullanımı, seviye, yanılgı örüntüleri</td><td>Bireyselleştirilmiş zorluk; öğretmen/veli raporu</td><td>Yalnız cihazda</td></tr>
 <tr><td>Öğretmen tarafından işaretlenen destek bayrakları (ör. kaygı, okuma desteği)</td><td>Oyun deneyimini uyarlamak (nefes molası, ön-okur sesi)</td><td>Yalnız cihazda</td></tr>
+<tr><td>Yetişkin hesabı: ad soyad, e-posta, rol (öğretmen/uzman ya da ebeveyn), şifre özeti</td><td>Yetişkini tanımak, e-postayı doğrulamak, cihaz kurulumu ve şifre sıfırlama</td><td>Google Firebase Authentication (hesap sistemi etkinse). Çocuk verisi hesaba gönderilmez.</td></tr>
 <tr><td>Numap bağlantısı (isteğe bağlı): tarama profili özeti</td><td>Başlangıç seviyesi kalibrasyonu</td><td>Cihaz + getnumap.com (yalnız açık rıza ile)</td></tr>
 </table>
 <p><b>Özel nitelikli veri notu:</b> Diskalkuli riski ve kaygı/okuma bayrakları sağlık verisi niteliği taşıyabilir (KVKK m.6). Bu veriler <b>varsayılan olarak cihaz dışına çıkmaz</b>; merkezi senkron yalnız ebeveyn kapısı arkasında verilen <b>açık rıza</b> ile açılır ve istendiği an geri çekilebilir.</p>
 <h3>Hukuki dayanak</h3><p>Yerel işleme: eğitim hizmetinin sunulması için zorunlu işleme (m.5/2-c ve f). Merkezi aktarım ve araştırma kullanımı: açık rıza (m.5/1, m.6/2).</p>
+<h3>Yetişkin hesabı</h3><p>Yetişkin paneli, e-posta adresi doğrulanmış bir hesapla açılır. Hesap bilgileri (ad soyad, e-posta, rol) kimlik doğrulama hizmeti olarak Google Firebase Authentication üzerinde tutulur; bu hizmetin sunucuları yurt dışında olabilir (KVKK m.9). Hesaba çocuk adı, oyun cevabı ya da destek bayrağı <b>gönderilmez</b>. Hesap oluşturulurken bu metnin okunduğu onaylanır; hesabın silinmesi için galaksay.com üzerinden başvurulabilir. Çocuklar hesap kullanmaz; cihazı bir yetişkin kurduktan sonra kendi resimlerine dokunarak girerler.</p>
 <h3>Aktarım</h3><p>Reklam, izleme çerezi ve üçüncü taraf analitik <b>yoktur</b>. Cloudflare barındırma altyapısı yalnız sayfa dosyalarını sunar; oyun verisi sunucuya yazılmaz. Cihazdan dışa aktarılan CSV/PDF dosyalarının paylaşımı kullanıcının sorumluluğundadır.</p>
 </div>
 
