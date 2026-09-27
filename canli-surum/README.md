@@ -56,3 +56,17 @@ Ayrıntı ve gerekçeler `docs/IYILESTIRMELER.md` dosyasındadır.
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.14.0-20260927-iyilestirme`. |
 
 Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py`.
+
+## 27 Eylül 2026 (gece, 2): tek giriş merkezi ve rol duyarlı yetişkin girişi
+
+Eleştiri ve gerekçeler `docs/GIRIS_VE_HESAP_MODELI.md` dosyasındadır.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` | Giriş merkezi (`kaynak/WelcomeScreen.captain.js`). Çocuklar için açıklayıcı "Devam et" kartı, ilk kez gelen için üç adım. Yetişkinler için "Öğretmen · Uzman" ve "Ebeveyn" döşemeleri. `?giris=` derin bağlantıları ve kilit notu. |
+| `site/oyna/galaksay-ek.js` | Rol duyarlı metin tablosu (`window.__gsRoleText`). |
+| `site/oyna/assets/{GalakSay,index,TeacherLogin,ChildSelect}-*.js` | `kaynak/giris_merkezi.py`: çocuk merkezinde karşılama kartı ve kart sırası, başlık etiketleri, "Çocuk girişi" düğmesinin merkeze dönmesi, yetişkin panelinde 10 dakikalık hareketsizlik kilidi, çeviri işlevinin rol tablosundan geçmesi. |
+| `site/index.html` | "Öğretmen Girişi", "Öğretmen / Uzman Girişi" ve "Ebeveyn Girişi" bağlantıları. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.15.0-20260927-giris`. |
+
+Uygulama sırası: `yorunge_duzeltmeleri.py` → `secenek_duzeltmeleri.py` → `iyilestirmeler.py` → `giris_merkezi.py`.

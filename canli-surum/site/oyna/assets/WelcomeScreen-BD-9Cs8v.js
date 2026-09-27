@@ -56,57 +56,125 @@ const col = (max) => ({ position: 'relative', zIndex: 1, maxWidth: max, margin: 
 const ghostBtn = { ...card, minHeight: 44, padding: '0 12px', borderRadius: 12, color: C.text.primary, fontFamily: F, fontSize: 14, fontWeight: 800, cursor: 'pointer' };
 const speakBtn = (onClick, label) => h('button', { type: 'button', onClick, 'aria-label': label, style: { border: 'none', background: 'rgba(124,58,237,.10)', borderRadius: 999, width: 44, height: 44, cursor: 'pointer', fontSize: 18, lineHeight: 1, flexShrink: 0 } }, '🔊');
 
-// ── Açılış ───────────────────────────────────────────────────────────────────
+// ── Giriş merkezi ────────────────────────────────────────────────────────────
+// Tek merkez: çocuklar (devam et · kaptanlar · yeni kaptan) ve yetişkinler (öğretmen/uzman · ebeveyn)
+// aynı ekrandan girer. Tanıtım sayfası buraya /oyna/?giris=ogretmen|ebeveyn|yetiskin|kaptanlar|yeni ile
+// bağlanır. Yetişkin döşemesi rolü (galaksay_adult_role) kaydeder; giriş ve panel dili buna uyar.
+// Yetişkin paneli 10 dakika hareketsiz kalırsa kilitlenir; merkez bunu bir kez bildirir (gs_locked).
+// Görev adları (simge, TR, KU, EN): categories paketinden üretilmiştir; açılışı hafif tutmak için gömülü.
+const MODES = {"matching":["🎯","Yıldız Eşle!","Stêrkan Hev Bike!","Star Match!"],"quantityMatch":["🎲","Göktaşı Eşle!","Meteoran Hev Bike!","Meteor Match!"],"counting":["🔢","Göktaşı Say!","Meteoran Bijmêre!","Count the Meteors!"],"buildNumber":["🔨","Yıldız Taşı Diz!","Kevirên Stêrkan Rêz Bike!","Line Up Star Stones!"],"ordinalCount":["🏅","Sıra Keşfi!","Keşfa Rêzê!","Order Quest!"],"backwardCount":["⏪","Geri Sayım!","Jimartina Paşve!","Countdown!"],"counterFromN":["🔁","Yörüngeden Say!","Ji Hejmarê Bijmêre!","Count from Orbit!"],"skipCount":["🎵","Galaktik Ritim!","Rîtma Galaktîk!","Galactic Rhythm!"],"decadeCount":["🌉","Onluk Geçidi!","Derbasa Dehekan!","Tens Gateway!"],"conservation":["🔄","Yanılsama mı?","Xapandin e?","Is It a Trick?"],"clockRead":["🕐","Görev Saati!","Demjimêra Erkê!","Mission Clock!"],"subitizing":["⚡","Işık Hızı!","Leza Ronahiyê!","Light Speed!"],"fivesFrame":["5️⃣","Beşli Radar!","Radara Pêncan!","Fives Radar!"],"tensFrame":["🔟","Onlu Radar!","Radara Dehan!","Tens Radar!"],"chipGuess":["👀","Uzay Hafızası!","Bîra Fezayê!","Space Memory!"],"rodBack":["🔄","Hafıza Şimşeği!","Birûska Bîrê!","Memory Flash!"],"estimateCount":["🎯","Galaktik Tahmin!","Texmîna Galaktîk!","Galactic Guess!"],"doubleTensFrame":["🔟🔟","Çift Onlu Radar!","Radara Cot-Dehan!","Double Tens Radar!"],"lessMoreEqual":["⚖️","Kozmik Terazi!","Mêzîna Kozmîk!","Cosmic Balance!"],"beforeAfter":["↔️","Yörünge Komşusu!","Cîranê Gerîngehê!","Orbit Neighbors!"],"comparison":["🏆","Gezegen Düellosu!","Dûeloya Gerstêrkan!","Planet Duel!"],"rulerRead":["📏","Cetvel Oku!","Pîvanê Bixwîne!","Read the Ruler!"],"lengthCompare":["📐","Uzunluk Dedektifi!","Dedektîfê Dirêjahiyê!","Length Detective!"],"fiveMore":["🖐️","5 Yıldız Skalası!","Skala 5 Stêrkan!","Five-Star Scale!"],"ordering":["📊","Yörünge Sırala!","Gerîngehê Rêz Bike!","Orbit Order!"],"numberLineEstimate":["📍","Galaktik Konum!","Cihê Galaktîk!","Galactic Position!"],"nlPlacement":["🎯","Yörüngeye Yerleştir!","Li Gerîngehê Bi Cî Bike!","Place It in Orbit!"],"numberLine":["🔍","Kayıp Kapsül!","Kapsula Winda!","Lost Capsule!"],"lengthGuess":["📏","Gizli Nebula!","Nebula Veşartî!","Hidden Nebula!"],"makeFive":["✋","5 Yıldız Taşı Topla!","5 Kevirên Stêrkan Berhev Bike!","Collect 5 Star Stones!"],"partWhole":["🧩","Parça-Bütün Puzzle!","Pazila Perçe-Giştî!","Part-Whole Puzzle!"],"makeTen":["🎯","10 Yıldız Taşı Topla!","10 Kevirên Stêrkan Berhev Bike!","Collect 10 Star Stones!"],"spaceKitchen":["🧪","Uzay Mutfağı!","Metbexa Fezayê!","Space Kitchen!"],"numbersInNumbers":["🔢","Sayı Galaksisi!","Galaksiya Hejmaran!","Number Galaxy!"],"rodSplit":["✂️","İkili Görev!","Peywira Cot!","Duo Mission!"],"bundleTens":["📦","Onluk Nebula!","Nebula Dehekan!","Tens Nebula!"],"placeValue":["🏛️","Katman Keşfet!","Qatê Keşf Bike!","Explore the Layers!"],"composeNumber":["🧱","Gezegen Oluştur!","Gerstêrk Çêbike!","Build a Planet!"],"expandForm":["🔭","Galaktik Açılım!","Vekirina Galaktîk!","Galactic Expansion!"],"addChips":["➕","Yıldız Taşı Birleştir!","Kevirên Stêrkan Yek Bike!","Join Star Stones!"],"countOnAdd":["🔢","Büyükten Say!","Ji Mezin Bijmêre!","Start Big, Count On!"],"addition":["🧮","Güç Birleştir!","Hêzê Yek Bike!","Combine Powers!"],"wpAdd":["📡","Toplama Problemi","Pirsgirêka Zêdekirinê","Addition Problem"],"wpSchema":["🧭","Hangi Şema?","Kîjan Şema?","Which Schema?"],"calendarRead":["📅","Takvim Yolcusu!","Rêwiyê Salnameyê!","Calendar Traveler!"],"removeChips":["➖","Yıldız Taşı Ayır!","Kevirên Stêrkan Veqetîne!","Take Away Star Stones!"],"difference":["🔍","Mesafe Ölç!","Dûrahiyê Bipîve!","Measure the Distance!"],"subtraction":["🧮","Enerji Ayır!","Enerjiyê Veqetîne!","Split the Energy!"],"inversePractice":["🔄","Ters Düşün!","Berevajî Bifikire!","Think in Reverse!"],"wpSub":["📡","Çıkarma Problemi","Pirsgirêka Kemkirinê","Subtraction Problem"],"wpCompare":["📡","Karşılaştırma Problemi","Pirsgirêka Berhevdanê","Comparison Problem"],"coinCount":["🛒","Uzay Marketi!","Bazara Fezayê!","Space Market!"],"equalShare":["🍕","Galaktik Paylaşım!","Parvekirina Galaktîk!","Galactic Sharing!"],"groupCount":["👥","Filo Grupla!","Filoyê Kom Bike!","Group the Fleet!"],"repeatAdd":["🔁","Galaktik Tekrar!","Dubarekirina Galaktîk!","Galactic Repeat!"],"multiplyVisual":["✖️","Çarpım Gücü!","Hêza Carkirinê!","Multiplying Power!"],"fractionPart":["🍕","Kesir Parçası!","Parçeya Kesrê!","Fraction Piece!"],"halfDouble":["✂️","Bölün-İkilen!","Nîvkirin-Ducarkirin!","Half It, Double It!"],"arrayDots":["📐","Yıldız Dizisi!","Rêza Stêrkan!","Star Array!"],"timesTable":["🧠","Strateji Ustası!","Hostayê Stratejiyê!","Strategy Master!"],"divisionBasic":["➗","Bölme Ustası!","Hostayê Parkirinê!","Division Master!"],"mulDivInverse":["🔄","Ters Bağlantı!","Girêdana Berevajî!","Reverse Link!"],"katConcept":["🔢","Kaç Kat?","Çend Car?","How Many Times?"],"wpMul":["📡","Çarpma Problemi","Pirsgirêka Carkirinê","Multiplication Problem"],"wpDiv":["📡","Bölme Problemi","Pirsgirêka Parkirinê","Division Problem"],"shapeCorners":["🔺","Şekil Dedektifi!","Detektîfê Şêweyan!","Shape Detective!"],"pictograph":["📊","Şekil Grafiği!","Grafika Şêweyan!","Picture Graph!"],"patternAB":["🔄","Galaktik Desen!","Şêweya Galaktîk!","Galactic Pattern!"],"patternTranslate":["🔀","Desen Çevirmen!","Wergêrê Şêweyê!","Pattern Translator!"],"growingPattern":["📈","Büyüyen Desen!","Şêweya Mezinbûyî!","Growing Pattern!"],"trueFalse":["⚖️","Denklem Dedektifi!","Detektîfê Hevkêşeyê!","Equation Detective!"],"spaceBalance":["⚖️","Uzay Terazisi!","Mêzîna Fezayê!","Space Balance!"],"missingNumber":["❓","Kayıp Yıldız!","Stêrka Winda!","Lost Star!"]};
+const modeName = (m) => { const r = MODES[m]; return r ? `${r[0]} ${tt(r[1], r[2], r[3])}` : ''; };
+const dayKey = (d = new Date()) => d.toISOString().slice(0, 10);
+function lastSeenText(iso) {
+  if (!iso) return '';
+  const d0 = new Date(iso); if (isNaN(d0)) return '';
+  const days = Math.round((new Date(dayKey() + 'T12:00:00') - new Date(dayKey(d0) + 'T12:00:00')) / 864e5);
+  if (days <= 0) return tt('bugün', 'îro', 'today');
+  if (days === 1) return tt('dün', 'duh', 'yesterday');
+  return tt(`${days} gün önce`, `${days} roj berê`, `${days} days ago`);
+}
+function todayPlan(ns) {
+  try {
+    const g = JSON.parse(localStorage.getItem(`ds_daymission_${ns}`) || 'null');
+    if (!g || g.date !== dayKey()) return null;
+    const total = g.m2 ? 2 : 1, done = (g.done1 ? 1 : 0) + (g.m2 && g.done2 ? 1 : 0);
+    return { total, done };
+  } catch { return null; }
+}
+const label = (text) => h('div', { style: { fontSize: 11.5, fontWeight: 900, letterSpacing: 1.6, textTransform: 'uppercase', color: C.text.secondary, margin: '0 4px 8px' }, children: text });
+const line = (text) => h('span', { style: { display: 'block', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.94)', lineHeight: 1.45, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: text });
+
+function setAdultRole(role) { try { localStorage.setItem('galaksay_adult_role', role); } catch { /* depolama kapalı */ } }
+function takeLockedNote() { try { const v = sessionStorage.getItem('gs_locked'); sessionStorage.removeItem('gs_locked'); return v === '1'; } catch { return false; } }
+
 function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult }) {
+  const [locked] = React.useState(takeLockedNote);
   const last = kids[0] || null;
   const resume = last ? getResumeInfo(last.ns) : null;
+  const plan = last ? todayPlan(last.ns) : null;
   const langs = { tr: 'TR · Türkçe', ku: 'KU · Kurmancî', en: 'EN · English' };
-  return hs('div', { style: page, children: [
+  const lp = resume && resume.lastPlayed;
+  const adultTile = (testid, role, icon, title, desc) => hs('button', { type: 'button', className: 'gs-tap', 'data-testid': testid, onClick: () => { setAdultRole(role); onAdult(); }, style: { ...card, display: 'flex', alignItems: 'flex-start', gap: 12, textAlign: 'left', padding: '14px 14px', borderRadius: 16, cursor: 'pointer', fontFamily: F, minHeight: 84 }, children: [
+    h('span', { 'aria-hidden': 'true', style: { fontSize: 28, lineHeight: 1, flexShrink: 0 }, children: icon }),
+    hs('span', { style: { minWidth: 0 }, children: [
+      h('span', { style: { display: 'block', fontSize: 15.5, fontWeight: 900, color: C.text.primary }, children: title }),
+      h('span', { style: { display: 'block', marginTop: 3, fontSize: 12.5, lineHeight: 1.4, fontWeight: 600, color: C.text.secondary }, children: desc }),
+    ] }),
+  ] });
+  const steps = [
+    ['🧑‍🚀', tt('Kaptanını oluştur', 'Kaptanê xwe çêke', 'Create your captain'), tt('Resim, ad ve yaş — 30 saniye', 'Wêne, nav û temen — 30 çirke', 'Picture, name and age — 30 seconds')],
+    ['⭐', tt('Her gün kısa bir görev', 'Her roj erkeke kurt', 'A short mission every day'), tt('10–15 dakika, haftada 3–4 gün', '10–15 xulek, heftê 3–4 roj', '10–15 minutes, 3–4 days a week')],
+    ['🪐', tt('Gezegenleri keşfet', 'Gerstêrkan keşf bike', 'Explore the planets'), tt('Saymadan çarpmaya adım adım', 'Ji jimartinê heta lêkdanê gav bi gav', 'Step by step from counting to multiplying')],
+  ];
+  return hs('div', { lang, style: page, children: [
     h('style', { children: CSS }),
     h(SpaceBackground, { starCount: 48 }),
-    hs('div', { style: col(440), children: [
+    hs('div', { style: { ...col(520), minHeight: 'auto' }, children: [
       h('div', { style: { display: 'flex', justifyContent: 'flex-end' }, children: h('button', { type: 'button', onClick: onLang, 'data-testid': 'title-lang', 'aria-label': tt('Dil değiştir', 'Zimên biguherîne', 'Change language'), style: { ...card, minHeight: 40, padding: '0 14px', borderRadius: 999, color: C.text.primary, fontFamily: F, fontSize: 13, fontWeight: 800, cursor: 'pointer' }, children: '🌐 ' + langs[lang] }) }),
-      hs('div', { style: { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '12px 0 8px' }, children: [
-        hs('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 30 }, children: [
-          h('div', { className: 'gs-ship', 'aria-hidden': 'true', style: { fontSize: 64, lineHeight: 1, marginBottom: 10, filter: 'drop-shadow(0 8px 14px rgba(124,58,237,.25))' }, children: '🚀' }),
-          h(Logo, { width: 'min(360px, 86vw)' }),
-          h('p', { style: { margin: '14px 0 0', fontSize: 17, lineHeight: 1.45, fontWeight: 700, color: C.text.primary }, children: tt('Sayılar Galaksisi seni bekliyor', 'Galaksiya Hejmaran li benda te ye', 'The Number Galaxy is waiting for you') }),
-        ] }),
+      hs('header', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', margin: '4px 0 18px' }, children: [
+        h('div', { className: 'gs-ship', 'aria-hidden': 'true', style: { fontSize: 46, lineHeight: 1, marginBottom: 6, filter: 'drop-shadow(0 8px 14px rgba(124,58,237,.25))' }, children: '🚀' }),
+        h(Logo, { width: 'min(300px, 76vw)' }),
+        h('p', { style: { margin: '10px 0 0', fontSize: 16, lineHeight: 1.45, fontWeight: 800, color: C.text.primary }, children: tt('Sayılar Galaksisi seni bekliyor', 'Galaksiya Hejmaran li benda te ye', 'The Number Galaxy is waiting for you') }),
+        h('p', { style: { margin: '4px 0 0', fontSize: 13, lineHeight: 1.45, fontWeight: 600, color: C.text.secondary }, children: tt('5–10 yaş için sayı hissi oyunu · Türkçe ve Kurmancî', 'Lîstika hesta hejmaran ji bo 5–10 salî · Tirkî û Kurmancî', 'Number sense game for ages 5–10 · Turkish and Kurmanji') }),
+      ] }),
+
+      locked ? h('p', { role: 'status', 'data-testid': 'locked-note', style: { ...card, margin: '0 0 14px', padding: '10px 14px', borderRadius: 14, fontSize: 13, lineHeight: 1.45, fontWeight: 700, color: C.text.primary }, children: tt('🔒 Yetişkin paneli 10 dakika işlem yapılmadığı için güvenlik amacıyla kapatıldı.', '🔒 Panela mezinan ji ber ku 10 xulekan tu kar nehat kirin, ji bo ewlehiyê hat girtin.', '🔒 The adult panel was closed for safety after 10 minutes without activity.') }) : null,
+      // ── Çocuklar
+      hs('section', { 'aria-label': tt('Çocuklar', 'Zarok', 'Children'), style: { marginBottom: 18 }, children: [
+        label('🧒 ' + tt('Çocuklar · Oyna', 'Zarok · Bilîze', 'Children · Play')),
         last
-          ? hs('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 }, children: [
-            hs('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-resume', onClick: () => onResume(last), style: { display: 'flex', alignItems: 'center', gap: 16, width: '100%', textAlign: 'left', padding: '16px 20px', borderRadius: 22, border: 'none', background: C.gradient.accent, cursor: 'pointer', fontFamily: F }, children: [
-              h('span', { style: { width: 64, height: 64, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.22)', fontSize: 38, lineHeight: 1 }, children: last.avatar || '🚀' }),
+          ? hs('div', { style: { display: 'flex', flexDirection: 'column', gap: 10 }, children: [
+            hs('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-resume', onClick: () => onResume(last), 'aria-label': `${tt('Devam et', 'Bidomîne', 'Continue')}: ${last.name}`, style: { display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left', padding: '16px 18px', borderRadius: 22, border: 'none', background: C.gradient.accent, cursor: 'pointer', fontFamily: F }, children: [
+              h('span', { style: { width: 62, height: 62, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.22)', fontSize: 36, lineHeight: 1 }, children: last.avatar || '🚀' }),
               hs('span', { style: { flex: 1, minWidth: 0 }, children: [
-                h('span', { style: { display: 'block', fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,.9)', letterSpacing: .5, textTransform: 'uppercase' }, children: '▶ ' + tt('Devam et', 'Bidomîne', 'Continue') }),
-                h('span', { style: { display: 'block', fontSize: 24, fontWeight: 900, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: last.name }),
-                h('span', { style: { display: 'block', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.92)' }, children: resume && resume.hasProgress ? `⭐ ${resume.stars} ${tt('yıldız', 'stêrk', 'stars')}` : tt('Yeni başla', 'Nû dest pê bike', 'Start fresh') }),
+                h('span', { style: { display: 'block', fontSize: 12.5, fontWeight: 900, color: 'rgba(255,255,255,.9)', letterSpacing: .6, textTransform: 'uppercase' }, children: '▶ ' + tt('Devam et', 'Bidomîne', 'Continue') }),
+                h('span', { style: { display: 'block', fontSize: 23, fontWeight: 900, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 2 }, children: last.name }),
+                resume && resume.hasProgress
+                  ? line(`⭐ ${resume.stars} ${tt('yıldız', 'stêrk', 'stars')} · ${resume.totalGames} ${tt('görev', 'erk', 'missions')}` + (last.lastSeenAt ? ` · ${lastSeenText(last.lastSeenAt)}` : ''))
+                  : line(tt('İlk görev seni bekliyor', 'Erka yekem li benda te ye', 'Your first mission is waiting')),
+                lp && lp.mode && MODES[lp.mode] ? line(`${tt('Son görev', 'Erka dawî', 'Last mission')}: ${modeName(lp.mode)}${lp.level ? ` · ${tt('Sv.', 'Ast', 'Lv.')} ${lp.level}` : ''}`) : null,
+                line(plan ? (plan.done >= plan.total ? `✅ ${tt('Bugünün görevi tamam', 'Erka îro temam e', "Today's mission done")}` : `📅 ${tt('Bugün', 'Îro', 'Today')}: ${plan.done}/${plan.total} ${tt('görev', 'erk', 'missions')}`) : `📅 ${tt('Bugünün görevi hazır', 'Erka îro amade ye', "Today's mission is ready")}`),
               ] }),
-              h('span', { style: { fontSize: 28, color: '#fff', flexShrink: 0 }, children: hasPin(last.ns) ? '🔒' : '›' }),
+              h('span', { 'aria-hidden': 'true', style: { fontSize: 28, color: '#fff', flexShrink: 0 }, children: hasPin(last.ns) ? '🔒' : '›' }),
             ] }),
-            hs('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-captains', onClick: onCaptains, style: { ...card, width: '100%', minHeight: 56, borderRadius: 18, cursor: 'pointer', fontFamily: F, fontSize: 17, fontWeight: 800, color: C.text.primary }, children: [
-              '👩‍🚀 ' + tt('Kaptanlar', 'Kaptan', 'Captains'),
-              h('span', { style: { opacity: .7, fontWeight: 700 }, children: ` · ${kids.length}` }),
-              h('span', { style: { margin: '0 8px', opacity: .35 }, children: '|' }),
-              '➕ ' + tt('Yeni Kaptan', 'Kaptanê Nû', 'New Captain'),
+            hs('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }, children: [
+              hs('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-captains', onClick: onCaptains, style: { ...card, minHeight: 54, borderRadius: 16, cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 800, color: C.text.primary }, children: ['👩‍🚀 ' + tt('Kaptanlar', 'Kaptan', 'Captains'), h('span', { style: { opacity: .65, fontWeight: 700 }, children: ` · ${kids.length}` })] }),
+              h('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-new', onClick: onNew, style: { ...card, minHeight: 54, borderRadius: 16, cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 800, color: C.text.primary }, children: '➕ ' + tt('Yeni Kaptan', 'Kaptanê Nû', 'New Captain') }),
             ] }),
           ] })
-          : h('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-start', onClick: onNew, style: { width: '100%', minHeight: 68, borderRadius: 22, border: 'none', cursor: 'pointer', fontFamily: F, fontSize: 24, fontWeight: 900, color: '#fff', background: C.gradient.accent }, children: '🚀 ' + tt('Yolculuğa Başla', 'Dest bi Rêwîtiyê Bike', 'Start the Journey') }),
+          : hs('div', { style: { ...card, borderRadius: 22, padding: '16px 16px 18px' }, children: [
+            h('ol', { style: { listStyle: 'none', margin: '0 0 14px', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }, children: steps.map(([ic, t1, t2], i) => hs('li', { key: i, style: { display: 'flex', alignItems: 'center', gap: 12 }, children: [
+              h('span', { 'aria-hidden': 'true', style: { width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(124,58,237,.10)', fontSize: 21 }, children: ic }),
+              hs('span', { children: [h('span', { style: { display: 'block', fontSize: 15, fontWeight: 900, color: C.text.primary }, children: `${i + 1}. ${t1}` }), h('span', { style: { display: 'block', fontSize: 12.5, fontWeight: 600, color: C.text.secondary }, children: t2 })] }),
+            ] })) }),
+            h('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-start', onClick: onNew, style: { width: '100%', minHeight: 64, borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: F, fontSize: 22, fontWeight: 900, color: '#fff', background: C.gradient.accent }, children: '🚀 ' + tt('Yolculuğa Başla', 'Dest bi Rêwîtiyê Bike', 'Start the Journey') }),
+            h('p', { style: { margin: '10px 0 0', textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.text.secondary }, children: tt('Hesap gerekmez · ilerleme bu cihazda saklanır', 'Hesab ne pêwîst e · pêşveçûn li vê cîhazê dimîne', 'No account needed · progress stays on this device') }),
+          ] }),
       ] }),
-      hs('div', { style: { marginTop: 22, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }, children: [
-        hs('button', { type: 'button', 'data-testid': 'title-adult', onClick: onAdult, style: { minHeight: 44, padding: '0 14px', borderRadius: 12, border: 'none', background: 'transparent', color: C.text.secondary, fontFamily: F, fontSize: 13.5, fontWeight: 800, cursor: 'pointer' }, children: [
-          '👩‍🏫 ' + tt('Öğretmen · Ebeveyn', 'Mamoste · Dê û bav', 'Teacher · Parent'),
-          h('span', { style: { fontWeight: 600, opacity: .75 }, children: ' — ' + tt('Sınıf paneli, raporlar ve ayarlar', 'Panela polê, rapor û mîheng', 'Class panel, reports and settings') }),
+
+      // ── Yetişkinler
+      hs('section', { 'aria-label': tt('Yetişkin girişi', 'Têketina mezinan', 'Adult sign-in'), children: [
+        label('🔐 ' + tt('Yetişkin girişi', 'Têketina mezinan', 'Adult sign-in')),
+        hs('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 10 }, children: [
+          adultTile('title-adult', 'ogretmen', '👩‍🏫', tt('Öğretmen · Uzman', 'Mamoste · Pispor', 'Teacher · Specialist'), tt('Sınıf paneli, gelişim raporları, BEP taslağı ve araştırma verisi', 'Panela polê, raporên pêşveçûnê, pêşnûmeya BEP û daneyên lêkolînê', 'Class panel, progress reports, IEP draft and research data')),
+          adultTile('title-parent', 'ebeveyn', '👪', tt('Ebeveyn', 'Dê û bav', 'Parent'), tt('Çocuğunuzun gelişimi, haftalık öneriler, ayarlar ve yedekleme', 'Pêşveçûna zarokê we, pêşniyarên heftane, mîheng û paşek', "Your child's progress, weekly tips, settings and backup")),
         ] }),
+        h('p', { style: { margin: '10px 4px 0', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: tt('🔒 İlk girişte bu cihaz için bir yönetici şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke rêveberiyê tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an admin password is created for this device. Children cannot open the adult panel; data stays on this device.') }),
       ] }),
+
+      h('nav', { 'aria-label': tt('Bağlantılar', 'Girêdan', 'Links'), style: { marginTop: 22, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12.5, fontWeight: 700 }, children: [
+        ['/', tt('Tanıtım', 'Nasandin', 'About')], ['/kilavuz.html', tt('Kılavuz', 'Rêber', 'Guide')], ['/gizlilik.html', tt('Gizlilik', 'Nepenî', 'Privacy')], ['/erisilebilirlik.html', tt('Erişilebilirlik', 'Gihîştin', 'Accessibility')],
+      ].map(([href, t]) => h('a', { key: href, href, style: { color: C.text.secondary, textDecoration: 'none', padding: '8px 2px' }, children: t })) }),
     ] }),
   ] });
 }
 
 // ── Kaptan listesi ───────────────────────────────────────────────────────────
 function Captains({ kids, onPick, onNew, onBack, onAdult }) {
+  const lang = getLang();
   React.useEffect(() => { const t = setTimeout(() => speak('Kim oynuyor? Kendi resmine dokun!', 'Kî dilîze? Dest bide wêneyê xwe!', "Who's playing? Tap your picture!"), 400); return () => clearTimeout(t); }, []);
   const cardBase = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '20px 10px 16px', borderRadius: 16, cursor: 'pointer', fontFamily: F, minHeight: 168 };
-  return hs('div', { style: page, children: [
+  return hs('div', { lang, style: page, children: [
     h('style', { children: CSS }),
     h(SpaceBackground, { starCount: 36 }),
     hs('div', { style: col(620), children: [
@@ -220,7 +288,24 @@ function Create({ onDone, onCancel }) {
 
 // ── Kök bileşen (App'in çağırdığı varsayılan dışa aktarım) ───────────────────
 function CaptainEntry({ onStudent, onAdult, onPick }) {
-  const [view, setView] = React.useState('title');
+  const [view, setView] = React.useState(() => {
+    try {
+      const g = new URLSearchParams(window.location.search).get('giris');
+      if (g === 'kaptanlar' && listChildren().length) return 'captains';
+      if (g === 'yeni') return 'create';
+    } catch { /* URL okunamadı */ }
+    return 'title';
+  });
+  React.useEffect(() => {
+    try {
+      const u = new URL(window.location.href), g = u.searchParams.get('giris');
+      if (!g) return;
+      u.searchParams.delete('giris');
+      window.history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      if (g === 'ogretmen' || g === 'ebeveyn') setAdultRole(g);
+      if ((g === 'yetiskin' || g === 'ogretmen' || g === 'ebeveyn') && typeof onAdult === 'function') onAdult();
+    } catch { /* geçmiş API yok */ }
+  }, []);
   const [lang, setLang] = React.useState(() => getLang());
   const [kids, setKids] = React.useState(() => listChildren());
   React.useEffect(() => { const t = setTimeout(() => speak('Sayılar Galaksisi seni bekliyor!', 'Galaksiya Hejmaran li benda te ye!', 'The Number Galaxy is waiting for you!'), 600); return () => clearTimeout(t); }, []);

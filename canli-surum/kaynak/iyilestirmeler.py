@@ -55,9 +55,9 @@ for old, new in R:
 # (4) index.html: ek betik
 hp = f'{ROOT}/oyna/index.html'
 html = open(hp, encoding='utf-8').read()
-tag = '<script src="/oyna/galaksay-ek.js?v=1"></script>'
+tag = '<script src="/oyna/galaksay-ek.js?v=2"></script>'
 anchor = '<script type="module" crossorigin src="/oyna/assets/index-pKper_0i.js">'
-if tag not in html:
+if 'galaksay-ek.js' not in html:
     if html.count(anchor) != 1:
         print('EŞLEŞME: index.html modül betiği'); errors += 1
     else:
