@@ -293,6 +293,13 @@
         opacity: 0; transition: opacity .2s;
       }
       .space-btn-hover:active::after { opacity: 1; }
+      /* Genel düzen (27 Eyl 2026): çocuk ekranlarında (çocuk merkezi, görev ve seviye seçimi, oyun)
+         kaydırılabilir sütundaki içerik kısa ise dikeyde ortalanır; uzunsa otomatik boşluklar sıfırlanır
+         ve içerik üstten kayar. Yetişkin panelleri (liste/rapor) bu kuralın dışındadır. */
+      .page.space-bg div[style*="overflow: auto"][style*="flex-direction: column"] > :first-child,
+      .page.space-bg div[style*="overflow-y: auto"][style*="flex-direction: column"] > :first-child { margin-top: auto !important; }
+      .page.space-bg div[style*="overflow: auto"][style*="flex-direction: column"] > :last-child,
+      .page.space-bg div[style*="overflow-y: auto"][style*="flex-direction: column"] > :last-child { margin-bottom: auto !important; }
 
       /* ═══ GALAKSAY 27 EYL 2026 — TELEFON/TABLET SIĞDIRMA VE GÖREV SEÇİMİ CİLASI ═══
          Canlı kopya üzerinde: süsler içeriğe binmez, gezegen sırası taşmaz, görev kartları
