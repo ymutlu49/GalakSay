@@ -31,3 +31,14 @@ buradan yayımlanır. Masaüstü kaynağı depoya geldiğinde bu klasör kaldır
 | `site/oyna/assets/GalakSay-hIWssnXL.js` | Öğrenme yörüngesi düzeltmeleri (19 veri değişikliği; `kaynak/yorunge_duzeltmeleri.py`, gerekçeler `docs/YORUNGE_DENETIMI.md`). |
 | `site/index.html`, `site/img/ekran/*.webp` | "Uygulamadan Görüntüler" galerisi (7 telefon ekranı), menüde "Görüntüler"; "Nasıl Çalışır" 1. adım yeni hesapsız girişe göre güncellendi. |
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.12.0-20260927-yorunge`. |
+
+## 27 Eylül 2026 (akşam): madde ve seçenek denetimi
+
+14.600 üretilmiş madde denetlendi. Gerekçeler ve ölçümler `docs/MADDE_DENETIMI.md` dosyasındadır.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | Seçenek ve madde dengesi düzeltmeleri (8 değişiklik; `kaynak/secenek_duzeltmeleri.py`). Doğru yanıt artık %33 oranında ortada; önce %60 idi. Tahmin çeldiricileri ayırt edilebilir aralıkta. 2. seviye çıkarmada sıfır kuralı payı %25. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.13.0-20260927-secenek`. |
+
+Betik yörünge düzeltmelerinden sonra uygulanır: önce `yorunge_duzeltmeleri.py`, sonra `secenek_duzeltmeleri.py`.
