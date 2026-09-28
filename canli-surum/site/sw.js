@@ -4,7 +4,7 @@
      diğer aynı-köken GET'lerde stale-while-revalidate.
    - Uygulama varlıkları hash'li olduğu için cache büyümesi kontrollüdür;
      yeni sürümde VERSION bump'la → eski cache temizlenir. */
-const VERSION = 'galaksay-v5.19.0-20260928-numap';
+const VERSION = 'galaksay-v5.20.0-20260928-lisans';
 
 // İlk yüklemede çevrimdışı çalışması için önbelleğe alınan çekirdek kabuk.
 const CORE = [
@@ -65,8 +65,9 @@ self.addEventListener('fetch', (event) => {
       // "yeni sürüm görünmüyor / eski davranış sürüyor" şikâyetlerinin kaynağıydı).
       fetch(req, { cache: 'no-cache' })
         .then((res) => {
-          // NuMap SSO bileti (?sso=) taşıyan adres önbelleğe yazılmaz.
-          if (!url.searchParams.has('sso')) {
+          // NuMap SSO bileti (?sso=) taşıyan adres önbelleğe yazılmaz. Lisans kapısının
+          // yönlendirmesi (giriş sayfasına) de yazılmaz: çevrimdışıyken son geçerli kabuk açılır.
+          if (!url.searchParams.has('sso') && res.ok && res.type === 'basic') {
             const copy = res.clone();
             caches.open(VERSION).then((c) => c.put(req, copy));
           }

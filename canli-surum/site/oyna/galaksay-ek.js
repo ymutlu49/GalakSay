@@ -440,3 +440,41 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {}); });
 }
+
+/* ── 9) Lisans kapısından devir ve NuMap'ten öğrenciyle açılış ─────────────────
+ * gs_devir: sunucu (NuMap girişi ya da SSO) 60 sn'lik okunur çerezle NuMap oturumunu devreder;
+ * burada uygulamanın beklediği yere (numap_token / numap_user) yazılıp çerez silinir.
+ * ?ogrenci=<anahtar>: NuMap öğrenci sayfasından gelişte anahtar saklanır; liste yüklenince o
+ * öğrenci seçilir. Bu betik uygulama paketinden önce çalışır.
+ */
+(function () {
+  'use strict';
+  try {
+    var m = document.cookie.match(/(?:^|;\s*)gs_devir=([^;]+)/);
+    if (m) {
+      document.cookie = 'gs_devir=; Path=/oyna; Max-Age=0; Secure; SameSite=Lax';
+      var b64 = decodeURIComponent(m[1]).replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      var d = JSON.parse(decodeURIComponent(escape(atob(b64))));
+      if (d && d.token) {
+        var u = d.user || {};
+        u.assessmentRemaining = d.assessmentRemaining == null ? null : d.assessmentRemaining;
+        u.plan = d.plan == null ? null : d.plan;
+        u.entitlements = Array.isArray(d.entitlements) ? d.entitlements : null;
+        localStorage.setItem('numap_token', d.token);
+        localStorage.setItem('numap_user', JSON.stringify(u));
+        sessionStorage.setItem('gs_devir_taze', '1');
+      }
+    }
+  } catch (e) { /* devir yok ya da bozuk */ }
+  try {
+    var q = new URLSearchParams(location.search);
+    var k = q.get('ogrenci');
+    if (k !== null) {
+      if (/^[a-f0-9]{16}$/.test(k)) sessionStorage.setItem('gs_ogrenci', k);
+      q['delete']('ogrenci');
+      var rest = q.toString();
+      history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+    }
+  } catch (e) { /* yok say */ }
+})();

@@ -10,6 +10,10 @@ on:
         description: "onizleme ya da main"
         required: true
         default: onizleme
+      lisans_kapisi:
+        description: "kapali (herkes oynar) ya da acik (NuMap hesabı ya da aile daveti gerekir)"
+        required: false
+        default: kapali
 
 permissions:
   contents: read
@@ -51,8 +55,25 @@ jobs:
           else
             echo "FIREBASE_API_KEY tanımlı değil: hesap sistemi kapalı, giriş cihaz şifresiyle."
           fi
+      - name: Lisans kapısı
+        # canli-surum/functions (Pages Functions) her yayında gider. Kapı kapalıyken yalnız /api/lisans/*
+        # çalışır; /oyna/ bugünkü gibi herkese açıktır. Açıkken /oyna/ lisans çerezi ister.
+        env:
+          KAPI: ${{ inputs.lisans_kapisi }}
+        run: |
+          set -e
+          if [ "$KAPI" = "acik" ]; then
+            printf 'export const KAPI_ACIK = true;\n' > canli-surum/functions/_ayar.js
+            echo '{"version":1,"include":["/api/lisans/*","/oyna","/oyna/","/oyna/index.html"],"exclude":[]}' > canli-surum/site/_routes.json
+            sed -i "s/const VERSION = '\([^']*\)'/const VERSION = '\1-kapi'/" canli-surum/site/sw.js
+            echo "Lisans kapısı AÇIK."
+          else
+            echo "Lisans kapısı kapalı: /oyna/ herkese açık."
+          fi
+          cat canli-surum/functions/_ayar.js canli-surum/site/_routes.json
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CF_ACCOUNT_ID }}
-          command: pages deploy canli-surum/site --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }} --branch ${{ inputs.hedef }} --commit-dirty=true
+          workingDirectory: canli-surum
+          command: pages deploy site --project-name ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'galaksay' }} --branch ${{ inputs.hedef }} --commit-dirty=true

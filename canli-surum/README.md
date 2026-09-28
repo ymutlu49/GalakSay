@@ -136,3 +136,20 @@ Ayrıntı ve gerekçeler: [docs/NUMAP_BAGLANTISI.md](../docs/NUMAP_BAGLANTISI.md
 | `site/sw.js` | `?sso=` içeren adres önbelleğe yazılmaz; sürüm `galaksay-v5.19.0-20260928-numap`. |
 
 Uygulama sırası: … → `icerik_iyilestirmeleri.py` → `numap_baglantisi.py` → `giris_guvenligi.py`.
+
+## 28 Eylül 2026 (öğleden sonra): lisans kapısı ve NuMap bütünleşmesi
+
+Ayrıntı: [docs/NUMAP_BAGLANTISI.md](../docs/NUMAP_BAGLANTISI.md) §6.
+
+| Dosya | Değişiklik |
+|---|---|
+| `functions/` (Pages Functions) | Lisans kapısı: `oyna/_middleware.js` (kapı açıksa `/oyna/` lisans çerezi ister; `?sso=` sunucuda değişir), `api/lisans/oturum` (NuMap belirteci → lisans çerezi), `aile` (aile daveti), `durum`, `cikis`, `ilerleme` (aile cihazından NuMap'e). `_ayar.js` kapı bayrağı (varsayılan kapalı). |
+| `site/giris.html`, `giris.js`, `giris.css` | NuMap hesabıyla giriş sayfası; giriş tarayıcıdan NuMap'e yapılır. |
+| `site/aile.html`, `aile.js` | Aile bağlantısı sayfası (`/aile#…`); açık rıza seçimi. |
+| `site/_routes.json` | Kapı kapalıyken yalnız `/api/lisans/*` işlevlere gider. |
+| `site/oyna/assets/*` | `kaynak/lisans_kapisi.py`: aile cihazından ilerleme, `?ogrenci=` ile öğrenci seçimi, NuMap çıkışında lisans çerezinin silinmesi, taze girişte öğretmen merkezi, karşılaştırma maddelerinde `incongruent` işareti. |
+| `site/oyna/galaksay-ek.js` | §9 devir çerezi ve `?ogrenci=`. |
+| `site/gizlilik.html` | NuMap hesabı ve aile bağlantısıyla aktarım. |
+| `.github/workflows/deploy-live-snapshot.yml` | `lisans_kapisi` girdisi (kapali/acik); wrangler `canli-surum`'dan çalışır (`functions/` dahil). |
+
+Uygulama sırası: … → `giris_guvenligi.py` → `lisans_kapisi.py`.

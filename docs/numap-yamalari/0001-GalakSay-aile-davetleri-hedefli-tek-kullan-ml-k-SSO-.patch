@@ -1,0 +1,1788 @@
+From b95c0b70de7ada1c7566fe5a46c159d8f7b1d221 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 04:25:05 +0000
+Subject: [PATCH 1/2] =?UTF-8?q?GalakSay:=20aile=20davetleri,=20hedefli=20t?=
+ =?UTF-8?q?ek=20kullan=C4=B1ml=C4=B1k=20SSO,=20lisans=20denetimi?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Sunucu (geriye uyumlu, D1 göç adımı gerektirmez):
+- SSO bileti isteğe bağlı hedef uygulama (aud) taşır; hedefli bilet 60 sn,
+  tek kullanımlık (sso_ticket_uses), değişimde uygulama yetkisi denetlenir.
+  Hedefsiz eski bilet değişmedi (DokunSay, ABMATO, SayKent etkilenmez).
+- /game-progress "galaksay" yetkisi ister; yazım çekirdeği _lib/game-ingest.ts.
+- Aile davetleri: /api/family-invites (liste, oluşturma), [id] (iptal),
+  verify (GalakSay sunucusu için), game-progress (aile cihazından ilerleme,
+  öğretmenin sahipliğinde davetin öğrencisine). Davet özeti saklanır;
+  sahibin ya da kurumun lisansı kalkınca davetler düşer.
+- Öğrenci ilerlemesinde karşılaştırma maddeleri uyumlu/uyumsuz ayrımı.
+
+Arayüz:
+- Öğrenci sayfasında GalakSay paneli: önerilen rota (rapor odak alanları),
+  müdahale dozu (42 oturum / 13 hafta) ve yeniden tarama hatırlatması,
+  GalakSay'ı öğrenciyle açma, aile daveti oluşturma/iptal.
+- GalakSay açılışları hedefli bilet kullanır; öğrenci ayrıntısında ogrenci
+  parametresi eklenir. Ayrıntıda görsel ipucu ayrımı kartı.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MBcrzgQnZ329WbeWCNQ9zH
+---
+ db/migrations/0013_sso_family_invites.sql     |  26 +++
+ db/schema.sql                                 |  23 +++
+ functions/_lib/audit.ts                       |   6 +-
+ functions/_lib/family.ts                      | 152 ++++++++++++++++
+ functions/_lib/game-ingest.ts                 | 163 ++++++++++++++++++
+ functions/_lib/sso.ts                         |  74 ++++++--
+ functions/api/auth/sso/exchange.ts            |  31 +++-
+ functions/api/auth/sso/issue.ts               |  18 +-
+ functions/api/family-invites.ts               |  77 +++++++++
+ functions/api/family-invites/[id].ts          |  26 +++
+ functions/api/family-invites/game-progress.ts |  39 +++++
+ functions/api/family-invites/verify.ts        |  41 +++++
+ functions/api/game-progress.ts                | 132 +-------------
+ .../api/students/[studentKey]/progress.ts     |  27 +++
+ .../game-progress/GalaksayStudentPanel.tsx    | 160 +++++++++++++++++
+ .../game-progress/family-invites-api.ts       |  55 ++++++
+ src/features/game-progress/galaksay-dose.ts   |  55 ++++++
+ .../game-progress/game-progress-api.ts        |   5 +
+ src/features/students/StudentHub.tsx          |   9 +
+ src/i18n/locales/en.json                      |  41 ++++-
+ src/i18n/locales/tr.json                      |  41 ++++-
+ src/lib/sso.ts                                |  23 ++-
+ src/pages/GameProgressPage.tsx                |  30 +++-
+ tests/unit/galaksay-dose.test.ts              |  46 +++++
+ tests/unit/student-hub.test.tsx               |  22 +++
+ 25 files changed, 1160 insertions(+), 162 deletions(-)
+ create mode 100644 db/migrations/0013_sso_family_invites.sql
+ create mode 100644 functions/_lib/family.ts
+ create mode 100644 functions/_lib/game-ingest.ts
+ create mode 100644 functions/api/family-invites.ts
+ create mode 100644 functions/api/family-invites/[id].ts
+ create mode 100644 functions/api/family-invites/game-progress.ts
+ create mode 100644 functions/api/family-invites/verify.ts
+ create mode 100644 src/features/game-progress/GalaksayStudentPanel.tsx
+ create mode 100644 src/features/game-progress/family-invites-api.ts
+ create mode 100644 src/features/game-progress/galaksay-dose.ts
+ create mode 100644 tests/unit/galaksay-dose.test.ts
+
+diff --git a/db/migrations/0013_sso_family_invites.sql b/db/migrations/0013_sso_family_invites.sql
+new file mode 100644
+index 0000000..6b68763
+--- /dev/null
++++ b/db/migrations/0013_sso_family_invites.sql
+@@ -0,0 +1,26 @@
++-- 0013_sso_family_invites.sql
++-- Kayıt amaçlı: iki tablo da ilk kullanımda kod tarafından CREATE TABLE IF NOT EXISTS ile
++-- oluşturulur (functions/_lib/sso.ts, functions/_lib/family.ts); bu dosyayı uygulamak zorunlu değil.
++
++-- Tek kullanımlık SSO biletleri (hedef uygulamalı biletler). expires_at: unix saniye.
++CREATE TABLE IF NOT EXISTS sso_ticket_uses (
++  nonce      TEXT PRIMARY KEY,
++  expires_at INTEGER NOT NULL
++);
++
++-- GalakSay aile davetleri: lisanslı öğretmenin bir öğrenci için aileye verdiği bağlantı.
++-- token_hash = SHA-256(davet); düz davet saklanmaz.
++CREATE TABLE IF NOT EXISTS family_invites (
++  id             TEXT PRIMARY KEY,
++  token_hash     TEXT NOT NULL UNIQUE,
++  owner_id       TEXT NOT NULL,
++  institution_id TEXT,
++  student_key    TEXT NOT NULL,
++  label          TEXT NOT NULL DEFAULT '',
++  created_at     TEXT NOT NULL,
++  expires_at     TEXT NOT NULL,
++  revoked_at     TEXT,
++  last_used_at   TEXT
++);
++CREATE INDEX IF NOT EXISTS idx_family_invites_owner ON family_invites(owner_id);
++CREATE INDEX IF NOT EXISTS idx_family_invites_student ON family_invites(student_key);
+diff --git a/db/schema.sql b/db/schema.sql
+index 4198eb5..9671c30 100644
+--- a/db/schema.sql
++++ b/db/schema.sql
+@@ -214,3 +214,26 @@ CREATE TABLE IF NOT EXISTS clinical_forms (
+ CREATE INDEX IF NOT EXISTS idx_cforms_key   ON clinical_forms(student_key);
+ CREATE INDEX IF NOT EXISTS idx_cforms_owner ON clinical_forms(owner_id);
+ CREATE INDEX IF NOT EXISTS idx_cforms_inst  ON clinical_forms(institution_id);
++
++-- Tek kullanımlık SSO biletleri (hedef uygulamalı biletler). expires_at: unix saniye.
++CREATE TABLE IF NOT EXISTS sso_ticket_uses (
++  nonce      TEXT PRIMARY KEY,
++  expires_at INTEGER NOT NULL
++);
++
++-- GalakSay aile davetleri: lisanslı öğretmenin bir öğrenci için aileye verdiği bağlantı.
++-- token_hash = SHA-256(davet); düz davet saklanmaz.
++CREATE TABLE IF NOT EXISTS family_invites (
++  id             TEXT PRIMARY KEY,
++  token_hash     TEXT NOT NULL UNIQUE,
++  owner_id       TEXT NOT NULL,
++  institution_id TEXT,
++  student_key    TEXT NOT NULL,
++  label          TEXT NOT NULL DEFAULT '',
++  created_at     TEXT NOT NULL,
++  expires_at     TEXT NOT NULL,
++  revoked_at     TEXT,
++  last_used_at   TEXT
++);
++CREATE INDEX IF NOT EXISTS idx_family_invites_owner ON family_invites(owner_id);
++CREATE INDEX IF NOT EXISTS idx_family_invites_student ON family_invites(student_key);
+diff --git a/functions/_lib/audit.ts b/functions/_lib/audit.ts
+index f09ecd2..b647951 100644
+--- a/functions/_lib/audit.ts
++++ b/functions/_lib/audit.ts
+@@ -45,7 +45,10 @@ export type AuditAction =
+   | 'trajectory.delete'
+   | 'class_list.write'
+   | 'class_list.delete'
+-  | 'class_list.import';
++  | 'class_list.import'
++  | 'family_invite.create'
++  | 'family_invite.revoke'
++  | 'family_invite.verify';
+ 
+ export interface AuditEvent {
+   actorId: string;
+@@ -60,6 +63,7 @@ export interface AuditEvent {
+     | 'bop_plan'
+     | 'trajectory_assessment'
+     | 'trajectory_history'
++    | 'family_invite'
+     | null;
+   targetId?: string | null;
+   ip?: string | null;
+diff --git a/functions/_lib/family.ts b/functions/_lib/family.ts
+new file mode 100644
+index 0000000..8a5b5e8
+--- /dev/null
++++ b/functions/_lib/family.ts
+@@ -0,0 +1,152 @@
++// Numap API — GalakSay aile davetleri (kurum/öğretmen lisansı altında evde oynama).
++//
++// Lisanslı öğretmen, taradığı bir öğrenci için aileye bağlantı üretir:
++//   https://galaksay.com/aile#<davet>
++// GalakSay sunucusu daveti /api/family-invites/verify ile doğrular ve cihaza lisans çerezi
++// verir; ailenin çocuğu evde oynar, ilerleme /api/family-invites/game-progress ile
++// öğretmenin sahipliğinde o öğrenciye yazılır. Aile NuMap hesabı açmaz, NuMap'e giremez.
++//
++// Güvenlik: davet 32 bayt rastgele; sunucuda yalnız SHA-256 özeti tutulur. Süre (varsayılan
++// 180 gün), iptal ve sahibin lisansı her doğrulamada denetlenir: öğretmenin ya da kurumun
++// GalakSay yetkisi kalkarsa bütün davetleri kendiliğinden geçersizleşir.
++//
++// Tablo ilk kullanımda oluşturulur (ayrı göç adımı gerekmez); tanım db/migrations/0013'te de var.
++
++import type { Env } from './http';
++import type { DbUser } from './auth';
++import { canAccessSession } from './auth';
++import { userHasEntitlement } from './entitlements';
++
++export const INVITE_DAYS_DEFAULT = 180;
++export const INVITE_DAYS_MAX = 365;
++export const INVITES_PER_OWNER_MAX = 300;
++
++export interface FamilyInviteRow {
++  id: string;
++  token_hash: string;
++  owner_id: string;
++  institution_id: string | null;
++  student_key: string;
++  label: string;
++  created_at: string;
++  expires_at: string;
++  revoked_at: string | null;
++  last_used_at: string | null;
++}
++
++let ready = false;
++export async function ensureFamilyTable(env: Env): Promise<void> {
++  if (ready) return;
++  await env.DB.batch([
++    env.DB.prepare(
++      `CREATE TABLE IF NOT EXISTS family_invites (
++         id TEXT PRIMARY KEY,
++         token_hash TEXT NOT NULL UNIQUE,
++         owner_id TEXT NOT NULL,
++         institution_id TEXT,
++         student_key TEXT NOT NULL,
++         label TEXT NOT NULL DEFAULT '',
++         created_at TEXT NOT NULL,
++         expires_at TEXT NOT NULL,
++         revoked_at TEXT,
++         last_used_at TEXT
++       )`,
++    ),
++    env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_family_invites_owner ON family_invites(owner_id)'),
++    env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_family_invites_student ON family_invites(student_key)'),
++  ]);
++  ready = true;
++}
++
++function b64url(bytes: Uint8Array): string {
++  let s = '';
++  for (const b of bytes) s += String.fromCharCode(b);
++  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
++}
++
++export function newInviteToken(): string {
++  return `ad_${b64url(crypto.getRandomValues(new Uint8Array(32)))}`;
++}
++
++export async function hashInviteToken(token: string): Promise<string> {
++  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token) as BufferSource);
++  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
++}
++
++export function isInviteTokenShape(v: unknown): v is string {
++  return typeof v === 'string' && /^ad_[A-Za-z0-9_-]{40,50}$/.test(v);
++}
++
++/** Kullanıcı bu öğrenciye erişebiliyor mu? (tarama oturumu, sınıf listesi ya da yörünge kaydı) */
++export async function canAccessStudent(env: Env, user: DbUser, studentKey: string): Promise<boolean> {
++  const owners: Array<{ owner_id: string; institution_id: string | null }> = [];
++  const q = async (sql: string) => {
++    const { results } = await env.DB.prepare(sql).bind(studentKey).all<{ owner_id: string; institution_id: string | null }>();
++    owners.push(...results);
++  };
++  await q('SELECT owner_id, institution_id FROM sessions WHERE student_key = ? AND deleted_at IS NULL LIMIT 50');
++  if (!owners.some((o) => canAccessSession(user, o.owner_id, o.institution_id))) {
++    try {
++      await q(
++        `SELECT l.owner_id AS owner_id, l.institution_id AS institution_id
++         FROM roster_students r JOIN class_lists l ON l.id = r.list_id WHERE r.student_key = ? LIMIT 50`,
++      );
++    } catch { /* tablo yoksa atla */ }
++    try {
++      await q('SELECT owner_id, institution_id FROM trajectory_assessments WHERE student_key = ? LIMIT 50');
++    } catch { /* tablo yoksa atla */ }
++  }
++  return owners.some((o) => canAccessSession(user, o.owner_id, o.institution_id));
++}
++
++export interface ActiveInvite {
++  invite: FamilyInviteRow;
++  owner: DbUser;
++}
++
++/**
++ * Daveti doğrular: biçim, kayıt, iptal, süre, sahibin etkinliği ve GalakSay lisansı.
++ * Geçerliyse davet + sahip; değilse null (neden ayrımı dışarı sızdırılmaz).
++ */
++export async function resolveInvite(env: Env, token: unknown): Promise<ActiveInvite | null> {
++  if (!isInviteTokenShape(token)) return null;
++  await ensureFamilyTable(env);
++  const invite = await env.DB.prepare('SELECT * FROM family_invites WHERE token_hash = ?')
++    .bind(await hashInviteToken(token))
++    .first<FamilyInviteRow>();
++  if (!invite || invite.revoked_at) return null;
++  if (Date.parse(invite.expires_at) <= Date.now()) return null;
++  const owner = await env.DB.prepare('SELECT * FROM users WHERE id = ? AND active = 1')
++    .bind(invite.owner_id)
++    .first<DbUser>();
++  if (!owner) return null;
++  if (!(await userHasEntitlement(env, owner, 'galaksay'))) return null;
++  return { invite, owner };
++}
++
++/** Son kullanım zamanını en çok saatte bir günceller (yazım yükü düşük kalır). */
++export async function touchInvite(env: Env, invite: FamilyInviteRow): Promise<void> {
++  const last = invite.last_used_at ? Date.parse(invite.last_used_at) : 0;
++  if (Date.now() - last < 3600_000) return;
++  try {
++    await env.DB.prepare('UPDATE family_invites SET last_used_at = ? WHERE id = ?')
++      .bind(new Date().toISOString(), invite.id)
++      .run();
++  } catch { /* best-effort */ }
++}
++
++/** Listeleme/yanıt için güvenli görünüm (özet ve sahiplik alanları yok). */
++export function publicInvite(r: FamilyInviteRow) {
++  const now = Date.now();
++  const status = r.revoked_at ? 'revoked' : Date.parse(r.expires_at) <= now ? 'expired' : 'active';
++  return {
++    id: r.id,
++    studentKey: r.student_key,
++    label: r.label,
++    createdAt: r.created_at,
++    expiresAt: r.expires_at,
++    revokedAt: r.revoked_at,
++    lastUsedAt: r.last_used_at,
++    status,
++  };
++}
+diff --git a/functions/_lib/game-ingest.ts b/functions/_lib/game-ingest.ts
+new file mode 100644
+index 0000000..7c67b22
+--- /dev/null
++++ b/functions/_lib/game-ingest.ts
+@@ -0,0 +1,163 @@
++// Numap API — Galaksay oyun verisinin merkezi havuza yazımı (ortak çekirdek).
++// /api/game-progress (öğretmen Bearer) ve /api/family-invites/game-progress (aile daveti)
++// aynı çekirdeği kullanır. Sahiplik (owner_id/institution_id) ÇAĞIRANDAN gelir, gövdeden
++// alınmaz. forceStudentKey verilirse (aile daveti bir öğrenciye bağlı) bütün satırlar o
++// öğrenciye yazılır: childId "numap_<key>" olur.
++
++import type { Env } from './http';
++
++const BLOB_LIMIT = 240 * 1024; // tek events_json üst sınırı
++const CHUNK = 50; // D1 batch ifade sınırı (emniyetli)
++
++export interface GameBody {
++  sessions?: unknown;
++  events?: unknown;
++  ltTransitions?: unknown;
++  dailySummaries?: unknown;
++}
++
++export type GameAccepted = {
++  sessions: number;
++  events: number;
++  ltTransitions: number;
++  dailySummaries: number;
++};
++
++/** childId "numap_<16hex>" → student_key; uymuyorsa null (longitudinal bağ kopuk). */
++export function deriveStudentKey(childId: unknown): string | null {
++  if (typeof childId !== 'string') return null;
++  const m = /^numap_([a-f0-9]{16})$/.exec(childId);
++  return m ? m[1] : null;
++}
++
++const num = (v: unknown): number => (Number.isFinite(Number(v)) ? Number(v) : 0);
++const numOrNull = (v: unknown): number | null => (v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v));
++const strOrNull = (v: unknown): string | null => (typeof v === 'string' && v.length ? v : null);
++
++/** Gövdedeki childId'leri öğrenciye sabitler (aile daveti). */
++function pin<T>(list: unknown, childId: string | null): T[] {
++  const arr = Array.isArray(list) ? (list as Array<Record<string, unknown>>) : [];
++  return (childId ? arr.map((x) => (x && typeof x === 'object' ? { ...x, childId } : x)) : arr) as T[];
++}
++
++export async function ingestGameProgress(
++  env: Env,
++  raw: GameBody,
++  owner: { ownerId: string; institutionId: string | null; forceStudentKey?: string | null },
++): Promise<GameAccepted> {
++  const forced = owner.forceStudentKey && /^[a-f0-9]{16}$/.test(owner.forceStudentKey) ? `numap_${owner.forceStudentKey}` : null;
++  const body: GameBody = {
++    sessions: pin(raw.sessions, forced),
++    events: pin(raw.events, forced),
++    ltTransitions: pin(raw.ltTransitions, forced),
++    dailySummaries: pin(raw.dailySummaries, forced),
++  };
++  const oid = owner.ownerId;
++  const iid = owner.institutionId;
++  const now = new Date().toISOString();
++  const stmts: D1PreparedStatement[] = [];
++  const accepted = { sessions: 0, events: 0, ltTransitions: 0, dailySummaries: 0 };
++
++  // ── game_sessions (özet) ──
++  const sessions = Array.isArray(body.sessions) ? body.sessions : [];
++  for (const s of sessions as Array<Record<string, unknown>>) {
++    if (typeof s?.sessionId !== 'string' || typeof s?.childId !== 'string') continue;
++    stmts.push(env.DB.prepare(
++      `INSERT INTO game_sessions
++         (session_id, child_id, student_key, owner_id, institution_id, start_time, end_time,
++          duration_ms, questions_attempted, questions_correct, categories_visited, device_type, app_version, synced_at)
++       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
++       ON CONFLICT(session_id) DO UPDATE SET
++         end_time=excluded.end_time, duration_ms=excluded.duration_ms,
++         questions_attempted=excluded.questions_attempted, questions_correct=excluded.questions_correct,
++         categories_visited=excluded.categories_visited, synced_at=excluded.synced_at`,
++    ).bind(
++      s.sessionId, s.childId, deriveStudentKey(s.childId), oid, iid,
++      String(s.startTime ?? now), strOrNull(s.endTime), num(s.durationMs),
++      num(s.questionsAttempted), num(s.questionsCorrect),
++      JSON.stringify(Array.isArray(s.categoriesVisited) ? s.categoriesVisited : []),
++      strOrNull(s.deviceType), strOrNull(s.appVersion), now,
++    ));
++    accepted.sessions++;
++  }
++
++  // ── game_events_blob (madde-düzey, oturum×kategori) ──
++  const events = Array.isArray(body.events) ? body.events : [];
++  for (const e of events as Array<Record<string, unknown>>) {
++    if (typeof e?.sessionId !== 'string' || typeof e?.category !== 'string' || !Array.isArray(e.items)) continue;
++    const items = e.items as Array<Record<string, unknown>>;
++    const blob = JSON.stringify(items);
++    if (blob.length > BLOB_LIMIT) continue; // aşırı büyük blob atla
++    const ts = items.map((it) => num(it?.timestamp)).filter((x) => x > 0);
++    stmts.push(env.DB.prepare(
++      `INSERT INTO game_events_blob
++         (session_id, category, child_id, student_key, owner_id, institution_id,
++          event_count, first_ts, last_ts, events_json, synced_at)
++       VALUES (?,?,?,?,?,?,?,?,?,?,?)
++       ON CONFLICT(session_id, category) DO UPDATE SET
++         event_count=excluded.event_count, first_ts=excluded.first_ts, last_ts=excluded.last_ts,
++         events_json=excluded.events_json, synced_at=excluded.synced_at
++       WHERE excluded.event_count >= game_events_blob.event_count`,
++    ).bind(
++      e.sessionId, e.category, strOrNull(e.childId) ?? '', deriveStudentKey(e.childId), oid, iid,
++      items.length, ts.length ? Math.min(...ts) : null, ts.length ? Math.max(...ts) : null, blob, now,
++    ));
++    accepted.events++;
++  }
++
++  // ── lt_transitions (seviye geçişi — değişmez, ilk yazım kalır) ──
++  const lts = Array.isArray(body.ltTransitions) ? body.ltTransitions : [];
++  for (const t of lts as Array<Record<string, unknown>>) {
++    if (typeof t?.childId !== 'string' || typeof t?.category !== 'string') continue;
++    const occurredAt = String(t.occurredAt ?? now);
++    const uid = `${t.childId}|${t.category}|${occurredAt}`;
++    stmts.push(env.DB.prepare(
++      `INSERT INTO lt_transitions
++         (transition_uid, child_id, student_key, owner_id, institution_id, category,
++          from_level, to_level, direction, criteria_snapshot, occurred_at, synced_at)
++       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
++       ON CONFLICT(transition_uid) DO NOTHING`,
++    ).bind(
++      uid, t.childId, deriveStudentKey(t.childId), oid, iid, t.category,
++      num(t.fromLevel), num(t.toLevel), t.direction === 'down' ? 'down' : 'up',
++      t.criteriaSnapshot != null ? JSON.stringify(t.criteriaSnapshot) : null, occurredAt, now,
++    ));
++    accepted.ltTransitions++;
++  }
++
++  // ── game_daily_summary (gün içinde değişir — son gelen kazanır) ──
++  const dailies = Array.isArray(body.dailySummaries) ? body.dailySummaries : [];
++  for (const d of dailies as Array<Record<string, unknown>>) {
++    if (typeof d?.childId !== 'string' || typeof d?.date !== 'string' || typeof d?.category !== 'string') continue;
++    const uid = `${d.childId}|${d.date}|${d.category}`;
++    stmts.push(env.DB.prepare(
++      `INSERT INTO game_daily_summary
++         (summary_uid, child_id, student_key, owner_id, institution_id, date, category,
++          questions_attempted, questions_correct, accuracy, avg_response_time_ms, avg_hint_level,
++          hint_dependency_rate, concrete_support_rate, lt_level, session_count, synced_at)
++       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
++       ON CONFLICT(summary_uid) DO UPDATE SET
++         questions_attempted=excluded.questions_attempted, questions_correct=excluded.questions_correct,
++         accuracy=excluded.accuracy, avg_response_time_ms=excluded.avg_response_time_ms,
++         avg_hint_level=excluded.avg_hint_level, hint_dependency_rate=excluded.hint_dependency_rate,
++         concrete_support_rate=excluded.concrete_support_rate, lt_level=excluded.lt_level,
++         session_count=excluded.session_count, synced_at=excluded.synced_at`,
++    ).bind(
++      uid, d.childId, deriveStudentKey(d.childId), oid, iid, d.date, d.category,
++      num(d.questionsAttempted), num(d.questionsCorrect), numOrNull(d.accuracy),
++      numOrNull(d.avgResponseTimeMs), numOrNull(d.avgHintLevel), numOrNull(d.hintDependencyRate),
++      numOrNull(d.concreteSupportRate), numOrNull(d.ltLevel), num(d.sessionCount), now,
++    ));
++    accepted.dailySummaries++;
++  }
++
++  if (stmts.length === 0) return accepted;
++
++  // D1 batch ifade sınırı → CHUNK'lara böl (idempotent olduğu için güvenli).
++  for (let i = 0; i < stmts.length; i += CHUNK) {
++    await env.DB.batch(stmts.slice(i, i + CHUNK));
++  }
++
++
++  return accepted;
++}
+diff --git a/functions/_lib/sso.ts b/functions/_lib/sso.ts
+index 1e1e145..58770ba 100644
+--- a/functions/_lib/sso.ts
++++ b/functions/_lib/sso.ts
+@@ -10,16 +10,27 @@
+ //        POST /api/auth/sso/exchange  { ticket }  → { token, user, ... } (login ile aynı)
+ //
+ // Bilet = `<userId>.<exp>.<nonce>.<HMAC-SHA256(secret, "<userId>.<exp>.<nonce>")>`
++//   ya da hedef uygulamalı (aud) biçim:
++//   `<userId>.<exp>.<nonce>.<aud>.<HMAC-SHA256(secret, "<userId>.<exp>.<nonce>.<aud>")>`
++// aud varsa bilet yalnız o uygulamada geçerlidir ve değişimde o uygulamanın yetkisi denetlenir.
++// Her bilet TEK KULLANIMLIKTIR: nonce ilk değişimde sso_ticket_uses tablosuna yazılır.
+ // Bayrak: SSO_TICKET_SECRET (wrangler pages secret put SSO_TICKET_SECRET).
+ // Realtime ticket'tan AYRI secret → bağımsız rotasyon, ayrı amaç.
+ //
+ // Güvenlik: bilet 30 günlük bearer'ı DEĞİL, 90 sn'lik tek-yönlü devir jetonunu temsil
+-// eder. URL'de görünür; bu yüzden TTL kısa tutulur ve hedef site bileti aldıktan hemen
+-// sonra URL'den temizler. (İleride tek-kullanımlık nonce kaydıyla replay tümden kapatılabilir.)
++// eder. URL'de görünür; bu yüzden TTL kısa tutulur, hedef site bileti aldıktan hemen
++// sonra URL'den temizler ve nonce kaydı yeniden kullanımı (replay) kapatır.
+ 
+ import type { Env } from './http';
+ 
+-const TTL_SEC = 90;
++const TTL_SEC = 60;
++
++/** Bilet hedefi olabilecek uygulamalar (entitlement anahtarlarıyla aynı). */
++export const SSO_APPS = ['galaksay', 'dokunsay', 'abmato', 'saykent', 'iyilikormani'] as const;
++export type SsoApp = (typeof SSO_APPS)[number];
++export function isSsoApp(v: unknown): v is SsoApp {
++  return typeof v === 'string' && (SSO_APPS as readonly string[]).includes(v);
++}
+ 
+ async function hmacB64Url(secret: string, msg: string): Promise<string> {
+   const key = await crypto.subtle.importKey(
+@@ -44,32 +55,73 @@ function randomNonce(): string {
+     .replace(/=/g, '');
+ }
+ 
+-export async function issueSsoTicket(env: Env, userId: string): Promise<string> {
++export async function issueSsoTicket(env: Env, userId: string, aud?: SsoApp): Promise<string> {
+   const secret = env.SSO_TICKET_SECRET;
+   if (!secret) throw new Error('SSO_TICKET_SECRET tanımsız.');
+   const exp = Math.floor(Date.now() / 1000) + TTL_SEC;
+   const nonce = randomNonce();
+-  const payload = `${userId}.${exp}.${nonce}`;
++  const payload = aud ? `${userId}.${exp}.${nonce}.${aud}` : `${userId}.${exp}.${nonce}`;
+   const sig = await hmacB64Url(secret, payload);
+   return `${payload}.${sig}`;
+ }
+ 
++export interface SsoTicketClaims {
++  userId: string;
++  exp: number;
++  nonce: string;
++  /** Hedef uygulama; eski (4 parçalı) biletlerde null. */
++  aud: SsoApp | null;
++}
++
+ /** Geçerli ise userId döner; geçersiz/expired/tampered ise null. Constant-time karşılaştırma. */
+ export async function verifySsoTicket(env: Env, ticket: string): Promise<string | null> {
++  return (await readSsoTicket(env, ticket))?.userId ?? null;
++}
++
++/** İmza + süre doğrular ve bilet içeriğini döner (tek kullanım denetimi consumeSsoNonce'ta). */
++export async function readSsoTicket(env: Env, ticket: string): Promise<SsoTicketClaims | null> {
+   const secret = env.SSO_TICKET_SECRET;
+   if (!secret) return null;
+   const parts = ticket.split('.');
+-  if (parts.length !== 4) return null;
+-  const [uid, expStr, nonce, sig] = parts;
++  if (parts.length !== 4 && parts.length !== 5) return null;
++  const sig = parts[parts.length - 1];
++  const [uid, expStr, nonce] = parts;
++  const aud = parts.length === 5 ? parts[3] : null;
+   if (!uid || !expStr || !nonce || !sig) return null;
+-  const expected = await hmacB64Url(secret, `${uid}.${expStr}.${nonce}`);
++  if (aud !== null && !isSsoApp(aud)) return null;
++  const expected = await hmacB64Url(secret, parts.slice(0, -1).join('.'));
+   if (expected.length !== sig.length) return null;
+   let diff = 0;
+   for (let i = 0; i < sig.length; i++) diff |= expected.charCodeAt(i) ^ sig.charCodeAt(i);
+   if (diff !== 0) return null;
+-  if (!Number.isFinite(Number(expStr))) return null;
+-  if (Number(expStr) < Math.floor(Date.now() / 1000)) return null;
+-  return uid;
++  const exp = Number(expStr);
++  if (!Number.isFinite(exp)) return null;
++  if (exp < Math.floor(Date.now() / 1000)) return null;
++  return { userId: uid, exp, nonce, aud };
++}
++
++// Tek kullanım kaydı. Tablo ilk kullanımda oluşturulur (CREATE TABLE IF NOT EXISTS) —
++// ayrı bir D1 göç adımı gerektirmez; db/migrations/0013 aynı tanımı kayıt için içerir.
++let usesTableReady = false;
++async function ensureUsesTable(env: Env): Promise<void> {
++  if (usesTableReady) return;
++  await env.DB.prepare(
++    'CREATE TABLE IF NOT EXISTS sso_ticket_uses (nonce TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)',
++  ).run();
++  usesTableReady = true;
++}
++
++/** Nonce'u harcar. İlk kullanımda true; daha önce kullanılmışsa false. */
++export async function consumeSsoNonce(env: Env, nonce: string, exp: number): Promise<boolean> {
++  await ensureUsesTable(env);
++  const r = await env.DB.prepare('INSERT INTO sso_ticket_uses (nonce, expires_at) VALUES (?, ?) ON CONFLICT(nonce) DO NOTHING')
++    .bind(nonce, exp)
++    .run();
++  // Ara sıra süresi geçmiş kayıtları temizle (tablo küçük kalır).
++  if (Math.random() < 0.05) {
++    await env.DB.prepare('DELETE FROM sso_ticket_uses WHERE expires_at < ?').bind(Math.floor(Date.now() / 1000) - 3600).run();
++  }
++  return (r.meta?.changes ?? 0) === 1;
+ }
+ 
+ export const SSO_TICKET_TTL_SEC = TTL_SEC;
+diff --git a/functions/api/auth/sso/exchange.ts b/functions/api/auth/sso/exchange.ts
+index eaa7145..cea5467 100644
+--- a/functions/api/auth/sso/exchange.ts
++++ b/functions/api/auth/sso/exchange.ts
+@@ -1,28 +1,43 @@
+-// Siteler-arası SSO bilet değişimi. POST /api/auth/sso/exchange  { ticket }.
++// Siteler-arası SSO bilet değişimi. POST /api/auth/sso/exchange  { ticket, app? }.
+ // Hedef site (galaksay/dokunsay/abmato) Numap'ten devraldığı bileti burada doğrulatır;
+ // geçerliyse o kullanıcı için TAZE 30 günlük oturum token'ı verilir (login ile aynı yanıt
+ // biçimi: token + user + assessmentRemaining + plan + entitlements). Bearer gerekmez —
+ // güven, HMAC-imzalı + kısa-ömürlü bilete dayanır. CORS izinli origin'ler _cors.ts'te.
++//
++// Hedef uygulamalı (aud) bilet: tek kullanımlıktır; istekte app verilmişse aud ile
++// eşleşmelidir; kullanıcının o uygulamaya yetkisi yoksa 403. Eski biçimli bilet
++// (aud yok) önceki davranışla doğrulanır — mevcut hedef siteler etkilenmez.
+ import { json, fail, readJson, type Env } from '../../../_lib/http';
+ import { issueToken, publicUser, assessmentUsage, type DbUser } from '../../../_lib/auth';
+-import { verifySsoTicket } from '../../../_lib/sso';
++import { readSsoTicket, consumeSsoNonce, isSsoApp } from '../../../_lib/sso';
+ import { resolveEntitlements } from '../../../_lib/entitlements';
+ import { audit } from '../../../_lib/audit';
+ import { clientIp } from '../../../_lib/ratelimit';
+ 
+ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+-  const body = await readJson<{ ticket: string }>(request);
++  const body = await readJson<{ ticket: string; app: string }>(request);
+   const ticket = (body.ticket ?? '').trim();
+   if (!ticket) return fail('Bilet gerekli.', 422);
+ 
+-  const userId = await verifySsoTicket(env, ticket);
+-  if (!userId) return fail('Geçersiz veya süresi dolmuş bilet.', 401);
++  const claims = await readSsoTicket(env, ticket);
++  if (!claims) return fail('Geçersiz veya süresi dolmuş bilet.', 401);
++  if (claims.aud) {
++    if (body.app !== undefined && (!isSsoApp(body.app) || body.app !== claims.aud)) {
++      return fail('Bilet bu uygulama için verilmemiş.', 401);
++    }
++    if (!(await consumeSsoNonce(env, claims.nonce, claims.exp))) {
++      return fail('Bu bilet zaten kullanıldı.', 401);
++    }
++  }
+ 
+   const user = await env.DB.prepare('SELECT * FROM users WHERE id = ? AND active = 1')
+-    .bind(userId)
++    .bind(claims.userId)
+     .first<DbUser>();
+   if (!user) return fail('Kullanıcı bulunamadı veya pasif.', 401);
+ 
++  const { plan, entitlements } = await resolveEntitlements(env, user);
++  if (claims.aud && !entitlements.includes(claims.aud)) return fail('Bu uygulama için yetkiniz yok.', 403);
++
+   const token = await issueToken(env, user.id);
+   await audit(env, {
+     actorId: user.id,
+@@ -31,8 +46,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+     targetType: 'user',
+     targetId: user.id,
+     ip: clientIp(request),
++    meta: claims.aud ? { app: claims.aud } : undefined,
+   });
+   const usage = await assessmentUsage(env, user);
+-  const { plan, entitlements } = await resolveEntitlements(env, user);
+-  return json({ token, user: publicUser(user), assessmentRemaining: usage.remaining, plan, entitlements });
++  return json({ token, user: publicUser(user), assessmentRemaining: usage.remaining, plan, entitlements, aud: claims.aud });
+ };
+diff --git a/functions/api/auth/sso/issue.ts b/functions/api/auth/sso/issue.ts
+index 5cb4bb8..ac5f647 100644
+--- a/functions/api/auth/sso/issue.ts
++++ b/functions/api/auth/sso/issue.ts
+@@ -1,17 +1,24 @@
+-// Siteler-arası SSO bileti veren uç. POST /api/auth/sso/issue.
+-// Giriş yapmış Numap kullanıcısı (Bearer) için 90 sn'lik HMAC-imzalı bilet üretir.
++// Siteler-arası SSO bileti veren uç. POST /api/auth/sso/issue  { app? }.
++// Giriş yapmış Numap kullanıcısı (Bearer) için 60 sn'lik HMAC-imzalı bilet üretir.
+ // Numap frontend bu bileti hedef siteye (galaksay/dokunsay/abmato) ?sso=<ticket> ile devreder.
+-import { json, fail, type Env } from '../../../_lib/http';
++// app verilirse: kullanıcının o uygulamaya yetkisi yoksa 403; bilet yalnız o uygulamada
++// geçerli ve tek kullanımlık olur. app verilmezse eski biçim (geriye uyumlu).
++import { json, fail, readJson, type Env } from '../../../_lib/http';
+ import { getUser } from '../../../_lib/auth';
+-import { issueSsoTicket, SSO_TICKET_TTL_SEC } from '../../../_lib/sso';
++import { issueSsoTicket, isSsoApp, SSO_TICKET_TTL_SEC } from '../../../_lib/sso';
++import { userHasEntitlement } from '../../../_lib/entitlements';
+ import { audit } from '../../../_lib/audit';
+ import { clientIp } from '../../../_lib/ratelimit';
+ 
+ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+   const user = await getUser(request, env);
+   if (!user) return fail('Yetkisiz.', 401);
++  const body = await readJson<{ app: string }>(request);
++  const app = isSsoApp(body.app) ? body.app : undefined;
++  if (body.app !== undefined && !app) return fail('Bilinmeyen uygulama.', 422);
++  if (app && !(await userHasEntitlement(env, user, app))) return fail('Bu uygulama için yetkiniz yok.', 403);
+   try {
+-    const ticket = await issueSsoTicket(env, user.id);
++    const ticket = await issueSsoTicket(env, user.id, app);
+     await audit(env, {
+       actorId: user.id,
+       actorRole: user.role,
+@@ -19,6 +26,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+       targetType: 'user',
+       targetId: user.id,
+       ip: clientIp(request),
++      meta: app ? { app } : undefined,
+     });
+     return json({ ticket, expiresIn: SSO_TICKET_TTL_SEC });
+   } catch {
+diff --git a/functions/api/family-invites.ts b/functions/api/family-invites.ts
+new file mode 100644
+index 0000000..9f50ff5
+--- /dev/null
++++ b/functions/api/family-invites.ts
+@@ -0,0 +1,77 @@
++// Numap API — GalakSay aile davetleri: liste + oluşturma.
++//   GET  /api/family-invites[?studentKey=<16hex>]  → { invites: [...] }
++//   POST /api/family-invites  { studentKey, label?, days? } → { invite, token, url }
++// RBAC: practitioner kendi davetleri; admin kurumunun; superadmin hepsi. Oluşturmak için
++// "galaksay" yetkisi ve öğrenciye erişim gerekir. Düz davet (token) YALNIZ oluşturma
++// yanıtında bir kez döner; sunucuda yalnız özeti tutulur (kaybolursa yenisi üretilir).
++
++import { json, fail, readJson, type Env } from '../_lib/http';
++import { getUser } from '../_lib/auth';
++import { audit, clientIp } from '../_lib/audit';
++import { userHasEntitlement } from '../_lib/entitlements';
++import {
++  ensureFamilyTable, newInviteToken, hashInviteToken, canAccessStudent, publicInvite,
++  INVITE_DAYS_DEFAULT, INVITE_DAYS_MAX, INVITES_PER_OWNER_MAX, type FamilyInviteRow,
++} from '../_lib/family';
++
++const GALAKSAY_FAMILY_URL = 'https://galaksay.com/aile#';
++
++export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
++  const user = await getUser(request, env);
++  if (!user) return fail('Yetkisiz.', 401);
++  await ensureFamilyTable(env);
++  const sk = new URL(request.url).searchParams.get('studentKey');
++  if (sk !== null && !/^[a-f0-9]{16}$/.test(sk)) return fail('Geçersiz öğrenci anahtarı.', 422);
++  const where: string[] = [];
++  const binds: unknown[] = [];
++  if (user.role === 'admin' && user.institution_id) { where.push('(owner_id = ? OR institution_id = ?)'); binds.push(user.id, user.institution_id); }
++  else if (user.role !== 'superadmin') { where.push('owner_id = ?'); binds.push(user.id); }
++  if (sk) { where.push('student_key = ?'); binds.push(sk); }
++  const { results } = await env.DB.prepare(
++    `SELECT * FROM family_invites ${where.length ? `WHERE ${where.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT 500`,
++  ).bind(...binds).all<FamilyInviteRow>();
++  return json({ invites: results.map(publicInvite) });
++};
++
++export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
++  const user = await getUser(request, env);
++  if (!user) return fail('Yetkisiz.', 401);
++  if (!(await userHasEntitlement(env, user, 'galaksay'))) return fail('GalakSay lisansı yok.', 403);
++  const body = await readJson<{ studentKey: string; label: string; days: number }>(request);
++  const studentKey = String(body.studentKey ?? '');
++  if (!/^[a-f0-9]{16}$/.test(studentKey)) return fail('Geçersiz öğrenci anahtarı.', 422);
++  const label = String(body.label ?? '').trim().slice(0, 80);
++  const daysRaw = Number(body.days ?? INVITE_DAYS_DEFAULT);
++  const days = Number.isFinite(daysRaw) ? Math.min(INVITE_DAYS_MAX, Math.max(1, Math.round(daysRaw))) : INVITE_DAYS_DEFAULT;
++
++  if (!(await canAccessStudent(env, user, studentKey))) return fail('Bu öğrenciye erişiminiz yok.', 403);
++  await ensureFamilyTable(env);
++  const active = await env.DB.prepare(
++    'SELECT COUNT(*) AS n FROM family_invites WHERE owner_id = ? AND revoked_at IS NULL AND expires_at > ?',
++  ).bind(user.id, new Date().toISOString()).first<{ n: number }>();
++  if ((active?.n ?? 0) >= INVITES_PER_OWNER_MAX) return fail('Etkin davet sınırına ulaşıldı. Kullanılmayanları iptal edin.', 409);
++
++  const token = newInviteToken();
++  const now = new Date();
++  const row: FamilyInviteRow = {
++    id: crypto.randomUUID(),
++    token_hash: await hashInviteToken(token),
++    owner_id: user.id,
++    institution_id: user.institution_id,
++    student_key: studentKey,
++    label,
++    created_at: now.toISOString(),
++    expires_at: new Date(now.getTime() + days * 86400_000).toISOString(),
++    revoked_at: null,
++    last_used_at: null,
++  };
++  await env.DB.prepare(
++    `INSERT INTO family_invites (id, token_hash, owner_id, institution_id, student_key, label, created_at, expires_at)
++     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
++  ).bind(row.id, row.token_hash, row.owner_id, row.institution_id, row.student_key, row.label, row.created_at, row.expires_at).run();
++  await audit(env, {
++    actorId: user.id, actorRole: user.role, action: 'family_invite.create',
++    targetType: 'family_invite', targetId: row.id, ip: clientIp(request), meta: { studentKey, days },
++  });
++  return json({ invite: publicInvite(row), token, url: `${GALAKSAY_FAMILY_URL}${token}` }, 201);
++};
+diff --git a/functions/api/family-invites/[id].ts b/functions/api/family-invites/[id].ts
+new file mode 100644
+index 0000000..76d58d1
+--- /dev/null
++++ b/functions/api/family-invites/[id].ts
+@@ -0,0 +1,26 @@
++// Numap API — GalakSay aile davetini iptal: DELETE /api/family-invites/<id>.
++// Sahibi, sahibin kurumunun yöneticisi ya da superadmin iptal edebilir. İptal kalıcıdır;
++// o davetle lisans çerezi alan cihaz bir sonraki doğrulamada (en geç 1 saat) düşer.
++
++import { json, fail, type Env } from '../../_lib/http';
++import { getUser, canAccessSession } from '../../_lib/auth';
++import { audit, clientIp } from '../../_lib/audit';
++import { ensureFamilyTable, publicInvite, type FamilyInviteRow } from '../../_lib/family';
++
++export const onRequestDelete: PagesFunction<Env> = async ({ request, env, params }) => {
++  const user = await getUser(request, env);
++  if (!user) return fail('Yetkisiz.', 401);
++  await ensureFamilyTable(env);
++  const id = String(params.id ?? '');
++  const row = await env.DB.prepare('SELECT * FROM family_invites WHERE id = ?').bind(id).first<FamilyInviteRow>();
++  if (!row || !canAccessSession(user, row.owner_id, row.institution_id)) return fail('Davet bulunamadı.', 404);
++  const at = row.revoked_at ?? new Date().toISOString();
++  if (!row.revoked_at) {
++    await env.DB.prepare('UPDATE family_invites SET revoked_at = ? WHERE id = ?').bind(at, id).run();
++    await audit(env, {
++      actorId: user.id, actorRole: user.role, action: 'family_invite.revoke',
++      targetType: 'family_invite', targetId: id, ip: clientIp(request),
++    });
++  }
++  return json({ invite: publicInvite({ ...row, revoked_at: at }) });
++};
+diff --git a/functions/api/family-invites/game-progress.ts b/functions/api/family-invites/game-progress.ts
+new file mode 100644
+index 0000000..5904fab
+--- /dev/null
++++ b/functions/api/family-invites/game-progress.ts
+@@ -0,0 +1,39 @@
++// Numap API — Aile cihazından GalakSay oyun ilerlemesi: POST /api/family-invites/game-progress.
++// Kimlik: X-Aile-Davet başlığındaki davet (GalakSay sunucusu HttpOnly çerezden aktarır).
++// Satırlar davetin sahibinin (öğretmen) sahipliğinde ve davetin öğrencisine yazılır:
++// gövdedeki childId ne olursa olsun "numap_<studentKey>" olur. Öğretmen bu ilerlemeyi
++// NuMap'teki öğrenci sayfasında kendi cihazındaki oyunlarla birlikte görür.
++
++import { json, fail, type Env } from '../../_lib/http';
++import { audit, clientIp } from '../../_lib/audit';
++import { ValidationError, readBoundedJson } from '../../_lib/validate';
++import { ingestGameProgress, type GameBody } from '../../_lib/game-ingest';
++import { resolveInvite, touchInvite } from '../../_lib/family';
++
++const BODY_LIMIT = 1024 * 1024;
++
++export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
++  const active = await resolveInvite(env, request.headers.get('X-Aile-Davet'));
++  if (!active) return fail('Davet geçersiz.', 401);
++  const { invite, owner } = active;
++
++  let body: GameBody;
++  try {
++    body = await readBoundedJson<GameBody>(request, BODY_LIMIT);
++  } catch (e) {
++    if (e instanceof ValidationError) return fail(e.message, e.status);
++    return fail('Geçersiz istek.', 400);
++  }
++
++  const accepted = await ingestGameProgress(env, body, {
++    ownerId: owner.id,
++    institutionId: owner.institution_id,
++    forceStudentKey: invite.student_key,
++  });
++  waitUntil(touchInvite(env, invite));
++  waitUntil(audit(env, {
++    actorId: owner.id, actorRole: 'family', action: 'game.write',
++    targetType: 'family_invite', targetId: invite.id, ip: clientIp(request), meta: accepted,
++  }));
++  return json({ accepted });
++};
+diff --git a/functions/api/family-invites/verify.ts b/functions/api/family-invites/verify.ts
+new file mode 100644
+index 0000000..488d943
+--- /dev/null
++++ b/functions/api/family-invites/verify.ts
+@@ -0,0 +1,41 @@
++// Numap API — GalakSay aile davetini doğrula: POST /api/family-invites/verify { token }.
++// Çağıran GalakSay sunucusudur (lisans çerezi vermeden önce). Bearer gerekmez; güven
++// 256 bitlik rastgele davete dayanır. Başarısız denemeler IP başına sınırlanır.
++// Yanıt kişisel veri içermez: çocuğun adı yok, yalnız öğretmenin verdiği etiket.
++
++import { json, fail, readJson, type Env } from '../../_lib/http';
++import { audit } from '../../_lib/audit';
++import { checkLimit, recordFailure, clientIp } from '../../_lib/ratelimit';
++import { resolveInvite, touchInvite } from '../../_lib/family';
++
++export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
++  const ip = clientIp(request);
++  const key = `family|ip|${ip}`;
++  const lim = await checkLimit(env, key);
++  if (!lim.allowed) return fail('Çok fazla deneme. Biraz sonra yeniden deneyin.', 429);
++  const body = await readJson<{ token: string }>(request);
++  const active = await resolveInvite(env, body.token);
++  if (!active) {
++    await recordFailure(env, key);
++    return fail('Davet geçersiz, süresi dolmuş ya da iptal edilmiş.', 404);
++  }
++  const { invite, owner } = active;
++  waitUntil(touchInvite(env, invite));
++  let institutionName: string | null = null;
++  if (owner.institution_id) {
++    const inst = await env.DB.prepare('SELECT name FROM institutions WHERE id = ?').bind(owner.institution_id).first<{ name: string }>();
++    institutionName = inst?.name ?? null;
++  }
++  waitUntil(audit(env, {
++    actorId: owner.id, actorRole: 'family', action: 'family_invite.verify',
++    targetType: 'family_invite', targetId: invite.id, ip,
++  }));
++  return json({
++    ok: true,
++    inviteId: invite.id,
++    label: invite.label,
++    expiresAt: invite.expires_at,
++    teacherName: owner.name,
++    institutionName,
++  });
++};
+diff --git a/functions/api/game-progress.ts b/functions/api/game-progress.ts
+index 078b1b0..fa70474 100644
+--- a/functions/api/game-progress.ts
++++ b/functions/api/game-progress.ts
+@@ -6,37 +6,23 @@
+ // satır kendi sahipliğiyle yazılır, okuma RBAC'i sızdırmaz. Idempotent: tüm PK'ler
+ // client/deterministik → ON CONFLICT upsert tekrar göndermede çoğaltmaz. Audit
+ // batch-başına TEK kayıt (meta'da sayılar) → audit_log şişmez.
++// Lisans: kullanıcının (ya da kurumunun) "galaksay" yetkisi yoksa 403. Yetkisi tanımsız
++// hesaplar tümü açık sayılır (entitlements.ts) — mevcut kullanıcılar etkilenmez.
++// Yazım çekirdeği _lib/game-ingest.ts'te (aile daveti ucuyla ortak).
+ 
+ import { json, fail, type Env } from '../_lib/http';
+ import { getUser } from '../_lib/auth';
+ import { audit, clientIp } from '../_lib/audit';
+ import { ValidationError, readBoundedJson } from '../_lib/validate';
++import { userHasEntitlement } from '../_lib/entitlements';
++import { ingestGameProgress, type GameBody } from '../_lib/game-ingest';
+ 
+ const BODY_LIMIT = 1024 * 1024; // 1MB batch
+-const BLOB_LIMIT = 240 * 1024; // tek events_json üst sınırı
+-const CHUNK = 50; // D1 batch ifade sınırı (emniyetli)
+-
+-interface GameBody {
+-  sessions?: unknown;
+-  events?: unknown;
+-  ltTransitions?: unknown;
+-  dailySummaries?: unknown;
+-}
+-
+-/** childId "numap_<16hex>" → student_key; uymuyorsa null (longitudinal bağ kopuk). */
+-function deriveStudentKey(childId: unknown): string | null {
+-  if (typeof childId !== 'string') return null;
+-  const m = /^numap_([a-f0-9]{16})$/.exec(childId);
+-  return m ? m[1] : null;
+-}
+-
+-const num = (v: unknown): number => (Number.isFinite(Number(v)) ? Number(v) : 0);
+-const numOrNull = (v: unknown): number | null => (v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v));
+-const strOrNull = (v: unknown): string | null => (typeof v === 'string' && v.length ? v : null);
+ 
+ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
+   const user = await getUser(request, env);
+   if (!user) return fail('Yetkisiz.', 401);
++  if (!(await userHasEntitlement(env, user, 'galaksay'))) return fail('GalakSay lisansı yok.', 403);
+ 
+   let body: GameBody;
+   try {
+@@ -46,111 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
+     return fail('Geçersiz istek.', 400);
+   }
+ 
+-  const now = new Date().toISOString();
+-  const oid = user.id;
+-  const iid = user.institution_id;
+-  const stmts: D1PreparedStatement[] = [];
+-  const accepted = { sessions: 0, events: 0, ltTransitions: 0, dailySummaries: 0 };
+-
+-  // ── game_sessions (özet) ──
+-  const sessions = Array.isArray(body.sessions) ? body.sessions : [];
+-  for (const s of sessions as Array<Record<string, unknown>>) {
+-    if (typeof s?.sessionId !== 'string' || typeof s?.childId !== 'string') continue;
+-    stmts.push(env.DB.prepare(
+-      `INSERT INTO game_sessions
+-         (session_id, child_id, student_key, owner_id, institution_id, start_time, end_time,
+-          duration_ms, questions_attempted, questions_correct, categories_visited, device_type, app_version, synced_at)
+-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+-       ON CONFLICT(session_id) DO UPDATE SET
+-         end_time=excluded.end_time, duration_ms=excluded.duration_ms,
+-         questions_attempted=excluded.questions_attempted, questions_correct=excluded.questions_correct,
+-         categories_visited=excluded.categories_visited, synced_at=excluded.synced_at`,
+-    ).bind(
+-      s.sessionId, s.childId, deriveStudentKey(s.childId), oid, iid,
+-      String(s.startTime ?? now), strOrNull(s.endTime), num(s.durationMs),
+-      num(s.questionsAttempted), num(s.questionsCorrect),
+-      JSON.stringify(Array.isArray(s.categoriesVisited) ? s.categoriesVisited : []),
+-      strOrNull(s.deviceType), strOrNull(s.appVersion), now,
+-    ));
+-    accepted.sessions++;
+-  }
+-
+-  // ── game_events_blob (madde-düzey, oturum×kategori) ──
+-  const events = Array.isArray(body.events) ? body.events : [];
+-  for (const e of events as Array<Record<string, unknown>>) {
+-    if (typeof e?.sessionId !== 'string' || typeof e?.category !== 'string' || !Array.isArray(e.items)) continue;
+-    const items = e.items as Array<Record<string, unknown>>;
+-    const blob = JSON.stringify(items);
+-    if (blob.length > BLOB_LIMIT) continue; // aşırı büyük blob atla
+-    const ts = items.map((it) => num(it?.timestamp)).filter((x) => x > 0);
+-    stmts.push(env.DB.prepare(
+-      `INSERT INTO game_events_blob
+-         (session_id, category, child_id, student_key, owner_id, institution_id,
+-          event_count, first_ts, last_ts, events_json, synced_at)
+-       VALUES (?,?,?,?,?,?,?,?,?,?,?)
+-       ON CONFLICT(session_id, category) DO UPDATE SET
+-         event_count=excluded.event_count, first_ts=excluded.first_ts, last_ts=excluded.last_ts,
+-         events_json=excluded.events_json, synced_at=excluded.synced_at
+-       WHERE excluded.event_count >= game_events_blob.event_count`,
+-    ).bind(
+-      e.sessionId, e.category, strOrNull(e.childId) ?? '', deriveStudentKey(e.childId), oid, iid,
+-      items.length, ts.length ? Math.min(...ts) : null, ts.length ? Math.max(...ts) : null, blob, now,
+-    ));
+-    accepted.events++;
+-  }
+-
+-  // ── lt_transitions (seviye geçişi — değişmez, ilk yazım kalır) ──
+-  const lts = Array.isArray(body.ltTransitions) ? body.ltTransitions : [];
+-  for (const t of lts as Array<Record<string, unknown>>) {
+-    if (typeof t?.childId !== 'string' || typeof t?.category !== 'string') continue;
+-    const occurredAt = String(t.occurredAt ?? now);
+-    const uid = `${t.childId}|${t.category}|${occurredAt}`;
+-    stmts.push(env.DB.prepare(
+-      `INSERT INTO lt_transitions
+-         (transition_uid, child_id, student_key, owner_id, institution_id, category,
+-          from_level, to_level, direction, criteria_snapshot, occurred_at, synced_at)
+-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+-       ON CONFLICT(transition_uid) DO NOTHING`,
+-    ).bind(
+-      uid, t.childId, deriveStudentKey(t.childId), oid, iid, t.category,
+-      num(t.fromLevel), num(t.toLevel), t.direction === 'down' ? 'down' : 'up',
+-      t.criteriaSnapshot != null ? JSON.stringify(t.criteriaSnapshot) : null, occurredAt, now,
+-    ));
+-    accepted.ltTransitions++;
+-  }
+-
+-  // ── game_daily_summary (gün içinde değişir — son gelen kazanır) ──
+-  const dailies = Array.isArray(body.dailySummaries) ? body.dailySummaries : [];
+-  for (const d of dailies as Array<Record<string, unknown>>) {
+-    if (typeof d?.childId !== 'string' || typeof d?.date !== 'string' || typeof d?.category !== 'string') continue;
+-    const uid = `${d.childId}|${d.date}|${d.category}`;
+-    stmts.push(env.DB.prepare(
+-      `INSERT INTO game_daily_summary
+-         (summary_uid, child_id, student_key, owner_id, institution_id, date, category,
+-          questions_attempted, questions_correct, accuracy, avg_response_time_ms, avg_hint_level,
+-          hint_dependency_rate, concrete_support_rate, lt_level, session_count, synced_at)
+-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+-       ON CONFLICT(summary_uid) DO UPDATE SET
+-         questions_attempted=excluded.questions_attempted, questions_correct=excluded.questions_correct,
+-         accuracy=excluded.accuracy, avg_response_time_ms=excluded.avg_response_time_ms,
+-         avg_hint_level=excluded.avg_hint_level, hint_dependency_rate=excluded.hint_dependency_rate,
+-         concrete_support_rate=excluded.concrete_support_rate, lt_level=excluded.lt_level,
+-         session_count=excluded.session_count, synced_at=excluded.synced_at`,
+-    ).bind(
+-      uid, d.childId, deriveStudentKey(d.childId), oid, iid, d.date, d.category,
+-      num(d.questionsAttempted), num(d.questionsCorrect), numOrNull(d.accuracy),
+-      numOrNull(d.avgResponseTimeMs), numOrNull(d.avgHintLevel), numOrNull(d.hintDependencyRate),
+-      numOrNull(d.concreteSupportRate), numOrNull(d.ltLevel), num(d.sessionCount), now,
+-    ));
+-    accepted.dailySummaries++;
+-  }
+-
+-  if (stmts.length === 0) return json({ accepted });
+-
+-  // D1 batch ifade sınırı → CHUNK'lara böl (idempotent olduğu için güvenli).
+-  for (let i = 0; i < stmts.length; i += CHUNK) {
+-    await env.DB.batch(stmts.slice(i, i + CHUNK));
+-  }
++  const accepted = await ingestGameProgress(env, body, { ownerId: user.id, institutionId: user.institution_id });
+ 
+   waitUntil(audit(env, {
+     actorId: user.id,
+diff --git a/functions/api/students/[studentKey]/progress.ts b/functions/api/students/[studentKey]/progress.ts
+index 7c87e0b..a80f901 100644
+--- a/functions/api/students/[studentKey]/progress.ts
++++ b/functions/api/students/[studentKey]/progress.ts
+@@ -65,6 +65,29 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params, w
+     ).bind(key).first<{ student_name: string; age_months: number }>(),
+   ]);
+ 
++  // Karşılaştırma maddelerinde algısal ipucu ayrımı: GalakSay uyumsuz (boyut yanılsamalı) maddeleri
++  // questionContent.incongruent = 1, uyumluları 0 olarak işaretler. İki doğruluk arasındaki fark,
++  // çocuğun nicelik yerine görsel boyuta dayanıp dayanmadığını gösterir (Gebuis ve Reynvoet, 2012).
++  const comparison = { congruent: { n: 0, correct: 0 }, incongruent: { n: 0, correct: 0 } };
++  try {
++    const { results: blobs } = await env.DB.prepare(
++      `SELECT events_json FROM game_events_blob WHERE student_key = ? AND owner_id IN (${ph})
++         AND events_json LIKE '%"incongruent"%' ORDER BY last_ts DESC LIMIT 200`,
++    ).bind(key, ...ownerIds).all<{ events_json: string }>();
++    for (const b of blobs) {
++      const items = safeJson(b.events_json);
++      if (!Array.isArray(items)) continue;
++      for (const it of items as Array<{ isCorrect?: unknown; questionContent?: { incongruent?: unknown } }>) {
++        const f = it?.questionContent?.incongruent;
++        if (f !== 0 && f !== 1) continue;
++        const bucket = f === 1 ? comparison.incongruent : comparison.congruent;
++        bucket.n++;
++        if (it.isCorrect === true) bucket.correct++;
++      }
++    }
++  } catch { /* özet isteğe bağlı: hata ana yanıtı kesmez */ }
++  const acc = (b: { n: number; correct: number }) => (b.n > 0 ? b.correct / b.n : null);
++
+   // Kategori özeti — her kategorinin en güncel günlük doğruluğu + LT seviyesi.
+   const categories: Record<string, { accuracy: number | null; ltLevel: number | null; lastDate: string }> = {};
+   for (const d of daily) categories[d.category] = { accuracy: d.accuracy, ltLevel: d.lt_level, lastDate: d.date };
+@@ -83,5 +106,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params, w
+       categoriesVisited: safeJson(r.categories_visited), deviceType: r.device_type,
+     })),
+     daily, ltTransitions: lt, categories,
++    comparison: {
++      congruent: { n: comparison.congruent.n, accuracy: acc(comparison.congruent) },
++      incongruent: { n: comparison.incongruent.n, accuracy: acc(comparison.incongruent) },
++    },
+   });
+ };
+diff --git a/src/features/game-progress/GalaksayStudentPanel.tsx b/src/features/game-progress/GalaksayStudentPanel.tsx
+new file mode 100644
+index 0000000..a478217
+--- /dev/null
++++ b/src/features/game-progress/GalaksayStudentPanel.tsx
+@@ -0,0 +1,160 @@
++// Numap — Öğrenci sayfasında GalakSay köprüsü: önerilen rota, müdahale dozu ve yeniden
++// tarama hatırlatması, GalakSay'ı bu öğrenciyle açma ve aile davetleri.
++// Tarama (NuMap) → müdahale (GalakSay, okulda ve evde) → yeniden tarama döngüsünü tek
++// kartta gösterir. Aile daveti yalnız "galaksay" yetkisi olan kullanıcıya görünür.
++
++import { useState } from 'react';
++import { useTranslation } from 'react-i18next';
++import { Button } from '@/components/Button';
++import { openAppWithSso, APP_URLS } from '@/lib/sso';
++import { galaksayDose, galaksayFocusAreas } from './galaksay-dose';
++import { useCreateFamilyInvite, useFamilyInvites, useRevokeFamilyInvite, type CreatedFamilyInvite } from './family-invites-api';
++
++interface Props {
++  studentKey: string;
++  gameSessions: ReadonlyArray<{ startTime: string }>;
++  lastScreeningAt: string | null;
++  concernCategories: readonly string[] | undefined;
++  canUseGalaksay: boolean;
++  onStartScreening: () => void;
++}
++
++const DAY_CHOICES = [30, 90, 180, 365] as const;
++
++export function GalaksayStudentPanel({ studentKey, gameSessions, lastScreeningAt, concernCategories, canUseGalaksay, onStartScreening }: Props) {
++  const { t, i18n } = useTranslation();
++  const dose = galaksayDose(gameSessions, lastScreeningAt);
++  const areas = galaksayFocusAreas(concernCategories);
++  const fmt = (iso: string) => new Date(iso).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { dateStyle: 'medium' });
++  const pctDose = Math.min(100, Math.round((dose.sessions / dose.target) * 100));
++
++  return (
++    <div className="mt-3 space-y-4 border-t border-card-border pt-3 text-sm" data-testid="hub-galaksay-panel">
++      {/* Önerilen rota */}
++      <div>
++        <p className="text-xs font-semibold uppercase tracking-wide text-subtle">{t('galaksayPanel.routeTitle')}</p>
++        {areas.length > 0 ? (
++          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-foreground">
++            {areas.map((a) => <li key={a}>{t(`report.galaksayArea.${a}`)}</li>)}
++          </ul>
++        ) : (
++          <p className="mt-1 text-muted-foreground">{lastScreeningAt ? t('galaksayPanel.routeNone') : t('galaksayPanel.routeNeedsScreening')}</p>
++        )}
++      </div>
++
++      {/* Doz ve yeniden tarama */}
++      <div>
++        <p className="text-xs font-semibold uppercase tracking-wide text-subtle">{t('galaksayPanel.doseTitle')}</p>
++        <div className="mt-1 flex items-center gap-3">
++          <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={dose.target} aria-valuenow={dose.sessions}>
++            <div className={`h-full rounded-full ${dose.rescreenDue ? 'bg-success' : 'bg-primary'}`} style={{ width: `${pctDose}%` }} />
++          </div>
++          <span className="shrink-0 tabular-nums text-foreground">{t('galaksayPanel.doseCount', { n: dose.sessions, target: dose.target })}</span>
++        </div>
++        <p className="mt-1 text-xs text-muted-foreground">
++          {dose.weeks != null ? t('galaksayPanel.doseWeeks', { weeks: dose.weeks, perWeek: dose.perWeek }) : t('galaksayPanel.doseNone')}
++        </p>
++        {dose.rescreenDue && (
++          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-warning/10 px-3 py-2" data-testid="hub-galaksay-rescreen">
++            <span className="font-medium text-warning">{t(dose.reason === 'dose' ? 'galaksayPanel.rescreenDose' : 'galaksayPanel.rescreenTime')}</span>
++            <Button size="sm" variant="secondary" onClick={onStartScreening}>{t('galaksayPanel.rescreenStart')}</Button>
++          </div>
++        )}
++      </div>
++
++      {canUseGalaksay && (
++        <>
++          <div>
++            <Button size="sm" variant="secondary" onClick={() => void openAppWithSso(APP_URLS.galaksay, { app: 'galaksay', params: { ogrenci: studentKey } })}>
++              {t('galaksayPanel.openWithStudent')}
++            </Button>
++          </div>
++          <FamilyInvites studentKey={studentKey} fmt={fmt} />
++        </>
++      )}
++    </div>
++  );
++}
++
++function FamilyInvites({ studentKey, fmt }: { studentKey: string; fmt: (iso: string) => string }) {
++  const { t } = useTranslation();
++  const { data: invites = [], isLoading } = useFamilyInvites(studentKey);
++  const create = useCreateFamilyInvite(studentKey);
++  const revoke = useRevokeFamilyInvite(studentKey);
++  const [open, setOpen] = useState(false);
++  const [label, setLabel] = useState('');
++  const [days, setDays] = useState<number>(180);
++  const [created, setCreated] = useState<CreatedFamilyInvite | null>(null);
++  const [copied, setCopied] = useState(false);
++  const active = invites.filter((i) => i.status === 'active');
++
++  const submit = () => {
++    create.mutate({ label: label.trim() || undefined, days }, {
++      onSuccess: (r) => { setCreated(r); setOpen(false); setLabel(''); setCopied(false); },
++    });
++  };
++  const copy = async (url: string) => {
++    try { await navigator.clipboard.writeText(url); setCopied(true); } catch { setCopied(false); }
++  };
++
++  return (
++    <div data-testid="hub-family-invites">
++      <div className="flex items-center justify-between gap-2">
++        <p className="text-xs font-semibold uppercase tracking-wide text-subtle">{t('galaksayPanel.familyTitle')}</p>
++        {!open && <Button size="sm" variant="outline" onClick={() => { setOpen(true); setCreated(null); }}>{t('galaksayPanel.familyNew')}</Button>}
++      </div>
++      <p className="mt-1 text-xs text-muted-foreground">{t('galaksayPanel.familyIntro')}</p>
++
++      {open && (
++        <div className="mt-2 grid gap-2 rounded-xl border border-card-border p-3">
++          <label className="grid gap-1 text-xs text-muted-foreground">
++            {t('galaksayPanel.familyLabel')}
++            <input value={label} maxLength={80} onChange={(e) => setLabel(e.target.value)} placeholder={t('galaksayPanel.familyLabelPh')}
++              className="rounded-lg border border-card-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
++          </label>
++          <label className="grid gap-1 text-xs text-muted-foreground">
++            {t('galaksayPanel.familyDays')}
++            <select value={days} onChange={(e) => setDays(Number(e.target.value))}
++              className="rounded-lg border border-card-border bg-card px-3 py-2 text-sm text-foreground">
++              {DAY_CHOICES.map((d) => <option key={d} value={d}>{t('galaksayPanel.familyDaysOpt', { count: d })}</option>)}
++            </select>
++          </label>
++          {create.isError && <p className="text-xs text-error">{(create.error as Error)?.message || t('galaksayPanel.familyError')}</p>}
++          <div className="flex gap-2">
++            <Button size="sm" onClick={submit} disabled={create.isPending}>{t('galaksayPanel.familyCreate')}</Button>
++            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t('galaksayPanel.cancel')}</Button>
++          </div>
++        </div>
++      )}
++
++      {created && (
++        <div className="mt-2 grid gap-2 rounded-xl bg-success/10 p-3" data-testid="hub-family-created">
++          <p className="text-xs font-medium text-foreground">{t('galaksayPanel.familyCreated')}</p>
++          <input readOnly value={created.url} onFocus={(e) => e.currentTarget.select()}
++            className="w-full rounded-lg border border-card-border bg-card px-3 py-2 font-mono text-xs text-foreground" />
++          <div className="flex items-center gap-2">
++            <Button size="sm" variant="secondary" onClick={() => void copy(created.url)}>{copied ? t('galaksayPanel.copied') : t('galaksayPanel.copy')}</Button>
++            <span className="text-xs text-muted-foreground">{t('galaksayPanel.familyOnce')}</span>
++          </div>
++        </div>
++      )}
++
++      {!isLoading && active.length > 0 && (
++        <ul className="mt-2 divide-y divide-card-border/60">
++          {active.map((i) => (
++            <li key={i.id} className="flex items-center justify-between gap-2 py-1.5">
++              <span className="min-w-0 truncate text-foreground">
++                {i.label || t('galaksayPanel.familyUnnamed')}
++                <span className="ml-2 text-xs text-subtle">
++                  {t('galaksayPanel.familyUntil', { date: fmt(i.expiresAt) })}
++                  {i.lastUsedAt ? ` · ${t('galaksayPanel.familyUsed', { date: fmt(i.lastUsedAt) })}` : ` · ${t('galaksayPanel.familyNotUsed')}`}
++                </span>
++              </span>
++              <Button size="sm" variant="ghost" disabled={revoke.isPending} onClick={() => revoke.mutate(i.id)}>{t('galaksayPanel.familyRevoke')}</Button>
++            </li>
++          ))}
++        </ul>
++      )}
++    </div>
++  );
++}
+diff --git a/src/features/game-progress/family-invites-api.ts b/src/features/game-progress/family-invites-api.ts
+new file mode 100644
+index 0000000..d594421
+--- /dev/null
++++ b/src/features/game-progress/family-invites-api.ts
+@@ -0,0 +1,55 @@
++// Numap — GalakSay aile davetleri API istemcisi + React Query hook'ları.
++// Backend: functions/api/family-invites.ts, functions/api/family-invites/[id].ts
++
++import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
++import { api } from '@/lib/api';
++
++export interface FamilyInvite {
++  id: string;
++  studentKey: string;
++  label: string;
++  createdAt: string;
++  expiresAt: string;
++  revokedAt: string | null;
++  lastUsedAt: string | null;
++  status: 'active' | 'revoked' | 'expired';
++}
++
++export interface CreatedFamilyInvite {
++  invite: FamilyInvite;
++  /** Düz davet yalnız oluşturma yanıtında bir kez gelir. */
++  token: string;
++  url: string;
++}
++
++export const familyInvitesApi = {
++  list: (studentKey: string) =>
++    api.get<{ invites: FamilyInvite[] }>(`/family-invites?studentKey=${encodeURIComponent(studentKey)}`).then((r) => r.invites ?? []),
++  create: (body: { studentKey: string; label?: string; days?: number }) => api.post<CreatedFamilyInvite>('/family-invites', body),
++  revoke: (id: string) => api.del<{ invite: FamilyInvite }>(`/family-invites/${encodeURIComponent(id)}`),
++};
++
++export function useFamilyInvites(studentKey: string | null, enabled = true) {
++  return useQuery({
++    queryKey: ['familyInvites', studentKey],
++    queryFn: () => familyInvitesApi.list(studentKey as string),
++    enabled: Boolean(studentKey) && enabled,
++    staleTime: 30_000,
++  });
++}
++
++export function useCreateFamilyInvite(studentKey: string) {
++  const qc = useQueryClient();
++  return useMutation({
++    mutationFn: (v: { label?: string; days?: number }) => familyInvitesApi.create({ studentKey, ...v }),
++    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['familyInvites', studentKey] }); },
++  });
++}
++
++export function useRevokeFamilyInvite(studentKey: string) {
++  const qc = useQueryClient();
++  return useMutation({
++    mutationFn: (id: string) => familyInvitesApi.revoke(id),
++    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['familyInvites', studentKey] }); },
++  });
++}
+diff --git a/src/features/game-progress/galaksay-dose.ts b/src/features/game-progress/galaksay-dose.ts
+new file mode 100644
+index 0000000..cb19597
+--- /dev/null
++++ b/src/features/game-progress/galaksay-dose.ts
+@@ -0,0 +1,55 @@
++// Numap — GalakSay müdahale dozu ve yeniden tarama zamanı (saf işlev).
++//
++// Ölçüt: Kohn ve ark. (2020) Calcularis çalışması — 42 oturum × ~20 dk, en çok 13 hafta.
++// Doz, SON taramadan sonra oynanan oturumlarla hesaplanır. Yeniden tarama önerilir:
++//   (a) hedef doza ulaşıldıysa (≥ 42 oturum), ya da
++//   (b) ilk oturumdan bu yana 13 hafta geçti ve en az 10 oturum oynandıysa (etkiyi ölçecek kadar veri).
++
++export const DOSE_TARGET_SESSIONS = 42;
++export const DOSE_MAX_WEEKS = 13;
++const MIN_SESSIONS_FOR_RESCREEN = 10;
++const WEEK_MS = 7 * 24 * 3600 * 1000;
++
++export interface GalaksayDose {
++  /** Son taramadan sonra oynanan oturum sayısı. */
++  readonly sessions: number;
++  readonly target: number;
++  /** İlk oturumdan (son taramadan sonraki) bu yana geçen hafta; oturum yoksa null. */
++  readonly weeks: number | null;
++  /** Haftalık ortalama oturum (en az 1 hafta üzerinden); oturum yoksa null. */
++  readonly perWeek: number | null;
++  readonly rescreenDue: boolean;
++  readonly reason: 'dose' | 'time' | null;
++}
++
++export function galaksayDose(
++  sessions: ReadonlyArray<{ startTime: string }>,
++  lastScreeningAt: string | null,
++  now: Date = new Date(),
++): GalaksayDose {
++  const since = lastScreeningAt ? Date.parse(lastScreeningAt) : Number.NEGATIVE_INFINITY;
++  const times = sessions
++    .map((s) => Date.parse(s.startTime))
++    .filter((t) => Number.isFinite(t) && t > since)
++    .sort((a, b) => a - b);
++  const n = times.length;
++  if (n === 0) return { sessions: 0, target: DOSE_TARGET_SESSIONS, weeks: null, perWeek: null, rescreenDue: false, reason: null };
++  const weeks = Math.max(0, (now.getTime() - times[0]) / WEEK_MS);
++  const perWeek = n / Math.max(1, weeks);
++  const byDose = n >= DOSE_TARGET_SESSIONS;
++  const byTime = weeks >= DOSE_MAX_WEEKS && n >= MIN_SESSIONS_FOR_RESCREEN;
++  return {
++    sessions: n,
++    target: DOSE_TARGET_SESSIONS,
++    weeks: Math.floor(weeks),
++    perWeek: Math.round(perWeek * 10) / 10,
++    rescreenDue: byDose || byTime,
++    reason: byDose ? 'dose' : byTime ? 'time' : null,
++  };
++}
++
++/** Rapor yorumundaki odak kategorileri ('parent.cat.<k>') → GalakSay alan anahtarları. */
++export function galaksayFocusAreas(concernCategories: readonly string[] | undefined): string[] {
++  const known = new Set(['numberSense', 'calculation', 'sequencing', 'memory', 'attention']);
++  return [...new Set((concernCategories ?? []).map((c) => c.replace('parent.cat.', '')).filter((k) => known.has(k)))];
++}
+diff --git a/src/features/game-progress/game-progress-api.ts b/src/features/game-progress/game-progress-api.ts
+index cbf4ebd..b6b4f9c 100644
+--- a/src/features/game-progress/game-progress-api.ts
++++ b/src/features/game-progress/game-progress-api.ts
+@@ -48,6 +48,11 @@ export interface StudentProgress {
+   daily: StudentDaily[];
+   ltTransitions: StudentLt[];
+   categories: Record<string, { accuracy: number | null; ltLevel: number | null; lastDate: string }>;
++  /** Karşılaştırma maddeleri: uyumlu ve uyumsuz (boyut yanılsamalı) doğruluk. Eski sunucuda yok. */
++  comparison?: {
++    congruent: { n: number; accuracy: number | null };
++    incongruent: { n: number; accuracy: number | null };
++  };
+ }
+ 
+ export const gameProgressApi = {
+diff --git a/src/features/students/StudentHub.tsx b/src/features/students/StudentHub.tsx
+index 5756440..27d3244 100644
+--- a/src/features/students/StudentHub.tsx
++++ b/src/features/students/StudentHub.tsx
+@@ -30,6 +30,7 @@ import { summarizeStudentTrajectories } from '@/domain/trajectories/summary';
+ import { getTrajectory } from '@/domain/trajectories/data';
+ import { LT_STATUS_LABEL } from '@/domain/trajectories/tracking';
+ import { useStudentGameProgress } from '@/features/game-progress/use-game-progress';
++import { GalaksayStudentPanel } from '@/features/game-progress/GalaksayStudentPanel';
+ import { useStudentBopPlans } from '@/features/bop/use-bop';
+ import { useBopBridge } from '@/features/bop/use-bop-bridge';
+ import { BOP_STEP_COUNT, bopPlanUrl } from '@/features/bop/bop-api';
+@@ -583,6 +584,14 @@ export function StudentHub() {
+               ) : (
+                 <p className="text-sm text-muted-foreground">{t('hub.game.empty')}</p>
+               )}
++              <GalaksayStudentPanel
++                studentKey={studentKey}
++                gameSessions={game?.sessions ?? []}
++                lastScreeningAt={profile?.latest?.savedAt ?? null}
++                concernCategories={profile?.vm?.interpretation.concernCategories}
++                canUseGalaksay={hasEntitlement(user?.entitlements, 'galaksay')}
++                onStartScreening={() => startScreening('A')}
++              />
+             </Card>
+           </HubGroup>
+         </div>
+diff --git a/src/i18n/locales/en.json b/src/i18n/locales/en.json
+index 6b591ce..9eda8de 100644
+--- a/src/i18n/locales/en.json
++++ b/src/i18n/locales/en.json
+@@ -207,7 +207,11 @@
+       "ltProgress": "Level Transitions",
+       "noLt": "No level transitions yet.",
+       "level": "Lv.",
+-      "recentSessions": "Recent Sessions"
++      "recentSessions": "Recent Sessions",
++      "comparisonTitle": "Comparison: visual cue split",
++      "comparisonLine": "Congruent items {{congruent}} (n={{nc}}) · incongruent (bigger-looking has fewer) {{incongruent}} (n={{ni}})",
++      "comparisonGap": "A clear drop on incongruent items: the child may rely on visual size rather than quantity. Counting and one-to-one matching practice is suggested.",
++      "comparisonNote": "In incongruent items the more numerous set looks smaller (GalakSay level 3 and above)."
+     }
+   },
+   "gameProgressReport": {
+@@ -2686,7 +2690,7 @@
+     "resolveFirst": "Before a diagnostic referral, address this condition under the exclusion criteria first: {{flags}}. Classroom support and monitoring continue meanwhile.",
+     "priority": "Priority referral for a comprehensive specialist assessment.",
+     "refer": "Referral for a comprehensive assessment is recommended.",
+-      "monitorRescreen": "The threshold for diagnostic referral is not met at present. Intensified classroom support and rescreening in {{weeks}} weeks are recommended; if the difficulty persists, referral should be reconsidered.",
++    "monitorRescreen": "The threshold for diagnostic referral is not met at present. Intensified classroom support and rescreening in {{weeks}} weeks are recommended; if the difficulty persists, referral should be reconsidered.",
+     "monitor": "No referral needed; continue classroom monitoring.",
+     "insufficient": "Insufficient norm data; no referral decision possible — re-assess together with clinical observation.",
+     "notScreened": "Numerical skills (screening A) were not measured in this assessment, so no SLD-math referral decision is made.",
+@@ -2706,5 +2710,38 @@
+     "start": "Start",
+     "done": "done",
+     "notDone": "not done"
++  },
++  "galaksayPanel": {
++    "routeTitle": "Suggested GalakSay route",
++    "routeNone": "The latest screening found no focus area; GalakSay follows its general path.",
++    "routeNeedsScreening": "After a screening, games suggested for the child's focus areas appear here.",
++    "doseTitle": "Intervention dose (since last screening)",
++    "doseCount": "{{n}} / {{target}} sessions",
++    "doseWeeks": "{{weeks}} weeks · on average {{perWeek}} sessions a week (target: 42 sessions within 13 weeks)",
++    "doseNone": "No GalakSay session since the last screening yet.",
++    "rescreenDose": "Target dose reached: time to re-screen.",
++    "rescreenTime": "13 weeks have passed: re-screening is recommended to see the effect.",
++    "rescreenStart": "Start re-screening",
++    "openWithStudent": "Open GalakSay with this student",
++    "familyTitle": "Family invitation (play at home)",
++    "familyNew": "New invitation",
++    "familyIntro": "Without a NuMap account, the family plays GalakSay at home through this link; the licence comes from your institution or account. Home progress appears on this student's page.",
++    "familyLabel": "Label (optional, only you see it)",
++    "familyLabelPh": "e.g. Deniz's family — tablet",
++    "familyDays": "Valid for",
++    "familyDaysOpt_one": "{{count}} day",
++    "familyDaysOpt_other": "{{count}} days",
++    "familyCreate": "Create link",
++    "cancel": "Cancel",
++    "familyError": "The invitation could not be created.",
++    "familyCreated": "Send this link to the family (e-mail, message or QR):",
++    "copy": "Copy",
++    "copied": "Copied",
++    "familyOnce": "For security the link is shown only now.",
++    "familyUnnamed": "Unnamed invitation",
++    "familyUntil": "until {{date}}",
++    "familyUsed": "last used {{date}}",
++    "familyNotUsed": "not used yet",
++    "familyRevoke": "Revoke"
+   }
+ }
+diff --git a/src/i18n/locales/tr.json b/src/i18n/locales/tr.json
+index f577bc4..453ecd3 100644
+--- a/src/i18n/locales/tr.json
++++ b/src/i18n/locales/tr.json
+@@ -207,7 +207,11 @@
+       "ltProgress": "Seviye Geçişleri",
+       "noLt": "Henüz seviye geçişi yok.",
+       "level": "Sv.",
+-      "recentSessions": "Son Oturumlar"
++      "recentSessions": "Son Oturumlar",
++      "comparisonTitle": "Karşılaştırma: görsel ipucu ayrımı",
++      "comparisonLine": "Uyumlu maddeler {{congruent}} (n={{nc}}) · uyumsuz (büyük görünen daha az) {{incongruent}} (n={{ni}})",
++      "comparisonGap": "Uyumsuz maddelerde belirgin düşüş: çocuk nicelik yerine görsel boyuta dayanıyor olabilir. Sayma ve birebir eşleme çalışmaları önerilir.",
++      "comparisonNote": "Uyumsuz maddelerde daha çok sayıda nesne daha küçük görünür (GalakSay 3. düzey ve üzeri)."
+     }
+   },
+   "gameProgressReport": {
+@@ -2716,7 +2720,7 @@
+     "resolveFirst": "Tanısal yönlendirme için önce dışlama ölçütü kapsamındaki şu durum ele alınmalı: {{flags}}. Bu arada sınıf içi destek ve izleme sürer.",
+     "priority": "Kapsamlı uzman değerlendirmesine öncelikli yönlendirme.",
+     "refer": "Kapsamlı değerlendirmeye yönlendirme önerilir.",
+-      "monitorRescreen": "Tanısal yönlendirme için eşik şu an karşılanmıyor. Yoğunlaştırılmış sınıf içi destek ve {{weeks}} hafta sonra yeniden tarama önerilir; güçlük sürerse yönlendirme yeniden değerlendirilmelidir.",
++    "monitorRescreen": "Tanısal yönlendirme için eşik şu an karşılanmıyor. Yoğunlaştırılmış sınıf içi destek ve {{weeks}} hafta sonra yeniden tarama önerilir; güçlük sürerse yönlendirme yeniden değerlendirilmelidir.",
+     "monitor": "Yönlendirme gerekmez; sınıf içi izleme sürer.",
+     "insufficient": "Norm verisi yetersiz; yönlendirme kararı verilemez — klinik gözlemle birlikte yeniden değerlendirin.",
+     "notScreened": "Sayısal beceriler (tarama A) bu değerlendirmede ölçülmediği için MÖG yönlendirme kararı verilmez.",
+@@ -2736,5 +2740,38 @@
+     "start": "Başlat",
+     "done": "yapıldı",
+     "notDone": "yapılmadı"
++  },
++  "galaksayPanel": {
++    "routeTitle": "Önerilen GalakSay rotası",
++    "routeNone": "Son taramada odak alanı çıkmadı; GalakSay genel akışla ilerler.",
++    "routeNeedsScreening": "Tarama yapıldığında, çocuğun odak alanlarına göre önerilen oyunlar burada görünür.",
++    "doseTitle": "Müdahale dozu (son taramadan beri)",
++    "doseCount": "{{n}} / {{target}} oturum",
++    "doseWeeks": "{{weeks}} hafta · haftada ortalama {{perWeek}} oturum (hedef: 13 haftada 42 oturum)",
++    "doseNone": "Son taramadan sonra henüz GalakSay oturumu yok.",
++    "rescreenDose": "Hedef doza ulaşıldı: yeniden tarama zamanı.",
++    "rescreenTime": "13 hafta doldu: etkiyi görmek için yeniden tarama önerilir.",
++    "rescreenStart": "Yeniden tarama başlat",
++    "openWithStudent": "GalakSay'ı bu öğrenciyle aç",
++    "familyTitle": "Aile daveti (evde oynama)",
++    "familyNew": "Yeni davet",
++    "familyIntro": "Aile, NuMap hesabı açmadan bu bağlantıyla GalakSay'ı evde oynar; lisans kurumunuzdan ya da hesabınızdan gelir. Evdeki ilerleme bu öğrencinin sayfasına düşer.",
++    "familyLabel": "Etiket (isteğe bağlı, yalnız siz görürsünüz)",
++    "familyLabelPh": "ör. Deniz'in ailesi — tablet",
++    "familyDays": "Geçerlilik",
++    "familyDaysOpt_one": "{{count}} gün",
++    "familyDaysOpt_other": "{{count}} gün",
++    "familyCreate": "Bağlantı oluştur",
++    "cancel": "Vazgeç",
++    "familyError": "Davet oluşturulamadı.",
++    "familyCreated": "Bağlantıyı aileye iletin (e-posta, mesaj ya da QR):",
++    "copy": "Kopyala",
++    "copied": "Kopyalandı",
++    "familyOnce": "Bağlantı güvenlik için yalnız şimdi gösterilir.",
++    "familyUnnamed": "Adsız davet",
++    "familyUntil": "{{date}} tarihine kadar",
++    "familyUsed": "son kullanım {{date}}",
++    "familyNotUsed": "henüz kullanılmadı",
++    "familyRevoke": "İptal et"
+   }
+ }
+diff --git a/src/lib/sso.ts b/src/lib/sso.ts
+index 253036d..50d1092 100644
+--- a/src/lib/sso.ts
++++ b/src/lib/sso.ts
+@@ -16,24 +16,39 @@ export const APP_URLS = {
+ 
+ export type AppKey = keyof typeof APP_URLS;
+ 
++/** Uygulama anahtarı → adres (hedefli bilet için). */
++export function appKeyOf(appUrl: string): AppKey | undefined {
++  return (Object.keys(APP_URLS) as AppKey[]).find((k) => APP_URLS[k] === appUrl);
++}
++
+ /**
+  * Hedef uygulamayı yeni sekmede açar; mümkünse otomatik-giriş bileti ekler.
+  * Popup engelleyiciye takılmamak için pencere tıklama anında açılır, hedef sonra atanır.
++ * opts.app verilirse bilet o uygulamaya bağlı ve tek kullanımlık olur (sunucu yetkiyi denetler).
++ * opts.params hedef adrese eklenir (ör. GalakSay'da öğrenciyle açmak için { ogrenci }).
+  */
+-export async function openAppWithSso(appUrl: string): Promise<void> {
++export async function openAppWithSso(
++  appUrl: string,
++  opts: { app?: AppKey; params?: Record<string, string> } = {},
++): Promise<void> {
+   const win = window.open('about:blank', '_blank');
+   let url = appUrl;
++  const extra = new URLSearchParams(opts.params ?? {}).toString();
++  if (extra) url = `${url}${url.includes('?') ? '&' : '?'}${extra}`;
+   try {
+     const token = getToken();
+     const res = await fetch('/api/auth/sso/issue', {
+       method: 'POST',
+-      headers: token ? { Authorization: `Bearer ${token}` } : {},
++      headers: {
++        ...(token ? { Authorization: `Bearer ${token}` } : {}),
++        ...(opts.app ? { 'content-type': 'application/json' } : {}),
++      },
++      body: opts.app ? JSON.stringify({ app: opts.app }) : undefined,
+     });
+     if (res.ok) {
+       const data = (await res.json()) as { ticket?: string };
+       if (data.ticket) {
+-        const sep = appUrl.includes('?') ? '&' : '?';
+-        url = `${appUrl}${sep}sso=${encodeURIComponent(data.ticket)}`;
++        url = `${url}${url.includes('?') ? '&' : '?'}sso=${encodeURIComponent(data.ticket)}`;
+       }
+     }
+   } catch {
+diff --git a/src/pages/GameProgressPage.tsx b/src/pages/GameProgressPage.tsx
+index 1098cee..746965c 100644
+--- a/src/pages/GameProgressPage.tsx
++++ b/src/pages/GameProgressPage.tsx
+@@ -18,7 +18,10 @@ const catLabel = gameCategoryLabel;
+ // Yön levhası: değerlendirme (Numap) ↔ müdahale (Galaksay) köprüsü — öğretmen
+ // ilerleme panelinden oyuna tek tıkla geçebilsin. SSO bileti ile açılır → öğretmen
+ // Galaksay'da TEKRAR giriş yapmaz (bilet alınamazsa düz açılır).
+-const openGalaksay = () => { void openAppWithSso(APP_URLS.galaksay); };
++// Bilet GalakSay'a bağlı ve tek kullanımlık; öğrenci sayfasından açılınca oyun o öğrenciyle açılır.
++const openGalaksay = (studentKey?: string) => {
++  void openAppWithSso(APP_URLS.galaksay, { app: 'galaksay', params: studentKey ? { ogrenci: studentKey } : undefined });
++};
+ 
+ function fmtDate(iso: string | null): string {
+   if (!iso) return '—';
+@@ -88,7 +91,7 @@ export function GameProgressPage() {
+         subtitle={t('pages.gameProgress.subtitle')}
+         actions={(
+           <div className="flex items-center gap-2">
+-            <Button variant="secondary" size="sm" onClick={openGalaksay}>{t('gameProgress.openGalaksay')}</Button>
++            <Button variant="secondary" size="sm" onClick={() => openGalaksay()}>{t('gameProgress.openGalaksay')}</Button>
+             {children.length > 0 && (
+               <Button variant="secondary" size="sm" disabled={exporting} onClick={() => void handleExport('events')}>
+                 {exporting ? t('gameProgress.exporting') : t('gameProgress.export')}
+@@ -105,7 +108,7 @@ export function GameProgressPage() {
+         </EmptyState>
+       ) : children.length === 0 ? (
+         <EmptyState message={t('gameProgress.empty')}>
+-          <Button variant="secondary" size="sm" onClick={openGalaksay}>{t('gameProgress.openGalaksay')}</Button>
++          <Button variant="secondary" size="sm" onClick={() => openGalaksay()}>{t('gameProgress.openGalaksay')}</Button>
+         </EmptyState>
+       ) : (
+         <PageBody scroll>
+@@ -189,7 +192,7 @@ function GameProgressDetail({ studentKey, name, onBack }: { studentKey: string;
+         subtitle={t('gameProgress.detail.subtitle')}
+         actions={(
+           <div className="flex items-center gap-2">
+-            <Button variant="secondary" size="sm" onClick={openGalaksay}>{t('gameProgress.openGalaksay')}</Button>
++            <Button variant="secondary" size="sm" onClick={() => openGalaksay(studentKey)}>{t('gameProgress.openGalaksay')}</Button>
+             <Button variant="ghost" size="sm" onClick={onBack}>{t('gameProgress.detail.back')}</Button>
+           </div>
+         )}
+@@ -258,6 +261,25 @@ function GameProgressDetail({ studentKey, name, onBack }: { studentKey: string;
+             )}
+           </div>
+ 
++          {/* Algısal ipucu: uyumlu / uyumsuz karşılaştırma maddeleri */}
++          {data.comparison && data.comparison.incongruent.n > 0 && (
++            <div className="mb-6 rounded-2xl border border-card-border bg-card px-4 py-3" data-testid="gp-comparison">
++              <h2 className="text-sm font-semibold text-foreground">{t('gameProgress.detail.comparisonTitle')}</h2>
++              <p className="mt-1 text-sm text-foreground">
++                {t('gameProgress.detail.comparisonLine', {
++                  congruent: pct(data.comparison.congruent.accuracy), nc: data.comparison.congruent.n,
++                  incongruent: pct(data.comparison.incongruent.accuracy), ni: data.comparison.incongruent.n,
++                })}
++              </p>
++              {data.comparison.congruent.accuracy != null && data.comparison.incongruent.accuracy != null
++                && data.comparison.incongruent.n >= 8
++                && data.comparison.congruent.accuracy - data.comparison.incongruent.accuracy >= 0.2 && (
++                <p className="mt-1 text-xs text-warning">{t('gameProgress.detail.comparisonGap')}</p>
++              )}
++              <p className="mt-1 text-xs text-muted-foreground">{t('gameProgress.detail.comparisonNote')}</p>
++            </div>
++          )}
++
+           {/* Seviye geçişleri (LT trajesi) */}
+           <h2 className="mb-2 text-sm font-semibold text-foreground">{t('gameProgress.detail.ltProgress')}</h2>
+           <div className="mb-6">
+diff --git a/tests/unit/galaksay-dose.test.ts b/tests/unit/galaksay-dose.test.ts
+new file mode 100644
+index 0000000..325341c
+--- /dev/null
++++ b/tests/unit/galaksay-dose.test.ts
+@@ -0,0 +1,46 @@
++import { describe, expect, it } from 'vitest';
++import { galaksayDose, galaksayFocusAreas, DOSE_TARGET_SESSIONS } from '@/features/game-progress/galaksay-dose';
++
++const day = 24 * 3600 * 1000;
++const now = new Date('2026-09-28T12:00:00Z');
++const at = (daysAgo: number) => ({ startTime: new Date(now.getTime() - daysAgo * day).toISOString() });
++
++describe('galaksayDose', () => {
++  it('oturum yoksa doz sıfır, yeniden tarama yok', () => {
++    const d = galaksayDose([], null, now);
++    expect(d).toMatchObject({ sessions: 0, weeks: null, rescreenDue: false, reason: null });
++  });
++
++  it('yalnız son taramadan sonraki oturumları sayar', () => {
++    const d = galaksayDose([at(30), at(20), at(5)], new Date(now.getTime() - 25 * day).toISOString(), now);
++    expect(d.sessions).toBe(2);
++    expect(d.weeks).toBe(2);
++  });
++
++  it('42 oturumda doz tamam → yeniden tarama', () => {
++    const list = Array.from({ length: DOSE_TARGET_SESSIONS }, (_, i) => at(i));
++    const d = galaksayDose(list, null, now);
++    expect(d.rescreenDue).toBe(true);
++    expect(d.reason).toBe('dose');
++  });
++
++  it('13 hafta ve en az 10 oturum → süre ölçütüyle yeniden tarama', () => {
++    const list = Array.from({ length: 12 }, (_, i) => at(95 - i * 7));
++    const d = galaksayDose(list, null, now);
++    expect(d.rescreenDue).toBe(true);
++    expect(d.reason).toBe('time');
++  });
++
++  it('13 hafta ama az oturum → henüz değil', () => {
++    const d = galaksayDose([at(100), at(50)], null, now);
++    expect(d.rescreenDue).toBe(false);
++  });
++});
++
++describe('galaksayFocusAreas', () => {
++  it('rapor kategorilerini alan anahtarlarına çevirir, bilinmeyeni atar', () => {
++    expect(galaksayFocusAreas(['parent.cat.numberSense', 'parent.cat.calculation', 'parent.cat.xyz', 'parent.cat.numberSense']))
++      .toEqual(['numberSense', 'calculation']);
++    expect(galaksayFocusAreas(undefined)).toEqual([]);
++  });
++});
+diff --git a/tests/unit/student-hub.test.tsx b/tests/unit/student-hub.test.tsx
+index fa47382..ff3a724 100644
+--- a/tests/unit/student-hub.test.tsx
++++ b/tests/unit/student-hub.test.tsx
+@@ -58,6 +58,11 @@ vi.mock('@/features/assessment/use-class-lists', () => ({
+ vi.mock('@/features/game-progress/use-game-progress', () => ({
+   useStudentGameProgress: () => ({ data: null, isLoading: false }),
+ }));
++vi.mock('@/features/game-progress/family-invites-api', () => ({
++  useFamilyInvites: () => ({ data: [], isLoading: false }),
++  useCreateFamilyInvite: () => ({ mutate: vi.fn(), isPending: false, isError: false, error: null }),
++  useRevokeFamilyInvite: () => ({ mutate: vi.fn(), isPending: false }),
++}));
+ vi.mock('@/features/bop/use-bop', () => ({
+   useStudentBopPlans: () => ({ data: st.plans, isLoading: false }),
+   useBopPlans: () => ({ data: st.plans, isLoading: false }),
+@@ -243,3 +248,20 @@ describe('StudentHub', () => {
+     expect(screen.queryByTestId('hub-bop')).toBeNull();
+   });
+ });
++
++describe('StudentHub — GalakSay paneli', () => {
++  it('oyun kartında doz ve rota görünür; aile daveti yalnız galaksay yetkisiyle', () => {
++    st.sessions = [session({ score: 0 })];
++    st.entitlements = ['numap.screening'];
++    const { unmount } = renderHub();
++    expect(screen.getByText('Önerilen GalakSay rotası')).toBeInTheDocument();
++    expect(screen.getByText('0 / 42 oturum')).toBeInTheDocument();
++    expect(screen.getByTestId('hub-galaksay-panel')).toBeInTheDocument();
++    expect(screen.queryByTestId('hub-family-invites')).toBeNull();
++    unmount();
++    st.entitlements = ['numap.screening', 'galaksay'];
++    renderHub();
++    expect(screen.getByTestId('hub-family-invites')).toBeInTheDocument();
++    st.entitlements = null;
++  });
++});
+-- 
+2.43.0
+

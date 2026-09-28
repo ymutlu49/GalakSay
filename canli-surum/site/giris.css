@@ -1,0 +1,24 @@
+:root{--ink:#1E1B4B;--sub:#4B5563;--brand:#7c3aed;--brand-d:#5b21b6;--line:#E5E7EB;--bg:#FAF9FF;--card:#fff;--err-bg:#fff7ed;--err:#9a3412;--ok-bg:#ecfdf5;--ok:#065f46}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:radial-gradient(1200px 600px at 50% -10%,#ede9fe,var(--bg));color:var(--ink);font:16px/1.6 Nunito,system-ui,sans-serif}
+.kart{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;box-shadow:0 12px 40px rgba(30,27,75,.08)}
+.geri{font-size:14px;color:var(--sub);text-decoration:none}
+.logo{font-size:40px;margin:10px 0 2px}
+h1{font-size:26px;margin:0 0 6px;text-wrap:balance}
+.alt{color:var(--sub);margin:0 0 18px}
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+input{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+input:focus{outline:3px solid #ddd6fe;border-color:var(--brand)}
+button{width:100%;margin-top:16px;padding:13px 16px;border:0;border-radius:12px;background:var(--brand);color:#fff;font:800 16px Nunito,system-ui,sans-serif;cursor:pointer}
+button:hover{background:var(--brand-d)}button[disabled]{opacity:.6;cursor:wait}
+.kucuk{font-size:13px;margin:10px 0 0;text-align:center}.kucuk a,a{color:var(--brand)}
+.uyari{padding:12px 14px;border-radius:12px;background:var(--err-bg);color:var(--err);font-weight:600;font-size:14px;margin-bottom:6px}
+.uyari.iyi{background:var(--ok-bg);color:var(--ok)}
+.yollar{margin-top:24px;border-top:1px solid var(--line);padding-top:6px;display:grid;gap:4px}
+.yol h2{font-size:15px;margin:12px 0 2px;color:var(--brand)}.yol p{margin:0;font-size:14px;color:var(--sub)}
+.kod{font-family:ui-monospace,monospace;font-size:13px;background:#f5f3ff;padding:1px 5px;border-radius:6px}
+.onay{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;font-size:14px;color:var(--ink)}
+.onay input{width:auto;margin-top:4px}
+.bilgi{background:#f5f3ff;border-radius:14px;padding:14px 16px;margin:6px 0 4px}
+.bilgi p{margin:2px 0;font-size:15px}
+@media (prefers-color-scheme:dark){:root{--ink:#ede9fe;--sub:#c4b5fd;--line:#3b3470;--bg:#0f0b2a;--card:#17123a;--err-bg:#3b1d0a;--err:#fdba74;--ok-bg:#052e22;--ok:#6ee7b7}body{background:radial-gradient(1200px 600px at 50% -10%,#2e1065,var(--bg))}input{background:#0f0b2a;color:var(--ink)}.kod,.bilgi{background:#241b52}}

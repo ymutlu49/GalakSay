@@ -1,0 +1,52 @@
+From e151c22a9cc5350a1402c2265b7a4c247ca2eb79 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 04:47:18 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?Aile=20daveti=20do=C4=9Frulamas=C4=B1nda=20?=
+ =?UTF-8?q?istemci=20adresi;=20GalakSay=20=C3=B6nizleme=20k=C3=B6keni?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- verify: hatalı deneme sınırı (ip, X-Istemci-IP) çiftine uygulanır; GalakSay
+  sunucusu üzerinden gelen isteklerde tek istemci bütün aileleri kilitleyemez.
+- CORS: onizleme.galaksay.pages.dev (giriş sayfası tarayıcıdan NuMap'e girer).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MBcrzgQnZ329WbeWCNQ9zH
+---
+ functions/_cors.ts                     | 1 +
+ functions/api/family-invites/verify.ts | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/functions/_cors.ts b/functions/_cors.ts
+index b01b378..b4c64d8 100644
+--- a/functions/_cors.ts
++++ b/functions/_cors.ts
+@@ -15,6 +15,7 @@ const STATIC_ALLOW = new Set<string>([
+   // yoksa otomatik giriş CORS'tan engellenir ve araç kendi giriş ekranını gösterir.
+   'https://galaksay.com',
+   'https://www.galaksay.com',
++  'https://onizleme.galaksay.pages.dev', // GalakSay önizleme yayını (giriş sayfası tarayıcıdan NuMap'e girer)
+   'https://dokunsay.com',
+   'https://www.dokunsay.com',
+   'https://abmato.com',
+diff --git a/functions/api/family-invites/verify.ts b/functions/api/family-invites/verify.ts
+index 488d943..57acdf3 100644
+--- a/functions/api/family-invites/verify.ts
++++ b/functions/api/family-invites/verify.ts
+@@ -10,7 +10,11 @@ import { resolveInvite, touchInvite } from '../../_lib/family';
+ 
+ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
+   const ip = clientIp(request);
+-  const key = `family|ip|${ip}`;
++  // GalakSay sunucusu üzerinden gelen isteklerde tarayıcının adresi X-Istemci-IP ile iletilir; sınır
++  // (ip, istemci) çiftine uygulanır ki tek bir kötü niyetli istemci bütün ailelerin doğrulamasını
++  // kilitleyemesin. Başlığı değiştirmek tahmine olanak vermez: davet 256 bit rastgeledir.
++  const fwd = (request.headers.get('X-Istemci-IP') ?? '').slice(0, 64);
++  const key = `family|ip|${ip}|${fwd}`;
+   const lim = await checkLimit(env, key);
+   if (!lim.allowed) return fail('Çok fazla deneme. Biraz sonra yeniden deneyin.', 429);
+   const body = await readJson<{ token: string }>(request);
+-- 
+2.43.0
+

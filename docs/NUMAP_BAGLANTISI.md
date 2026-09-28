@@ -93,7 +93,65 @@ Sunumdan önce kapının açılması önerilmez: yanlış yapılandırma sunum s
 4. **Uyumsuz karşılaştırma maddeleri.** GalakSay'daki yeni uyumsuz karşılaştırma maddelerinin (boyut yanılsaması) doğruluğunu `/game-progress` içinde ayrı bir alan olarak göndermek. Bu, NuMap'teki sayı hissi alt testine ek bir işaret sağlar.
 5. **Tek marka ve tek giriş.** GalakSay giriş ekranında "NuMap ile giriş" birincil düğme olur. Kurum lisansı NuMap'te yönetilir; GalakSay'da ayrı bir hesap sistemi gerekmez. Bu, §4'teki (a) ya da (b) seçeneğiyle uyumludur.
 
-## 6. Uygulama sırası
+## 6. Uygulama durumu (28 Eylül 2026)
+
+Lisans modeli olarak (a) ve (b) seçenekleri uygulandı; §5'teki önerilerin hepsi hayata geçirildi. Hepsi mevcut yapıyı bozmayacak biçimde, eklenerek yapıldı.
+
+### 6.1 Lisans modeli
+
+| Yol | Kim | Nasıl girer | Doğrulama |
+|---|---|---|---|
+| (a) Bireysel | GalakSay yetkili NuMap hesabı (ör. `galaksay` planı) | `galaksay.com/giris`'te NuMap e-posta ve şifresi, ya da NuMap'ten "GalakSay'ı aç" | NuMap `/auth/me`; yetkilerde `galaksay` |
+| (a) Kurum üyesi | Kurum lisansı altındaki öğretmen ya da uzman | Aynı | Kurumun yetkileri üyeye iner |
+| (b) Aile | Lisanslı öğretmenin davet ettiği aile (hesap yok) | Öğretmenin gönderdiği `galaksay.com/aile#…` bağlantısı | NuMap `/family-invites/verify`; süre, iptal ve öğretmenin lisansı her doğrulamada denetlenir |
+
+- **Lisans çerezi:** Cihaz `gs_lis` çereziyle lisanslanır. Çerez `HttpOnly`, `Secure` ve `SameSite=Lax`'tır; sayfa betikleri okuyamaz.
+- **Önbellek:** Doğrulama sonucu NuMap hesaplarında 10 dk, ailelerde 60 dk önbelleğe alınır. İptal edilen lisans en geç bu sürede düşer.
+- **NuMap kesintisi:** NuMap'e ulaşılamazsa var olan çerez geçici olarak kabul edilir; okulda sunucu kesintisi dersi durdurmaz.
+- **Şifreyle giriş:** Giriş tarayıcıdan doğrudan NuMap'e yapılır. NuMap'in hatalı deneme sınırı böylece gerçek istemci adresine uygulanır. GalakSay sunucusu yalnız oturum belirtecini doğrular.
+- **NuMap'ten geliş:** Hedefi GalakSay olan tek kullanımlık bilet, sunucuda oturuma çevrilir. Bilet adresten silinir; öğretmen doğrudan öğretmen merkezine ya da seçtiği öğrencinin oyununa geçer.
+- **Aile cihazı:** Hesapsız "kaptan" akışıyla oynar. Ebeveyn açıkça izin verirse ilerleme öğretmenin o öğrenciye ait NuMap kaydına düşer (`/api/lisans/ilerleme` → NuMap `/family-invites/game-progress`).
+
+Kapı bugün **kapalı** yayında: `/oyna/` herkese açık, davranış değişmedi. Aile bağlantıları ve ilerleme aktarımı kapı kapalıyken de çalışır.
+
+Kapıyı açmak için "Canlı kopyayı yayınla" iş akışı `lisans_kapisi = acik` girdisiyle çalıştırılır. İş akışı `canli-surum/functions/_ayar.js` ve `site/_routes.json` dosyalarını buna göre yazar. Kapatmak için aynı iş akışı `kapali` ile yeniden çalıştırılır.
+
+### 6.2 NuMap'te yapılanlar (numap-app)
+
+> **Durum:** Kod hazır ve test edildi. NuMap deposuna gönderim ve getnumap.com yayını onay bekliyor; yamalar [numap-yamalari/](numap-yamalari/) klasöründe. NuMap yayınlanana kadar aile davetleri oluşturulamaz. GalakSay'daki giriş sayfası ve NuMap'ten geliş bugünkü NuMap ile çalışır.
+
+| Öneri (§5) | Durum |
+|---|---|
+| SSO biletinde hedef uygulama ve yetki denetimi | Yapıldı. Hedefli bilet 60 sn geçerli ve tek kullanımlık (`sso_ticket_uses`). Hedefsiz eski bilet değişmedi: DokunSay, ABMATO ve SayKent etkilenmez. |
+| `/game-progress`'te GalakSay yetkisi | Yapıldı (403). Yetkisi tanımsız eski hesaplar tümü açık sayılır. |
+| Öğrenciyle açma (`?ogrenci=`) | Yapıldı. Öğrenci sayfasında "GalakSay'ı bu öğrenciyle aç"; oyun o öğrenciyle açılır. |
+| Aile davetleri (b) | Yapıldı. Öğrenci sayfasında davet oluşturma (etiket, 30–365 gün), listeleme ve iptal. Davetin yalnız SHA-256 özeti saklanır. |
+| Önerilen GalakSay rotası | Yapıldı. Rapordaki odak alanlarından türetilir. |
+| Müdahale dozu ve yeniden tarama | Yapıldı. Son taramadan beri oturum / 42 hedefi, haftalık ortalama. 42 oturumda ya da 13 hafta ve en az 10 oturumda "yeniden tarama" uyarısı ve düğmesi çıkar. |
+| Uyumsuz karşılaştırma maddeleri | Yapıldı. GalakSay maddeyi işaretler (`incongruent`); NuMap öğrenci ayrıntısında uyumlu ve uyumsuz doğruluk ayrı gösterilir. Fark %20 ve üzeriyse uyarı verilir. |
+
+Yeni tablolar ilk kullanımda kod tarafından oluşturulur (`CREATE TABLE IF NOT EXISTS`); ayrı bir veritabanı göç adımı gerekmez. Tanımlar kayıt için `db/migrations/0013_sso_family_invites.sql` dosyasında da var.
+
+### 6.3 Doğrulama
+
+- **NuMap:** 1.081 birim testi (yeni: doz hesabı, öğrenci sayfası paneli), tür denetimi, lint, derleme. Yerel Cloudflare ortamında (wrangler, yerel D1) 28 API denetimi yapıldı. Kurum lisansı kaldırılınca davetlerin düştüğü de doğrulandı.
+- **GalakSay:** Yerel GalakSay ve yerel NuMap birlikte çalıştırıldı; kapı açıkken 26 uçtan uca denetim yapıldı:
+  - giriş sayfasına yönlendirme ve lisanssız hesabın reddi,
+  - çerezlerin güvenliği,
+  - çıkış,
+  - öğrenciyle SSO açılışı ve biletin yeniden kullanılamaması,
+  - aile daveti, açık rıza ve evdeki ilerlemenin öğretmene düşmesi,
+  - geçersiz davet.
+
+  Kapı kapalıyken `/oyna/` herkese açık kalıyor. Mevcut bütün regresyon testleri geçti.
+
+### 6.4 Kalanlar
+
+- Kapının açılma zamanı (öneri: sunumdan sonra; önce öğretmen hesaplarının GalakSay yetkisi ve ailelere davetler hazırlanır).
+- Bireysel lisans satışı ve ödeme NuMap yönetim ekranından elle yapılıyor (hesap oluşturma + `galaksay` planı); çevrim içi satın alma yok.
+- Uzun süre çevrimdışı kullanım: service worker son geçerli kabuğu açar; çevrimdışı süre sınırı yok.
+
+## 7. İlk uygulama sırası (28 Eylül sabahı)
 
 1. **Yapıldı:** §2 ve §3.
 2. **Sunumdan sonra:** NuMap tarafında §5.1'in ilk üç maddesi (sunucu değişikliği, küçük).

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GalakSay — Giriş</title>
+<meta name="description" content="GalakSay'a NuMap hesabıyla ya da öğretmeninizin gönderdiği aile bağlantısıyla girin.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/icons/favicon-32.png">
+<link rel="stylesheet" href="/giris.css">
+</head>
+<body>
+<main class="kart" aria-labelledby="baslik">
+  <a class="geri" href="/">← galaksay.com</a>
+  <div class="logo" aria-hidden="true">🚀</div>
+  <h1 id="baslik">GalakSay'a giriş</h1>
+  <p class="alt">GalakSay lisanslı bir üründür. NuMap hesabınızla girin ya da öğretmeninizin gönderdiği aile bağlantısını açın.</p>
+
+  <div id="uyari" class="uyari" role="alert" hidden></div>
+
+  <form id="form" novalidate>
+    <label for="email">NuMap e-posta adresi</label>
+    <input id="email" name="email" type="email" autocomplete="username" inputmode="email" required>
+    <label for="sifre">Şifre</label>
+    <input id="sifre" name="password" type="password" autocomplete="current-password" required>
+    <button id="gir" type="submit">NuMap ile giriş yap</button>
+    <p class="kucuk"><a href="https://getnumap.com/" rel="noopener">Şifrenizi mi unuttunuz? NuMap'te sıfırlayın</a></p>
+  </form>
+
+  <section class="yollar" aria-label="Diğer giriş yolları">
+    <div class="yol">
+      <h2>NuMap'i kullanıyorsanız</h2>
+      <p>NuMap'te öğrencinin sayfasından <b>GalakSay'ı bu öğrenciyle aç</b> düğmesine basın; yeniden şifre sormadan açılır.</p>
+    </div>
+    <div class="yol">
+      <h2>Aileler</h2>
+      <p>Öğretmeniniz size bir aile bağlantısı gönderir (<span class="kod">galaksay.com/aile#…</span>). O bağlantıyı bu cihazda açmanız yeterli; hesap gerekmez.</p>
+    </div>
+    <div class="yol">
+      <h2>Lisans nasıl alınır?</h2>
+      <p><b>Bireysel:</b> GalakSay yetkili bir NuMap hesabı. <b>Kurum:</b> okulunuzun NuMap kurum lisansı; öğretmenler hesaplarıyla girer, ailelere davet bağlantısı gönderir. Bilgi için <a href="https://getnumap.com/" rel="noopener">getnumap.com</a>.</p>
+    </div>
+  </section>
+</main>
+<script src="/giris.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GalakSay — Aile bağlantısı</title>
+<meta name="description" content="Öğretmeninizin gönderdiği aile bağlantısıyla GalakSay'ı evde oynayın.">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/icons/favicon-32.png">
+<link rel="stylesheet" href="/giris.css">
+</head>
+<body>
+<main class="kart" aria-labelledby="baslik">
+  <a class="geri" href="/">← galaksay.com</a>
+  <div class="logo" aria-hidden="true">🏠</div>
+  <h1 id="baslik">Evde GalakSay</h1>
+  <p class="alt" id="durum">Bağlantınız denetleniyor…</p>
+  <div id="uyari" class="uyari" role="alert" hidden></div>
+
+  <div id="tamam" hidden>
+    <div class="bilgi">
+      <p id="kimden"></p>
+      <p class="kucuk" id="bitis" style="text-align:left"></p>
+    </div>
+    <label class="onay"><input type="checkbox" id="paylas"> <span>Çocuğumun GalakSay oyun ilerlemesi (doğru/yanlış, süre, düzey) öğretmeniyle paylaşılsın. Ad ya da fotoğraf gönderilmez. Bu izni oyundaki Ayarlar'dan geri alabilirim. <a href="/gizlilik.html" target="_blank" rel="noopener">Aydınlatma metni</a></span></label>
+    <button id="basla" type="button">GalakSay'ı başlat</button>
+    <p class="kucuk">Bu cihaz artık GalakSay'ı açabilir. Çocuğunuz için bir "kaptan" oluşturup oynamaya başlayın.</p>
+  </div>
+</main>
+<script src="/aile.js" defer></script>
+</body>
+</html>
