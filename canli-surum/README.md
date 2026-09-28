@@ -120,3 +120,19 @@ Gerekçeler `docs/ICERIK_IYILESTIRME_PLANI.md` dosyasındadır; uygulama durumu 
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.18.0-20260927-icerik`. |
 
 Uygulama sırası: … → `madde_denetimi_duzeltmeleri.py` → `icerik_iyilestirmeleri.py`.
+
+## 28 Eylül 2026: NuMap bağlantısı ve giriş güvenliği
+
+Ayrıntı ve gerekçeler: [docs/NUMAP_BAGLANTISI.md](../docs/NUMAP_BAGLANTISI.md).
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | NuMap düğmesi `numap.netlify.app` (ilgisiz site) yerine `getnumap.com`'u açar. |
+| `site/oyna/assets/index-pKper_0i.js` | NuMap giriş, doğrulama ve SSO yanıtlarında GalakSay yetkisi denetlenir; plan ve yetkiler saklanır. Başarısız SSO iletisi gösterilir. NuMap çıkışında öğrenci önbelleği silinir. Cihaz şifresi yoksa boşta kilit NuMap oturumunu kapatır. Eski biçimli yönetici şifresi PBKDF2'ye yükseltilir. |
+| `site/oyna/assets/syncEngine-DrzZ2bLj.js` | NuMap'e bağlı yerel çocuğun verisi `numap_<studentKey>` kimliğiyle gönderilir; hata ayıklama günlüğü kapatıldı. |
+| `site/oyna/assets/ChildSelect-B-s0Bh40.js` | Tüm veriyi silme, geri yükleme ve dışa aktarma yalnız cihaz yöneticisinde. E-posta hesabı belirteçleri yedeğe girmez. |
+| `site/oyna/galaksay-ek.js` | §7 NuMap iletisi, §8 service worker kaydı (satır içi betikten taşındı). |
+| `site/index.html`, `site/site.js`, `site/oyna/index.html`, `site/_headers` | Satır içi betik kalmadı; CSP `script-src`'den `'unsafe-inline'` çıkarıldı; HSTS eklendi. |
+| `site/sw.js` | `?sso=` içeren adres önbelleğe yazılmaz; sürüm `galaksay-v5.19.0-20260928-numap`. |
+
+Uygulama sırası: … → `icerik_iyilestirmeleri.py` → `numap_baglantisi.py` → `giris_guvenligi.py`.

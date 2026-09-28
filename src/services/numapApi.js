@@ -108,11 +108,24 @@ async function request(method, path, body) {
 
 // --- Kimlik (auth) ---
 
+/**
+ * GalakSay lisansı: NuMap yanıtındaki yetki listesi "galaksay" içermiyorsa 403 fırlatır.
+ * Liste tanımsızsa (null) NuMap'te olduğu gibi her şey açık sayılır. Plan ve yetkiler döner.
+ */
+function licence(r) {
+  const ent = r && Array.isArray(r.entitlements) ? r.entitlements : null;
+  if (ent && !ent.includes('galaksay')) {
+    throw new ApiError('Bu NuMap hesabında GalakSay lisansı yok. Lisans için kurumunuzun NuMap yöneticisine başvurun.', 403);
+  }
+  return { plan: r?.plan ?? null, entitlements: ent };
+}
+
 /** Başarılı giriş → token + kullanıcı önbelleğe alınır; kullanıcı döner. */
 export async function login(email, password) {
   const r = await request('POST', '/auth/login', { email, password });
+  const lic = licence(r);
   setToken(r.token);
-  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null };
+  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null, ...lic };
   cacheUser(user);
   return user;
 }
@@ -125,8 +138,9 @@ export async function login(email, password) {
  */
 export async function ssoExchange(ticket) {
   const r = await request('POST', '/auth/sso/exchange', { ticket });
+  const lic = licence(r);
   setToken(r.token);
-  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null };
+  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null, ...lic };
   cacheUser(user);
   return user;
 }
@@ -134,7 +148,7 @@ export async function ssoExchange(ticket) {
 /** Mevcut token'ı doğrular; güncel kullanıcıyı döner ve önbelleği tazeler. 401 → ApiError. */
 export async function me() {
   const r = await request('GET', '/auth/me');
-  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null };
+  const user = { ...r.user, assessmentRemaining: r.assessmentRemaining ?? null, ...licence(r) };
   cacheUser(user);
   return user;
 }

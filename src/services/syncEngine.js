@@ -97,6 +97,17 @@ async function collectDaily(ns) {
   }));
 }
 
+/** Sunucuya gidecek childId: NuMap'e bağlı yerel çocukta numap_<studentKey>, değilse ns. */
+function serverChildId(ns) {
+  try {
+    const list = JSON.parse(localStorage.getItem('galaksay_local_children')) || [];
+    const rec = list.find((c) => c && c.ns === ns && c.source !== 'numap' && /^[a-f0-9]{16}$/.test(c.numapStudentKey || ''));
+    return rec ? `numap_${rec.numapStudentKey}` : ns;
+  } catch {
+    return ns;
+  }
+}
+
 /**
  * Bir çocuğun yeni verisini merkezi havuza gönderir.
  * dataSync rızası/token yoksa no-op; çevrimdışıysa kuyruğa alır.
@@ -130,7 +141,11 @@ export async function syncChild(ns) {
     dbg('toplanan', { yeniOturum: sessions.length, eventBlob: events.length, lt: ltTransitions.length, daily: dailySummaries.length });
     if (total === 0) { dbg('gönderilecek YENİ veri yok (watermark zaten güncel?)'); dequeue(ns); return { nothing: true }; }
 
-    await postGameProgress({ sessions, events, ltTransitions, dailySummaries });
+    // NuMap taramasına bağlı yerel çocuk (ns = local_N): sunucu öğrenciyi "numap_<16 hex>"
+    // biçiminden tanır. Cihazdaki kayıtlar ns altında kalır; yalnız gönderilen kopya çevrilir.
+    const cid = serverChildId(ns);
+    const re = (arr) => arr.map((o) => ({ ...o, childId: cid }));
+    await postGameProgress({ sessions: re(sessions), events: re(events), ltTransitions: re(ltTransitions), dailySummaries: re(dailySummaries) });
     dbg('GÖNDERİLDİ ✓ toplam kayıt', total);
 
     saveWm(ns, {

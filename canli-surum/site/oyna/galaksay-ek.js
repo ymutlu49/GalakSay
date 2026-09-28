@@ -402,3 +402,41 @@
   }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
+
+/* ── 7) NuMap'ten gelişte giriş olmadıysa nedenini göster ──────────────────────
+ * Süresi dolmuş SSO bileti ya da GalakSay lisansı olmayan NuMap hesabı. İletiyi
+ * uygulama sessionStorage'a yazar (gs_numap_msg); burada bir kez gösterilir.
+ */
+(function () {
+  'use strict';
+  function show() {
+    var msg = null;
+    try { msg = sessionStorage.getItem('gs_numap_msg'); sessionStorage.removeItem('gs_numap_msg'); } catch (e) { /* depolama kapalı */ }
+    if (!msg || !document.body || document.getElementById('gs-numap-msg')) return;
+    var box = document.createElement('div');
+    box.id = 'gs-numap-msg';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:2147483000;' +
+      'max-width:min(92vw,460px);display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;' +
+      'background:#fff7ed;color:#7c2d12;border:1px solid #fdba74;box-shadow:0 8px 24px rgba(0,0,0,.18);font:600 14px/1.45 system-ui,sans-serif';
+    var txt = document.createElement('div');
+    txt.style.flex = '1';
+    txt.textContent = msg;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '✕';
+    btn.setAttribute('aria-label', 'Kapat');
+    btn.style.cssText = 'border:0;background:transparent;color:inherit;font-size:16px;cursor:pointer;padding:0 2px';
+    btn.onclick = function () { box.remove(); };
+    box.appendChild(txt); box.appendChild(btn);
+    document.body.appendChild(box);
+    setTimeout(function () { if (box.parentNode) box.remove(); }, 15000);
+  }
+  window.addEventListener('gs-numap-msg', show);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+})();
+
+/* ── 8) Service worker kaydı (index.html'deki satır içi betikten taşındı; CSP) ── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {}); });
+}
