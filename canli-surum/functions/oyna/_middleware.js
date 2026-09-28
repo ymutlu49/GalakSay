@@ -38,5 +38,5 @@ export async function onRequest(context) {
   }
   const geri = encodeURIComponent(url.pathname + url.search);
   const hata = durum.neden === 'lisans' ? '&hata=lisans' : '';
-  return yonlendir(`/giris?geri=${geri}${hata}`, readCookie(request, COOKIE) ? [clearCookie(COOKIE)] : []);
+  return yonlendir(`/giris?geri=${geri}${hata}`, durum.kesin && readCookie(request, COOKIE) ? [clearCookie(COOKIE)] : []);
 }

@@ -7,8 +7,8 @@
 //       → POST /family-invites/verify ile doğrulanır.
 // Çerez HttpOnly + Secure + SameSite=Lax; sayfa betikleri okuyamaz. Doğrulama sonucu kısa süre
 // önbelleğe alınır (NuMap 10 dk, aile 60 dk); iptal edilen lisans en geç bu sürede düşer.
-// NuMap'e ulaşılamazsa (ağ/5xx) mevcut çerez geçici olarak kabul edilir: okulda sunucu
-// kesintisi dersi durdurmaz. 401/403/404 kesin rettir; çerez silinir.
+// NuMap'e ulaşılamazsa (ağ hatası ya da 5xx) mevcut çerez geçici olarak kabul edilir: okulda
+// sunucu kesintisi dersi durdurmaz. Diğer her yanıt (401, 403, 404, 405 …) kesin rettir; çerez silinir.
 
 import { KAPI_ACIK } from './_ayar.js';
 
@@ -102,13 +102,15 @@ export async function lisansDurumu(env, value, request) {
     if (r.status === 200) sonuc = hasGalaksay(r.body)
       ? { ok: true, kind, bilgi: { ad: r.body.user && r.body.user.name, plan: r.body.plan || null } }
       : { ok: false, kesin: true, neden: 'lisans' };
-    else if (r.status === 401 || r.status === 403) sonuc = { ok: false, kesin: true };
-    else return { ok: true, kind, gecici: true };
+    else if (r.status === 0 || r.status >= 500) return { ok: true, kind, gecici: true };
+    else sonuc = { ok: false, kesin: true };
   } else {
     const r = await fetchNumap(env, '/family-invites/verify', { method: 'POST', body: JSON.stringify({ token: secret }) }, request);
     if (r.status === 200 && r.body && r.body.ok) sonuc = { ok: true, kind, bilgi: { etiket: r.body.label, ogretmen: r.body.teacherName, kurum: r.body.institutionName, bitis: r.body.expiresAt } };
-    else if (r.status === 404 || r.status === 401) sonuc = { ok: false, kesin: true };
-    else return { ok: true, kind, gecici: true };
+    else if (r.status === 0 || r.status >= 500) return { ok: true, kind, gecici: true };
+    // 429: bu istemci çok hatalı deneme yaptı; erişim yok ama geçerli davet çerezi silinmez.
+    else if (r.status === 429) return { ok: false, kesin: false };
+    else sonuc = { ok: false, kesin: true };
   }
   if (cache && sonuc.ok) {
     try {
