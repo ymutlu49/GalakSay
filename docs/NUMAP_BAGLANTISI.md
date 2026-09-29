@@ -118,7 +118,7 @@ Kapıyı açmak için "Canlı kopyayı yayınla" iş akışı `lisans_kapisi = a
 
 ### 6.2 NuMap'te yapılanlar (numap-app)
 
-> **Durum:** Kod hazır ve test edildi. NuMap deposuna gönderim ve getnumap.com yayını onay bekliyor; yamalar [numap-yamalari/](numap-yamalari/) klasöründe. NuMap yayınlanana kadar aile davetleri oluşturulamaz. GalakSay'daki giriş sayfası ve NuMap'ten geliş bugünkü NuMap ile çalışır.
+> **Durum:** Kod NuMap deposunun ana dalında (29 Eylül 2026). getnumap.com yayını NuMap deposundan yapılır.
 
 | Öneri (§5) | Durum |
 |---|---|
