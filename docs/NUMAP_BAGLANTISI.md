@@ -118,7 +118,7 @@ Kapıyı açmak için "Canlı kopyayı yayınla" iş akışı `lisans_kapisi = a
 
 ### 6.2 NuMap'te yapılanlar (numap-app)
 
-> **Durum:** Kod NuMap deposunun ana dalında (29 Eylül 2026). getnumap.com yayını NuMap deposundan yapılır.
+> **Durum:** 29 Eylül 2026'da getnumap.com'da yayında. NuMap deposunun yayın akışı artık her `master` gönderiminde kendiliğinden yayınlar (depo gizli değerleri `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID`; Pages projesinin üretim dalı `master`).
 
 | Öneri (§5) | Durum |
 |---|---|
