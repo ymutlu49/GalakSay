@@ -104,7 +104,7 @@ Formda bunlar **"isteğe bağlı"** olarak beyan edilmelidir.
 | Finansal özellikler | Yok |
 | Sağlık uygulaması | **Hayır.** Galaksay eğitsel bir oyundur; tanı, tarama ya da tedavi işlevi yoktur. |
 | Hesap silme | Uygulamada hesap oluşturulmuyor (bkz. §6 notu) |
-| Uygulama izinleri | TWA paketi yalnız İnternet iznini kullanır |
+| Uygulama izinleri | Kullanıcıdan izin istenmez. Paket İnternet izni bile taşımaz (içeriği Chrome açar); yalnız Android'in zorunlu iç izni vardır. |
 
 ## 8. Mağaza ayarları
 

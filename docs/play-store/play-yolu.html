@@ -1,0 +1,204 @@
+<title>Galaksay Play Yolu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@800;900&display=swap">
+<style>
+/* Düzen: tek sütun çalışma listesi; üstte ilerleme, numaralı adımlar (gerçek sıra), her değerin yanında Kopyala */
+:root {
+  --kagit:#FAF9FD; --yuzey:#FFFFFF; --murekkep:#1E1B3A; --soluk:#5D5880; --cizgi:#E3DFF0;
+  --vurgu:#5B21B6; --vurgu-zemin:#F0EAFE; --tamam:#0E7C66; --tamam-zemin:#E3F5EF; --uyari:#9A5B00; --uyari-zemin:#FFF4DF;
+  --f-baslik:"Nunito","Trebuchet MS",system-ui,sans-serif; --f-metin:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif; --f-kod:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --kagit:#13111F; --yuzey:#1B1830; --murekkep:#ECE9FA; --soluk:#A9A3CC; --cizgi:#2E2A4A;
+  --vurgu:#C4B0FF; --vurgu-zemin:#2A2250; --tamam:#5FD6B8; --tamam-zemin:#123A31; --uyari:#F5C068; --uyari-zemin:#3A2A0E; color-scheme:dark; } }
+:root[data-theme="dark"] {
+  --kagit:#13111F; --yuzey:#1B1830; --murekkep:#ECE9FA; --soluk:#A9A3CC; --cizgi:#2E2A4A;
+  --vurgu:#C4B0FF; --vurgu-zemin:#2A2250; --tamam:#5FD6B8; --tamam-zemin:#123A31; --uyari:#F5C068; --uyari-zemin:#3A2A0E; color-scheme:dark; }
+* { box-sizing:border-box }
+body { background:var(--kagit); color:var(--murekkep); font:16px/1.55 var(--f-metin); padding-inline:16px; padding-block:0 48px }
+.sar { max-width:820px; margin:0 auto }
+.ust { position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--kagit); padding-block:16px 12px; border-bottom:1px solid var(--cizgi) }
+.ust-ic { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap }
+h1 { font:900 clamp(26px,4.5vw,34px)/1.1 var(--f-baslik); margin:0; letter-spacing:-.01em; text-wrap:balance }
+.alt { margin:4px 0 0; color:var(--soluk); font-size:14.5px }
+.paket { font:500 13px var(--f-kod); color:var(--soluk) }
+.ilerleme { min-width:180px; display:grid; gap:6px; justify-items:end }
+.ilerleme-metin { font:800 15px var(--f-baslik); font-variant-numeric:tabular-nums }
+.cubuk { width:180px; height:8px; border-radius:99px; background:var(--cizgi); overflow:hidden }
+.cubuk span { display:block; height:100%; width:0; background:var(--tamam); transition:width .25s ease }
+.giris { margin:20px 0 8px; padding:14px 16px; border-radius:12px; background:var(--vurgu-zemin); font-size:15px }
+.giris strong { font-weight:700 }
+.adim { border-top:1px solid var(--cizgi); padding-block:22px 6px; scroll-margin-top:110px }
+.adim-bas { display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:start }
+.no { width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font:900 17px var(--f-baslik); background:var(--vurgu-zemin); color:var(--vurgu); font-variant-numeric:tabular-nums }
+.adim.tamam .no { background:var(--tamam-zemin); color:var(--tamam) }
+.bas-metin { min-width:0 }
+h2 { font:900 21px/1.25 var(--f-baslik); margin:4px 0 4px; text-wrap:balance }
+.yol { margin:0; font:500 13.5px/1.5 var(--f-kod); color:var(--soluk); overflow-wrap:anywhere }
+.yol-etiket { font-family:var(--f-metin); font-weight:700 }
+.bitti { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 12px; border:1px solid var(--cizgi); border-radius:10px; background:var(--yuzey); cursor:pointer; font-weight:700; font-size:14px; white-space:nowrap }
+.bitti input { width:18px; height:18px; accent-color:var(--tamam) }
+.adim.tamam .bitti { border-color:var(--tamam); color:var(--tamam) }
+.govde { padding-left:50px; margin-top:10px }
+h3 { font:800 15px/1.3 var(--f-baslik); margin:22px 0 6px; color:var(--vurgu); letter-spacing:.01em }
+.satir { display:grid; grid-template-columns:minmax(150px,240px) 1fr auto; gap:10px 14px; align-items:start; padding:9px 0; border-bottom:1px dashed var(--cizgi) }
+.etiket { font-weight:700; font-size:14.5px; display:grid; gap:2px; min-width:0 }
+.not { font-weight:400; font-size:12.5px; color:var(--soluk) }
+.deger { min-width:0 }
+code { font:500 14px/1.5 var(--f-kod); background:var(--yuzey); border:1px solid var(--cizgi); border-radius:7px; padding:3px 7px; display:inline-block; max-width:100%; overflow-wrap:anywhere; white-space:pre-wrap }
+pre.uzun { font:400 13px/1.55 var(--f-kod); background:var(--yuzey); border:1px solid var(--cizgi); border-radius:9px; padding:10px 12px; margin:0; max-height:230px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere }
+.cip { display:inline-block; padding:3px 10px; border-radius:99px; background:var(--vurgu-zemin); color:var(--murekkep); font-weight:700; font-size:14px }
+.kopya { font:700 13px var(--f-metin); min-height:36px; padding:0 12px; border-radius:9px; border:1px solid var(--vurgu); background:transparent; color:var(--vurgu); cursor:pointer; white-space:nowrap }
+.kopya:hover { background:var(--vurgu-zemin) }
+.kopya.ok { border-color:var(--tamam); color:var(--tamam); background:var(--tamam-zemin) }
+button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--vurgu); outline-offset:2px }
+.ipucu { margin:14px 0 6px; padding:10px 14px; border-radius:10px; background:var(--uyari-zemin); color:var(--murekkep); font-size:14.5px; border-left:3px solid var(--uyari) }
+.aciklama { font-size:15px; color:var(--murekkep); max-width:65ch; margin:8px 0 }
+.imza { display:grid; gap:8px; margin-top:6px }
+.imza input { font:500 14px var(--f-kod); padding:10px 12px; border-radius:9px; border:1.5px solid var(--cizgi); background:var(--yuzey); color:var(--murekkep); width:100% }
+.durum { margin:0; font-size:14px; font-weight:700; min-height:1.4em }
+.durum.iyi { color:var(--tamam) } .durum.kotu { color:var(--uyari) }
+.tablo-sar { overflow-x:auto; margin:12px 0 }
+table { border-collapse:collapse; font-size:14px; min-width:560px; width:100% }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--cizgi) }
+th { font-weight:700; color:var(--soluk); font-size:12.5px; text-transform:uppercase; letter-spacing:.05em }
+.son { margin-top:28px; padding:16px; border-radius:12px; border:1px solid var(--cizgi); background:var(--yuzey); font-size:15px }
+.son h2 { margin-top:0 }
+@media (max-width:640px) {
+  .govde { padding-left:0 }
+  .adim-bas { grid-template-columns:auto 1fr; }
+  .bitti { grid-column:1 / -1; justify-self:start }
+  .satir { grid-template-columns:1fr auto }
+  .satir .etiket { grid-column:1 / -1 }
+  .ilerleme { justify-items:start }
+}
+@media (prefers-reduced-motion: reduce) { .cubuk span { transition:none } }
+</style>
+<div class="sar">
+<div class="ust"><div class="ust-ic"><div><h1>Galaksay Play Yolu</h1><p class="alt">Play Console’da sırayla yapılacaklar · <span class="paket">com.galaksay.app · 1.0.0 (1)</span></p></div>
+<div class="ilerleme" aria-live="polite"><span class="ilerleme-metin" id="sayac">0 / 7 adım</span><div class="cubuk" aria-hidden="true"><span id="cubuk"></span></div></div></div></div>
+<p class="giris">Bu sayfayı Play Console’un yanında açık tutun. Her değerin yanındaki <strong>Kopyala</strong> ile alanı doldurun; bir adımı bitirince <strong>Bitti</strong>’yi işaretleyin. İşaretler yalnız bu tarayıcıda saklanır. Takıldığınız yerde ekran görüntüsünü ya da hata metnini sohbete gönderin.</p>
+<section class="adim" id="olustur" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">1</span><div class="bas-metin"><h2>Uygulamayı oluşturun</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Tüm uygulamalar → Uygulama oluştur</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-olustur" data-bitti="olustur"><span>Bitti</span></label></header>
+<div class="govde"><div class="satir"><span class="etiket">Uygulama adı</span><div class="deger"><code id="v14909275">Galaksay: Sayılar Galaksisi</code></div><button type="button" class="kopya" data-hedef="v14909275" aria-label="Uygulama adı kopyala">Kopyala</button></div><div class="satir secim"><span class="etiket">Varsayılan dil</span><div class="deger"><span class="cip">Türkçe – tr-TR</span></div><span></span></div><div class="satir secim"><span class="etiket">Uygulama mı, oyun mu?</span><div class="deger"><span class="cip">Oyun</span></div><span></span></div><div class="satir secim"><span class="etiket">Ücretsiz mi, ücretli mi?</span><div class="deger"><span class="cip">Ücretsiz</span></div><span></span></div><div class="satir secim"><span class="etiket">Beyanlar<span class="not">Geliştirici programı politikaları ve ABD ihracat yasaları</span></span><div class="deger"><span class="cip">İki kutuyu da işaretleyin</span></div><span></span></div></div></section><section class="adim" id="dahili" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">2</span><div class="bas-metin"><h2>Paketi dahili teste yükleyin</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Test ve sürüm → Test → Dahili test</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-dahili" data-bitti="dahili"><span>Bitti</span></label></header>
+<div class="govde"><div class="satir secim"><span class="etiket">Testçiler sekmesi<span class="not">Liste adı aşağıda; kendi adresinizi ekleyin</span></span><div class="deger"><span class="cip">E-posta listesi oluşturun</span></div><span></span></div><div class="satir"><span class="etiket">Liste adı</span><div class="deger"><code id="v68805570">Galaksay ekibi</code></div><button type="button" class="kopya" data-hedef="v68805570" aria-label="Liste adı kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Test kullanıcısı</span><div class="deger"><code id="v43291132">y.mutlu@alparslan.edu.tr</code></div><button type="button" class="kopya" data-hedef="v43291132" aria-label="Test kullanıcısı kopyala">Kopyala</button></div><div class="satir secim"><span class="etiket">Yeni sürüm oluştur → Uygulama imzalama</span><div class="deger"><span class="cip">Google’ın oluşturduğu anahtarı kullan (varsayılan)</span></div><span></span></div><div class="satir secim"><span class="etiket">App bundle<span class="not">Bilgisayarınıza indirdiğiniz dosya</span></span><div class="deger"><span class="cip">galaksay-1.0.0.aab dosyasını sürükleyin</span></div><span></span></div><div class="satir"><span class="etiket">Sürüm adı</span><div class="deger"><code id="v59862731">1.0.0 (1)</code></div><button type="button" class="kopya" data-hedef="v59862731" aria-label="Sürüm adı kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Sürüm notları</span><div class="deger"><pre class="uzun" id="v39795044">&lt;tr-TR&gt;
+İlk sürüm.
+&lt;/tr-TR&gt;</pre></div><button type="button" class="kopya" data-hedef="v39795044" aria-label="Sürüm notları kopyala">Kopyala</button></div><div class="satir secim"><span class="etiket">Son düğme<span class="not">Dahili test yalnız listedeki kişilere görünür</span></span><div class="deger"><span class="cip">Sonraki → Kaydet ve yayınla</span></div><span></span></div><p class="ipucu">Console “önce kurulumu tamamlayın” uyarısı verirse 4. ve 5. adımları yapıp buraya dönün. Yayından sonra Testçiler sekmesindeki “Web’de katıl” bağlantısını telefonunuzda açarak uygulamayı Play’den kurabilirsiniz.</p></div></section><section class="adim" id="imza" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">3</span><div class="bas-metin"><h2>Google’ın imza parmak izini bana iletin</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Test ve sürüm → Kurulum → Uygulama bütünlüğü → Uygulama imzalama</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-imza" data-bitti="imza"><span>Bitti</span></label></header>
+<div class="govde"><p class="aciklama">“Uygulama imzalama anahtarı sertifikası” kutusundaki <strong>SHA-256 sertifika parmak izi</strong>ni aşağıya yapıştırın. Sayfa biçimini denetler ve sohbete yapıştıracağınız iletiyi hazırlar. Bu değer gizli değildir.</p><div class="imza"><label for="sha" class="etiket">SHA-256</label><input id="sha" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="AB:CD:12:…  (32 çift, iki nokta ile)"><p id="sha-durum" class="durum" role="status"></p><div id="sha-ileti-kutu" class="satir" hidden><span class="etiket">Sohbete yapıştırın</span><div class="deger"><code id="sha-ileti"></code></div><button type="button" class="kopya" data-hedef="sha-ileti">Kopyala</button></div></div><p class="ipucu">Bu değeri eklediğimde Play’den kurulan uygulamanın üstündeki adres çubuğu kalkar. Yükleme anahtarınızın parmak izi (2B:35:E3…) zaten ekli; ikisini karıştırmayın.</p></div></section><section class="adim" id="icerik" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">4</span><div class="bas-metin"><h2>Uygulama içeriği formlarını doldurun</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Politika ve programlar → Uygulama içeriği</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-icerik" data-bitti="icerik"><span>Bitti</span></label></header>
+<div class="govde"><h3>Gizlilik politikası</h3><div class="satir"><span class="etiket">Gizlilik politikası URL’si</span><div class="deger"><code id="v49115762">https://galaksay.com/gizlilik</code></div><button type="button" class="kopya" data-hedef="v49115762" aria-label="Gizlilik politikası URL’si kopyala">Kopyala</button></div><h3>Uygulama erişimi</h3><div class="satir secim"><span class="etiket">Seçim</span><div class="deger"><span class="cip">Tüm işlevler veya bazıları kısıtlı</span></div><span></span></div><div class="satir"><span class="etiket">Talimat adı</span><div class="deger"><code id="v68928739">Yetişkin paneli ve Cihaz ayarları</code></div><button type="button" class="kopya" data-hedef="v68928739" aria-label="Talimat adı kopyala">Kopyala</button></div><div class="satir secim"><span class="etiket">Kullanıcı adı<span class="not">Hesap yoktur</span></span><div class="deger"><span class="cip">Boş bırakın</span></div><span></span></div><div class="satir"><span class="etiket">Şifre</span><div class="deger"><code id="v60165618">582913</code></div><button type="button" class="kopya" data-hedef="v60165618" aria-label="Şifre kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Diğer bilgiler</span><div class="deger"><pre class="uzun" id="v5116427">Uygulamada hesap yoktur. Yetişkin paneli ve Cihaz ayarları, ilk açılışta kullanıcının kendi oluşturduğu 4–8 rakamlı bir yetişkin şifresiyle korunur.
+Test için: Açılış ekranında &quot;Yolculuğa Başla&quot;ya dokunun, &quot;Öğretmen · Uzman&quot;ı seçin ve şifre olarak 582913 girin (iki kez). Gösterilen kurtarma kodunu geçin.
+Ardından yetişkin paneline &quot;Öğretmen · Uzman&quot; döşemesinden, Cihaz ayarlarına &quot;⚙️ Cihaz ayarları&quot; düğmesinden aynı şifreyle girilir.
+NuMap bağlantısı isteğe bağlıdır ve ayrı bir getnumap.com hesabı gerektirir; uygulamanın temel işlevleri için gerekmez.</pre></div><button type="button" class="kopya" data-hedef="v5116427" aria-label="Diğer bilgiler kopyala">Kopyala</button></div><h3>Reklamlar</h3><div class="satir secim"><span class="etiket">Uygulamanız reklam içeriyor mu?</span><div class="deger"><span class="cip">Hayır</span></div><span></span></div><h3>Reklam kimliği</h3><div class="satir secim"><span class="etiket">Uygulamanız reklam kimliği kullanıyor mu?</span><div class="deger"><span class="cip">Hayır</span></div><span></span></div><h3>İçerik derecelendirmesi</h3><div class="satir"><span class="etiket">E-posta</span><div class="deger"><code id="v4526615">y.mutlu@alparslan.edu.tr</code></div><button type="button" class="kopya" data-hedef="v4526615" aria-label="E-posta kopyala">Kopyala</button></div><div class="satir secim"><span class="etiket">Kategori</span><div class="deger"><span class="cip">Oyun</span></div><span></span></div><div class="satir secim"><span class="etiket">Tüm içerik soruları<span class="not">Şiddet, korku, cinsellik, küfür, madde, kumar, kullanıcı etkileşimi, konum paylaşımı, dijital satın alma</span></span><div class="deger"><span class="cip">Hayır</span></div><span></span></div><div class="satir secim"><span class="etiket">Beklenen sonuç</span><div class="deger"><span class="cip">PEGI 3 / Herkes</span></div><span></span></div><h3>Hedef kitle ve içerik</h3><div class="satir secim"><span class="etiket">Hedef yaş grupları<span class="not">13 ve üzerini seçmeyin</span></span><div class="deger"><span class="cip">5 ve altı · 6–8 · 9–12</span></div><span></span></div><div class="satir secim"><span class="etiket">Mağaza varlığı / çocuklara hitap</span><div class="deger"><span class="cip">Evet, çocuklar için</span></div><span></span></div><div class="satir secim"><span class="etiket">Aile politikası beyanları<span class="not">Reklam ve satın alma yok; üçüncü taraf SDK yok</span></span><div class="deger"><span class="cip">Okuyup onaylayın</span></div><span></span></div><h3>Veri güvenliği</h3><div class="satir secim"><span class="etiket">Veri topluyor ya da paylaşıyor musunuz?<span class="not">Yalnız isteğe bağlı NuMap bağlantısı nedeniyle</span></span><div class="deger"><span class="cip">Evet</span></div><span></span></div><div class="satir secim"><span class="etiket">Aktarımda şifreleniyor mu?</span><div class="deger"><span class="cip">Evet</span></div><span></span></div><div class="satir secim"><span class="etiket">Kullanıcılar silme isteyebilir mi?</span><div class="deger"><span class="cip">Evet</span></div><span></span></div><div class="satir"><span class="etiket">Silme isteği URL’si (sorulursa)</span><div class="deger"><code id="v64591401">https://galaksay.com/gizlilik</code></div><button type="button" class="kopya" data-hedef="v64591401" aria-label="Silme isteği URL’si (sorulursa) kopyala">Kopyala</button></div><div class="tablo-sar"><table><thead><tr><th>Veri türü</th><th>Toplanıyor</th><th>Paylaşılıyor</th><th>İsteğe bağlı</th><th>Amaç</th></tr></thead><tbody><tr><td>Kişisel bilgiler → Ad</td><td>Evet</td><td>Hayır</td><td>Evet</td><td>Hesap yönetimi</td></tr><tr><td>Kişisel bilgiler → E-posta adresi</td><td>Evet</td><td>Hayır</td><td>Evet</td><td>Hesap yönetimi</td></tr><tr><td>Uygulama etkinliği → Uygulama içi etkileşimler</td><td>Evet</td><td>Hayır</td><td>Evet</td><td>Uygulama işlevselliği</td></tr></tbody></table></div><p class="aciklama">Başka hiçbir veri türünü işaretlemeyin (konum, kişiler, fotoğraf, ses, dosyalar, cihaz kimlikleri, kilitlenme günlükleri yok). Ad ve e-posta, yalnız öğretmen NuMap’e giriş yaparsa gider; çocuğun adı hiç gönderilmez.</p><h3>Diğer beyanlar</h3><div class="satir secim"><span class="etiket">Haber uygulaması</span><div class="deger"><span class="cip">Hayır</span></div><span></span></div><div class="satir secim"><span class="etiket">Devlet uygulaması</span><div class="deger"><span class="cip">Hayır</span></div><span></span></div><div class="satir secim"><span class="etiket">Finansal özellikler</span><div class="deger"><span class="cip">Hiçbiri</span></div><span></span></div><div class="satir secim"><span class="etiket">Sağlık<span class="not">Eğitsel oyun; tanı ya da tedavi yok</span></span><div class="deger"><span class="cip">Hiçbiri</span></div><span></span></div></div></section><section class="adim" id="magaza" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">5</span><div class="bas-metin"><h2>Mağaza girişini doldurun</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Büyüme → Mağazada görünme → Ana mağaza girişi · Mağaza ayarları</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-magaza" data-bitti="magaza"><span>Bitti</span></label></header>
+<div class="govde"><h3>Ana mağaza girişi · Türkçe</h3><div class="satir"><span class="etiket">Uygulama adı</span><div class="deger"><code id="v14909275">Galaksay: Sayılar Galaksisi</code></div><button type="button" class="kopya" data-hedef="v14909275" aria-label="Uygulama adı kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Kısa açıklama<span class="not">73/80</span></span><div class="deger"><code id="v17863246">5–10 yaş için uzay temalı matematik oyunu. Türkçe ve Kurmancî, reklamsız.</code></div><button type="button" class="kopya" data-hedef="v17863246" aria-label="Kısa açıklama kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Tam açıklama<span class="not">2078/4000</span></span><div class="deger"><pre class="uzun" id="v59903489">Sayılar Galaksisi karanlığa gömülüyor! Çocuğunuz bir uzay kaptanı olarak gezegenleri dolaşır, kısa görevlerle sayıların ışığını geri getirir.
+
+Galaksay, 5–10 yaş çocuklar için uzay temalı bir matematik öğrenme oyunudur. Sayı hissinden başlar: kaç tane olduğunu bir bakışta görme, sayma, karşılaştırma, sayı doğrusu, onluk düşünme, toplama-çıkarma ve çarpmaya doğru adım adım ilerler. Matematikte zorlanan çocukların ihtiyaçları gözetilerek, sayı hissi ve erken matematik araştırmalarına dayanarak tasarlandı.
+
+NEDEN GALAKSAY?
+• Kısa ve düzenli: Her gün 10–15 dakikalık &quot;Bugünün Görevi&quot;. Haftada 3–4 gün yeterli.
+• Çocuğa göre ilerler: Görevler çocuğun düzeyine uyar; zorlanılan konu aralıklı olarak yeniden gelir.
+• Görsel ve somut: Onluk çerçeve, sayı doğrusu, nesneler ve şerit modelle sayıları görerek düşünür.
+• Yanlışa kızmaz: Geri bildirim süreci över; ipuçları &quot;kendine sor&quot; diye düşündürür.
+• Okumayan çocuğa da uygun: Yönergeler istenince sesli okunur; okul öncesinde kendiliğinden açılabilir.
+• Türkçe ve Kurmancî: Oyunun tamamı iki dilde (ayrıca İngilizce).
+
+ÇOCUKLAR İÇİN GÜVENLİ
+• Reklam yok, uygulama içi satın alma yok.
+• Çocuk şifre kullanmaz; kendi resmine dokunarak girer.
+• Çocuk ekranlarında site dışına giden bağlantı yok.
+• Oyun verisi cihazda kalır. Konum, kamera, mikrofon ya da kişiler izni istenmez.
+• Yetişkin paneli ve ayarlar yetişkin şifresiyle korunur; boşta kalınca kendiliğinden kilitlenir.
+
+EBEVEYNLER İÇİN
+• Çocuğunuzun gelişimi, haftalık öneriler ve güçlü/zorlandığı konular.
+• Kardeşler için birden çok kaptan; ilerleme yedekleme ve geri yükleme.
+
+ÖĞRETMENLER VE UZMANLAR İÇİN
+• Sınıf paneli ve gelişim raporları (PDF/CSV).
+• Sınıf kodu: Ortak tablette ya da bilgisayar sınıfında çocuk tahtadaki 4 rakamı yazar, yalnız kendi sınıfının resimlerini görür.
+• İsteğe bağlı NuMap bağlantısı: Tarama sonuçlarına göre önerilen rota ve öğrencinin ilerlemesini izleme.
+
+Çevrimdışı da çalışır. Telefon, tablet ve bilgisayarda oynanır.
+
+Geliştiren: Prof. Dr. Yılmaz Mutlu — Her Çocuk Matematik Öğrenebilir (HÇMÖ)
+Gizlilik: https://galaksay.com/gizlilik</pre></div><button type="button" class="kopya" data-hedef="v59903489" aria-label="Tam açıklama kopyala">Kopyala</button></div><h3>Grafikler</h3><div class="satir secim"><span class="etiket">Uygulama simgesi</span><div class="deger"><span class="cip">uygulama-simgesi-512.png</span></div><span></span></div><div class="satir secim"><span class="etiket">Öne çıkan görsel</span><div class="deger"><span class="cip">one-cikan-gorsel-1024x500.png</span></div><span></span></div><div class="satir secim"><span class="etiket">Telefon ekran görüntüleri</span><div class="deger"><span class="cip">tel-1 … tel-6 (sırayla)</span></div><span></span></div><div class="satir secim"><span class="etiket">10 inç tablet ekran görüntüleri</span><div class="deger"><span class="cip">tablet-1 … tablet-6</span></div><span></span></div><div class="satir secim"><span class="etiket">7 inç tablet</span><div class="deger"><span class="cip">Boş bırakılabilir</span></div><span></span></div><h3>Çeviri ekle · English (United States)</h3><div class="satir"><span class="etiket">App name</span><div class="deger"><code id="v85276919">Galaxy of Numbers: Galaksay</code></div><button type="button" class="kopya" data-hedef="v85276919" aria-label="App name kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Short description<span class="not">69/80</span></span><div class="deger"><code id="v91930809">A space-themed math game for ages 5–10. Turkish and Kurmanji, no ads.</code></div><button type="button" class="kopya" data-hedef="v91930809" aria-label="Short description kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Full description<span class="not">1746/4000</span></span><div class="deger"><pre class="uzun" id="v52576372">The Galaxy of Numbers is going dark! As a space captain, your child travels from planet to planet and brings the numbers back to light with short missions.
+
+Galaksay is a space-themed math learning game for children aged 5–10. It starts with number sense — seeing how many at a glance, counting, comparing, the number line, thinking in tens — and moves step by step towards addition, subtraction and multiplication. It was designed with children who find math hard in mind, drawing on research on number sense and early mathematics.
+
+WHY GALAKSAY?
+• Short and regular: a 10–15 minute &quot;Today&#x27;s Mission&quot;. 3–4 days a week is enough.
+• Adapts to the child: missions follow the child&#x27;s level; tricky topics come back at spaced intervals.
+• Visual and concrete: ten-frames, number lines, objects and bar models.
+• Kind feedback: praise for effort and strategy; hints that make the child think.
+• Works for pre-readers: instructions are read aloud on request, or automatically for preschoolers.
+• Turkish and Kurmanji (and English).
+
+SAFE FOR CHILDREN
+• No ads, no in-app purchases.
+• Children never use passwords; they tap their own picture.
+• No links leaving the app on children&#x27;s screens.
+• Game data stays on the device. No location, camera, microphone or contacts permissions.
+• The adult panel and settings are protected by an adult password and lock automatically when idle.
+
+FOR PARENTS: progress, weekly tips, several captains for siblings, backup and restore.
+FOR TEACHERS: class panel, progress reports (PDF/CSV), class codes for shared devices, optional NuMap link.
+
+Works offline. Plays on phones, tablets and computers.
+
+Developed by Prof. Dr. Yılmaz Mutlu — Every Child Can Learn Mathematics (HÇMÖ)
+Privacy: https://galaksay.com/gizlilik</pre></div><button type="button" class="kopya" data-hedef="v52576372" aria-label="Full description kopyala">Kopyala</button></div><h3>Mağaza ayarları</h3><div class="satir secim"><span class="etiket">Uygulama kategorisi</span><div class="deger"><span class="cip">Oyun → Eğitici</span></div><span></span></div><div class="satir secim"><span class="etiket">Etiketler</span><div class="deger"><span class="cip">Eğitici · Matematik · Çocuk</span></div><span></span></div><div class="satir"><span class="etiket">E-posta adresi</span><div class="deger"><code id="v16664989">y.mutlu@alparslan.edu.tr</code></div><button type="button" class="kopya" data-hedef="v16664989" aria-label="E-posta adresi kopyala">Kopyala</button></div><div class="satir"><span class="etiket">Web sitesi</span><div class="deger"><code id="v41057918">https://galaksay.com</code></div><button type="button" class="kopya" data-hedef="v41057918" aria-label="Web sitesi kopyala">Kopyala</button></div><p class="ipucu">Grafik dosyaları, sohbete gönderdiğim “gorseller” zip dosyasındadır.</p></div></section><section class="adim" id="ulke" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">6</span><div class="bas-metin"><h2>Ülkeleri seçin</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Test ve sürüm → Üretim → Ülkeler/bölgeler</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-ulke" data-bitti="ulke"><span>Bitti</span></label></header>
+<div class="govde"><div class="satir secim"><span class="etiket">Ülkeler<span class="not">Ücretsiz, reklamsız; Türkçe, Kurmancî, İngilizce</span></span><div class="deger"><span class="cip">Türkiye ve Ülke ekle → Tümünü seç</span></div><span></span></div></div></section><section class="adim" id="yayin" data-adim>
+<header class="adim-bas"><span class="no" aria-hidden="true">7</span><div class="bas-metin"><h2>Kapalı test ya da üretim</h2><p class="yol"><span class="yol-etiket">Console’da:</span> Test ve sürüm → Kapalı test · Üretim</p></div>
+<label class="bitti"><input type="checkbox" id="bitti-yayin" data-bitti="yayin"><span>Bitti</span></label></header>
+<div class="govde"><div class="satir secim"><span class="etiket">Kişisel hesap, 13 Kasım 2023 sonrası<span class="not">Testçiler pilot okul öğretmenleri olabilir; sonra “Üretime erişim başvurusu”</span></span><div class="deger"><span class="cip">Kapalı test: en az 12 testçi, kesintisiz 14 gün</span></div><span></span></div><div class="satir secim"><span class="etiket">Daha eski hesap ya da kurum hesabı</span><div class="deger"><span class="cip">Üretim → Yeni sürüm → aynı .aab → İncelemeye gönder</span></div><span></span></div><div class="satir secim"><span class="etiket">İnceleme süresi<span class="not">Çocuk uygulamalarında daha uzun sürebilir</span></span><div class="deger"><span class="cip">Genellikle birkaç gün</span></div><span></span></div></div></section>
+<div class="son"><h2>Bana göndermeniz gerekenler</h2><p class="aciklama">3. adımdaki parmak izi iletisi. Console bir hata ya da ret gösterirse metnini ya da ekran görüntüsünü. Başka bir şeye gerek yok: paket, metinler, görseller ve form yanıtları hazır.</p></div>
+</div>
+<script>
+(function () {
+  var KEY = 'galaksay-play-yolu';
+  var durum = {};
+  try { durum = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { durum = {}; }
+  function kaydet() { try { localStorage.setItem(KEY, JSON.stringify(durum)); } catch (e) {} }
+  var kutular = Array.prototype.slice.call(document.querySelectorAll('[data-bitti]'));
+  function guncelle() {
+    var n = 0;
+    kutular.forEach(function (k) { var s = document.getElementById(k.dataset.bitti); s.classList.toggle('tamam', k.checked); if (k.checked) n++; });
+    document.getElementById('sayac').textContent = n + ' / ' + kutular.length + ' adım';
+    document.getElementById('cubuk').style.width = (100 * n / kutular.length) + '%';
+  }
+  kutular.forEach(function (k) { k.checked = !!durum[k.dataset.bitti]; k.addEventListener('change', function () { durum[k.dataset.bitti] = k.checked; kaydet(); guncelle(); }); });
+  guncelle();
+  function sec(el) { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.kopya'); if (!b) return;
+    var el = document.getElementById(b.dataset.hedef); if (!el) return;
+    var metin = el.textContent;
+    function tamam(yazi) { b.textContent = yazi; b.classList.add('ok'); setTimeout(function () { b.textContent = 'Kopyala'; b.classList.remove('ok'); }, 1600); }
+    try {
+      navigator.clipboard.writeText(metin).then(function () { tamam('Kopyalandı'); }, function () { sec(el); tamam('Seçildi'); });
+    } catch (err) { sec(el); tamam('Seçildi'); }
+  });
+  var sha = document.getElementById('sha'), d = document.getElementById('sha-durum'), kutu = document.getElementById('sha-ileti-kutu'), ileti = document.getElementById('sha-ileti');
+  function shaDenetle() {
+    var v = sha.value.trim().toUpperCase().replace(/\s+/g, '');
+    if (/^[0-9A-F]{64}$/.test(v)) v = v.match(/../g).join(':');
+    if (!v) { d.textContent = ''; d.className = 'durum'; kutu.hidden = true; return; }
+    if (/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(v)) {
+      if (v.indexOf('2B:35:E3:C1') === 0) { d.textContent = 'Bu, yükleme anahtarınızın parmak izi. Uygulama imzalama anahtarınınkini yapıştırın.'; d.className = 'durum kotu'; kutu.hidden = true; return; }
+      d.textContent = 'Biçim doğru.'; d.className = 'durum iyi';
+      ileti.textContent = 'Galaksay uygulama imzalama anahtarı SHA-256: ' + v; kutu.hidden = false;
+    } else { d.textContent = 'Biçim tutmuyor: 32 çift onaltılık değer, iki nokta ile ayrılmış olmalı (SHA-1 değil, SHA-256).'; d.className = 'durum kotu'; kutu.hidden = true; }
+  }
+  sha.addEventListener('input', shaDenetle);
+})();
+</script>
