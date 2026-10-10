@@ -110,5 +110,5 @@ Formda bunlar **"isteğe bağlı"** olarak beyan edilmelidir.
 
 - **Uygulama mı, oyun mu:** Oyun. Kategori: **Eğitici**. Alternatif: Uygulama → Eğitim.
 - **Etiketler:** Eğitici, Matematik, Çocuk, Bulmaca (en çok 5).
-- **İletişim e-postası (zorunlu, herkese açık):** sizin belirleyeceğiniz bir adres. Kişisel e-posta yerine `iletisim@…` gibi kurumsal ya da proje adresi önerilir. Bu adresi gizlilik sayfasına da ekleyelim; bugün orada "galaksay.com üzerinden" yazıyor ve Play inceleme sürecinde somut bir iletişim yolu beklenir.
+- **İletişim e-postası (zorunlu, herkese açık):** `y.mutlu@alparslan.edu.tr`. Gizlilik sayfasına da eklendi.
 - **Web sitesi:** `https://galaksay.com`

@@ -1,5 +1,5 @@
 {
-  "packageId": "com.galaksay.oyun",
+  "packageId": "com.galaksay.app",
   "host": "galaksay.com",
   "name": "Galaksay: Sayılar Galaksisi",
   "launcherName": "Galaksay",
@@ -17,20 +17,30 @@
   "iconUrl": "https://galaksay.com/icons/icon-512.png",
   "maskableIconUrl": "https://galaksay.com/icons/icon-maskable-512.png",
   "splashScreenFadeOutDuration": 300,
-  "signingKey": { "path": "./android.keystore", "alias": "android" },
-  "appVersionName": "1.0.0",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
   "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://galaksay.com/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {},
-  "alphaDependencies": { "enabled": false },
+  "alphaDependencies": {
+    "enabled": false
+  },
   "enableSiteSettingsShortcut": false,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "minSdkVersion": 21,
-  "fingerprints": [],
+  "minSdkVersion": 24,
+  "fingerprints": [
+    {
+      "name": "yukleme-anahtari",
+      "value": "2B:35:E3:C1:B3:01:C1:71:BB:C3:F8:71:37:1B:F5:D9:87:D9:95:89:70:E6:41:D2:44:D7:15:19:79:73:4F:AA"
+    }
+  ],
   "additionalTrustedOrigins": [],
-  "retainedBundles": []
+  "retainedBundles": [],
+  "appVersion": "1.0.0"
 }

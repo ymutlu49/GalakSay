@@ -1,6 +1,6 @@
 # Galaksay'ı Google Play'e çıkarma rehberi
 
-**Tarih:** 10 Ekim 2026 · **Durum:** Web tarafı hazır ve yayında; paketleme ve mağaza adımları sizde.
+**Tarih:** 10 Ekim 2026 · **Durum:** Web tarafı yayında; imzalı paket hazır; Play Console adımları sizde (§4).
 
 ## 1. Yaklaşım
 
@@ -13,7 +13,7 @@ Play sürümü ayrı bir uygulama değildir. **Trusted Web Activity (TWA)** pake
 
 | Ayar | Değer |
 |---|---|
-| Paket adı | **`com.galaksay.oyun`** (ilk yüklemeden sonra değiştirilemez; başka bir ad isterseniz şimdi söyleyin) |
+| Paket adı | **`com.galaksay.app`** (ilk yüklemeden sonra değiştirilemez) |
 | Başlangıç adresi | `/oyna/?kaynak=play` |
 | Ekran | standalone, dikey |
 | Bildirim, konum, faturalama | kapalı |
@@ -34,56 +34,57 @@ Ayarların tamamı: `twa/twa-manifest.json`.
 
 Oyunun yetişkin bölümlerindeki bağlantılar yetişkin şifresinin arkasındadır ve yerinde kalır (örn. Ayarlar → Aydınlatma metinleri).
 
-## 3. Sizin adımlarınız
+## 3. Paket (hazır)
 
-### 3.1 Geliştirici hesabı
-1. https://play.google.com/console adresinde geliştirici hesabı açın. Tek seferlik kayıt ücreti vardır.
-2. **Hesap türü:**
-   - *Kişisel hesap:* Kimlik doğrulaması gerekir. Yeni kişisel hesaplardan, üretime çıkmadan önce bir **kapalı test** istenir. Bugünkü koşul en az 12 test kullanıcısı ve 14 gündür; güncel koşulu Play Console'da teyit edin.
-   - *Kurum hesabı:* Üniversite ya da şirket adına yayın için. D-U-N-S numarası gerekir. Önce Teknoloji Transfer Ofisi ile hak sahipliğini netleştirin.
+Paket bu oturumda Bubblewrap 1.27 ve Android SDK 36 ile derlendi ve imzalandı. Derleme yöntemi: `twa/derle.md`.
 
-### 3.2 Paketi oluşturma (komut satırı gerekmez)
-1. https://www.pwabuilder.com adresine `https://galaksay.com/oyna/` yazın → **Package for stores** → **Android** → **Generate Package**.
-2. "Options"ta şunları girin:
-   - **Package ID:** `com.galaksay.oyun`
-   - **App name:** `Galaksay: Sayılar Galaksisi`
-   - **Launcher name:** `Galaksay`
-   - **App version:** `1.0.0` · **Version code:** `1`
-   - **Host:** `galaksay.com` · **Start URL:** `/oyna/?kaynak=play`
-   - **Theme / Background / Nav color:** `#FAF9FF`
-   - **Display:** Standalone · **Orientation:** Portrait
-   - **Notifications:** kapalı · **Location delegation:** kapalı · **Google Play billing:** kapalı
-   - **Fallback behavior:** Custom Tabs
-   - **Signing key:** *Create new*
-3. İnen zip dosyasında şunlar vardır:
-   - `app-release-bundle.aab` (Play'e yüklenecek paket),
-   - `assetlinks.json`,
-   - imzalama anahtarı (`signing.keystore`) ve parolalarının yazılı olduğu bir metin dosyası.
+| Dosya | Ne için |
+|---|---|
+| `galaksay-1.0.0.aab` | Play Console'a yüklenecek paket (sürüm 1.0.0, sürüm kodu 1) |
+| `galaksay-1.0.0-test.apk` | Telefona doğrudan kurup denemek için (aynı imza) |
+| `galaksay-yukleme-anahtari.zip` | Yükleme anahtarı ve parolası. **Yalnız sizde kalmalı; depoya konmadı.** |
 
-> **İmzalama anahtarını kaybetmeyin ve kimseyle paylaşmayın** (bu sohbete de yazmayın). İki ayrı yerde, örneğin şifreli bir USB bellek ve parola yöneticisi, saklayın. Play App Signing açık olduğu için bu anahtar bir "yükleme anahtarı"dır. Kaybolursa Google desteğiyle sıfırlanabilir, ama süreç uzundur.
+Paket bilgileri:
+- **Paket adı:** `com.galaksay.app`. Alan adınızdan türetilen standart biçimdir; kısa, dilden bağımsız ve kalıcıdır. Play'de boştaydı.
+- **Hedef sürüm:** Android 16 (SDK 36); en düşük sürüm Android 7 (SDK 24).
+- **İzinler:** Uygulama İnternet izni bile istemez; içeriği cihazdaki Chrome açar. Yalnız Android'in zorunlu iç izni (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) vardır.
+- **Yükleme anahtarı SHA-256:** `2B:35:E3:C1:B3:01:C1:71:BB:C3:F8:71:37:1B:F5:D9:87:D9:95:89:70:E6:41:D2:44:D7:15:19:79:73:4F:AA`. Bu değer `assetlinks.json`'a eklendi ve yayında.
 
-Alternatif: Bilgisayarınızda Node.js ve JDK varsa `npx @bubblewrap/cli init --manifest https://galaksay.com/manifest.webmanifest` ile, `twa/twa-manifest.json`'daki değerlerle aynı paket üretilebilir.
+> **Yükleme anahtarını kaybetmeyin.** İki ayrı yerde saklayın (ör. şifreli bir USB bellek ve parola yöneticisi). Play App Signing açık olduğu için uygulamayı Google'ın anahtarı imzalar. Bu dosya yalnız sizin yükleme yaptığınızı kanıtlar; kaybolursa Play Console → Uygulama bütünlüğü üzerinden sıfırlatılabilir. Sonraki güncellemeler de bu anahtarla imzalanır.
 
-### 3.3 Play Console'da uygulama
-1. **Uygulama oluştur:**
-   - Ad: `Galaksay: Sayılar Galaksisi`
-   - Varsayılan dil: Türkçe
-   - Tür: Oyun
-   - Ücretsiz
-2. **Uygulama içeriği** formları: `beyanlar.md`'deki yanıtlarla doldurun. Bu formlar gizlilik, uygulama erişimi, reklam, içerik derecelendirmesi, hedef kitle ve veri güvenliğidir.
-3. **Mağaza girişi:** `magaza-metinleri.md` ve `gorseller/` klasörünü kullanın.
-4. **Test → Kapalı test:** Yeni bir parça açın, `app-release-bundle.aab`'yi yükleyin ve test kullanıcılarının e-postalarını ekleyin.
-   - Pilot okuldaki öğretmenler bu test grubu olabilir; pilot ve mağaza hazırlığı böylece birleşir.
-5. Kapalı test süresi dolunca **Üretim** için başvurun.
+## 4. Play Console'da yapılacaklar (sizin hesabınızla)
 
-## 4. Adres çubuğunu kaldırmak: parmak izleri
+Play Console'a sizin adınıza giriş yapamıyorum. Hesabınıza erişimim yok ve Google parolanızı istemem doğru olmaz. Aşağıdaki adımlar yaklaşık 30–45 dakika sürer; bütün metin ve yanıtlar hazır.
 
-TWA, sitenin uygulamayı "tanıdığını" `assetlinks.json` ile doğrular. Doğrulama olmazsa uygulama üstte bir adres çubuğuyla açılır. Çalışır ama mağaza incelemesinde ve kullanıcıda kötü izlenim bırakır.
+1. **Uygulama oluştur** (Tüm uygulamalar → Uygulama oluştur):
+   - ad: `Galaksay: Sayılar Galaksisi`
+   - varsayılan dil: Türkçe – tr-TR
+   - Oyun, Ücretsiz
+   - beyan kutularını işaretleyin.
+2. **Dahili test → Yeni sürüm oluştur:**
+   - "Play App Signing"i varsayılan haliyle kabul edin (Google imzalasın).
+   - `galaksay-1.0.0.aab` dosyasını yükleyin. Sürüm notu: `İlk sürüm.`
+   - Kendi e-postanızı test kullanıcısı olarak ekleyip yayınlayın. Dahili test dakikalar içinde telefonunuza gelir.
+3. **Kurulum → Uygulama bütünlüğü → Uygulama imzalama anahtarı sertifikası** altındaki **SHA-256** değerini bana iletin. Bu değer gizli değildir. `assetlinks.json`'a eklerim; uygulama Play'den kurulduğunda üstteki adres çubuğu kalkar.
+4. **Politika → Uygulama içeriği:** `beyanlar.md`'deki yanıtlarla doldurun. Bölümler: gizlilik, uygulama erişimi, reklam, içerik derecelendirmesi, hedef kitle, veri güvenliği, devlet/finans/sağlık.
+5. **Büyüme → Mağaza girişi:** `magaza-metinleri.md` ve `gorseller/` dosyalarını kullanın. İletişim e-postası: `y.mutlu@alparslan.edu.tr`, web sitesi: `https://galaksay.com`.
+6. **Kapalı test ve üretim:**
+   - Hesabınız 13 Kasım 2023'ten sonra açılmış bir kişisel hesapsa, üretimden önce kapalı test şartı vardır (bugün en az 12 test kullanıcısı, 14 gün; güncel koşulu Play Console gösterir).
+   - Daha eski bir hesap ya da kurum hesabıysa bu şart yoktur; "Üretim → Yeni sürüm" ile aynı `.aab` yayına gönderilebilir.
 
-1. Play Console → Kurulum → **Uygulama bütünlüğü** → "Uygulama imzalama anahtarı sertifikası" altındaki **SHA-256** değerini kopyalayın.
-2. PWABuilder zip'indeki `assetlinks.json` içinde yükleme anahtarının SHA-256 değeri vardır; onu da alın.
-3. **İki değeri bana iletin.** Parmak izleri gizli değildir; herkese açık bir doğrulama dosyasına yazılır, sohbete yapıştırılabilir. Ben `canli-surum/site/.well-known/assetlinks.json`'a ekleyip yayınlarım.
-4. **Doğrulama:** https://developers.google.com/digital-asset-links/tools/generator aracında alan adı `galaksay.com`, paket `com.galaksay.oyun` ve parmak iziyle "Test statement" yapın. Uygulamayı yeniden açınca adres çubuğu kaybolmalı.
+**İsteğe bağlı: sonraki güncellemeleri benim yüklemem için.**
+1. Google Cloud'da bir hizmet hesabı açılır ve Play Console → Kullanıcılar ve izinler'den bu uygulama için yetki verilir.
+2. Hizmet hesabının JSON anahtarı GitHub deposuna `PLAY_HIZMET_HESABI` gizli değeri olarak eklenir. Bu anahtarı sohbete yazmayın.
+3. Bundan sonra yeni paket ve mağaza metni güncellemelerini bir iş akışıyla ben yükleyebilirim.
+
+İlk yükleme ve "Uygulama içeriği" formları bu yolla da yapılamaz; onlar her zaman Console'dan yapılır.
+
+## 4a. Adres çubuğu doğrulaması
+
+Google'ın imza parmak izi eklendikten sonra doğrulamak için:
+- https://developers.google.com/digital-asset-links/tools/generator adresine gidin.
+- Alan adı `galaksay.com`, paket `com.galaksay.app` ve parmak izini girip "Test statement" yapın.
+- Doğrulama tutarsa uygulama tam ekran açılır.
 
 ## 5. Bilinen sınırlar ve sonraki adımlar
 

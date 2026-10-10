@@ -195,7 +195,7 @@ Ayrıntı ve adımlar: [docs/play-store/README.md](../docs/play-store/README.md)
 | `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` (`kaynak/WelcomeScreen.captain.js`) | Uygulama kipinde merkezin alt bağlantıları gizli; bağlantılar Cihaz ayarları → "Bilgi ve yasal metinler" bölümünde (yetişkin şifreli). |
 | `site/oyna/assets/GalakSay-hIWssnXL.js` | `kaynak/play_magaza.py`: sınıf seçme ekranındaki getnumap.com düğmesi uygulama kipinde gizli. |
 | `site/manifest.webmanifest`, `site/img/magaza/*.webp` | Açıklamada "tarama" iddiası yok; 4 ekran görüntüsü. |
-| `site/.well-known/assetlinks.json`, `site/_headers` | Paket `com.galaksay.oyun` (parmak izleri Play Console'dan sonra eklenecek); CSP'den kullanılmayan Cloudflare analitik izinleri çıkarıldı. |
+| `site/.well-known/assetlinks.json`, `site/_headers` | Paket `com.galaksay.app` (parmak izleri Play Console'dan sonra eklenecek); CSP'den kullanılmayan Cloudflare analitik izinleri çıkarıldı. |
 | `site/gizlilik.html` | "Android uygulaması (Google Play)" bölümü. |
 | `site/oyna/index.html`, `site/sw.js` | `galaksay-ek.js?v=9`; sürüm etiketi `galaksay-v5.23.0-20261010-play`. |
 

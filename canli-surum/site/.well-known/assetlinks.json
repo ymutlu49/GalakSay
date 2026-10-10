@@ -5,8 +5,10 @@
     ],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.galaksay.oyun",
-      "sha256_cert_fingerprints": []
+      "package_name": "com.galaksay.app",
+      "sha256_cert_fingerprints": [
+        "2B:35:E3:C1:B3:01:C1:71:BB:C3:F8:71:37:1B:F5:D9:87:D9:95:89:70:E6:41:D2:44:D7:15:19:79:73:4F:AA"
+      ]
     }
   }
 ]
