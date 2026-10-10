@@ -37,6 +37,6 @@ export async function onRequest(context) {
     return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
   }
   const geri = encodeURIComponent(url.pathname + url.search);
-  const hata = durum.neden === 'lisans' ? '&hata=lisans' : '';
+  const hata = durum.neden === 'lisans' ? '&hata=lisans' : durum.neden === 'deneme' ? '&hata=deneme' : '';
   return yonlendir(`/giris?geri=${geri}${hata}`, durum.kesin && readCookie(request, COOKIE) ? [clearCookie(COOKIE)] : []);
 }

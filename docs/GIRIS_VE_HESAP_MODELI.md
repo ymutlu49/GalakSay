@@ -137,8 +137,98 @@ Gerçek tarayıcıda, telefon (390 px) ve masaüstü (1280 px) boyutunda 26'şar
 
 Sayfa hatası çıkmadı. Kurmancî ekranlarda taşma yok.
 
-### 8.4 Yaklaşım üzerine öneriler (uygulanmadı; karar gerektirir)
+### 8.4 Yaklaşım üzerine öneriler (§9'da uygulandı)
 
 - **Lisans kapısı açıldığında deneme yolu.** Kapı açıkken NuMap hesabı ya da aile daveti olmayan bir ebeveynin oyunu deneyebileceği bir yol yok. Kısa bir tanıtım oturumu düşünülebilir; örneğin tek gezegen ve ilerleme kaydı olmadan. Bu bir ürün kararıdır; kapı bugün kapalıdır.
 - **Sınıf kodu.** 25 ve üzeri çocuklu sınıflarda resim ızgarası uzar. NuMap öğrencisiyle açma (`?ogrenci=`) bugün tek öğrenci için var. Öğretmenin tahtaya yazdığı kısa bir sınıf kodu ve ardından o sınıfın resim ızgarası, ortak cihazı daha da kolaylaştırır. Bu sunucu tarafı ve KVKK değerlendirmesi ister.
 - **Kilit süresinin ayarlanması.** Yetişkin paneli 10 dakikada kilitleniyor. Ayarlardan seçilebilir yapılabilir.
+
+## 9. Deneme yolu, sınıf kodu ve kilit süresi (10 Ekim 2026)
+
+§8.4'teki üç öneri uygulandı. Lisans kapısı bugün **kapalı** yayında. Deneme yolu kapı açıldığında devreye girer; sınıf kodu ve kilit süresi şimdiden çalışır.
+
+### 9.1 Deneme yolu
+
+Kapı açıkken NuMap hesabı ya da aile bağlantısı olmayan bir ebeveyn ya da öğretmen oyunu deneyemiyordu.
+
+**Nasıl çalışır:**
+1. Kapı açıkken `/oyna/` lisanssız ziyaretçiyi `/giris`'e yönlendirir.
+2. Giriş sayfasında "Önce denemek ister misiniz? · **Ücretsiz dene (7 gün)**" bölümü var.
+3. Düğmeye basınca hesap gerekmeden 7 gün boyunca bu cihazda oyunun tamamı açılır.
+4. Merkezde bir bant kalan günü gösterir ve "Lisansla gir →" bağlantısını verir.
+5. Süre dolunca `/oyna/` açılmaz. Kullanıcı "Deneme süreniz doldu…" iletisiyle giriş sayfasına yönlendirilir.
+
+**Neden süreyle sınırlı, içerik olarak tam?** Ürünün değeri günlük görev, aralıklı tekrar ve uyarlanan düzey döngüsündedir. Tek gezegenlik ve kayıtsız bir tanıtım bu döngüyü göstermez. Deneme boyunca ilerleme cihazda kalır. Lisansla girildiğinde aynen sürer, çocuk baştan başlamaz.
+
+**Teknik ayrıntılar:**
+- Çerez `gs_lis = d.<bitiş>` biçimindedir; HttpOnly ve Secure'dur. NuMap'e istek gitmez.
+- Cihaz başına bir deneme verilir. İkinci denemeyi `gs_deneme` izi engeller (HttpOnly, 400 gün).
+- Geçerli bir NuMap ya da aile lisansı varsa deneme ona dokunmaz. NuMap girişi deneme çerezinin yerini alır.
+- Süre `DENEME_GUN` ortam değişkeniyle değiştirilebilir (1–30, varsayılan 7).
+- **İmzalama (isteğe bağlı):** Cloudflare Pages ortamına `DENEME_SIRRI` gizli değeri eklenirse bitiş tarihi HMAC-SHA256 ile imzalanır. O zaman elle yazılmış ya da uzatılmış çerez reddedilir.
+- `DENEME_SIRRI` olmadan da süresi geçmiş ya da süreden uzun bitiş tarihi reddedilir.
+
+**Bilinen sınır:** Kapı yumuşaktır. Oyun dosyaları zaten herkese açıktır ve kapı yalnız sayfayı korur. Çerezlerini silen bir cihaz yeniden deneme alabilir. Bu bilinçli bir tercihtir: deneme bir satış kapısıdır, güvenlik sınırı değildir.
+
+Dosyalar:
+- `canli-surum/functions/_lisans.js`
+- `functions/api/lisans/deneme.js` (yeni)
+- `functions/oyna/_middleware.js`
+- `site/giris.html`, `site/giris.js`, `site/giris.css`
+- `kaynak/WelcomeScreen.captain.js` (bant)
+
+### 9.2 Sınıf kodu
+
+**Sorun:** Kalabalık sınıfta resim ızgarası uzar. Birden çok sınıfın kullandığı cihazda (bilgisayar sınıfı, ortak tablet) çocuk kendi resmini başka sınıfların resimleri arasında arar.
+
+**Nasıl çalışır:**
+1. **Öğretmen sınıfı kurar.** Merkezdeki "⚙️ Cihaz ayarları" yetişkin şifresiyle açılır. "Sınıflar ve sınıf kodları" bölümünde sınıf eklenir (ör. 2-B). Cihaz 4 rakamlı bir kod önerir; kod değiştirilebilir. Tekrar eden (1111) ve sıralı (1234) kodlar önerilmez. Aynı kod iki sınıfa verilemez.
+2. **Kaptanlar sınıfa atanır.** "Kaptanları seç" ile her kaptan bir sınıfa atanır. Bir kaptan aynı anda tek sınıftadır.
+3. **Çocuk kodu yazar.** Cihazda sınıf varsa merkez "🏫 Sınıf kodunu yaz" der. Dört büyük kutu ve 0–9 tuş takımı var; yönerge sesli dinlenebilir.
+4. **Doğru kod:** Merkez yalnız o sınıfın resimlerini gösterir ("Kim oynuyor?"). Cihaz sınıfı hatırlar.
+5. **Yanlış kod:** "Bu kod bu cihazda yok. Tahtadaki kodu yeniden yaz." iletisi çıkar.
+
+**Ayrıntılar:**
+- Etkin sınıfta oluşturulan yeni kaptan kendiliğinden o sınıfa atanır.
+- "Sınıfı değiştir" tuş takımına döner. "Bütün kaptanlar" tam listeyi açar.
+- Öğretmen sınıfı ayarlardan doğrudan "Bu cihazda aç" ile de açabilir.
+- Sınıf silinirse kaptanlar silinmez, yalnız sınıfsız kalır.
+
+**Güvenlik ve KVKK:**
+- Kod bir şifre değildir. Kaptan seçmek zaten şifresizdir; kod doğru ızgarayı açan bir kısayoldur.
+- Sınıflar, kodlar ve atamalar yalnız bu cihazda saklanır ve sunucuya gitmez. Bu yüzden yeni bir kişisel veri akışı ve ek bir KVKK yükü doğmaz.
+- Cihaz yedeğine (Ayarlar → Verileri dışa aktar) girerler.
+
+**Bilinçli olarak yapılmayan: sunucudan sınıf listesi.** NuMap'teki sınıf listesini koda bağlayıp her cihazda aynı ızgarayı açmak mümkündür. Ancak GalakSay ilerlemesi bugün NuMap'e yalnız gönderiliyor, geri yüklenmiyor. Çocuk başka cihazda oyunu açınca düzeyi ve yıldızları baştan başlar. Önce oyun durumunun NuMap'te saklanıp geri yüklenmesi tasarlanmalıdır. Bu ayrı bir iştir; NuMap'te tablo, uç ve KVKK aydınlatması gerektirir. O yapıldığında aynı tuş takımı sunucu koduyla çalışacak biçimde genişletilebilir.
+
+### 9.3 Yetişkin paneli kilit süresi
+
+"⚙️ Cihaz ayarları → Yetişkin paneli kilidi" ekranından **5, 10, 15 ya da 30 dakika** seçilir; varsayılan 10 dakikadır.
+- Panelin hareketsizlik kilidi süreyi `galaksay-ek.js` §10'daki `window.__gsIdleMs` kancasından okur. Seçim yeni girişte geçerli olur.
+- Kilit notu seçilen süreyi yazar ("… 5 dakika işlem yapılmadığı için …").
+- Çocuğun oyun oturumu kilitten etkilenmez.
+- Kilitsiz seçenek bilinçli olarak yoktur: tablet çocuğa verildiğinde raporlar ve "tüm verileri sil" açık kalmamalıdır.
+
+### 9.4 Doğrulama
+
+Yerel bir Cloudflare Pages taklidiyle işlevler ve sayfalar birlikte çalıştırıldı. İki durum denendi: kapı açık (imzalı ve imzasız) ve kapı kapalı.
+
+**Sunucu senaryoları (curl):**
+- ilk deneme, durum sorgusu ve oyunun açılması,
+- geçerli denemenin yinelenmesi,
+- iz varken ikinci deneme (409),
+- yabancı köken (403),
+- elle uzatılmış çerez, süresi dolmuş çerez ve sır tanımlıyken imzasız çerez (hepsi reddedildi),
+- kapı kapalıyken denemenin gereksizliği.
+
+**Uçtan uca (gerçek tarayıcı; telefon ve masaüstü boyutu; 34'er denetim):**
+- yönlendirme, deneme düğmesi ve deneme bandı,
+- banttan girişe gidip denemeye dönüş,
+- ikinci denemenin reddi ve süresi dolan denemenin iletisi,
+- kapı kapalıyken ne kutu ne bant görünmesi,
+- sınıf ekleme, ad zorunluluğu ve yinelenen kodun reddi,
+- kaptan atama, yanlış ve doğru kod, sınıf filtresi,
+- yeni kaptanın etkin sınıfa atanması, sınıfın kalıcılığı, "Sınıfı değiştir" ve "Bütün kaptanlar",
+- kilit süresi 5 dakika: panel 4 dk 30 sn'de açık, 5 dk 30 sn'de kilitli ve not "5 dakika" diyor (saat taklidiyle).
+
+Testler altı ardışık koşuda kararlı geçti. §8'in 26 denetimi iki ekran boyutunda yeniden geçti. Kurmancî ekranlarda 360 px'te taşma yok.

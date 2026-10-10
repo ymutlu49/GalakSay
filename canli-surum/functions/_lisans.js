@@ -5,6 +5,11 @@
 //       Çerez: gs_lis = "n.<NuMap oturum belirteci>"  → GET /auth/me ile doğrulanır.
 //   (b) Aile daveti (kurum ya da öğretmen lisansı altında) — çerez: gs_lis = "a.<davet>"
 //       → POST /family-invites/verify ile doğrulanır.
+//   (c) Deneme (10 Eki 2026) — hesapsız, cihaz başına bir kez, DENEME_GUN gün (varsayılan 7).
+//       Çerez: gs_lis = "d.<bitiş ms>[.<imza>]"; NuMap'e gitmez. Ortamda DENEME_SIRRI tanımlıysa bitiş
+//       HMAC-SHA256 ile imzalanır ve imzasız/bozuk çerez reddedilir; tanımlı değilse imzasızdır (yumuşak
+//       kapı: oyun varlıkları zaten herkese açıktır, kapı yalnız sayfayı korur). İkinci denemeyi
+//       gs_deneme izi (HttpOnly, 400 gün) engeller; çerezleri silen cihaz yeniden deneyebilir.
 // Çerez HttpOnly + Secure + SameSite=Lax; sayfa betikleri okuyamaz. Doğrulama sonucu kısa süre
 // önbelleğe alınır (NuMap 10 dk, aile 60 dk); iptal edilen lisans en geç bu sürede düşer.
 // NuMap'e ulaşılamazsa (ağ hatası ya da 5xx) mevcut çerez geçici olarak kabul edilir: okulda
@@ -14,7 +19,47 @@ import { KAPI_ACIK } from './_ayar.js';
 
 export const COOKIE = 'gs_lis';
 export const HANDOFF = 'gs_devir';
+export const DENEME_IZ = 'gs_deneme';
 const DAY = 86400;
+
+/** Deneme süresi (gün): ortamda DENEME_GUN (1–30), yoksa 7. */
+export function denemeGun(env) {
+  const v = Number(env && env.DENEME_GUN);
+  return Number.isInteger(v) && v >= 1 && v <= 30 ? v : 7;
+}
+
+async function hmac(secret, data) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
+  return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** Yeni deneme çerezinin değeri ve bitişi. */
+export async function denemeDegeri(env, simdi = Date.now()) {
+  const bitis = simdi + denemeGun(env) * DAY * 1000;
+  const sir = env && env.DENEME_SIRRI;
+  return { deger: sir ? `d.${bitis}.${await hmac(sir, `d.${bitis}`)}` : `d.${bitis}`, bitis };
+}
+
+/** Deneme çerezini denetler: { ok, kind:'deneme', bilgi } ya da { ok:false, kesin:true, neden:'deneme' }. */
+async function denemeDurumu(env, value, simdi = Date.now()) {
+  const m = /^d\.(\d{13})(?:\.([A-Za-z0-9_-]{43}))?$/.exec(value);
+  const red = { ok: false, kesin: true, neden: 'deneme' };
+  if (!m) return red;
+  const sir = env && env.DENEME_SIRRI;
+  if (sir) {
+    if (!m[2]) return red;
+    const beklenen = await hmac(sir, `d.${m[1]}`);
+    if (beklenen.length !== m[2].length) return red;
+    let fark = 0;
+    for (let i = 0; i < beklenen.length; i += 1) fark |= beklenen.charCodeAt(i) ^ m[2].charCodeAt(i);
+    if (fark) return red;
+  }
+  const bitis = Number(m[1]);
+  // Süresi dolmuş ya da izin verilenden uzun (elle uzatılmış) deneme reddedilir.
+  if (bitis <= simdi || bitis > simdi + (denemeGun(env) * DAY + 3600) * 1000) return red;
+  return { ok: true, kind: 'deneme', bilgi: { bitis: new Date(bitis).toISOString() } };
+}
 
 export function numapApi(env) {
   return String((env && env.NUMAP_API) || 'https://getnumap.com/api').replace(/\/+$/, '');
@@ -85,6 +130,7 @@ export function hasGalaksay(body) {
  * Çerezi doğrular. Döner: { ok, kind, gecici?, bilgi? } ya da { ok:false, kesin:true } (çerez silinmeli).
  */
 export async function lisansDurumu(env, value, request) {
+  if (value && value.startsWith('d.')) return denemeDurumu(env, value);
   if (!value || (value[0] !== 'n' && value[0] !== 'a') || value[1] !== '.') return { ok: false, kesin: true };
   const kind = value[0] === 'n' ? 'numap' : 'aile';
   const secret = value.slice(2);

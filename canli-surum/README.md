@@ -168,3 +168,19 @@ Ayrıntı ve gerekçeler: [docs/GIRIS_VE_HESAP_MODELI.md](../docs/GIRIS_VE_HESAP
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.21.0-20261010-giris`. |
 
 Uygulama sırası: … → `lisans_kapisi.py` → `giris_erisim.py`.
+
+## 10 Ekim 2026 (2): deneme yolu, sınıf kodu, kilit süresi
+
+Ayrıntı: [docs/GIRIS_VE_HESAP_MODELI.md](../docs/GIRIS_VE_HESAP_MODELI.md) §9.
+
+| Dosya | Değişiklik |
+|---|---|
+| `functions/_lisans.js`, `functions/api/lisans/deneme.js` (yeni), `functions/oyna/_middleware.js` | Kapı açıkken 7 günlük hesapsız deneme (`gs_lis=d.<bitiş>`, cihaz başına bir kez, isteğe bağlı `DENEME_SIRRI` imzası, `DENEME_GUN`). Süresi dolunca `/giris?hata=deneme`. |
+| `site/giris.html`, `giris.js`, `giris.css` | "Önce denemek ister misiniz?" bölümü; denemedeki cihaz için "Denemeye dön"; kapı kapalıyken bölüm gizli. |
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` (`kaynak/WelcomeScreen.captain.js`) | Deneme bandı; sınıf kodu tuş takımı ve sınıf filtresi; "⚙️ Cihaz ayarları" (sınıflar, kodlar, kaptan atama, bu cihazda açık sınıf, kilit süresi). |
+| `site/oyna/galaksay-ek.js` | §10: kilit süresi kancası (`window.__gsIdleMs`, 5/10/15/30 dk). |
+| `site/gizlilik.html` | Deneme çerezleri ve cihazda saklanan sınıf kodları. |
+| `site/oyna/index.html` | `galaksay-ek.js?v=8`. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.22.0-20261010-sinif`. |
+
+İsteğe bağlı ortam değerleri (Cloudflare Pages → Ayarlar → Ortam değişkenleri): `DENEME_SIRRI` (gizli; deneme çerezini imzalar), `DENEME_GUN` (1–30).

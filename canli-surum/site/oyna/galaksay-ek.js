@@ -480,3 +480,23 @@ if ('serviceWorker' in navigator) {
     }
   } catch (e) { /* yok say */ }
 })();
+
+/* ── 10) Yetişkin paneli kilit süresi (10 Eki 2026) ────────────────────────────
+ * Panelin hareketsizlik kilidi süreyi window.__gsIdleMs'ten okur (kaynak/giris_merkezi.py). Süre giriş
+ * merkezindeki Cihaz ayarları → "Yetişkin paneli kilidi" ile seçilir: 5, 10, 15 ya da 30 dakika
+ * (localStorage galaksay_kilit_dk; geçersiz ya da yoksa 10). Okuma her panel açılışında yapılır.
+ */
+(function () {
+  'use strict';
+  var SECENEK = [5, 10, 15, 30];
+  try {
+    Object.defineProperty(window, '__gsIdleMs', {
+      configurable: true,
+      get: function () {
+        var dk = 10;
+        try { var v = Number(localStorage.getItem('galaksay_kilit_dk')); if (SECENEK.indexOf(v) >= 0) dk = v; } catch (e) { /* depolama kapalı */ }
+        return dk * 60000;
+      },
+    });
+  } catch (e) { /* tanımlanamadı: paket 10 dakikayı kullanır */ }
+})();

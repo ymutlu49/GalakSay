@@ -8,12 +8,34 @@
   function goster(msg, iyi) { uyari.textContent = msg; uyari.hidden = !msg; uyari.className = 'uyari' + (iyi ? ' iyi' : ''); }
   var hata = q.get('hata');
   if (hata === 'lisans') goster('Bu NuMap hesabında GalakSay lisansı yok. Lisans için kurumunuzun NuMap yöneticisine başvurun.');
+  else if (hata === 'deneme') goster('Deneme süreniz doldu. Devam etmek için NuMap hesabıyla girin ya da öğretmeninizden aile bağlantısı isteyin.');
   else if (hata === 'sso') goster('NuMap bağlantısı doğrulanamadı ya da süresi doldu. GalakSay\'ı NuMap\'ten yeniden açın ya da aşağıdan giriş yapın.');
 
-  // Lisansı zaten olan cihaz doğrudan oyuna geçer.
+  // Lisansı zaten olan cihaz doğrudan oyuna geçer. Denemedeki cihaz burada kalır (lisansla girmek için gelmiştir).
+  var denemeKutu = document.getElementById('deneme'), denemeBtn = document.getElementById('deneme-basla'), denemeMetin = document.getElementById('deneme-metin');
+  function gunKaldi(iso) { var ms = Date.parse(iso) - Date.now(); return ms > 0 ? Math.max(1, Math.ceil(ms / 864e5)) : 0; }
   fetch('/api/lisans/durum', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
-    if (d && d.lisans && !hata) location.replace(geri);
+    if (!d) return;
+    if (d.lisans && d.lisans.tur === 'deneme') {
+      denemeMetin.textContent = 'Bu cihaz deneme sürümünde: ' + gunKaldi(d.lisans.bitis) + ' gün kaldı. Lisansla girerseniz ilerleme aynen sürer.';
+      denemeBtn.textContent = 'Denemeye dön';
+      denemeBtn.setAttribute('data-donus', '1');
+      return;
+    }
+    if (d.lisans && !hata) { location.replace(geri); return; }
+    if (d.kapi === false) denemeKutu.hidden = true; // kapı kapalı: oyun zaten herkese açık
   }).catch(function () {});
+  denemeBtn.addEventListener('click', function () {
+    if (denemeBtn.getAttribute('data-donus')) { location.replace(geri); return; }
+    denemeBtn.disabled = true; goster('');
+    fetch('/api/lisans/deneme', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .then(jsonYanit).then(function (x) {
+        if (x.s === 200 && x.j.ok) { goster('Deneme başladı. GalakSay açılıyor…', true); location.replace(geri); return; }
+        denemeBtn.disabled = false;
+        if (x.j.kullanildi) { denemeBtn.hidden = true; }
+        goster(x.j.error || 'Deneme başlatılamadı.');
+      }).catch(function () { denemeBtn.disabled = false; goster('Bağlantı kurulamadı. İnternetinizi denetleyip yeniden deneyin.'); });
+  });
 
   // Giriş tarayıcıdan doğrudan NuMap'e yapılır (NuMap'in hatalı deneme sınırı bu cihaza uygulanır);
   // GalakSay sunucusu yalnız belirteci doğrulayıp HttpOnly lisans çerezini yazar.
