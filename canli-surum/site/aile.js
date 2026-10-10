@@ -7,12 +7,12 @@
   var token = (location.hash || '').slice(1);
   try { history.replaceState(null, '', location.pathname); } catch (e) { /* yok say */ }
   var durum = document.getElementById('durum'), uyari = document.getElementById('uyari');
-  function hata(msg) { durum.textContent = 'Bağlantı kullanılamadı.'; uyari.textContent = msg; uyari.hidden = false; }
+  function hata(msg) { durum.textContent = 'Bağlantı kullanılamadı.'; uyari.textContent = msg; uyari.hidden = false; document.getElementById('yol').hidden = false; }
   if (!token) {
     fetch('/api/lisans/durum', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.lisans && d.lisans.tur === 'aile') { location.replace('/oyna/'); return; }
       hata('Bu sayfa, öğretmeninizin gönderdiği bağlantıyla açılır (galaksay.com/aile#…). Bağlantıyı yeniden açın ya da öğretmeninizden yenisini isteyin.');
-    }).catch(function () { hata('Bağlantı eksik.'); });
+    }).catch(function () { hata('Bu sayfa, öğretmeninizin gönderdiği bağlantıyla açılır (galaksay.com/aile#…).'); });
     return;
   }
   fetch('/api/lisans/aile', {

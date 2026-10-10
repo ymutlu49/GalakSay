@@ -12,7 +12,8 @@
 // CaptainPicker.jsx ile aynı tasarımdır.
 //
 // Akış: açılış → (kaptan yoksa) "Yolculuğa Başla" → 3 adımlı kaptan oluşturma → oyun
-//                (kaptan varsa) "Devam et · son kaptan" → oyun | "Kaptanlar" → liste → oyun
+//                (tek kaptan) "Devam et · son kaptan" → oyun | "Kaptanlar" → liste → oyun
+//                (iki ve üzeri kaptan, ortak cihaz) "Kim oynuyor?" resim ızgarası → oyun | "Tümü" → liste
 // Şifreli profil seçilirse mevcut öğrenci seçiciye (şifre + kilit korumasıyla) gidilir.
 // Öğretmen · Ebeveyn girişi alt bağlantıdadır.
 import { r as React, j as J, N as listChildren, E as addChild, a1 as touchChild, a2 as getResumeInfo, a0 as hasPin, L as AVATARS, f as tt, z as getLang, $ as speechTag, p as C, t as TY, G as Logo,
@@ -50,7 +51,12 @@ const AGES = [
   { key: 'okuloncesi', icon: '🪐', tr: ['Okul öncesi', '5–6 yaş'], ku: ['Beriya dibistanê', '5–6 salî'], en: ['Preschool', 'age 5–6'] },
   { key: 'sinif1', icon: '⭐', tr: ['1. sınıf', '6–7 yaş'], ku: ['Pola 1.', '6–7 salî'], en: ['Grade 1', 'age 6–7'] },
   { key: 'sinif2', icon: '🚀', tr: ['2. sınıf', '7–8 yaş'], ku: ['Pola 2.', '7–8 salî'], en: ['Grade 2', 'age 7–8'] },
+  { key: 'sinif3', icon: '🛸', tr: ['3. sınıf ve üzeri', '8–10 yaş'], ku: ['Pola 3. û jortir', '8–10 salî'], en: ['Grade 3 and up', 'age 8–10'] },
 ];
+// Kaptan resimleri: paketin 12 resmine 12 ek. Kalabalık sınıfta okumayan çocuk kendini resminden bulur;
+// 12 resimle 20+ çocukta çakışma kaçınılmazdı. Kullanılan resim seçicide soluk ve sahibinin adıyla görünür.
+const PICS = [...AVATARS, ...['🐶', '🐼', '🦁', '🐸', '🐙', '🦄', '🐢', '🐝', '🦉', '🐬', '🌈', '🍀'].filter((a) => !AVATARS.includes(a))];
+const storedRole = () => { try { const r = localStorage.getItem('galaksay_adult_role'); return r === 'ogretmen' || r === 'ebeveyn' ? r : null; } catch { return null; } };
 const ageText = (g, i) => tt(g.tr[i], g.ku[i], g.en[i]);
 
 const card = { background: C.surface.card, border: `1px solid ${C.surface.divider}`, boxShadow: '0 2px 10px rgba(30,27,75,.06), 0 1px 2px rgba(30,27,75,.04)' };
@@ -113,6 +119,22 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdu
     ['⭐', tt('Her gün kısa bir görev', 'Her roj erkeke kurt', 'A short mission every day'), tt('10–15 dakika, haftada 3–4 gün', '10–15 xulek, heftê 3–4 roj', '10–15 minutes, 3–4 days a week')],
     ['🪐', tt('Gezegenleri keşfet', 'Gerstêrkan keşf bike', 'Explore the planets'), tt('Saymadan çarpmaya adım adım', 'Ji jimartinê heta lêkdanê gav bi gav', 'Step by step from counting to multiplying')],
   ];
+  // Ortak cihaz (iki ya da daha çok kaptan): büyük "Devam et · son kaptan" düğmesi sıradaki çocuğu bir
+  // öncekinin profiline sokuyordu (ilerleme, günlük görev ve NuMap'e giden veri karışır). Bu yüzden iki ve
+  // üzeri kaptanda merkez doğrudan "Kim oynuyor?" sorar; en son oynayanlar önde. Tek kaptanda "Devam et" kalır.
+  const shared = kids.length >= 2;
+  const WHO_MAX = 6;
+  const whoShown = kids.length > WHO_MAX ? kids.slice(0, WHO_MAX - 1) : kids;
+  const whoTile = (c) => {
+    const r = getResumeInfo(c.ns); const p = todayPlan(c.ns);
+    const st = p && p.done >= p.total ? '✅ ' + tt('Bugün tamam', 'Îro temam', 'Done today') : r && r.hasProgress ? `⭐ ${r.stars}` : tt('Yeni', 'Nû', 'New');
+    return hs('button', { key: c.ns, type: 'button', className: 'gs-tap', 'data-testid': `who-${c.ns}`, onClick: () => onResume(c), 'aria-label': `${c.name}${hasPin(c.ns) ? ' 🔒' : ''}`, style: { ...card, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '12px 6px 10px', borderRadius: 16, cursor: 'pointer', fontFamily: F, minWidth: 0 }, children: [
+      h('span', { 'aria-hidden': 'true', style: { width: 58, height: 58, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(124,58,237,.10)', fontSize: 34, lineHeight: 1 }, children: c.avatar || '🚀' }),
+      h('span', { style: { maxWidth: '100%', fontSize: 15, fontWeight: 900, color: C.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: c.name }),
+      h('span', { style: { fontSize: 11.5, fontWeight: 700, color: C.text.secondary, whiteSpace: 'nowrap' }, children: st + (hasPin(c.ns) ? ' 🔒' : '') }),
+    ] });
+  };
+  const newCaptainBtn = (full) => hs('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-new', onClick: onNew, 'aria-label': `${tt('Yeni Kaptan', 'Kaptanê Nû', 'New Captain')} (${tt('yetişkin onayıyla', 'bi pejirandina mezinan', 'with adult approval')})`, style: { ...card, minHeight: 54, borderRadius: 16, cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 800, color: C.text.primary, ...(full ? { width: '100%' } : {}) }, children: ['➕ ' + tt('Yeni Kaptan', 'Kaptanê Nû', 'New Captain'), h('span', { 'aria-hidden': 'true', style: { opacity: .65, fontSize: 13 }, children: ' 🔐' })] });
   return hs('div', { lang, style: page, children: [
     h('style', { children: CSS }),
     h(SpaceBackground, { starCount: 48 }),
@@ -129,7 +151,25 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdu
       // ── Çocuklar
       hs('section', { 'aria-label': tt('Çocuklar', 'Zarok', 'Children'), style: { marginBottom: 18 }, children: [
         label('🧒 ' + tt('Çocuklar · Oyna', 'Zarok · Bilîze', 'Children · Play')),
-        last
+        shared
+          ? hs('div', { 'data-testid': 'who-plays', style: { display: 'flex', flexDirection: 'column', gap: 10 }, children: [
+            hs('div', { style: { ...card, borderRadius: 22, padding: '14px 12px 12px' }, children: [
+              hs('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10 }, children: [
+                h('h2', { style: { margin: 0, fontSize: 21, fontWeight: 900, color: C.text.primary }, children: tt('Kim oynuyor?', 'Kî dilîze?', "Who's playing?") }),
+                speakBtn(() => speak('Kim oynuyor? Kendi resmine dokun!', 'Kî dilîze? Dest bide wêneyê xwe!', "Who's playing? Tap your picture!"), tt('Yönergeyi sesli dinle', 'Rêbernameyê bibihîze', 'Listen')),
+              ] }),
+              hs('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 8 }, children: [
+                ...whoShown.map(whoTile),
+                kids.length > whoShown.length ? hs('button', { key: '__all', type: 'button', className: 'gs-tap', 'data-testid': 'who-all', onClick: onCaptains, style: { ...card, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '12px 6px 10px', borderRadius: 16, cursor: 'pointer', fontFamily: F, border: '2px dashed rgba(124,58,237,.40)', background: 'rgba(255,255,255,.6)' }, children: [
+                  h('span', { 'aria-hidden': 'true', style: { fontSize: 30, lineHeight: 1.6 }, children: '👩‍🚀' }),
+                  h('span', { style: { fontSize: 14.5, fontWeight: 900, color: C.text.primary }, children: tt('Tümü', 'Hemû', 'All') }),
+                  h('span', { style: { fontSize: 11.5, fontWeight: 700, color: C.text.secondary }, children: `${kids.length} ${tt('kaptan', 'kaptan', 'captains')}` }),
+                ] }) : null,
+              ] }),
+            ] }),
+            newCaptainBtn(true),
+          ] })
+          : last
           ? hs('div', { style: { display: 'flex', flexDirection: 'column', gap: 10 }, children: [
             hs('button', { type: 'button', className: 'gs-cta gs-tap', 'data-testid': 'title-resume', onClick: () => onResume(last), 'aria-label': `${tt('Devam et', 'Bidomîne', 'Continue')}: ${last.name}`, style: { display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left', padding: '16px 18px', borderRadius: 22, border: 'none', background: C.gradient.accent, cursor: 'pointer', fontFamily: F }, children: [
               h('span', { style: { width: 62, height: 62, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.22)', fontSize: 36, lineHeight: 1 }, children: last.avatar || '🚀' }),
@@ -146,7 +186,7 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdu
             ] }),
             hs('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }, children: [
               hs('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-captains', onClick: onCaptains, style: { ...card, minHeight: 54, borderRadius: 16, cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 800, color: C.text.primary }, children: ['👩‍🚀 ' + tt('Kaptanlar', 'Kaptan', 'Captains'), h('span', { style: { opacity: .65, fontWeight: 700 }, children: ` · ${kids.length}` })] }),
-              h('button', { type: 'button', className: 'gs-tap', 'data-testid': 'title-new', onClick: onNew, style: { ...card, minHeight: 54, borderRadius: 16, cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 800, color: C.text.primary }, children: '➕ ' + tt('Yeni Kaptan', 'Kaptanê Nû', 'New Captain') }),
+              newCaptainBtn(false),
             ] }),
           ] })
           : hs('div', { style: { ...card, borderRadius: 22, padding: '16px 16px 18px' }, children: [
@@ -175,7 +215,9 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdu
           ] }),
           h('button', { type: 'button', onClick: () => { if (confirmOut) { setConfirmOut(false); onSignOut(); } else { setConfirmOut(true); setTimeout(() => setConfirmOut(false), 5000); } }, 'data-testid': 'hesap-cikis', style: { ...ghostBtn, minHeight: 40, fontSize: 13, ...(confirmOut ? { background: 'rgba(220,38,38,.10)', color: '#B91C1C' } : {}) }, children: confirmOut ? tt('Emin misiniz?', 'Hûn bawer in?', 'Are you sure?') : tt('Hesaptan çık', 'Ji hesabê derkeve', 'Sign out') }),
         ] }) : null,
-        h('p', { style: { margin: '10px 4px 0', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: hesap() ? tt('🔒 Yetişkin paneli e-posta doğrulamalı hesap ister. Çocuklar yetişkin paneline giremez; oyun verileri bu cihazda kalır.', '🔒 Panela mezinan hesabekî bi e-nameya piştrastkirî dixwaze. Zarok nikarin bikevin panela mezinan; daneyên lîstikê li vê cîhazê dimînin.', '🔒 The adult panel requires an e-mail-verified account. Children cannot open it; game data stays on this device.') : tt('🔒 İlk girişte bu cihaz için bir yönetici şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke rêveberiyê tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an admin password is created for this device. Children cannot open the adult panel; data stays on this device.') }),
+        h('p', { style: { margin: '10px 4px 0', fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: C.text.secondary }, children: hesap() ? tt('🔒 Yetişkin paneli e-posta doğrulamalı hesap ister. Çocuklar yetişkin paneline giremez; oyun verileri bu cihazda kalır.', '🔒 Panela mezinan hesabekî bi e-nameya piştrastkirî dixwaze. Zarok nikarin bikevin panela mezinan; daneyên lîstikê li vê cîhazê dimînin.', '🔒 The adult panel requires an e-mail-verified account. Children cannot open it; game data stays on this device.') : (hasAdminPin()
+          ? tt('🔒 Yetişkin paneli bu cihazın yetişkin şifresiyle açılır. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Panela mezinan bi şîfreya mezinan a vê cîhazê vedibe. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', "🔒 The adult panel opens with this device's adult password. Children cannot open it; data stays on this device.")
+          : tt('🔒 İlk girişte bu cihaz için bir yetişkin şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke mezinan tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an adult password is created for this device. Children cannot open the adult panel; data stays on this device.')) }),
       ] }),
 
       h('nav', { 'aria-label': tt('Bağlantılar', 'Girêdan', 'Links'), style: { marginTop: 22, marginBottom: 'auto', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12.5, fontWeight: 700 }, children: [
@@ -238,6 +280,8 @@ function Create({ onDone, onCancel }) {
   const [name, setName] = React.useState('');
   const [age, setAge] = React.useState('');
   const [saving, setSaving] = React.useState(false);
+  // Resim → o resmi kullanan kaptan(lar)ın adı (çakışmayı görünür kılmak için).
+  const [taken] = React.useState(() => { const m = {}; try { for (const c of listChildren()) if (c.avatar) m[c.avatar] = m[c.avatar] ? `${m[c.avatar]}, ${c.name}` : c.name; } catch { /* yok */ } return m; });
   // Sesli yönergeler: seslendirme yalnız istenince çalışır; okumayan çocuk için yetişkin burada açar.
   // Okul öncesi seçilince kendiliğinden açılır (yetişkin kapatabilir). Kayıtta flags.autoRead olarak durur.
   const [autoRead, setAutoRead] = React.useState(false);
@@ -274,7 +318,14 @@ function Create({ onDone, onCancel }) {
   ] });
   let body;
   if (step === 0) {
-    body = h('div', { role: 'radiogroup', 'aria-label': T[0], style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(84px, 1fr))', gap: 10, maxWidth: 430, margin: '0 auto' }, children: AVATARS.map((a) => h('button', { key: a, type: 'button', role: 'radio', 'aria-checked': avatar === a, 'data-testid': `avatar-${a}`, onClick: () => setAvatar(a), style: { ...opt(avatar === a), aspectRatio: '1 / 1', minHeight: 84, fontSize: 44, lineHeight: 1 }, children: a })) });
+    const anyTaken = PICS.some((a) => taken[a]);
+    body = hs('div', { children: [
+      h('div', { role: 'radiogroup', 'aria-label': T[0], style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(76px, 1fr))', gap: 10, maxWidth: 470, margin: '0 auto' }, children: PICS.map((a) => hs('button', { key: a, type: 'button', role: 'radio', 'aria-checked': avatar === a, 'aria-label': taken[a] ? `${a} (${taken[a]})` : a, 'data-testid': `avatar-${a}`, 'data-taken': taken[a] ? '1' : undefined, onClick: () => setAvatar(a), style: { ...opt(avatar === a), aspectRatio: '1 / 1', minHeight: 76, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4, opacity: taken[a] && avatar !== a ? .5 : 1 }, children: [
+        h('span', { style: { fontSize: 40, lineHeight: 1 }, children: a }),
+        taken[a] ? h('span', { style: { maxWidth: '100%', fontSize: 10.5, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: taken[a] }) : null,
+      ] })) }),
+      anyTaken ? h('p', { 'data-testid': 'avatar-taken-hint', style: { margin: '12px auto 0', maxWidth: 430, textAlign: 'center', fontSize: 13, lineHeight: 1.45, fontWeight: 700, color: C.text.secondary }, children: tt('Soluk resimler başka kaptanların. Yalnız sana ait bir resim seçersen kendini daha kolay bulursun.', 'Wêneyên kal yên kaptanên din in. Heke tu wêneyekî ku tenê yê te be hilbijêrî, tu ê xwe hêsantir bibînî.', 'Faded pictures belong to other captains. Pick one that is only yours and you will find yourself more easily.') }) : null,
+    ] });
   } else if (step === 1) {
     body = hs('div', { style: { textAlign: 'center' }, children: [
       h('input', { type: 'text', value: name, maxLength: NAME_MAX, autoFocus: true, autoComplete: 'off', placeholder: fallbackName, 'aria-label': T[1], 'data-testid': 'create-name', onChange: (ev) => setName(ev.target.value), onKeyDown: (ev) => { if (ev.key === 'Enter') next(); }, style: { ...card, width: '100%', boxSizing: 'border-box', fontSize: 30, fontWeight: 900, textAlign: 'center', padding: '16px 18px', borderRadius: 20, border: '2px solid rgba(124,58,237,.35)', color: C.text.primary, fontFamily: F, outline: 'none' } }),
@@ -354,7 +405,11 @@ function AdultCheck({ role, onDone, onCancel }) {
   const [code, setCode] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState('');
-  const parent = role === 'ebeveyn';
+  // İlk kurulumda rol bilinmiyorsa (doğrudan "Yolculuğa Başla"), şifreyi kuran yetişkin kim olduğunu seçer:
+  // öğretmenin sınıf tabletinde "Ebeveyn Şifresi" yazmaz; panel dili de bu seçime uyar.
+  const [who, setWho] = React.useState(role === 'ogretmen' || role === 'ebeveyn' ? role : null);
+  const askWho = mode === 'olustur' && !(role === 'ogretmen' || role === 'ebeveyn');
+  const parent = who === 'ebeveyn';
   const digits = (v) => v.replace(/\D/g, '').slice(0, 8);
   const pinInput = (id, value, set, testid, label) => [
     fieldLabel(label, id),
@@ -372,9 +427,11 @@ function AdultCheck({ role, onDone, onCancel }) {
       setErr(lk > 0 ? lockText(lk) : tt('Şifre yanlış.', 'Şîfre çewt e.', 'Incorrect password.'));
       return;
     }
+    if (askWho && !who) { setErr(tt('Önce kim olduğunuzu seçin: öğretmen · uzman ya da ebeveyn.', 'Pêşî hilbijêrin hûn kî ne: mamoste · pispor an dê û bav.', 'First choose who you are: teacher · specialist or parent.')); return; }
     if (p1.length < 4) { setErr(tt('Şifre 4-8 rakam olmalı (6 ve üzeri önerilir).', 'Divê şîfre 4-8 jimare be (6 û zêdetir tê pêşniyarkirin).', 'The password must be 4-8 digits (6 or more recommended).')); return; }
     if (weakPin(p1)) { setErr(tt('Bu şifre çok kolay tahmin edilir (tekrar, sıra veya yıl). Başka bir şifre seçin.', 'Ev şîfre pir hêsan tê texmînkirin. Şîfreyeke din hilbijêrin.', 'This password is too easy to guess (repeat, sequence or year). Choose another.')); return; }
     if (p1 !== p2) { setErr(tt('Şifreler uyuşmuyor.', 'Şîfre li hev nayên.', 'The passwords do not match.')); return; }
+    if (who) setAdultRole(who);
     setBusy(true);
     await setAdminPin(p1);
     const rc = await makeRecoveryCode();
@@ -382,7 +439,7 @@ function AdultCheck({ role, onDone, onCancel }) {
     if (rc) { setCode(rc); setMode('kod'); } else onDone();
   };
   const title = mode === 'kod' ? tt('Kurtarma kodunuz', 'Koda we ya vegerandinê', 'Your recovery code')
-    : mode === 'olustur' ? (parent ? tt('Ebeveyn Şifresi Oluştur', 'Şîfreya Dê û Bav Çêke', 'Create Parent Password') : tt('Yönetici Şifresi Oluştur', 'Şîfreya Rêveber Çêke', 'Create Admin Password'))
+    : mode === 'olustur' ? (who === 'ebeveyn' ? tt('Ebeveyn Şifresi Oluştur', 'Şîfreya Dê û Bav Çêke', 'Create Parent Password') : who === 'ogretmen' ? tt('Yönetici Şifresi Oluştur', 'Şîfreya Rêveber Çêke', 'Create Admin Password') : tt('Yetişkin Şifresi Oluştur', 'Şîfreya Mezinan Çêke', 'Create Adult Password'))
       : tt('Yetişkin Onayı', 'Pejirandina Mezinan', 'Adult Confirmation');
   const intro = mode === 'kod' ? tt('Şifrenizi unutursanız bu kod tek çıkış yoludur. Fotoğrafını çekin ya da güvenli bir yere not edin; bir daha gösterilmez.', 'Heke hûn şîfreya xwe ji bîr bikin, ev kod tekane rê ye. Wêneyê wê bikişînin an li cihekî ewle binivîsin; careke din nayê nîşandan.', 'If you forget your password, this code is the only way back. Take a photo or note it somewhere safe; it will not be shown again.')
     : mode === 'olustur' ? tt('Yeni kaptanı bir yetişkin ekler ve kaptan ona bağlanır. Önce bu cihaz için 4–8 rakamlı bir yetişkin şifresi belirleyin. Çocuklar bu şifreyi kullanmaz; kendi resimlerine dokunarak oynar.', 'Kaptanê nû ji aliyê mezinekî ve tê zêdekirin û bi wî ve tê girêdan. Pêşî ji bo vê cîhazê şîfreyeke mezinan a 4–8 jimareyî diyar bikin. Zarok vê şîfreyê bikar naynin; bi destdayîna wêneyê xwe dilîzin.', 'A new captain is added by an adult and linked to them. First set a 4–8 digit adult password for this device. Children never use it; they play by tapping their picture.')
@@ -396,6 +453,8 @@ function AdultCheck({ role, onDone, onCancel }) {
     ] });
   } else {
     body = hs('form', { onSubmit: (e) => { e.preventDefault(); submit(); }, children: [
+      askWho ? fieldLabel(tt('Bu cihazı kim kuruyor?', 'Kî vê cîhazê saz dike?', 'Who is setting up this device?')) : null,
+      askWho ? h('div', { role: 'radiogroup', 'aria-label': tt('Bu cihazı kim kuruyor?', 'Kî vê cîhazê saz dike?', 'Who is setting up this device?'), style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }, children: [['ogretmen', '👩‍🏫', tt('Öğretmen · Uzman', 'Mamoste · Pispor', 'Teacher · Specialist')], ['ebeveyn', '👪', tt('Ebeveyn', 'Dê û bav', 'Parent')]].map(([k, ic, lb]) => h('button', { key: k, type: 'button', role: 'radio', 'aria-checked': who === k, 'data-testid': `kurulum-rol-${k}`, onClick: () => { setWho(k); setErr(''); }, style: { minHeight: 52, borderRadius: 12, cursor: 'pointer', fontFamily: F, fontSize: 14, fontWeight: 800, border: who === k ? `2px solid ${C.accent.primary}` : '2px solid rgba(30,27,75,.12)', background: who === k ? 'rgba(124,58,237,.08)' : '#fff', color: C.text.primary }, children: `${ic} ${lb}` })) }) : null,
       ...pinInput('yetiskin-sifre', p1, setP1, 'yetiskin-sifre', mode === 'gir' ? tt('Yetişkin şifresi', 'Şîfreya mezinan', 'Adult password') : tt('Yeni şifre (4-8 rakam, 6+ önerilir)', 'Şîfreya nû (4-8 jimare, 6+ tê pêşniyarkirin)', 'New password (4-8 digits, 6+ recommended)')),
       ...(mode === 'olustur' ? pinInput('yetiskin-sifre2', p2, setP2, 'yetiskin-sifre2', tt('Şifreyi tekrar girin', 'Şîfreyê dîsa binivîsin', 'Enter it again')) : []),
       primaryBtn(mode === 'gir' ? tt('Onayla', 'Bipejirîne', 'Confirm') : tt('Şifre oluştur', 'Şîfre çêke', 'Create password'), submit, 'yetiskin-onayla'),
@@ -573,9 +632,8 @@ function CaptainEntry({ onStudent, onAdult, onPick }) {
     if (needAccount()) { setGate({ role, purpose: 'panel', then: 'adult' }); setView('account'); return; }
     onAdult && onAdult();
   };
-  const lastRole = () => { try { return localStorage.getItem('galaksay_adult_role') || 'ebeveyn'; } catch { return 'ebeveyn'; } };
   const newCaptain = () => {
-    const role = lastRole();
+    const role = storedRole(); // bilinmiyorsa şifre kurulurken sorulur
     setGate({ role, purpose: 'kurulum', then: 'create' });
     setView(needAccount() ? 'account' : 'adultcheck');
   };

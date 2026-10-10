@@ -153,3 +153,18 @@ Ayrıntı: [docs/NUMAP_BAGLANTISI.md](../docs/NUMAP_BAGLANTISI.md) §6.
 | `.github/workflows/deploy-live-snapshot.yml` | `lisans_kapisi` girdisi (kapali/acik); wrangler `canli-surum`'dan çalışır (`functions/` dahil). |
 
 Uygulama sırası: … → `giris_guvenligi.py` → `lisans_kapisi.py`.
+
+## 10 Ekim 2026: giriş ve oyuna erişim (ortak cihaz)
+
+Ayrıntı ve gerekçeler: [docs/GIRIS_VE_HESAP_MODELI.md](../docs/GIRIS_VE_HESAP_MODELI.md) §8.
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` (`kaynak/WelcomeScreen.captain.js`) | İki ve üzeri kaptanda merkezde "Kim oynuyor?" resim ızgarası; tek kaptanda "Devam et". Sihirbazda "3. sınıf ve üzeri". 24 kaptan resmi; kullanılan resim soluk ve sahibinin adıyla. İlk şifre kurulumunda "Bu cihazı kim kuruyor?". Yetişkin notu ve "Yeni Kaptan 🔐". |
+| `site/oyna/assets/TeacherLogin-oq4iBpwM.js` | `kaynak/giris_erisim.py`: ebeveyn girişinde 👪 simgesi. |
+| `site/oyna/galaksay-ek.js` | Rol tablosu: "Öğretmen / Uzman Girişi" → ebeveynde "Ebeveyn Girişi". |
+| `site/oyna/index.html` | `galaksay-ek.js?v=7`. |
+| `site/aile.html`, `site/aile.js` | Hatalı ya da eksik bağlantıda ne yapılacağı ve bağlantılar. |
+| `site/sw.js` | Sürüm etiketi `galaksay-v5.21.0-20261010-giris`. |
+
+Uygulama sırası: … → `lisans_kapisi.py` → `giris_erisim.py`.

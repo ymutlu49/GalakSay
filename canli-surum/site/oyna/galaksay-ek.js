@@ -154,6 +154,8 @@
     'Yeni yönetici şifresi (4-8 rakam, 6+ önerilir)': {
       ebeveyn: ['Yeni şifre (4-8 rakam, 6+ önerilir)', 'Şîfreya nû (4-8 jimare, 6+ tê pêşniyarkirin)', 'New password (4-8 digits, 6+ recommended)'] },
     'Yönetici şifresi': { ebeveyn: ['Ebeveyn şifresi', 'Şîfreya dê û bav', 'Parent password'] },
+    // Giriş ekranı başlığı: ebeveyn döşemesiyle açılınca "Öğretmen / Uzman Girişi" yazıyordu (10 Eki 2026).
+    'Öğretmen / Uzman Girişi': { ebeveyn: ['Ebeveyn Girişi', 'Têketina Dê û Bav', 'Parent Sign-In'] },
     'Yönetim Paneline Gir': { ebeveyn: ['Ebeveyn Paneline Gir', 'Bikeve Panela Dê û Bav', 'Open Parent Panel'] },
     '🔑 Yönetici girişi': { ebeveyn: ['🔑 Ebeveyn girişi', '🔑 Têketina dê û bav', '🔑 Parent sign-in'] },
     '← Yönetici girişi': { ebeveyn: ['← Ebeveyn girişi', '← Têketina dê û bav', '← Parent sign-in'] },

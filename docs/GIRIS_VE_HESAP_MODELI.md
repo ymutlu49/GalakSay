@@ -79,3 +79,66 @@ Aşağıdakiler tarayıcıda uçtan uca denendi:
 4. **Güvenlik ve KVKK:** Yetişkin doğrulanmış kimlikle kurulum yapar ve aydınlatma metnini onaylar. Çocuğa ait hiçbir kimlik bilgisi toplanmaz.
 
 **Uygulanan kural.** Hesap sistemi etkinken yeni kaptanı yalnız doğrulanmış bir yetişkin oluşturabilir, yetişkin paneli de hesap ister. Var olan kaptanlar ve oyun oynamak hesap gerektirmez.
+
+## 8. İkinci gözden geçirme (10 Ekim 2026): ortak cihaz ve oyuna erişim
+
+Canlı sürümdeki giriş yolları telefon ve masaüstünde baştan sona gezildi:
+- tanıtım sayfası,
+- giriş merkezi,
+- ilk kurulum,
+- kaptan oluşturma,
+- çocuk değiştirme,
+- öğretmen ve ebeveyn girişi,
+- NuMap girişi (`/giris`),
+- aile bağlantısı (`/aile`).
+
+### 8.1 Bulunan sorunlar
+
+| # | Sorun | Etkisi |
+|---|---|---|
+| 1 | Merkezdeki büyük "Devam et · son kaptan" düğmesi, cihazda birden çok kaptan olsa da en son oynayanı açıyordu. | Sınıf tabletinde sıradaki çocuk bir öncekinin profilinde oynar. İlerleme, günlük görev, öğretmen raporu ve NuMap'e giden veri karışır. Ölçme açısından en ciddi sorun budur. |
+| 2 | Kaptan oluşturma sihirbazında yalnız okul öncesi, 1. ve 2. sınıf vardı. Oyunun kendi yaş grubu "3. sınıf ve üzeri" eksikti. | 3. ve 4. sınıf öğrencisi 2. sınıf düzeyinden başlıyordu. Tanıtımdaki "5–10 yaş" ve "saymadan çarpmaya" ifadeleriyle çelişiyordu. |
+| 3 | 12 kaptan resmi vardı; kullanılan resimler seçicide ayırt edilmiyordu. | 20 ve üzeri çocuklu sınıfta resimler çakışır. Okumayan çocuk kendini resminden bulamaz. |
+| 4 | İlk kurulumda rol bilinmiyorsa "Ebeveyn Şifresi Oluştur" yazıyordu. | Sınıfı kuran öğretmen ebeveyn dilinde bir panelle karşılaşıyordu. |
+| 5 | "Ebeveyn" döşemesiyle açılan girişte başlık "Öğretmen / Uzman Girişi" ve simge 🧑‍🏫 idi. | Rol duyarlı dil başlıkta kırılıyordu. |
+| 6 | Yetişkin notu, şifre kurulduktan sonra da "İlk girişte şifre oluşturulur" diyordu. "Yeni Kaptan" düğmesi yetişkin onayı istediğini belirtmiyordu. | Yanlış beklenti oluşuyordu. Çocuk düğmeye basınca şifre ekranıyla karşılaşıyordu. |
+| 7 | `/aile` sayfası bağlantısız ya da hatalı açılınca yalnız "Bağlantı eksik." diyordu. | Ebeveyn için çıkmaz yoldu. |
+
+### 8.2 Yapılanlar
+
+| # | Çözüm |
+|---|---|
+| 1 | **İki ya da daha çok kaptanda merkez doğrudan "Kim oynuyor?" diye sorar.** En son oynayan altı kaptanın resmi ızgarada görünür. Her resimde ad ve bugünkü durum yazar: ✅ bugün tamam, ⭐ yıldız ya da "Yeni". Daha çok kaptan varsa "Tümü" kartı tam listeyi açar. Cihazda tek kaptan varsa "Devam et" kartı korunur; bu çoğunlukla ev kullanımıdır. |
+| 2 | Sihirbaza "🛸 3. sınıf ve üzeri · 8–10 yaş" eklendi. Oyunun `sinif3` grubudur. |
+| 3 | Resim sayısı 24'e çıktı. Kullanılan resim seçicide soluk görünür ve sahibinin adını taşır. Altında çocuğa yönelik kısa bir not var: "Yalnız sana ait bir resim seçersen kendini daha kolay bulursun." Seçim engellenmez. |
+| 4 | Rol bilinmiyorsa ilk şifre ekranı "Yetişkin Şifresi Oluştur" der ve "Bu cihazı kim kuruyor? Öğretmen · Uzman / Ebeveyn" diye sorar. Seçim zorunludur ve kaydedilir; başlık ve panel dili buna uyar. |
+| 5 | Ebeveyn girişinin başlığı "Ebeveyn Girişi", simgesi 👪 oldu. |
+| 6 | Şifre kurulduktan sonra not "Yetişkin paneli bu cihazın yetişkin şifresiyle açılır" der. "Yeni Kaptan" düğmesinde 🔐 işareti ve "yetişkin onayıyla" erişilebilir etiketi var. |
+| 7 | `/aile` hata durumunda ne yapılacağını söyler: bağlantıyı yeniden açın, bağlantının tamamını yapıştırın ya da yenisini isteyin. Ayrıca "GalakSay'ı bu cihazda aç" ve "Öğretmen girişi" bağlantıları gösterilir. |
+
+Dosyalar:
+- `canli-surum/kaynak/WelcomeScreen.captain.js` (1–4, 6)
+- `canli-surum/kaynak/giris_erisim.py` (5: simge)
+- `site/oyna/galaksay-ek.js` (5: başlık)
+- `site/aile.html` ve `site/aile.js` (7)
+
+### 8.3 Doğrulama
+
+Gerçek tarayıcıda, telefon (390 px) ve masaüstü (1280 px) boyutunda 26'şar uçtan uca denetim yapıldı:
+- rol sorusu ve zorunluluğu,
+- 24 resim ve çakışma notu,
+- 3. sınıf seçeneği,
+- tek kaptanda "Devam et", iki kaptanda "Kim oynuyor?",
+- ızgaradan doğru çocuğun açılması,
+- yedi kaptanda "Tümü" ve tam liste,
+- ebeveyn ve öğretmen başlıkları,
+- öğretmen şifresiyle panele giriş,
+- aile sayfasının yönlendirmesi.
+
+Sayfa hatası çıkmadı. Kurmancî ekranlarda taşma yok.
+
+### 8.4 Yaklaşım üzerine öneriler (uygulanmadı; karar gerektirir)
+
+- **Lisans kapısı açıldığında deneme yolu.** Kapı açıkken NuMap hesabı ya da aile daveti olmayan bir ebeveynin oyunu deneyebileceği bir yol yok. Kısa bir tanıtım oturumu düşünülebilir; örneğin tek gezegen ve ilerleme kaydı olmadan. Bu bir ürün kararıdır; kapı bugün kapalıdır.
+- **Sınıf kodu.** 25 ve üzeri çocuklu sınıflarda resim ızgarası uzar. NuMap öğrencisiyle açma (`?ogrenci=`) bugün tek öğrenci için var. Öğretmenin tahtaya yazdığı kısa bir sınıf kodu ve ardından o sınıfın resim ızgarası, ortak cihazı daha da kolaylaştırır. Bu sunucu tarafı ve KVKK değerlendirmesi ister.
+- **Kilit süresinin ayarlanması.** Yetişkin paneli 10 dakikada kilitleniyor. Ayarlardan seçilebilir yapılabilir.
