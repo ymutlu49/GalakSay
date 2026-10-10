@@ -184,3 +184,19 @@ Ayrıntı: [docs/GIRIS_VE_HESAP_MODELI.md](../docs/GIRIS_VE_HESAP_MODELI.md) §9
 | `site/sw.js` | Sürüm etiketi `galaksay-v5.22.0-20261010-sinif`. |
 
 İsteğe bağlı ortam değerleri (Cloudflare Pages → Ayarlar → Ortam değişkenleri): `DENEME_SIRRI` (gizli; deneme çerezini imzalar), `DENEME_GUN` (1–30).
+
+## 10 Ekim 2026 (3): Google Play (TWA) hazırlığı
+
+Ayrıntı ve adımlar: [docs/play-store/README.md](../docs/play-store/README.md).
+
+| Dosya | Değişiklik |
+|---|---|
+| `site/oyna/galaksay-ek.js` | §11 uygulama kipi (`?kaynak=play`, Android uygulamasından açılış ya da ana ekran kipi; `window.__gsUygulama`). |
+| `site/oyna/assets/WelcomeScreen-BD-9Cs8v.js` (`kaynak/WelcomeScreen.captain.js`) | Uygulama kipinde merkezin alt bağlantıları gizli; bağlantılar Cihaz ayarları → "Bilgi ve yasal metinler" bölümünde (yetişkin şifreli). |
+| `site/oyna/assets/GalakSay-hIWssnXL.js` | `kaynak/play_magaza.py`: sınıf seçme ekranındaki getnumap.com düğmesi uygulama kipinde gizli. |
+| `site/manifest.webmanifest`, `site/img/magaza/*.webp` | Açıklamada "tarama" iddiası yok; 4 ekran görüntüsü. |
+| `site/.well-known/assetlinks.json`, `site/_headers` | Paket `com.galaksay.oyun` (parmak izleri Play Console'dan sonra eklenecek); CSP'den kullanılmayan Cloudflare analitik izinleri çıkarıldı. |
+| `site/gizlilik.html` | "Android uygulaması (Google Play)" bölümü. |
+| `site/oyna/index.html`, `site/sw.js` | `galaksay-ek.js?v=9`; sürüm etiketi `galaksay-v5.23.0-20261010-play`. |
+
+Uygulama sırası: … → `giris_erisim.py` → `play_magaza.py`.

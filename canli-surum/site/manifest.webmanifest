@@ -1,7 +1,7 @@
 {
   "name": "Galaksay — Matematik Öğrenme Oyunu",
   "short_name": "Galaksay",
-  "description": "Diskalkuli riski taşıyan ya da matematikte zorlanan çocuklar için uzay temalı matematik öğrenme ve tarama oyunu.",
+  "description": "5–10 yaş çocuklar için uzay temalı matematik öğrenme oyunu: sayma, sayı hissi, toplama-çıkarma ve fazlası. Matematikte zorlanan çocuklar için kısa, kademeli günlük görevler. Türkçe ve Kurmancî; reklamsız, çevrimdışı çalışır.",
   "lang": "tr",
   "dir": "ltr",
   "id": "/",
@@ -11,18 +11,72 @@
   "orientation": "portrait",
   "background_color": "#FAF9FF",
   "theme_color": "#FAF9FF",
-  "categories": ["education", "kids", "games"],
+  "categories": [
+    "education",
+    "kids",
+    "games"
+  ],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
     {
       "name": "Oyuna Başla",
       "short_name": "Başla",
       "url": "/oyna/",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/img/magaza/tel-1-kim-oynuyor.webp",
+      "sizes": "540x1080",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Kim oynuyor? Çocuk kendi resmine dokunarak girer"
+    },
+    {
+      "src": "/img/magaza/tel-2-cocuk-merkezi.webp",
+      "sizes": "540x1080",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Bugünün görevi ve gezegenler"
+    },
+    {
+      "src": "/img/magaza/tel-3-gorev.webp",
+      "sizes": "540x1080",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Kısa, görsel matematik görevleri"
+    },
+    {
+      "src": "/img/magaza/tel-5-sinif-kodu.webp",
+      "sizes": "540x1080",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Sınıf kodu ile ortak cihazda doğru sınıf"
     }
   ]
 }

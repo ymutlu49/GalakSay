@@ -125,6 +125,16 @@ function yeniKod(kullanilan) {
 // Deneme sürümü: lisans kapısı açıkken /api/lisans/durum { lisans: { tur: 'deneme', bitis } } döner.
 function denemeGun(bitis) { const ms = Date.parse(bitis) - Date.now(); return ms > 0 ? Math.max(1, Math.ceil(ms / 864e5)) : 0; }
 
+// Uygulama kipi (Google Play / ana ekran; galaksay-ek.js §11): çocuk ekranlarında site bağlantısı yok.
+const uygulamaKipi = () => { try { return !!(window.__gsUygulama && window.__gsUygulama()); } catch { return false; } };
+const SITE_BAGLANTILARI = () => [
+  ['/kilavuz.html', '📘 ' + tt('Kılavuz', 'Rêber', 'Guide')],
+  ['/gizlilik.html', '🔒 ' + tt('Gizlilik ve aydınlatma', 'Nepenî û agahdarî', 'Privacy notice')],
+  ['/kullanim-sartlari.html', '📄 ' + tt('Kullanım şartları', 'Mercên bikaranînê', 'Terms of use')],
+  ['/erisilebilirlik.html', '♿ ' + tt('Erişilebilirlik', 'Gihîştin', 'Accessibility')],
+  ['/', '🌐 ' + tt('Tanıtım sayfası', 'Rûpela nasandinê', 'About page')],
+];
+
 function takeLockedNote() { try { const v = sessionStorage.getItem('gs_locked'); sessionStorage.removeItem('gs_locked'); return v === '1'; } catch { return false; } }
 
 function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdultRole, account, onSignOut, sinif, hasClasses, allCount, onKod, onSinifDegistir, onAyarlar, deneme }) {
@@ -269,7 +279,7 @@ function Title({ kids, lang, onLang, onResume, onCaptains, onNew, onAdult, onAdu
           : tt('🔒 İlk girişte bu cihaz için bir yetişkin şifresi oluşturulur. Çocuklar yetişkin paneline giremez; veriler bu cihazda kalır.', '🔒 Di têketina yekem de ji bo vê cîhazê şîfreyeke mezinan tê çêkirin. Zarok nikarin bikevin panela mezinan; dane li vê cîhazê dimînin.', '🔒 On first sign-in an adult password is created for this device. Children cannot open the adult panel; data stays on this device.')) }),
       ] }),
 
-      h('nav', { 'aria-label': tt('Bağlantılar', 'Girêdan', 'Links'), style: { marginTop: 22, marginBottom: 'auto', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12.5, fontWeight: 700 }, children: [
+      uygulamaKipi() ? h('div', { style: { marginBottom: 'auto', height: 8 } }) : h('nav', { 'aria-label': tt('Bağlantılar', 'Girêdan', 'Links'), 'data-testid': 'title-baglantilar', style: { marginTop: 22, marginBottom: 'auto', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '4px 16px', fontSize: 12.5, fontWeight: 700 }, children: [
         ['/', tt('Tanıtım', 'Nasandin', 'About')], ['/kilavuz.html', tt('Kılavuz', 'Rêber', 'Guide')], ['/gizlilik.html', tt('Gizlilik', 'Nepenî', 'Privacy')], ['/erisilebilirlik.html', tt('Erişilebilirlik', 'Gihîştin', 'Accessibility')],
       ].map(([href, t]) => h('a', { key: href, href, style: { color: C.text.secondary, textDecoration: 'none', padding: '8px 2px' }, children: t })) }),
     ] }),
@@ -433,6 +443,10 @@ function Ayarlar({ onBack }) {
           h('button', { type: 'submit', 'data-testid': 'sinif-ekle', style: { flex: '1 1 110px', height: 50, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: F, fontSize: 15, fontWeight: 900, color: '#fff', background: C.gradient.accent }, children: '➕ ' + tt('Sınıf ekle', 'Pol zêde bike', 'Add class') }),
         ] }),
         hata ? h('p', { role: 'alert', 'data-testid': 'sinif-hata', style: { margin: '8px 0 0', fontSize: 13.5, fontWeight: 800, color: '#B91C1C' }, children: hata }) : null,
+      ]),
+      section('ayar-bilgi', '📄 ' + tt('Bilgi ve yasal metinler', 'Agahî û nivîsên qanûnî', 'Information and legal texts'), [
+        small(tt('Bu bağlantılar yetişkinler içindir; uygulamada çocuk ekranlarında gösterilmez.', 'Ev girêdan ji bo mezinan in; di sepanê de li ser ekranên zarokan nayên nîşandan.', 'These links are for adults; in the app they are not shown on children’s screens.')),
+        h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 6 }, children: SITE_BAGLANTILARI().map(([href, t]) => h('a', { key: href, href, 'data-testid': `ayar-link-${href.replace(/[^a-z]/g, '') || 'kok'}`, style: { display: 'flex', alignItems: 'center', minHeight: 44, padding: '0 12px', borderRadius: 10, background: 'rgba(30,27,75,.04)', color: C.text.primary, fontSize: 14, fontWeight: 800, textDecoration: 'none' }, children: t })) }),
       ]),
       section('ayar-kilit', '🔒 ' + tt('Yetişkin paneli kilidi', 'Kilîda panela mezinan', 'Adult panel lock'), [
         small(tt('Yetişkin paneli bu süre boyunca dokunulmazsa kendiliğinden kapanır ve şifre yeniden istenir. Çocuğun oyun oturumu bu kilitten etkilenmez. Seçim yeni girişte geçerli olur.', 'Heke di vê demê de dest li panela mezinan neyê dayîn, ew bixwe tê girtin û şîfre dîsa tê xwestin. Danişîna lîstikê ya zarokê ji vê kilîdê bandor nabe. Hilbijartin di têketina nû de derbas dibe.', 'If the adult panel is not touched for this long it closes by itself and asks for the password again. The child’s game session is not affected. The choice applies from the next sign-in.')),

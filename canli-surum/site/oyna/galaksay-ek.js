@@ -500,3 +500,32 @@ if ('serviceWorker' in navigator) {
     });
   } catch (e) { /* tanımlanamadı: paket 10 dakikayı kullanır */ }
 })();
+
+/* ── 11) Uygulama kipi: Google Play (TWA) ve ana ekrana eklenmiş uygulama (10 Eki 2026) ──────────
+ * Play Store paketi oyunu /oyna/?kaynak=play ile açar. Bu kipte çocuğun görebileceği ekranlarda site
+ * dışına ya da tanıtım sayfalarına giden bağlantı gösterilmez (Google Play aile politikası: dış
+ * bağlantılar yetişkin kapısının arkasında). Bağlantılar yetişkin şifreli Cihaz ayarlarında durur.
+ * Kip, oturum boyunca (sessionStorage) ve ana ekrandan açılan uygulamada (display-mode) geçerlidir;
+ * aynı cihazda tarayıcıdan açılan galaksay.com etkilenmez.
+ */
+(function () {
+  'use strict';
+  var KEY = 'galaksay_uygulama';
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get('kaynak') === 'play') {
+      sessionStorage.setItem(KEY, 'play');
+      q['delete']('kaynak');
+      var rest = q.toString();
+      history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+    } else if (document.referrer && document.referrer.indexOf('android-app://') === 0) {
+      sessionStorage.setItem(KEY, 'play');
+    }
+  } catch (e) { /* depolama kapalı */ }
+  window.__gsUygulama = function () {
+    try {
+      if (sessionStorage.getItem(KEY) === 'play') return true;
+      return !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    } catch (e) { return false; }
+  };
+})();
